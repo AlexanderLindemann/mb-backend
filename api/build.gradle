@@ -1,0 +1,6 @@
+
+
+dependencies {
+    implementation ("ru.smartdeal:common-api:$smartdeal_dependencies_version")
+    implementation ('org.springframework.boot:spring-boot-starter-web')
+}

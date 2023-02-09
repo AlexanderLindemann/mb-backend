@@ -1,0 +1,17 @@
+//https://docs.gradle.org/current/userguide/pmd_plugin.html
+
+/**
+ *  {@link org.gradle.api.plugins.quality.PmdExtension}
+ */
+
+apply plugin: 'pmd'
+
+pmd {
+    ruleSets = ["${rootProject.projectDir}/pmd-ruleset.xml"]
+//    rulePriority = 5
+    consoleOutput = true
+
+    toolVersion = "6.34.0"
+    ignoreFailures = (project.findProperty('ignorePmdFailures') ?: 'false').toBoolean()
+    reportsDir = new File(rootProject.projectDir.getAbsolutePath() + "/target/pmd-reports/" + project.name)
+}

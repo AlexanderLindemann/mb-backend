@@ -1,0 +1,43 @@
+plugins {
+    id 'org.springframework.boot' version "$spring_boot_version"
+    id "com.gorylenko.gradle-git-properties" version "$gradle_git_version"
+}
+
+apply from: "${rootProject.projectDir}/gradle/sd_plugins/docker.gradle"
+
+springBoot {
+    buildInfo()
+}
+
+dependencies {
+    implementation project(":api")
+
+    implementation "ru.smartdeal:common-security:$smartdeal_dependencies_version"
+    implementation "ru.smartdeal:common-web:$smartdeal_dependencies_version"
+
+    implementation "ru.smartdeal:attachment-api:$smartdeal_dependencies_version"
+
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server'
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+    implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
+    implementation "org.springframework.cloud:spring-cloud-starter-netflix-eureka-client"
+
+    implementation 'org.springframework.security:spring-security-config'
+    implementation 'org.springframework.security:spring-security-web'
+
+    implementation 'org.liquibase:liquibase-core'
+    runtimeOnly 'org.postgresql:postgresql'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+}
+
+// Customize Git properties plugin.
+gitProperties {
+    // Change date format in git.properties file.
+    dateFormat = "yyyy-MM-dd HH:mm:ss"
+    dateFormatTimeZone = 'GMT'
+}

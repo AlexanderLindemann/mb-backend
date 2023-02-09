@@ -1,0 +1,100 @@
+
+def pushContainer(Project project, String localImageName, String remoteImageName, String imageVersion) {
+    String remoteImage = getRemoteImageName(project, remoteImageName, imageVersion)
+
+    println "Push '${localImageName}' as '${remoteImage}'"
+    execCommandNoOutput(['docker', 'tag', localImageName, remoteImage])
+    execCommandNoOutput(['docker', 'push', remoteImage])
+    execCommandNoOutput(['docker', 'rmi', remoteImage])
+}
+
+def getRemoteImageName(Project project, String imageName, String imageVersion) {
+    String dockerRepositoryUrl = project.findProperty("docker.repository.url")
+    return "${dockerRepositoryUrl}/${imageName}:${imageVersion}"
+}
+
+if (tasks.findByName('bootJar')) {
+
+    String dockerImageName = project.findProperty("docker.image.name") ?: project.name
+    String localImage = "${dockerImageName}:latest"
+
+    String dockerImageVersionDetailed = project.ext."build_version"
+    String dockerImageVersionShort = project_version
+
+    bootJar {
+        archiveName = archiveFileName = "${project.name}.jar"
+    }
+
+    task copyJarToDocker(type: Copy) {
+        group = 'docker'
+
+        from layout.buildDirectory.dir("libs/${project.name}.jar")
+        into layout.projectDirectory.dir("docker")
+
+        dependsOn bootJar
+    }
+    clean {
+        delete "${projectDir}/docker/${project.name}.jar"
+    }
+
+    task buildDocker(type: Exec) {
+        group = 'docker'
+
+        workingDir("${projectDir}/docker")
+        commandLine 'docker', 'image', 'build',
+                '--tag', dockerImageName,
+                '.'
+        dependsOn copyJarToDocker
+    }
+
+
+    /**
+     * docker login nexus-snapshot.practus.ru
+     */
+    task dockerImagePushDetailed() {
+        group = 'docker'
+
+        doFirst {
+            pushContainer(project, localImage, dockerImageName, dockerImageVersionDetailed)
+        }
+
+        dependsOn(buildDocker)
+    }
+
+    /**
+     * docker login nexus-snapshot.practus.ru
+     */
+    task dockerImagePushShort() {
+        group = 'docker'
+
+        doFirst {
+            pushContainer(project, localImage, dockerImageName, dockerImageVersionShort)
+        }
+
+        dependsOn(buildDocker)
+    }
+
+    task dockerContainerStop(type: Exec) {
+        group = 'docker'
+        commandLine 'docker', 'stop', project.name
+        ignoreExitValue true    //do not fail if container does not exist
+    }
+
+    task dockerContainerRemove(type: Exec) {
+        group = 'docker'
+        commandLine 'docker', 'container', 'rm', project.name
+        dependsOn dockerContainerStop
+        ignoreExitValue true    //do not fail if container does not exist
+    }
+
+    task dockerContainerStart(type: Exec) {
+        group = 'docker'
+        commandLine 'docker', 'run', '-d',
+//                '--rm',
+                '--name', project.name,
+                project.name
+        dependsOn(dockerContainerRemove)
+        dependsOn(buildDocker)
+    }
+
+}

@@ -1,0 +1,4 @@
+databaseChangeLog:
+  - include:
+      file: 20230209_2033-profile_tables.xml
+      relativeToChangelogFile: true

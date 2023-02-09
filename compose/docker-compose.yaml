@@ -1,0 +1,99 @@
+version: '3.8'
+
+services:
+
+  postgres:
+    container_name: mb-postgres-${INSTANCE_ID}
+    image: ${IMAGE_PREFIX_SD}sd-postgres:${POSTGRES_VERSION}
+    healthcheck:
+      interval: 30s
+      retries: 3
+      timeout: 10s
+    ports:
+      - ${INSTANCE_PORT_PART}01:5432
+    volumes:
+      - ${INSTANCE_DIR}/postgres/data:/var/lib/postgresql/data
+      - ${INSTANCE_DIR}/postgres/mounted-init-data:/init-dump/mounted/
+    deploy:
+      resources:
+        limits:
+          cpus: 1
+          memory: 384M
+
+  discovery:
+    container_name: mb-discovery-${INSTANCE_ID}
+    image: ${IMAGE_PREFIX_SD}discovery:${DISCOVERY_VERSION}
+    healthcheck:
+      start_period: 10s
+      interval: 20s
+      retries: 3
+      timeout: 10s
+    ports:
+      - ${INSTANCE_PORT_PART}02:7001 #http
+    volumes:
+      - ${INSTANCE_DIR}/logs/discovery:/app/logs
+    deploy:
+      resources:
+        limits:
+          cpus: 1
+          memory: 384M
+
+
+  attachment:
+    container_name: mb-attachment-${INSTANCE_ID}
+    image: ${IMAGE_PREFIX_SD}attachment:${ATTACHMENT_VERSION}
+    healthcheck:
+      start_period: 20s
+      interval: 20s
+      retries: 3
+      timeout: 10s
+    ports:
+      - ${INSTANCE_PORT_PART}03:7004 #http
+    environment:
+      - APP_ARGS=${EUREKA_URL} --spring.active.profiles=actuator,no-config-server --spring.datasource.url=jdbc:postgresql://postgres:5432/mb_attachment --spring.dataSource.username=mb_attachment --spring.datasource.password=mb_attachment --spring.profiles.active=no-config-service --spring.cloud.config.discovery.enabled=false --spring.liquibase.enabled=true
+    volumes:
+      - ${INSTANCE_DIR}/logs/attachment:/app/logs
+      - ${INSTANCE_DIR}/files:/app/files
+    deploy:
+      resources:
+        limits:
+          cpus: 1
+          memory: 384M
+
+
+  backend:
+    container_name: mb-backend-${INSTANCE_ID}
+    image: ${IMAGE_PREFIX}mb-backend:${BACKEND_VERSION}
+    healthcheck:
+      start_period: 20s
+      interval: 20s
+      retries: 3
+      timeout: 10s
+    ports:
+      - ${INSTANCE_PORT_PART}04:8080 #http
+    environment:
+      - APP_ARGS=${EUREKA_URL} --spring.datasource.url=jdbc:postgresql://postgres:5432/mortgage_broker --spring.dataSource.username=mortgage_broker --spring.datasource.password=mortgage_broker
+    volumes:
+      - ${INSTANCE_DIR}/logs/backend:/app/logs
+    deploy:
+      resources:
+        limits:
+          cpus: 1
+          memory: 384M
+
+  frontend:
+    container_name: mb-frontend-${INSTANCE_ID}
+    image: ${IMAGE_PREFIX}mb-frontend:${FRONTEND_VERSION}
+    healthcheck:
+      interval: 30s
+      retries: 3
+      timeout: 10s
+    ports:
+      - ${INSTANCE_PORT_PART}00:80
+    volumes:
+      - ${INSTANCE_DIR}/logs/frontend:/var/log/nginx
+    deploy:
+      resources:
+        limits:
+          cpus: 1
+          memory: 32M

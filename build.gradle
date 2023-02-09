@@ -1,0 +1,104 @@
+plugins {
+    id 'io.spring.dependency-management' version '1.0.10.RELEASE'
+}
+
+String userId = execCommand(['whoami']).replaceAll("\\\\|@|_", "-")
+println "Set 'user_id': ${userId}"
+project.ext."user_id" = userId
+
+String buildVersion = project.findProperty('build.version')
+if (!buildVersion) {
+    String datePart = new Date().format('yyMMdd-HHmmss')
+    String commitPart = execCommand(["git", "rev-parse", "--short", "HEAD"])
+    String branchPart = execCommand(["git", "branch", "--show-current"])
+    String userPart = project.ext."user_id"
+
+    buildVersion = "${project_version}_${userPart}_${datePart}_${commitPart}_${branchPart}"
+}
+println "Set 'build_version': ${buildVersion}"
+project.ext."build_version" = buildVersion
+
+subprojects {
+    project.ext."build_version" = rootProject.ext."build_version"
+    project.ext."user_id" = rootProject.ext."user_id"
+
+    buildscript {
+        repositories {
+            maven {
+                url "https://plugins.gradle.org/m2/"
+            }
+        }
+        dependencies {
+            classpath "io.spring.gradle:dependency-management-plugin:$spring_dependency_management_version"
+        }
+    }
+
+    group = 'ru.smartdeal'
+    version = project.ext."build_version"
+
+    apply plugin: 'java'
+    apply plugin: 'java-library'
+    apply plugin: 'io.spring.dependency-management'
+
+    apply from: "${rootProject.projectDir}/gradle/sd_plugins/pmd.gradle"
+    apply from: "${rootProject.projectDir}/gradle/sd_plugins/lombok.gradle"
+    apply from: "${rootProject.projectDir}/gradle/sd_plugins/mapstruct.gradle"
+
+    sourceCompatibility = '11'
+
+    compileJava.options.encoding = 'UTF-8'
+    compileTestJava.options.encoding = 'UTF-8'
+
+    repositories {
+        maven {
+            credentials {
+                username "$practusUser"
+                password "$practusPassword"
+            }
+            url "https://nexus.practus.ru/repository/sd-maven-snapshot"
+        }
+    }
+
+    dependencies {
+        testImplementation('org.springframework.boot:spring-boot-starter-test') {
+            exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
+        }
+    }
+
+    repositories {
+        mavenCentral()
+    }
+
+    test {
+        useJUnitPlatform()
+    }
+
+    configurations {
+        compileOnly {
+            extendsFrom annotationProcessor
+        }
+    }
+
+    dependencyManagement {
+        imports {
+            mavenBom("org.springframework.boot:spring-boot-dependencies:${spring_boot_version}")
+            mavenBom("org.springframework.cloud:spring-cloud-dependencies:${spring_cloud_version}")
+        }
+    }
+
+}
+
+String execCommand(List<String> command) {
+    def stdout = new ByteArrayOutputStream()
+    exec {
+        commandLine command
+        standardOutput = stdout;
+    }
+    return "${stdout}".trim()
+}
+
+void execCommandNoOutput(List<String> command) {
+    exec {
+        commandLine command
+    }
+}

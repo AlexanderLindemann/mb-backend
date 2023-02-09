@@ -1,0 +1,39 @@
+server:
+  port: 8080
+spring:
+  application:
+    name: mbroker
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/mortgage_broker
+    username: mortgage_broker
+    password: mortgage_broker
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: https://dev.smartdeal.pro/api/v1/token/public-key
+          jws-algorithms: RS384
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:7001/eureka/
+
+#https://cloud.spring.io/spring-cloud-netflix/multi/multi_spring-cloud-feign.html
+feign:
+  client:
+    config:
+      default:
+        connectTimeout: 5000
+        readTimeout: 180000
+        loggerLevel: FULL
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: always
+

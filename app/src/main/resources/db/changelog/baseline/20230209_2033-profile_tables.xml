@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+		http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.6.xsd">
+
+    <changeSet id="20230209_2033-create_table_profile" author="unknown">
+        <createTable tableName="profile">
+            <column name="id" type="bigserial">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="organization_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="timestamp">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_by" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    
+    <changeSet id="20230209_2135-create_table_attachment" author="unknown">
+        <createTable tableName="attachment">
+            <column name="id" type="bigserial">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="name" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="size_bytes" type="integer">
+                <constraints nullable="false"/>
+            </column>
+            <column name="external_storage_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="timestamptz">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="20230209_2135-create_table_profile_attachment" author="unknown">
+        <createTable tableName="profile_attachment">
+            <column name="profile_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="attachment_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <addPrimaryKey tableName="profile_attachment" columnNames="profile_id,attachment_id"/>
+
+        <addForeignKeyConstraint baseTableName="profile_attachment" baseColumnNames="profile_id"
+                                 constraintName="profile_attachment_profile_id_fk_const"
+                                 referencedTableName="profile" referencedColumnNames="id"/>
+        <createIndex tableName="profile_attachment" indexName="profile_attachment_profile_id_fk_idx">
+            <column name="profile_id"/>
+        </createIndex>
+
+        <addForeignKeyConstraint baseTableName="profile_attachment" baseColumnNames="attachment_id"
+                                 constraintName="profile_attachment_attachment_id_fk_const"
+                                 referencedTableName="attachment" referencedColumnNames="id"/>
+        <createIndex tableName="profile_attachment" indexName="profile_attachment_attachment_id_fk_idx">
+            <column name="attachment_id"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet id="20230209_2135-create_table_profile_base_info" author="unknown">
+        <createTable tableName="profile_base_info">
+            <column name="id" type="bigserial">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="profile_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="fio" type="varchar(255)"/>
+            <column name="property_price" type="numeric"/>
+            <column name="mortgage_sum" type="numeric"/>
+            <column name="first_pay" type="numeric"/>
+            <column name="duration_months" type="integer"/>
+            <column name="type" type="varchar(255)"/>
+        </createTable>
+
+        <addForeignKeyConstraint baseTableName="profile_base_info" baseColumnNames="profile_id"
+                                 constraintName="profile_base_info_profile_id_fk_const"
+                                 referencedTableName="profile"
+                                 referencedColumnNames="id"/>
+
+        <createIndex tableName="profile_base_info" indexName="profile_base_info_profile_id_fk_idx">
+            <column name="profile_id"></column>
+        </createIndex>
+    </changeSet>
+
+</databaseChangeLog>
