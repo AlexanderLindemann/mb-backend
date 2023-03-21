@@ -1,12 +1,11 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <databaseChangeLog
         xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
 		http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.6.xsd">
 
-    <changeSet id="create_table_banks" author="a_lindemann">
-        <createTable tableName="banks">
+    <changeSet id="create_table_bank" author="a_lindemann">
+        <createTable tableName="bank">
             <column name="id" type="uuid">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
@@ -19,23 +18,41 @@
         </createTable>
     </changeSet>
 
-    <changeSet id="create_table_bank_contacts" author="a_lindemann">
-        <createTable tableName="bank_contacts">
+    <changeSet id="create_table_bank_contact" author="a_lindemann">
+        <createTable tableName="bank_contact">
             <column name="id" type="uuid">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
-            <column name="employee_name" type="varchar(255)">
+            <column name="name" type="varchar(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="employee_email" type="varchar(255)">
+            <column name="email" type="varchar(255)">
                 <constraints nullable="false"/>
             </column>
             <column name="bank_id" type="uuid">
                 <constraints nullable="false"/>
                 <foreignKey constraintName="fk_bank_contacts_bank_id"
-                            references="banks(id)"/>
+                            references="bank(id)"/>
             </column>
         </createTable>
+    </changeSet>
+
+    <changeSet id="add_index_bank_id" author="a_lindemann">
+        <addIndex tableName="bank" indexName="idx_bank_id">
+            <column name="id"/>
+        </addIndex>
+    </changeSet>
+
+    <changeSet id="add_index_bank_contact_bank_id" author="a_lindemann">
+        <addIndex tableName="bank_contact" indexName="idx_bank_contact_bank_id">
+            <column name="bank_id"/>
+        </addIndex>
+    </changeSet>
+
+    <changeSet id="add_order_by_bank_name" author="a_lindemann">
+        <modifySql dbms="postgresql">
+            <append value=" ORDER BY name"/>
+        </modifySql>
     </changeSet>
 
 </databaseChangeLog>

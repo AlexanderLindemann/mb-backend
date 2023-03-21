@@ -18,4 +18,8 @@ public class ItemConflictException extends RestException {
     public ItemConflictException(@NonNull Class<?> itemClass, @NonNull String id, String message) {
         super(message + ": " + itemClass.getSimpleName() + " already exists with id = " + id, HttpStatus.CONFLICT);
     }
+
+    public ItemConflictException(String message, HttpStatus httpStatus) {
+        super(message, httpStatus);
+    }
 }

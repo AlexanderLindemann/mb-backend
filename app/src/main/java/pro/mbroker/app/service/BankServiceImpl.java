@@ -1,9 +1,11 @@
 package pro.mbroker.app.service;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import pro.mbroker.api.dto.BankContactRequest;
+import pro.mbroker.api.dto.BankRequest;
 import pro.mbroker.api.dto.BankResponse;
 import pro.mbroker.app.exception.ItemNotFoundException;
 import pro.mbroker.app.mapper.BankContactMapper;
@@ -20,19 +22,13 @@ import java.util.UUID;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class BankServiceImpl implements BankService {
 
     private final BankRepository bankRepository;
     private final BankContactRepository bankContactRepository;
     private final BankMapper bankMapper;
     private final BankContactMapper bankContactMapper;
-
-    public BankServiceImpl(BankRepository bankRepository, BankContactRepository bankContactRepository, BankMapper bankMapper, BankContactMapper bankContactMapper) {
-        this.bankRepository = bankRepository;
-        this.bankContactRepository = bankContactRepository;
-        this.bankMapper = bankMapper;
-        this.bankContactMapper = bankContactMapper;
-    }
 
     @Override
     public BankResponse createBank(String name, MultipartFile logoFile) {
@@ -77,6 +73,27 @@ public class BankServiceImpl implements BankService {
         Bank bank = bankRepository.findById(bankId)
                 .orElseThrow(() -> new ItemNotFoundException(Bank.class, bankId));
         return bankMapper.toBankResponseMapper(bank);
+    }
+
+    @Override
+    public BankResponse updateBank(UUID id, BankRequest request) {
+        Bank bank = bankRepository.findById(id)
+                .orElseThrow(() -> new ItemNotFoundException(Bank.class, id));
+        if (request.getName() != null) {
+            bank.setName(request.getName());
+        }
+        if (request.getLogoFile() != null) {
+            String logo = saveLogo(request.getLogoFile());
+            bank.setLogo(logo);
+        }
+        bankRepository.save(bank);
+        return bankMapper.toBankResponseMapper(bank);
+    }
+
+    private String saveLogo(MultipartFile logoFile) {
+        //что-то делаем с логотипом, либо делаем байтовый массив, что было бы не очень
+        //либо отправляем на сервак и возвращаем адрес картинки в String формате
+        return "path/for/file";
     }
 
     private Bank getBank(UUID id) {
