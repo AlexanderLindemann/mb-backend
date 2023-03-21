@@ -1,0 +1,13 @@
+package pro.mbroker.app.mapper;
+
+import org.mapstruct.Mapper;
+import pro.mbroker.api.dto.BankResponse;
+import pro.mbroker.app.model.bank.Bank;
+
+@Mapper(
+        componentModel = "spring"
+)
+public interface BankMapper {
+    BankResponse toBankResponseMapper(Bank bank);
+
+}
