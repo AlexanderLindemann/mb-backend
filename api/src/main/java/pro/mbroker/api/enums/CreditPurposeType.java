@@ -1,17 +1,17 @@
 package pro.mbroker.api.enums;
 
-public enum CreditPurposeType {
-    PURCHASE_UNDER_CONSTRUCTION("Покупка строящегося жилья"),
-    PURCHASE_READY_HOUSE("Покупка готового жилья"),
-    REFINANCING("Рефинансирование");
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
+@Getter
+@RequiredArgsConstructor
+public enum CreditPurposeType implements DirectoryEnumMarker {
+    PURCHASE_UNDER_CONSTRUCTION("PURCHASE_UNDER_CONSTRUCTION", "Покупка строящегося жилья", null),
+    PURCHASE_READY_HOUSE("PURCHASE_READY_HOUSE", "Покупка готового жилья", null),
+    REFINANCING("REFINANCING", "Рефинансирование", null);
+
+    private final String code;
     private final String name;
-
-    CreditPurposeType(String name) {
-        this.name = name;
-    }
-
-    public String getName() {
-        return name;
-    }
+    private final String description;
 }
+
