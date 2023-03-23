@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-import pro.mbroker.api.ProfileAttachmentController;
+import pro.mbroker.api.controller.ProfileAttachmentController;
 import pro.smartdeal.ng.attachment.api.AttachmentControllerService;
 
 @Component
