@@ -4,9 +4,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import pro.mbroker.api.controller.DirectoryController;
-import pro.mbroker.api.dto.request.DirectoryRequest;
-import pro.mbroker.api.dto.response.DirectoryResponse;
+import pro.mbroker.api.dto.response.EnumDescription;
 import pro.mbroker.app.service.DirectoryService;
+
+import java.util.List;
 
 @Slf4j
 @Component
@@ -15,13 +16,8 @@ public class DirectoryControllerImpl implements DirectoryController {
     private final DirectoryService directoryService;
 
     @Override
-    public DirectoryResponse getDirectory() {
+    public List<EnumDescription> getDirectory() {
         return directoryService.getDirectory();
-    }
-
-    @Override
-    public DirectoryResponse updateDirectory(DirectoryRequest directoryRequest) {
-        return directoryService.updateDirectory(directoryRequest);
     }
 
 }

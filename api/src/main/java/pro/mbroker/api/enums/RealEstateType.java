@@ -2,10 +2,13 @@ package pro.mbroker.api.enums;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import pro.smartdeal.common.enums.DictionaryEnum;
+import pro.smartdeal.common.enums.EnumWithValue;
 
 @Getter
 @RequiredArgsConstructor
-public enum RealEstateType implements DirectoryEnumMarker {
+@DictionaryEnum(code = "RealEstateType", name = "Тип недвижимости")
+public enum RealEstateType implements EnumWithValue<String> {
     APARTMENT("APARTMENT", "Квартира", null),
     APARTMENT_COMPLEX("APARTMENT_COMPLEX", "Апартаменты", null),
     ROOM_SHARE("ROOM_SHARE", "Доля в квартире", null),
@@ -14,7 +17,7 @@ public enum RealEstateType implements DirectoryEnumMarker {
     TOWNHOUSE("TOWNHOUSE", "Таунхаус", null),
     COMMERCIAL("COMMERCIAL", "Коммерческая недвижимость", null);
 
-    private final String code;
+    private final String value;
     private final String name;
     private final String description;
 }
