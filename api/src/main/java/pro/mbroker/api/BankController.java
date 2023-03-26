@@ -17,7 +17,8 @@ public interface BankController {
     @ApiOperation("создать банк")
     @PostMapping
     BankResponse createBank(
-            @ModelAttribute BankRequest request
+            @RequestParam("name") String name,
+            @RequestParam("logo") MultipartFile logo
     );
 
     @ApiOperation("получить банк по id")
@@ -44,4 +45,9 @@ public interface BankController {
     BankResponse updateBank(
             @PathVariable UUID id,
             @RequestBody BankRequest request);
+
+    @PostMapping("/attachment")
+    void upload(@RequestPart("file") MultipartFile file);
+
+
 }

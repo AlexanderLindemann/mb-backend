@@ -19,11 +19,11 @@ public class BankContact {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
 
-    @Column(name = "employee_name", nullable = false)
-    private String employeeName;
+    @Column(name = "name", nullable = false)
+    private String fullName;
 
-    @Column(name = "employee_email", nullable = false)
-    private String employeeEmail;
+    @Column(name = "email", nullable = false)
+    private String email;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "bank_id", nullable = false)

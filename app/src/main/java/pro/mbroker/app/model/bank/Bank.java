@@ -21,9 +21,7 @@ public class Bank {
 
     @Column(name = "name", nullable = false)
     private String name;
-
-    @Column(name = "logo")
-    private String logo;
+    private Long logo_attachment_id;
 
     @OneToMany(mappedBy = "bank", cascade = CascadeType.ALL)
     private List<BankContact> contacts;

@@ -19,4 +19,6 @@ public interface BankService {
     BankResponse deleteBankContact(UUID contactId);
 
     BankResponse updateBank(UUID id, BankRequest request);
+
+    Long upload(MultipartFile file);
 }

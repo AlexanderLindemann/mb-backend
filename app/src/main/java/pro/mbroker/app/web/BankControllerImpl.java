@@ -22,8 +22,8 @@ public class BankControllerImpl implements BankController {
     private final BankService bankService;
 
     @Override
-    public BankResponse createBank(BankRequest request) {
-        return bankService.createBank(request.getName(), request.getLogoFile());
+    public BankResponse createBank(String name, MultipartFile logo) {
+        return bankService.createBank(name, logo);
     }
 
     @Override
@@ -49,5 +49,10 @@ public class BankControllerImpl implements BankController {
     @Override
     public BankResponse updateBank(UUID id, BankRequest request) {
         return bankService.updateBank(id, request);
+    }
+
+    @Override
+    public void upload(MultipartFile file) {
+        bankService.upload(file);
     }
 }

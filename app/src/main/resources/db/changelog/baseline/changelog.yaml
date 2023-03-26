@@ -5,3 +5,6 @@ databaseChangeLog:
   - include:
       file: 20230221_create_bank_and_bank_contacts_tables.xml
       relativeToChangelogFile: true
+  - include:
+      file: 20230224_add_fields_to_attachment_table.xml
+      relativeToChangelogFile: true

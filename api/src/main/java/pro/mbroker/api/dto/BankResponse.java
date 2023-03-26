@@ -15,7 +15,7 @@ public class BankResponse {
 
     private String name;
 
-    private String logo;
+    private Long logo_attachment_id;
 
     private List<BankContactResponse> contacts;
 }

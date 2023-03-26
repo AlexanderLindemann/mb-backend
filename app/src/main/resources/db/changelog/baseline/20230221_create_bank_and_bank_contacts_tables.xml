@@ -23,7 +23,7 @@
             <column name="id" type="uuid">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
-            <column name="name" type="varchar(255)">
+            <column name="full_name" type="varchar(255)">
                 <constraints nullable="false"/>
             </column>
             <column name="email" type="varchar(255)">
@@ -31,22 +31,11 @@
             </column>
             <column name="bank_id" type="uuid">
                 <constraints nullable="false"/>
-                <foreignKey constraintName="fk_bank_contacts_bank_id"
-                            references="bank(id)"/>
             </column>
         </createTable>
-    </changeSet>
-
-    <changeSet id="add_index_bank_id" author="a_lindemann">
-        <addIndex tableName="bank" indexName="idx_bank_id">
-            <column name="id"/>
-        </addIndex>
-    </changeSet>
-
-    <changeSet id="add_index_bank_contact_bank_id" author="a_lindemann">
-        <addIndex tableName="bank_contact" indexName="idx_bank_contact_bank_id">
-            <column name="bank_id"/>
-        </addIndex>
+        <addForeignKeyConstraint baseTableName="bank_contact" baseColumnNames="bank_id"
+                                 constraintName="fk_bank_contacts_bank_id"
+                                 referencedTableName="bank" referencedColumnNames="id"/>
     </changeSet>
 
     <changeSet id="add_order_by_bank_name" author="a_lindemann">
@@ -54,5 +43,7 @@
             <append value=" ORDER BY name"/>
         </modifySql>
     </changeSet>
+
+
 
 </databaseChangeLog>

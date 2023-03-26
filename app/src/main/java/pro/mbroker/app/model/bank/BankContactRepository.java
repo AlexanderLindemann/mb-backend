@@ -9,5 +9,6 @@ public interface BankContactRepository extends JpaRepository<BankContact, UUID> 
 
     BankContact findAllByBank(UUID bankId);
 
+    @Override
     Optional<BankContact> findById(UUID id);
 }

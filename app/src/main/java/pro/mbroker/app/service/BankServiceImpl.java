@@ -14,9 +14,12 @@ import pro.mbroker.app.model.bank.Bank;
 import pro.mbroker.app.model.bank.BankContact;
 import pro.mbroker.app.model.bank.BankContactRepository;
 import pro.mbroker.app.model.bank.BankRepository;
+import pro.mbroker.app.model.document.Attachment;
+import pro.mbroker.app.model.document.AttachmentRepository;
+import pro.smartdeal.ng.attachment.api.AttachmentControllerService;
+import pro.smartdeal.ng.attachment.api.pojo.AttachmentMeta;
 
-import java.io.IOException;
-import java.util.Base64;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -29,17 +32,14 @@ public class BankServiceImpl implements BankService {
     private final BankContactRepository bankContactRepository;
     private final BankMapper bankMapper;
     private final BankContactMapper bankContactMapper;
+    private final AttachmentControllerService attachmentService;
+    private final AttachmentRepository attachmentRepository;
 
     @Override
     public BankResponse createBank(String name, MultipartFile logoFile) {
         Bank bank = new Bank();
         bank.setName(name);
-        try {
-            byte[] logoBytes = logoFile.getBytes();
-            bank.setLogo(Base64.getEncoder().encodeToString(logoBytes));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        bank.setLogo_attachment_id(upload(logoFile));
         Bank savedBank = bankRepository.save(bank);
         return bankMapper.toBankResponseMapper(savedBank);
     }
@@ -54,8 +54,11 @@ public class BankServiceImpl implements BankService {
     public BankResponse addBankContact(UUID id, BankContactRequest contactRequest) {
         Bank bank = getBank(id);
         List<BankContact> contacts = bank.getContacts();
-        contacts.add(bankContactMapper.toBankContactMapper(contactRequest));
+        BankContact bankContact = bankContactRepository.save(bankContactMapper
+                .toBankContactMapper(contactRequest).setBank(bank));
+        contacts.add(bankContact);
         bank.setContacts(contacts);
+        bankRepository.save(bank);
         return bankMapper.toBankResponseMapper(bank);
     }
 
@@ -83,17 +86,23 @@ public class BankServiceImpl implements BankService {
             bank.setName(request.getName());
         }
         if (request.getLogoFile() != null) {
-            String logo = saveLogo(request.getLogoFile());
-            bank.setLogo(logo);
+            bank.setLogo_attachment_id(upload(request.getLogoFile()));
         }
         bankRepository.save(bank);
         return bankMapper.toBankResponseMapper(bank);
     }
 
-    private String saveLogo(MultipartFile logoFile) {
-        //что-то делаем с логотипом, либо делаем байтовый массив, что было бы не очень
-        //либо отправляем на сервак и возвращаем адрес картинки в String формате
-        return "path/for/file";
+    @Override
+    public Long upload(MultipartFile file) {
+        AttachmentMeta upload = attachmentService.upload(file);
+        Attachment attachment = attachmentRepository.save(new Attachment()
+                .setCreatedAt(ZonedDateTime.now())
+                .setName(upload.getName())
+                .setMimeType(upload.getMimeType())
+                .setSizeBytes(upload.getSizeBytes())
+                .setContentMd5(upload.getMd5Hash())
+                .setExternalStorageId(upload.getId()));
+        return attachment.getId();
     }
 
     private Bank getBank(UUID id) {
