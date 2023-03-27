@@ -4,7 +4,7 @@ import org.mapstruct.Mapper;
 import pro.mbroker.api.dto.BankResponse;
 import pro.mbroker.app.model.bank.Bank;
 
-@Mapper(componentModel = "spring")
+@Mapper
 public interface BankMapper {
     BankResponse toBankResponseMapper(Bank bank);
 

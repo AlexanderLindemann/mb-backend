@@ -12,7 +12,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(exclude = "id")
-@Table(name = "bank_contacts")
+@Table(name = "bank_contact")
 public class BankContact {
 
     @Id

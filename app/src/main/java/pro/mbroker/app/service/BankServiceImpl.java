@@ -4,11 +4,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import pro.mbroker.api.dto.BankContactRequest;
-import pro.mbroker.api.dto.BankRequest;
 import pro.mbroker.api.dto.BankResponse;
 import pro.mbroker.app.exception.ItemNotFoundException;
-import pro.mbroker.app.mapper.BankContactMapper;
 import pro.mbroker.app.mapper.BankMapper;
 import pro.mbroker.app.model.bank.Bank;
 import pro.mbroker.app.model.bank.BankContact;
@@ -31,15 +28,14 @@ public class BankServiceImpl implements BankService {
     private final BankRepository bankRepository;
     private final BankContactRepository bankContactRepository;
     private final BankMapper bankMapper;
-    private final BankContactMapper bankContactMapper;
     private final AttachmentControllerService attachmentService;
     private final AttachmentRepository attachmentRepository;
 
     @Override
     public BankResponse createBank(String name, MultipartFile logoFile) {
-        Bank bank = new Bank();
-        bank.setName(name);
-        bank.setLogo_attachment_id(upload(logoFile));
+        Bank bank = new Bank()
+                .setName(name)
+                .setLogoAttachmentId(upload(logoFile));
         Bank savedBank = bankRepository.save(bank);
         return bankMapper.toBankResponseMapper(savedBank);
     }
@@ -51,11 +47,13 @@ public class BankServiceImpl implements BankService {
     }
 
     @Override
-    public BankResponse addBankContact(UUID id, BankContactRequest contactRequest) {
+    public BankResponse addBankContact(UUID id, String fullName, String email) {
         Bank bank = getBank(id);
         List<BankContact> contacts = bank.getContacts();
-        BankContact bankContact = bankContactRepository.save(bankContactMapper
-                .toBankContactMapper(contactRequest).setBank(bank));
+        BankContact bankContact = bankContactRepository.save(new BankContact()
+                .setBank(bank)
+                .setFullName(fullName)
+                .setEmail(email));
         contacts.add(bankContact);
         bank.setContacts(contacts);
         bankRepository.save(bank);
@@ -79,15 +77,10 @@ public class BankServiceImpl implements BankService {
     }
 
     @Override
-    public BankResponse updateBank(UUID id, BankRequest request) {
+    public BankResponse updateBank(UUID id, String name) {
         Bank bank = bankRepository.findById(id)
                 .orElseThrow(() -> new ItemNotFoundException(Bank.class, id));
-        if (request.getName() != null) {
-            bank.setName(request.getName());
-        }
-        if (request.getLogoFile() != null) {
-            bank.setLogo_attachment_id(upload(request.getLogoFile()));
-        }
+        bank.setName(name);
         bankRepository.save(bank);
         return bankMapper.toBankResponseMapper(bank);
     }
@@ -103,6 +96,22 @@ public class BankServiceImpl implements BankService {
                 .setContentMd5(upload.getMd5Hash())
                 .setExternalStorageId(upload.getId()));
         return attachment.getId();
+    }
+
+    @Override
+    public MultipartFile getLogoBankById(UUID bankId) {
+        Bank bank = bankRepository.findById(bankId)
+                .orElseThrow(() -> new ItemNotFoundException(Bank.class, bankId));
+        Attachment attachment = attachmentRepository.findById(bank.getLogoAttachmentId())
+                .orElseThrow(() -> new ItemNotFoundException(Bank.class, bank.getLogoAttachmentId()));
+        return download(attachment.getExternalStorageId());
+    }
+
+    @Override
+    public MultipartFile download(Long attachmentId) {
+        Attachment attachment = attachmentRepository.findById(attachmentId)
+                .orElseThrow(() -> new ItemNotFoundException(Attachment.class, attachmentId));
+        return attachmentService.download(attachment.getExternalStorageId());
     }
 
     private Bank getBank(UUID id) {

@@ -6,8 +6,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import pro.mbroker.api.BankController;
-import pro.mbroker.api.dto.BankContactRequest;
-import pro.mbroker.api.dto.BankRequest;
 import pro.mbroker.api.dto.BankResponse;
 import pro.mbroker.app.service.BankService;
 
@@ -32,8 +30,13 @@ public class BankControllerImpl implements BankController {
     }
 
     @Override
-    public BankResponse addBankContact(UUID id, BankContactRequest contactRequest) {
-        return bankService.addBankContact(id, contactRequest);
+    public MultipartFile getLogoBankById(UUID bankId) {
+        return bankService.getLogoBankById(bankId);
+    }
+
+    @Override
+    public BankResponse addBankContact(UUID id, String fullName, String email) {
+        return bankService.addBankContact(id, fullName, email);
     }
 
     @Override
@@ -47,12 +50,17 @@ public class BankControllerImpl implements BankController {
     }
 
     @Override
-    public BankResponse updateBank(UUID id, BankRequest request) {
-        return bankService.updateBank(id, request);
+    public BankResponse updateBank(UUID id, String name) {
+        return bankService.updateBank(id, name);
     }
 
     @Override
     public void upload(MultipartFile file) {
         bankService.upload(file);
+    }
+
+    @Override
+    public MultipartFile download(Long attachmentId) {
+        return bankService.download(attachmentId);
     }
 }

@@ -12,7 +12,7 @@ import java.util.UUID;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "banks")
+@Table(name = "bank")
 public class Bank {
 
     @Id
@@ -21,7 +21,8 @@ public class Bank {
 
     @Column(name = "name", nullable = false)
     private String name;
-    private Long logo_attachment_id;
+    @Column(name = "logo_attachment_id")
+    private Long logoAttachmentId;
 
     @OneToMany(mappedBy = "bank", cascade = CascadeType.ALL)
     private List<BankContact> contacts;
