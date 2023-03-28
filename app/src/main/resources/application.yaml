@@ -13,7 +13,7 @@ spring:
       resourceserver:
         jwt:
           jwk-set-uri: https://dev.smartdeal.pro/api/v1/token/public-key
-          jws-algorithms: RS384
+          jws-algorithm: RS384
 eureka:
   client:
     serviceUrl:
