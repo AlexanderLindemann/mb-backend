@@ -17,8 +17,10 @@ import pro.smartdeal.ng.attachment.api.AttachmentControllerService;
 import pro.smartdeal.ng.attachment.api.pojo.AttachmentMeta;
 
 import java.time.ZonedDateTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -32,10 +34,10 @@ public class BankServiceImpl implements BankService {
     private final AttachmentRepository attachmentRepository;
 
     @Override
-    public BankResponse createBank(String name, MultipartFile logoFile) {
+    public BankResponse createBank(String name) {
         Bank bank = new Bank()
-                .setName(name)
-                .setLogoAttachmentId(upload(logoFile));
+                .setName(name);
+        bank.setOrderNumber(bankRepository.findMaxOrderNumber() + 1);
         Bank savedBank = bankRepository.save(bank);
         return bankMapper.toBankResponseMapper(savedBank);
     }
@@ -71,16 +73,38 @@ public class BankServiceImpl implements BankService {
                 .orElseThrow(() -> new ItemNotFoundException(BankContact.class, contactId));
         UUID bankId = bankContact.getBank().getId();
         bankContactRepository.deleteById(contactId);
-        Bank bank = bankRepository.findById(bankId)
-                .orElseThrow(() -> new ItemNotFoundException(Bank.class, bankId));
+        Bank bank = getBank(bankId);
         return bankMapper.toBankResponseMapper(bank);
     }
 
     @Override
-    public BankResponse updateBank(UUID id, String name) {
-        Bank bank = bankRepository.findById(id)
-                .orElseThrow(() -> new ItemNotFoundException(Bank.class, id));
+    public BankResponse updateBankName(UUID bankId, String name) {
+        Bank bank = getBank(bankId);
         bank.setName(name);
+        bankRepository.save(bank);
+        return bankMapper.toBankResponseMapper(bank);
+    }
+
+
+    @Override
+    public MultipartFile getLogoBankById(UUID bankId) {
+        Bank bank = getBank(bankId);
+        Attachment attachment = attachmentRepository.findById(bank.getLogoAttachmentId())
+                .orElseThrow(() -> new ItemNotFoundException(Bank.class, bank.getLogoAttachmentId()));
+        return download(attachment.getExternalStorageId());
+    }
+
+    @Override
+    public MultipartFile download(Long attachmentId) {
+        Attachment attachment = attachmentRepository.findById(attachmentId)
+                .orElseThrow(() -> new ItemNotFoundException(Attachment.class, attachmentId));
+        return attachmentService.download(attachment.getExternalStorageId());
+    }
+
+    @Override
+    public BankResponse updateLogo(UUID bankId, MultipartFile logo) {
+        Bank bank = getBank(bankId);
+        bank.setLogoAttachmentId(upload(logo));
         bankRepository.save(bank);
         return bankMapper.toBankResponseMapper(bank);
     }
@@ -99,23 +123,18 @@ public class BankServiceImpl implements BankService {
     }
 
     @Override
-    public MultipartFile getLogoBankById(UUID bankId) {
-        Bank bank = bankRepository.findById(bankId)
+    public List<BankResponse> getAllBank() {
+        List<Bank> bankList = bankRepository.findAll();
+        if (bankList.isEmpty()) {
+            return Collections.emptyList();
+        }
+        return bankList.stream()
+                .map(bankMapper::toBankResponseMapper)
+                .collect(Collectors.toList());
+    }
+
+    private Bank getBank(UUID bankId) {
+        return bankRepository.findById(bankId)
                 .orElseThrow(() -> new ItemNotFoundException(Bank.class, bankId));
-        Attachment attachment = attachmentRepository.findById(bank.getLogoAttachmentId())
-                .orElseThrow(() -> new ItemNotFoundException(Bank.class, bank.getLogoAttachmentId()));
-        return download(attachment.getExternalStorageId());
-    }
-
-    @Override
-    public MultipartFile download(Long attachmentId) {
-        Attachment attachment = attachmentRepository.findById(attachmentId)
-                .orElseThrow(() -> new ItemNotFoundException(Attachment.class, attachmentId));
-        return attachmentService.download(attachment.getExternalStorageId());
-    }
-
-    private Bank getBank(UUID id) {
-        return bankRepository.findById(id)
-                .orElseThrow(() -> new ItemNotFoundException(Bank.class, id));
     }
 }

@@ -23,6 +23,8 @@ public class Bank {
     private String name;
     @Column(name = "logo_attachment_id")
     private Long logoAttachmentId;
+    @Column(name = "order_number")
+    private Integer orderNumber;
 
     @OneToMany(mappedBy = "bank", cascade = CascadeType.ALL)
     private List<BankContact> contacts;

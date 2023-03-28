@@ -19,7 +19,7 @@ public class BankContact {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
 
-    @Column(name = "name", nullable = false)
+    @Column(name = "fullName", nullable = false)
     private String fullName;
 
     @Column(name = "email", nullable = false)

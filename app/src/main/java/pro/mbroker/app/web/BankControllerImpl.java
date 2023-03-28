@@ -9,6 +9,7 @@ import pro.mbroker.api.BankController;
 import pro.mbroker.api.dto.BankResponse;
 import pro.mbroker.app.service.BankService;
 
+import java.util.List;
 import java.util.UUID;
 
 @Slf4j
@@ -20,9 +21,20 @@ public class BankControllerImpl implements BankController {
     private final BankService bankService;
 
     @Override
-    public BankResponse createBank(String name, MultipartFile logo) {
-        return bankService.createBank(name, logo);
+    public BankResponse createBank(String name) {
+        return bankService.createBank(name);
     }
+
+    @Override
+    public BankResponse updateLogo(UUID bankId, MultipartFile logo) {
+        return bankService.updateLogo(bankId, logo);
+    }
+
+    @Override
+    public List<BankResponse> getAllBank() {
+        return bankService.getAllBank();
+    }
+
 
     @Override
     public BankResponse getBankById(UUID id) {
@@ -50,8 +62,8 @@ public class BankControllerImpl implements BankController {
     }
 
     @Override
-    public BankResponse updateBank(UUID id, String name) {
-        return bankService.updateBank(id, name);
+    public BankResponse updateBankName(UUID id, String name) {
+        return bankService.updateBankName(id, name);
     }
 
     @Override

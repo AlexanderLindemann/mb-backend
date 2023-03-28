@@ -12,6 +12,9 @@
             <column name="name" type="varchar(255)">
                 <constraints nullable="false"/>
             </column>
+            <column name="order_number" type="integer">
+                <constraints nullable="false"/>
+            </column>
             <column name="logo_attachment_id" type="bigint"/>
         </createTable>
     </changeSet>
@@ -34,12 +37,8 @@
         <addForeignKeyConstraint baseTableName="bank_contact" baseColumnNames="bank_id"
                                  constraintName="fk_bank_contacts_bank_id"
                                  referencedTableName="bank" referencedColumnNames="id"/>
+
     </changeSet>
 
-    <changeSet id="add_order_by_bank_name" author="a_lindemann">
-        <modifySql dbms="postgresql">
-            <append value=" ORDER BY bank.name"/>
-        </modifySql>
-    </changeSet>
 
 </databaseChangeLog>

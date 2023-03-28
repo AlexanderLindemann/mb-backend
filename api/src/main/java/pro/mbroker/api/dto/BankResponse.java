@@ -14,6 +14,7 @@ public class BankResponse {
     private UUID id;
 
     private String name;
+    private Integer orderNumber;
 
     private List<BankContactResponse> contacts;
 }
