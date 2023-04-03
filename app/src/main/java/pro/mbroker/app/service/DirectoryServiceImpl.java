@@ -1,5 +1,6 @@
 package pro.mbroker.app.service;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import pro.mbroker.api.dto.response.EnumDescription;
@@ -16,6 +17,7 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class DirectoryServiceImpl implements DirectoryService {
 
     @Override
@@ -28,8 +30,7 @@ public class DirectoryServiceImpl implements DirectoryService {
         return getEnumDescriptions(REGION_ENUMS);
     }
 
-    @Override
-    public List<EnumDescription> getFilteredRegion(List<RegionType> include, List<RegionType> exclude) {
+    private List<EnumDescription> getFilteredRegion(List<RegionType> include, List<RegionType> exclude) {
         List<RegionType> filteredRegions = (Objects.isNull(include) || include.isEmpty()) ?
                 new ArrayList<>(Arrays.asList(RegionType.values())) : new ArrayList<>(include);
         filteredRegions.removeAll(exclude);

@@ -2,3 +2,6 @@ databaseChangeLog:
   - include:
       file: 20230209_2033-profile_tables.xml
       relativeToChangelogFile: true
+  - include:
+      file: 202302029_1933-credit_parameter_program_tables.xml
+      relativeToChangelogFile: true

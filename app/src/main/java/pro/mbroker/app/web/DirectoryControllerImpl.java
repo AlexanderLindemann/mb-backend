@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import pro.mbroker.api.controller.DirectoryController;
 import pro.mbroker.api.dto.response.EnumDescription;
-import pro.mbroker.api.enums.RegionType;
 import pro.mbroker.app.service.DirectoryService;
 
 import java.util.List;
@@ -24,11 +23,6 @@ public class DirectoryControllerImpl implements DirectoryController {
     @Override
     public List<EnumDescription> getAllRegion() {
         return directoryService.getAllRegion();
-    }
-
-    @Override
-    public List<EnumDescription> getFilteredRegion(List<RegionType> include, List<RegionType> exclude) {
-        return directoryService.getFilteredRegion(include, exclude);
     }
 
 }

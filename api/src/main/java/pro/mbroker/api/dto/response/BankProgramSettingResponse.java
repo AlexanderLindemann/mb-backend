@@ -10,7 +10,7 @@ import java.util.List;
 @Getter
 @Setter
 @ToString
-public class EnumDescriptionsWithRegion {
+public class BankProgramSettingResponse {
     List<EnumDescription> enumDescription = new ArrayList<>();
-    List<EnumRegion> enumRegions = new ArrayList<>();
+
 }

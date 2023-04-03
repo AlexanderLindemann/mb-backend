@@ -24,8 +24,6 @@ public interface DirectoryService {
 
     List<EnumDescription> getAllDirectory();
 
-    List<EnumDescription> getFilteredRegion(List<RegionType> include, List<RegionType> exclude);
-
 
     List<EnumDescription> getAllRegion();
 }
