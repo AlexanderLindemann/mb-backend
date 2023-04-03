@@ -1,25 +1,21 @@
 package pro.mbroker.app.service;
 
 import org.springframework.web.multipart.MultipartFile;
-import pro.mbroker.api.dto.BankResponse;
+import pro.mbroker.app.model.bank.Bank;
 
 import java.util.List;
 import java.util.UUID;
 
 public interface BankService {
-    BankResponse createBank(String name);
+    Bank createBank(String name);
 
-    BankResponse getBankById(UUID id);
-
-    BankResponse addBankContact(UUID id, String fullName, String email);
+    Bank getBankById(UUID id);
 
     void deleteBankById(UUID id);
 
-    BankResponse deleteBankContact(UUID contactId);
+    Bank updateBankName(UUID id, String request);
 
-    BankResponse updateBankName(UUID id, String request);
-
-    BankResponse updateLogo(UUID bankId, MultipartFile logo);
+    Bank updateLogo(UUID bankId, MultipartFile logo);
 
     MultipartFile getLogoBankById(UUID bankId);
 
@@ -27,5 +23,5 @@ public interface BankService {
 
     Long upload(MultipartFile file);
 
-    List<BankResponse> getAllBank();
+    List<Bank> getAllBank(int page, int size);
 }

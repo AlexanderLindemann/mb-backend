@@ -36,8 +36,8 @@
         </createTable>
         <addForeignKeyConstraint baseTableName="bank_contact" baseColumnNames="bank_id"
                                  constraintName="fk_bank_contacts_bank_id"
-                                 referencedTableName="bank" referencedColumnNames="id"/>
-
+                                 referencedTableName="bank" referencedColumnNames="id"
+                                 onDelete="CASCADE"/>
     </changeSet>
 
 

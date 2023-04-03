@@ -20,7 +20,6 @@ public interface BankController {
             @RequestParam("name") String name
     );
 
-
     @ApiOperation("обновить логотип банка")
     @PostMapping("/{bankId}/logo")
     BankResponse updateLogo(@PathVariable UUID bankId,
@@ -29,7 +28,8 @@ public interface BankController {
 
     @ApiOperation("получить все банки")
     @GetMapping("/all")
-    List<BankResponse> getAllBank();
+    List<BankResponse> getAllBank(@RequestParam(defaultValue = "0") int page,
+                                  @RequestParam(defaultValue = "10") int size);
 
     @ApiOperation("получить банк по id")
     @GetMapping("/{id}")
@@ -43,21 +43,9 @@ public interface BankController {
     @PostMapping("/{attachmentId}")
     MultipartFile download(@PathVariable Long attachmentId);
 
-    @ApiOperation("добавить контакт для банка")
-    @PostMapping("/{id}/contacts")
-    BankResponse addBankContact(
-            @PathVariable UUID bankId,
-            @RequestParam("full_name") String fullName,
-            @RequestParam("email") String email);
-
     @ApiOperation("удалить банк по id")
     @DeleteMapping("/{id}")
     void deleteBank(@PathVariable UUID bankId);
-
-    @ApiOperation("удалить контакт банка по id контакта")
-    @DeleteMapping("/{bankId}/contacts/{contactId}")
-    BankResponse deleteBankContact(
-            @PathVariable UUID contactId);
 
     @ApiOperation("обновить name банка по id банка")
     @PutMapping("/{id}")
