@@ -3,5 +3,5 @@ databaseChangeLog:
       file: 20230209_2033-profile_tables.xml
       relativeToChangelogFile: true
   - include:
-      file: 202302029_1933-credit_parameter_program_tables.xml
+      file: 20230221_create_bank_and_bank_contacts_tables.xml
       relativeToChangelogFile: true

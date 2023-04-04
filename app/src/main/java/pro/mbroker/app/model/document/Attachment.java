@@ -26,8 +26,14 @@ public class Attachment {
     @Column(name = "size_bytes")
     private long sizeBytes;
 
+    @Column(name = "mime_type")
+    private String mimeType;
+
+    @Column(name = "content_md5")
+    private String contentMd5;
+
     @Column(name = "external_storage_id")
-    private String externalStorageId;
+    private long externalStorageId;
 
     @CreatedDate
     @Column(name = "created_at")

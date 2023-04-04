@@ -1,0 +1,44 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+		http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.6.xsd">
+
+    <changeSet id="create_table_bank" author="a_lindemann">
+        <createTable tableName="bank">
+            <column name="id" type="uuid">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="name" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="order_number" type="integer">
+                <constraints nullable="false"/>
+            </column>
+            <column name="logo_attachment_id" type="bigint"/>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="create_table_bank_contact" author="a_lindemann">
+        <createTable tableName="bank_contact">
+            <column name="id" type="uuid">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="full_name" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="email" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="bank_id" type="uuid">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <addForeignKeyConstraint baseTableName="bank_contact" baseColumnNames="bank_id"
+                                 constraintName="fk_bank_contacts_bank_id"
+                                 referencedTableName="bank" referencedColumnNames="id"
+                                 onDelete="CASCADE"/>
+    </changeSet>
+
+
+</databaseChangeLog>
