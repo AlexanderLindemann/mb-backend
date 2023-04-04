@@ -7,6 +7,8 @@ import lombok.Setter;
 @Setter
 public class EnumItemDescription {
     private String code;
+
     private String name;
+
     private String description;
 }

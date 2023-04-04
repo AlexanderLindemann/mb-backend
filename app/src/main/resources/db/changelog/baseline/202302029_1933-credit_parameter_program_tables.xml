@@ -1,0 +1,84 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <changeSet id="202302029_1933-credit_parameter_program_tables_id1" author="a.lindemann">
+        <createTable tableName="credit_parameter">
+            <column name="id" type="uuid">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="min_mortgage_sum" type="decimal(10,2)" defaultValueNumeric="0.00">
+                <constraints nullable="false"/>
+            </column>
+            <column name="max_mortgage_sum" type="decimal(10,2)" defaultValueNumeric="0.00">
+                <constraints nullable="false"/>
+            </column>
+            <column name="min_credit_term" type="int" defaultValueNumeric="12">
+                <constraints nullable="false"/>
+            </column>
+            <column name="max_credit_term" type="int" defaultValueNumeric="360">
+                <constraints nullable="false"/>
+            </column>
+            <column name="min_down_payment" type="int" defaultValueNumeric="20">
+                <constraints nullable="false"/>
+            </column>
+            <column name="max_down_payment" type="int" defaultValueNumeric="100">
+                <constraints nullable="false"/>
+            </column>
+            <column name="is_maternal_capital" type="boolean" defaultValueNumeric="false">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="create-creditProgram-table" author="a.lindemann">
+        <createTable tableName="credit_program">
+            <column name="id" type="uuid">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="credit_program_name" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="start_program_date" type="timestamp"/>
+            <column name="end_program_date" type="timestamp"/>
+            <column name="description" type="varchar(1000)"/>
+            <column name="full_description" type="varchar(1000)"/>
+            <column name="credit_program_detail_id" type="uuid">
+                <constraints nullable="true"/>
+            </column>
+            <column name="credit_parameter_id" type="uuid">
+                <constraints nullable="true"/>
+            </column>
+            <column name="base_rate" type="numeric(10, 2)"/>
+        </createTable>
+    </changeSet>
+    <changeSet id="create-creditProgram-detail-table" author="a.lindemann">
+        <createTable tableName="credit_program_detail">
+            <column name="id" type="uuid">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="credit_purpose_type" type="varchar(255)"/>
+            <column name="real_estate_type" type="varchar(255)"/>
+            <column name="include" type="varchar(255)"/>
+            <column name="exclude" type="varchar(255)"/>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="add-credit-parameter-foreign-key-to-creditProgram-table" author="a.lindemann">
+        <addForeignKeyConstraint baseTableName="credit_program"
+                                 baseColumnNames="credit_program_detail_id"
+                                 referencedTableName="credit_program_detail"
+                                 referencedColumnNames="id"
+                                 constraintName="FK_program"/>
+    </changeSet>
+    <changeSet id="2023050210_1933-creditProgram-detail-table-update" author="a.lindemann">
+        <addForeignKeyConstraint baseTableName="credit_program"
+                                 baseColumnNames="credit_parameter_id"
+                                 referencedTableName="credit_parameter"
+                                 referencedColumnNames="id"
+                                 constraintName="FK_program_credit_parameter"/>
+    </changeSet>
+
+</databaseChangeLog>
