@@ -1,4 +1,4 @@
-package pro.mbroker.api;
+package pro.mbroker.api.controller;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -29,7 +29,9 @@ public interface BankController {
     @ApiOperation("получить все банки")
     @GetMapping("/all")
     List<BankResponse> getAllBank(@RequestParam(defaultValue = "0") int page,
-                                  @RequestParam(defaultValue = "10") int size);
+                                  @RequestParam(defaultValue = "10") int size,
+                                  @RequestParam(defaultValue = "name") String sortBy,
+                                  @RequestParam(defaultValue = "asc") String sortOrder);
 
     @ApiOperation("получить банк по id")
     @GetMapping("/{id}")
@@ -38,10 +40,6 @@ public interface BankController {
     @ApiOperation("получить logo по id банка")
     @GetMapping("/{bankId}/logo")
     MultipartFile getLogoBankById(@PathVariable UUID bankId);
-
-    @ApiOperation("получить logo по attachment_id")
-    @PostMapping("/{attachmentId}")
-    MultipartFile download(@PathVariable Long attachmentId);
 
     @ApiOperation("удалить банк по id")
     @DeleteMapping("/{id}")
@@ -52,9 +50,6 @@ public interface BankController {
     BankResponse updateBankName(
             @PathVariable UUID id,
             @NonNull @RequestParam("name") String name);
-
-    @PostMapping("/attachment")
-    void upload(@RequestPart("file") MultipartFile file);
 
 
 }

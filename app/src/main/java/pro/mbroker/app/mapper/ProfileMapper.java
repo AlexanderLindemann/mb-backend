@@ -1,4 +1,4 @@
-package pro.mbroker.app.web;
+package pro.mbroker.app.mapper;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;

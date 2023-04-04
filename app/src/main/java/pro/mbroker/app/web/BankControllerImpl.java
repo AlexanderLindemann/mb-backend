@@ -5,7 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-import pro.mbroker.api.BankController;
+import pro.mbroker.api.controller.BankController;
 import pro.mbroker.api.dto.BankResponse;
 import pro.mbroker.app.mapper.BankMapper;
 import pro.mbroker.app.model.bank.Bank;
@@ -39,9 +39,9 @@ public class BankControllerImpl implements BankController {
 
     @Override
     @Transactional(readOnly = true)
-    public List<BankResponse> getAllBank(int page,
-                                         int size) {
-        List<Bank> bankList = bankService.getAllBank(page, size);
+    public List<BankResponse> getAllBank(int page, int size,
+                                         String sortBy, String sortOrder) {
+        List<Bank> bankList = bankService.getAllBank(page, size, sortBy, sortOrder);
         return bankList.stream()
                 .map(bankMapper::toBankResponseMapper)
                 .collect(Collectors.toList());
@@ -75,13 +75,4 @@ public class BankControllerImpl implements BankController {
         return bankMapper.toBankResponseMapper(bank);
     }
 
-    @Override
-    public void upload(MultipartFile file) {
-        bankService.upload(file);
-    }
-
-    @Override
-    public MultipartFile download(Long attachmentId) {
-        return bankService.download(attachmentId);
-    }
 }

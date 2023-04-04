@@ -11,7 +11,6 @@ import pro.mbroker.app.model.bank.BankContactRepository;
 import pro.mbroker.app.model.bank.BankRepository;
 import pro.mbroker.app.service.BankContactService;
 
-import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -27,14 +26,12 @@ public class BankContactServiceImpl implements BankContactService {
     @Transactional
     public Bank addBankContact(UUID id, String fullName, String email) {
         Bank bank = getBank(id);
-        List<BankContact> contacts = bank.getContacts();
-        BankContact bankContact = bankContactRepository.save(new BankContact()
+        bankContactRepository.save(new BankContact()
                 .setBank(bank)
                 .setFullName(fullName)
                 .setEmail(email));
-        contacts.add(bankContact);
-        bank.setContacts(contacts);
-        return bankRepository.save(bank);
+        bankContactRepository.flush();
+        return getBank(id);
     }
 
 

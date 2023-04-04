@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-import pro.mbroker.api.BankContactController;
+import pro.mbroker.api.controller.BankContactController;
 import pro.mbroker.api.dto.BankResponse;
 import pro.mbroker.app.mapper.BankMapper;
 import pro.mbroker.app.model.bank.Bank;

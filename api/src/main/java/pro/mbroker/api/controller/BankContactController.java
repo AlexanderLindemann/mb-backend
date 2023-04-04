@@ -1,4 +1,4 @@
-package pro.mbroker.api;
+package pro.mbroker.api.controller;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -16,7 +16,7 @@ public interface BankContactController {
     @PostMapping("/{id}/contacts")
     BankResponse addBankContact(
             @PathVariable UUID bankId,
-            @RequestParam("full_name") String fullName,
+            @RequestParam("fullName") String fullName,
             @RequestParam("email") String email);
 
     @ApiOperation("удалить контакт банка по id контакта")

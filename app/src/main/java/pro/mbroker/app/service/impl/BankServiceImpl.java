@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import pro.mbroker.app.exception.ItemNotFoundException;
@@ -12,11 +13,9 @@ import pro.mbroker.app.model.bank.Bank;
 import pro.mbroker.app.model.bank.BankRepository;
 import pro.mbroker.app.model.document.Attachment;
 import pro.mbroker.app.model.document.AttachmentRepository;
+import pro.mbroker.app.service.AttachmentService;
 import pro.mbroker.app.service.BankService;
-import pro.smartdeal.ng.attachment.api.AttachmentControllerService;
-import pro.smartdeal.ng.attachment.api.pojo.AttachmentMeta;
 
-import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -26,8 +25,8 @@ import java.util.UUID;
 public class BankServiceImpl implements BankService {
 
     private final BankRepository bankRepository;
-    private final AttachmentControllerService attachmentService;
     private final AttachmentRepository attachmentRepository;
+    private final AttachmentService attachmentService;
     private static final int ORDER_STEP = 10;
 
     @Override
@@ -60,39 +59,21 @@ public class BankServiceImpl implements BankService {
         Bank bank = getBank(bankId);
         Attachment attachment = attachmentRepository.findById(bank.getLogoAttachmentId())
                 .orElseThrow(() -> new ItemNotFoundException(Bank.class, bank.getLogoAttachmentId()));
-        return download(attachment.getExternalStorageId());
-    }
-
-    @Override
-    public MultipartFile download(Long attachmentId) {
-        Attachment attachment = attachmentRepository.findById(attachmentId)
-                .orElseThrow(() -> new ItemNotFoundException(Attachment.class, attachmentId));
         return attachmentService.download(attachment.getExternalStorageId());
     }
 
     @Override
     public Bank updateLogo(UUID bankId, MultipartFile logo) {
         Bank bank = getBank(bankId);
-        bank.setLogoAttachmentId(upload(logo));
+        bank.setLogoAttachmentId(attachmentService.upload(logo));
         return bankRepository.save(bank);
     }
 
-    @Override
-    public Long upload(MultipartFile file) {
-        AttachmentMeta upload = attachmentService.upload(file);
-        Attachment attachment = attachmentRepository.save(new Attachment()
-                .setCreatedAt(ZonedDateTime.now())
-                .setName(upload.getName())
-                .setMimeType(upload.getMimeType())
-                .setSizeBytes(upload.getSizeBytes())
-                .setContentMd5(upload.getMd5Hash())
-                .setExternalStorageId(upload.getId()));
-        return attachment.getId();
-    }
 
     @Override
-    public List<Bank> getAllBank(int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
+    public List<Bank> getAllBank(int page, int size, String sortBy, String sortOrder) {
+        Sort sort = Sort.by(Sort.Direction.fromString(sortOrder), sortBy);
+        Pageable pageable = PageRequest.of(page, size, sort);
         Page<Bank> bankPage = bankRepository.findAll(pageable);
         return bankPage.getContent();
     }

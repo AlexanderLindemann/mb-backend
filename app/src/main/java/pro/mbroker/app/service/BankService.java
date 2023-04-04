@@ -19,9 +19,5 @@ public interface BankService {
 
     MultipartFile getLogoBankById(UUID bankId);
 
-    MultipartFile download(Long attachmentId);
-
-    Long upload(MultipartFile file);
-
-    List<Bank> getAllBank(int page, int size);
+    List<Bank> getAllBank(int page, int size, String sortBy, String sortOrder);
 }

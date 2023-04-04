@@ -1,4 +1,4 @@
-package pro.mbroker.api;
+package pro.mbroker.api.controller;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
