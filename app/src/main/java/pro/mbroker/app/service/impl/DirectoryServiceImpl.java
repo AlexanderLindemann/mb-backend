@@ -1,4 +1,4 @@
-package pro.mbroker.app.service;
+package pro.mbroker.app.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import pro.mbroker.api.dto.response.EnumDescription;
 import pro.mbroker.api.dto.response.EnumItemDescription;
 import pro.mbroker.api.enums.RegionType;
+import pro.mbroker.app.service.DirectoryService;
 import pro.smartdeal.common.enums.DictionaryEnum;
 import pro.smartdeal.common.enums.EnumWithValue;
 

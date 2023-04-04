@@ -1,15 +1,16 @@
 package pro.mbroker.app.service;
 
-import pro.mbroker.api.dto.request.BankProgramSettingRequest;
-import pro.mbroker.api.dto.request.ProgramRequest;
+import pro.mbroker.api.dto.request.BankProgramRequest;
+import pro.mbroker.app.model.program.Program;
+import pro.mbroker.app.model.program.ProgramDetail;
 
 import java.util.UUID;
 
 public interface ProgramService {
 
-    ProgramRequest createCreditParameter(BankProgramSettingRequest createCreditParameter);
+    Program createCreditParameter(BankProgramRequest createCreditParameter, ProgramDetail programDetail);
 
-    ProgramRequest getProgramById(UUID creditProgramId);
+    Program getProgramById(UUID creditProgramId);
 
-    ProgramRequest updateProgram(UUID creditProgramId, BankProgramSettingRequest updateProgramRequest);
+    Program updateProgram(UUID creditProgramId, BankProgramRequest updateProgramRequest, ProgramDetail updateProgramDetail);
 }

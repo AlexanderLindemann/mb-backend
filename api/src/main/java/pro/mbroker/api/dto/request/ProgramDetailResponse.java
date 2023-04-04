@@ -12,9 +12,12 @@ import java.util.List;
 @Getter
 @Setter
 @ToString
-public class ProgramDetailRequest {
+public class ProgramDetailResponse {
     private List<CreditPurposeType> creditPurposeType;
+
     private List<RealEstateType> realEstateType;
+
     private List<RegionType> include;
+
     private List<RegionType> exclude;
 }

@@ -4,8 +4,8 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.springframework.web.bind.annotation.*;
-import pro.mbroker.api.dto.request.BankProgramSettingRequest;
-import pro.mbroker.api.dto.request.ProgramRequest;
+import pro.mbroker.api.dto.request.BankProgramRequest;
+import pro.mbroker.api.dto.response.ProgramResponse;
 
 import javax.validation.Valid;
 import java.util.UUID;
@@ -16,13 +16,13 @@ import java.util.UUID;
 public interface ProgramController {
     @ApiOperation("Создать программу кредита")
     @PostMapping()
-    ProgramRequest createCreditProgram(@ApiParam(value = "Параметры кредита") @RequestBody BankProgramSettingRequest request);
+    ProgramResponse createCreditProgram(@ApiParam(value = "Параметры кредита") @RequestBody BankProgramRequest request);
 
     @ApiOperation("Получить программу кредита по creditProgramId")
     @GetMapping("/{creditProgramId}")
-    ProgramRequest getProgramById(@PathVariable UUID creditProgramId);
+    ProgramResponse getProgramById(@PathVariable UUID creditProgramId);
 
     @ApiOperation("обновит программу кредита")
     @PutMapping("/{creditProgramId}")
-    ProgramRequest updateProgram(@PathVariable UUID creditProgramId, @RequestBody @Valid BankProgramSettingRequest updateProgramRequest);
+    ProgramResponse updateProgram(@PathVariable UUID creditProgramId, @RequestBody @Valid BankProgramRequest updateProgramRequest);
 }

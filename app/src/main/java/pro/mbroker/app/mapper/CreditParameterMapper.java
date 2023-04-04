@@ -1,19 +1,20 @@
 package pro.mbroker.app.mapper;
 
-import org.mapstruct.*;
-import pro.mbroker.api.dto.request.CreditParameterRequest;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
+import pro.mbroker.api.dto.request.CreditParameterResponse;
 import pro.mbroker.app.model.program.CreditParameter;
 
-@Mapper
+@Mapper(config = ProgramMapperConfig.class)
 public interface CreditParameterMapper {
     @Mapping(target = "id", ignore = true)
-    CreditParameter toCreditParameterMapper(CreditParameterRequest creditParameterRequest);
+    CreditParameter toCreditParameterMapper(CreditParameterResponse creditParameterResponse);
 
-    CreditParameterRequest toCreditParameterRequestMapper(CreditParameter creditParameterRequest);
+    CreditParameterResponse toCreditParameterResponseMapper(CreditParameter creditParameterRequest);
 
     @Mapping(target = "id", ignore = true)
-    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-    void updateCreditParameter(CreditParameterRequest creditParameterRequest, @MappingTarget CreditParameter creditParameter);
+    void updateCreditParameter(CreditParameterResponse creditParameterResponse, @MappingTarget CreditParameter creditParameter);
 
 }
 

@@ -17,20 +17,31 @@ import java.util.List;
 @Getter
 @Setter
 @ToString
-public class BankProgramSettingRequest {
+public class BankProgramRequest {
+
     @NotNull(message = "Program name is required")
     private String programName;
+
     private ZonedDateTime programStartDate;
+
     private ZonedDateTime programEndDate;
+
     @Size(max = 1000, message = "Description cannot be longer than 1000 characters")
     private String description;
+
     @Size(max = 1000, message = "Full description cannot be longer than 1000 characters")
     private String fullDescription;
+
     private List<CreditPurposeType> creditPurposeType;
+
     private List<RealEstateType> realEstateType;
+
     private List<RegionType> include;
+
     private List<RegionType> exclude;
-    private CreditParameterRequest creditParameter;
+
+    private CreditParameterResponse creditParameter;
+
     @DecimalMin(value = "0.00", inclusive = true, message = "Base rate cannot be negative")
     @DecimalMax(value = "100.00", inclusive = true, message = "Base rate cannot be greater than 100.00")
     private Double baseRate;
