@@ -5,7 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import pro.mbroker.api.controller.ClientProfileController;
-import pro.mbroker.api.dto.CreateProfileRequest;
+import pro.mbroker.api.dto.request.CreateProfileRequest;
 import pro.mbroker.api.dto.ProfilesList;
 import pro.mbroker.app.mapper.ProfileMapper;
 import pro.mbroker.app.model.profile.Profile;
@@ -14,7 +14,6 @@ import pro.smartdeal.ng.common.security.service.CurrentUserService;
 
 @Slf4j
 @Component
-@Transactional
 @RequiredArgsConstructor
 public class ClientProfileControllerImpl implements ClientProfileController {
 
@@ -28,6 +27,7 @@ public class ClientProfileControllerImpl implements ClientProfileController {
     }
 
     @Override
+    @Transactional
     public void createProfile(CreateProfileRequest request) {
         Profile newProfile = new Profile();
         newProfile.setCreatedBy((long) currentUserService.getCurrentUserid());

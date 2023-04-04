@@ -5,7 +5,7 @@ import io.swagger.annotations.ApiOperation;
 import lombok.NonNull;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import pro.mbroker.api.dto.BankResponse;
+import pro.mbroker.api.dto.response.BankResponse;
 
 import java.util.List;
 import java.util.UUID;

@@ -1,4 +1,4 @@
-package pro.mbroker.api.dto;
+package pro.mbroker.api.dto.response;
 
 import lombok.Getter;
 import lombok.Setter;

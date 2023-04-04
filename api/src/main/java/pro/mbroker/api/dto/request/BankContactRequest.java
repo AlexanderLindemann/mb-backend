@@ -1,17 +1,13 @@
-package pro.mbroker.api.dto;
+package pro.mbroker.api.dto.request;
 
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
-import java.util.UUID;
-
 @Getter
 @Setter
 @ToString
-public class BankContactResponse {
-    private UUID id;
-
+public class BankContactRequest {
     private String fullName;
 
     private String email;

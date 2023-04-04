@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import pro.mbroker.api.controller.BankController;
-import pro.mbroker.api.dto.BankResponse;
+import pro.mbroker.api.dto.response.BankResponse;
 import pro.mbroker.app.mapper.BankMapper;
 import pro.mbroker.app.model.bank.Bank;
 import pro.mbroker.app.service.BankService;
