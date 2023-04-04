@@ -20,13 +20,13 @@ import java.util.UUID;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "program")
-public class Program {
+@Table(name = "credit_program")
+public class CreditProgram {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
 
-    @Column(name = "program_name", nullable = false)
+    @Column(name = "credit_program_name", nullable = false)
     private String programName;
 
     @CreatedDate
@@ -44,9 +44,9 @@ public class Program {
 
     @OneToOne(fetch = FetchType.LAZY)
     @Cascade(org.hibernate.annotations.CascadeType.ALL)
-    @JoinColumn(name = "program_detail_id", referencedColumnName = "id")
+    @JoinColumn(name = "credit_program_detail_id", referencedColumnName = "id")
     @Fetch(FetchMode.JOIN)
-    private ProgramDetail programDetail;
+    private CreditProgramDetail creditProgramDetail;
 
     @OneToOne(fetch = FetchType.LAZY)
     @Cascade(org.hibernate.annotations.CascadeType.ALL)

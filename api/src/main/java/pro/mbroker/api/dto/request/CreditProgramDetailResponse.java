@@ -12,7 +12,7 @@ import java.util.List;
 @Getter
 @Setter
 @ToString
-public class ProgramDetailResponse {
+public class CreditProgramDetailResponse {
     private List<CreditPurposeType> creditPurposeType;
 
     private List<RealEstateType> realEstateType;

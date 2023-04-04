@@ -33,19 +33,19 @@
         </createTable>
     </changeSet>
 
-    <changeSet id="create-program-table" author="a.lindemann">
-        <createTable tableName="program">
+    <changeSet id="create-creditProgram-table" author="a.lindemann">
+        <createTable tableName="credit_program">
             <column name="id" type="uuid">
                 <constraints primaryKey="true"/>
             </column>
-            <column name="program_name" type="varchar(255)">
+            <column name="credit_program_name" type="varchar(255)">
                 <constraints nullable="false"/>
             </column>
             <column name="start_program_date" type="timestamp"/>
             <column name="end_program_date" type="timestamp"/>
             <column name="description" type="varchar(1000)"/>
             <column name="full_description" type="varchar(1000)"/>
-            <column name="program_detail_id" type="uuid">
+            <column name="credit_program_detail_id" type="uuid">
                 <constraints nullable="true"/>
             </column>
             <column name="credit_parameter_id" type="uuid">
@@ -54,8 +54,8 @@
             <column name="base_rate" type="numeric(10, 2)"/>
         </createTable>
     </changeSet>
-    <changeSet id="create-program-detail-table" author="a.lindemann">
-        <createTable tableName="program_detail">
+    <changeSet id="create-creditProgram-detail-table" author="a.lindemann">
+        <createTable tableName="credit_program_detail">
             <column name="id" type="uuid">
                 <constraints primaryKey="true"/>
             </column>
@@ -66,15 +66,15 @@
         </createTable>
     </changeSet>
 
-    <changeSet id="add-credit-parameter-foreign-key-to-program-table" author="a.lindemann">
-        <addForeignKeyConstraint baseTableName="program"
-                                 baseColumnNames="program_detail_id"
-                                 referencedTableName="program_detail"
+    <changeSet id="add-credit-parameter-foreign-key-to-creditProgram-table" author="a.lindemann">
+        <addForeignKeyConstraint baseTableName="credit_program"
+                                 baseColumnNames="credit_program_detail_id"
+                                 referencedTableName="credit_program_detail"
                                  referencedColumnNames="id"
                                  constraintName="FK_program"/>
     </changeSet>
-    <changeSet id="2023050210_1933-program-detail-table-update" author="a.lindemann">
-        <addForeignKeyConstraint baseTableName="program"
+    <changeSet id="2023050210_1933-creditProgram-detail-table-update" author="a.lindemann">
+        <addForeignKeyConstraint baseTableName="credit_program"
                                  baseColumnNames="credit_parameter_id"
                                  referencedTableName="credit_parameter"
                                  referencedColumnNames="id"

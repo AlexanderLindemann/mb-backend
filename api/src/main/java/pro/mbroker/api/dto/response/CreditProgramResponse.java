@@ -4,7 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import pro.mbroker.api.dto.request.CreditParameterResponse;
-import pro.mbroker.api.dto.request.ProgramDetailResponse;
+import pro.mbroker.api.dto.request.CreditProgramDetailResponse;
 
 import java.time.ZonedDateTime;
 import java.util.UUID;
@@ -12,7 +12,7 @@ import java.util.UUID;
 @Getter
 @Setter
 @ToString
-public class ProgramResponse {
+public class CreditProgramResponse {
     private UUID id;
 
     private String programName;
@@ -25,7 +25,7 @@ public class ProgramResponse {
 
     private String fullDescription;
 
-    private ProgramDetailResponse programDetail;
+    private CreditProgramDetailResponse creditProgramDetail;
 
     private CreditParameterResponse creditParameter;
 

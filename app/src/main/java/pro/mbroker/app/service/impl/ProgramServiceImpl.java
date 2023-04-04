@@ -7,12 +7,12 @@ import org.springframework.transaction.annotation.Transactional;
 import pro.mbroker.api.dto.request.BankProgramRequest;
 import pro.mbroker.app.exception.ItemNotFoundException;
 import pro.mbroker.app.mapper.CreditParameterMapper;
-import pro.mbroker.app.mapper.ProgramDetailMapper;
+import pro.mbroker.app.mapper.CreditProgramDetailMapper;
 import pro.mbroker.app.mapper.ProgramMapper;
 import pro.mbroker.app.model.program.CreditParameter;
-import pro.mbroker.app.model.program.Program;
-import pro.mbroker.app.model.program.ProgramDetail;
-import pro.mbroker.app.model.program.ProgramRepository;
+import pro.mbroker.app.model.program.CreditProgram;
+import pro.mbroker.app.model.program.CreditProgramDetail;
+import pro.mbroker.app.model.program.CreditProgramRepository;
 import pro.mbroker.app.service.ProgramService;
 
 import java.util.UUID;
@@ -22,45 +22,45 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class ProgramServiceImpl implements ProgramService {
     private final CreditParameterMapper creditParameterMapper;
-    private final ProgramRepository programRepository;
+    private final CreditProgramRepository creditProgramRepository;
     private final ProgramMapper programMapper;
-    private final ProgramDetailMapper programDetailMapper;
+    private final CreditProgramDetailMapper creditProgramDetailMapper;
 
 
     @Override
     @Transactional
-    public Program createCreditParameter(BankProgramRequest createCreditParameter, ProgramDetail programDetail) {
-        Program program = programMapper.toProgramMapper(createCreditParameter)
-                .setProgramDetail(programDetail)
+    public CreditProgram createCreditParameter(BankProgramRequest createCreditParameter, CreditProgramDetail creditProgramDetail) {
+        CreditProgram creditProgram = programMapper.toProgramMapper(createCreditParameter)
+                .setCreditProgramDetail(creditProgramDetail)
                 .setCreditParameter(creditParameterMapper.toCreditParameterMapper(createCreditParameter.getCreditParameter()));
-        return programRepository.save(program);
+        return creditProgramRepository.save(creditProgram);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public Program getProgramById(UUID creditProgramId) {
+    public CreditProgram getProgramById(UUID creditProgramId) {
         return getProgram(creditProgramId);
     }
 
     @Override
     @Transactional
-    public Program updateProgram(UUID creditProgramId, BankProgramRequest updateProgramRequest, ProgramDetail updateProgramDetail) {
-        Program program = programRepository.findById(creditProgramId)
-                .orElseThrow(() -> new ItemNotFoundException(Program.class, creditProgramId));
-        CreditParameter creditParameter = program.getCreditParameter();
+    public CreditProgram updateProgram(UUID creditProgramId, BankProgramRequest updateProgramRequest, CreditProgramDetail updateCreditProgramDetail) {
+        CreditProgram creditProgram = creditProgramRepository.findById(creditProgramId)
+                .orElseThrow(() -> new ItemNotFoundException(CreditProgram.class, creditProgramId));
+        CreditParameter creditParameter = creditProgram.getCreditParameter();
         CreditParameter updateCreditParameter = creditParameterMapper.toCreditParameterMapper(updateProgramRequest.getCreditParameter());
         if (!creditParameter.equals(updateCreditParameter)) {
             creditParameterMapper.updateCreditParameter(updateProgramRequest.getCreditParameter(), creditParameter);
         }
-        programMapper.updateProgramFromRequest(updateProgramRequest, program);
-        program.setCreditParameter(creditParameter);
-        ProgramDetail programDetailCurrent = program.getProgramDetail();
-        programDetailMapper.updateProgramDetail(updateProgramDetail, programDetailCurrent);
-        return programRepository.save(program);
+        programMapper.updateProgramFromRequest(updateProgramRequest, creditProgram);
+        creditProgram.setCreditParameter(creditParameter);
+        CreditProgramDetail creditProgramDetailCurrent = creditProgram.getCreditProgramDetail();
+        creditProgramDetailMapper.updateProgramDetail(updateCreditProgramDetail, creditProgramDetailCurrent);
+        return creditProgramRepository.save(creditProgram);
     }
 
-    private Program getProgram(UUID creditProgramId) {
-        return programRepository.findById(creditProgramId)
-                .orElseThrow(() -> new ItemNotFoundException(Program.class, creditProgramId));
+    private CreditProgram getProgram(UUID creditProgramId) {
+        return creditProgramRepository.findById(creditProgramId)
+                .orElseThrow(() -> new ItemNotFoundException(CreditProgram.class, creditProgramId));
     }
 }

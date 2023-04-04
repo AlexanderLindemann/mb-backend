@@ -9,8 +9,8 @@ import java.util.UUID;
 @Entity
 @Setter
 @Getter
-@Table(name = "program_detail")
-public class ProgramDetail {
+@Table(name = "credit_program_detail")
+public class CreditProgramDetail {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
