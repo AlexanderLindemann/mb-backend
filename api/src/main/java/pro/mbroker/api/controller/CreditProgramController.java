@@ -22,7 +22,7 @@ public interface CreditProgramController {
     @GetMapping("/{creditProgramId}")
     CreditProgramResponse getProgramById(@PathVariable UUID creditProgramId);
 
-    @ApiOperation("обновит программу кредита")
+    @ApiOperation("обновить программу кредита")
     @PutMapping("/{creditProgramId}")
     CreditProgramResponse updateProgram(@PathVariable UUID creditProgramId, @RequestBody @Valid BankProgramRequest updateProgramRequest);
 }

@@ -1,0 +1,21 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <changeSet id="add-bank-id-to-credit-program" author="a.lindemann">
+        <addColumn tableName="credit_program">
+            <column name="bank_id" type="uuid"/>
+        </addColumn>
+
+        <addForeignKeyConstraint
+                baseTableName="credit_program"
+                baseColumnNames="bank_id"
+                referencedTableName="bank"
+                referencedColumnNames="id"
+                constraintName="fk_credit_program_bank"
+        />
+    </changeSet>
+
+</databaseChangeLog>

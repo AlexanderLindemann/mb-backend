@@ -1,6 +1,7 @@
 package pro.mbroker.app.model.bank;
 
 import lombok.*;
+import pro.mbroker.app.model.program.CreditProgram;
 
 import javax.persistence.*;
 import java.util.List;
@@ -28,5 +29,8 @@ public class Bank {
 
     @OneToMany(mappedBy = "bank", cascade = CascadeType.ALL)
     private List<BankContact> contacts;
+
+    @OneToMany(mappedBy = "bank", cascade = CascadeType.ALL)
+    private List<CreditProgram> creditPrograms;
 
 }

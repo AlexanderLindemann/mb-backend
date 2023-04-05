@@ -8,6 +8,7 @@ import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 import org.springframework.data.annotation.CreatedDate;
+import pro.mbroker.app.model.bank.Bank;
 
 import javax.persistence.*;
 import javax.validation.constraints.DecimalMax;
@@ -57,4 +58,8 @@ public class CreditProgram {
     @DecimalMin(value = "0.00", inclusive = true, message = "Base rate cannot be negative")
     @DecimalMax(value = "100.00", inclusive = true, message = "Base rate cannot be greater than 100.00")
     private Double baseRate;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "bank_id")
+    private Bank bank;
 }
