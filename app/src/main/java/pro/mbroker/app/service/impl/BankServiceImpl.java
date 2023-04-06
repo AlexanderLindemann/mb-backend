@@ -9,10 +9,10 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import pro.mbroker.app.exception.ItemNotFoundException;
-import pro.mbroker.app.model.bank.Bank;
-import pro.mbroker.app.model.bank.BankRepository;
-import pro.mbroker.app.model.document.Attachment;
-import pro.mbroker.app.model.document.AttachmentRepository;
+import pro.mbroker.app.entity.Bank;
+import pro.mbroker.app.repository.BankRepository;
+import pro.mbroker.app.entity.Attachment;
+import pro.mbroker.app.repository.AttachmentRepository;
 import pro.mbroker.app.service.AttachmentService;
 import pro.mbroker.app.service.BankService;
 

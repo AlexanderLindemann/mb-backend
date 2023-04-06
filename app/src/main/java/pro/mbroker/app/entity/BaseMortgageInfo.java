@@ -1,9 +1,8 @@
-package pro.mbroker.app.model.baseMortgageInfo;
+package pro.mbroker.app.entity;
 
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import pro.mbroker.app.model.profile.Profile;
 
 import javax.persistence.*;
 import java.math.BigDecimal;

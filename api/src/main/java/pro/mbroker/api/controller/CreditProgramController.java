@@ -8,6 +8,7 @@ import pro.mbroker.api.dto.request.BankProgramRequest;
 import pro.mbroker.api.dto.response.CreditProgramResponse;
 
 import javax.validation.Valid;
+import java.util.List;
 import java.util.UUID;
 
 @Api("API программы кредита")
@@ -18,9 +19,13 @@ public interface CreditProgramController {
     @PostMapping()
     CreditProgramResponse createCreditProgram(@ApiParam(value = "Параметры кредита") @RequestBody BankProgramRequest request);
 
-    @ApiOperation("Получить программу кредита по creditProgramId")
-    @GetMapping("/{creditProgramId}")
-    CreditProgramResponse getProgramById(@PathVariable UUID creditProgramId);
+    @ApiOperation("Получить программу кредита по идентификатору")
+    @GetMapping("/credit-programs/{creditProgramId}")
+    CreditProgramResponse getProgramByCreditProgramId(@PathVariable UUID creditProgramId);
+
+    @ApiOperation("Получить список программ кредитования по идентификатору банка")
+    @GetMapping("/banks/{bankId}/credit-programs")
+    List<CreditProgramResponse> getProgramsByBankId(@PathVariable UUID bankId);
 
     @ApiOperation("обновить программу кредита")
     @PutMapping("/{creditProgramId}")

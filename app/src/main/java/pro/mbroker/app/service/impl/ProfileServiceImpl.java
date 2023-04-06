@@ -5,8 +5,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pro.mbroker.api.dto.request.CreateProfileRequest;
-import pro.mbroker.app.model.profile.Profile;
-import pro.mbroker.app.model.profile.ProfileRepository;
+import pro.mbroker.app.entity.Profile;
+import pro.mbroker.app.repository.ProfileRepository;
 import pro.mbroker.app.service.ProfileService;
 import pro.smartdeal.ng.common.security.service.CurrentUserService;
 

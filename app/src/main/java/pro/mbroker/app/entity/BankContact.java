@@ -1,4 +1,4 @@
-package pro.mbroker.app.model.bank;
+package pro.mbroker.app.entity;
 
 import lombok.*;
 
@@ -6,7 +6,6 @@ import javax.persistence.*;
 import java.util.UUID;
 
 @Entity
-@Builder
 @Getter
 @Setter
 @NoArgsConstructor

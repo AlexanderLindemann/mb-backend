@@ -1,12 +1,10 @@
-package pro.mbroker.app.model.profile;
+package pro.mbroker.app.entity;
 
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
-import pro.mbroker.app.model.baseMortgageInfo.BaseMortgageInfo;
-import pro.mbroker.app.model.document.Attachment;
 
 import javax.persistence.*;
 import java.time.ZonedDateTime;

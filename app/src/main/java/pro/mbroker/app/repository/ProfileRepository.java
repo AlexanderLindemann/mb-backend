@@ -1,6 +1,7 @@
-package pro.mbroker.app.model.profile;
+package pro.mbroker.app.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import pro.mbroker.app.entity.Profile;
 
 import java.util.List;
 

@@ -3,7 +3,7 @@ package pro.mbroker.app.mapper;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import pro.mbroker.api.dto.ProfileListItem;
-import pro.mbroker.app.model.profile.Profile;
+import pro.mbroker.app.entity.Profile;
 
 @Mapper
 public interface ProfileMapper {

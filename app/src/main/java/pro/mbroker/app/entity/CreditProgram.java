@@ -1,4 +1,4 @@
-package pro.mbroker.app.model.program;
+package pro.mbroker.app.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -8,7 +8,6 @@ import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 import org.springframework.data.annotation.CreatedDate;
-import pro.mbroker.app.model.bank.Bank;
 
 import javax.persistence.*;
 import javax.validation.constraints.DecimalMax;
@@ -62,4 +61,5 @@ public class CreditProgram {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "bank_id")
     private Bank bank;
+
 }

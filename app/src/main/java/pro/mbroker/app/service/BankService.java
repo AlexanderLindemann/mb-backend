@@ -1,7 +1,7 @@
 package pro.mbroker.app.service;
 
 import org.springframework.web.multipart.MultipartFile;
-import pro.mbroker.app.model.bank.Bank;
+import pro.mbroker.app.entity.Bank;
 
 import java.util.List;
 import java.util.UUID;

@@ -1,9 +1,11 @@
 package pro.mbroker.app.mapper;
 
-import org.mapstruct.*;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
 import pro.mbroker.api.dto.request.BankProgramRequest;
 import pro.mbroker.api.dto.request.CreditProgramDetailResponse;
-import pro.mbroker.app.model.program.CreditProgramDetail;
+import pro.mbroker.app.entity.CreditProgramDetail;
 
 @Mapper(config = ProgramMapperConfig.class)
 public interface CreditProgramDetailMapper {

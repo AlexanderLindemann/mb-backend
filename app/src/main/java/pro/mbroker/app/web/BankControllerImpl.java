@@ -6,9 +6,10 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import pro.mbroker.api.controller.BankController;
+import pro.mbroker.api.controller.CreditProgramController;
 import pro.mbroker.api.dto.response.BankResponse;
+import pro.mbroker.app.entity.Bank;
 import pro.mbroker.app.mapper.BankMapper;
-import pro.mbroker.app.model.bank.Bank;
 import pro.mbroker.app.service.BankService;
 
 import java.util.List;
@@ -22,6 +23,7 @@ public class BankControllerImpl implements BankController {
 
     private final BankService bankService;
     private final BankMapper bankMapper;
+    private final CreditProgramController creditProgramController;
 
     @Override
     @Transactional
@@ -52,7 +54,8 @@ public class BankControllerImpl implements BankController {
     @Transactional(readOnly = true)
     public BankResponse getBankById(UUID id) {
         Bank bank = bankService.getBankById(id);
-        return bankMapper.toBankResponseMapper(bank);
+        return bankMapper.toBankResponseMapper(bank)
+                .setCreditProgram(creditProgramController.getProgramsByBankId(id));
     }
 
     @Override

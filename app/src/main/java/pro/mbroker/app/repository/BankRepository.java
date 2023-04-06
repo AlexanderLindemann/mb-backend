@@ -1,7 +1,8 @@
-package pro.mbroker.app.model.bank;
+package pro.mbroker.app.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import pro.mbroker.app.entity.Bank;
 
 import java.util.UUID;
 

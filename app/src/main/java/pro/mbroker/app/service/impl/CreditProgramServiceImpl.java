@@ -5,32 +5,36 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pro.mbroker.api.dto.request.BankProgramRequest;
+import pro.mbroker.app.entity.CreditParameter;
+import pro.mbroker.app.entity.CreditProgram;
+import pro.mbroker.app.entity.CreditProgramDetail;
 import pro.mbroker.app.exception.ItemNotFoundException;
 import pro.mbroker.app.mapper.CreditParameterMapper;
 import pro.mbroker.app.mapper.CreditProgramDetailMapper;
 import pro.mbroker.app.mapper.ProgramMapper;
-import pro.mbroker.app.model.program.CreditParameter;
-import pro.mbroker.app.model.program.CreditProgram;
-import pro.mbroker.app.model.program.CreditProgramDetail;
-import pro.mbroker.app.model.program.CreditProgramRepository;
-import pro.mbroker.app.service.ProgramService;
+import pro.mbroker.app.repository.CreditProgramRepository;
+import pro.mbroker.app.service.BankService;
+import pro.mbroker.app.service.CreditProgramService;
 
+import java.util.List;
 import java.util.UUID;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class ProgramServiceImpl implements ProgramService {
+public class CreditProgramServiceImpl implements CreditProgramService {
     private final CreditParameterMapper creditParameterMapper;
     private final CreditProgramRepository creditProgramRepository;
     private final ProgramMapper programMapper;
     private final CreditProgramDetailMapper creditProgramDetailMapper;
+    private final BankService bankService;
 
 
     @Override
     @Transactional
     public CreditProgram createCreditParameter(BankProgramRequest createCreditParameter, CreditProgramDetail creditProgramDetail) {
         CreditProgram creditProgram = programMapper.toProgramMapper(createCreditParameter)
+                .setBank(bankService.getBankById(createCreditParameter.getBankId()))
                 .setCreditProgramDetail(creditProgramDetail)
                 .setCreditParameter(creditParameterMapper.toCreditParameterMapper(createCreditParameter.getCreditParameter()));
         return creditProgramRepository.save(creditProgram);
@@ -38,8 +42,18 @@ public class ProgramServiceImpl implements ProgramService {
 
     @Override
     @Transactional(readOnly = true)
-    public CreditProgram getProgramById(UUID creditProgramId) {
+    public CreditProgram getProgramByCreditProgramId(UUID creditProgramId) {
         return getProgram(creditProgramId);
+    }
+
+    @Override
+    public List<CreditProgram> getProgramByCreditProgramIds(List<UUID> creditProgramIds) {
+        return getPrograms(creditProgramIds);
+    }
+
+    private List<CreditProgram> getPrograms(List<UUID> creditProgramIds) {
+        List<CreditProgram> allByIdIn = creditProgramRepository.findAllByIdIn(creditProgramIds);
+        return allByIdIn;
     }
 
     @Override
@@ -57,6 +71,11 @@ public class ProgramServiceImpl implements ProgramService {
         CreditProgramDetail creditProgramDetailCurrent = creditProgram.getCreditProgramDetail();
         creditProgramDetailMapper.updateProgramDetail(updateCreditProgramDetail, creditProgramDetailCurrent);
         return creditProgramRepository.save(creditProgram);
+    }
+
+    @Override
+    public List<CreditProgram> getProgramsByBankId(UUID bankId) {
+        return creditProgramRepository.findAllByBankId(bankId);
     }
 
     private CreditProgram getProgram(UUID creditProgramId) {

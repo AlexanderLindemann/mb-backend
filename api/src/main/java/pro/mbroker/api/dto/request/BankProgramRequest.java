@@ -13,11 +13,14 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.time.ZonedDateTime;
 import java.util.List;
+import java.util.UUID;
 
 @Getter
 @Setter
 @ToString
 public class BankProgramRequest {
+    @NotNull
+    private UUID bankId;
 
     @NotNull(message = "Program name is required")
     private String programName;

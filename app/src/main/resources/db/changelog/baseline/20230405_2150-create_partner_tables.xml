@@ -1,0 +1,56 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <changeSet id="create-partner-table" author="a.lindemann">
+        <createTable tableName="partner">
+            <column name="id" type="uuid">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="partner_name" type="varchar(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="partner_type" type="varchar(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="real_estate_type" type="varchar"/>
+            <column name="residential_complex_name" type="varchar(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="region" type="varchar(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="address" type="varchar(100)"/>
+            <column name="credit_purpose_type" type="varchar"/>
+            <column name="bank_id" type="uuid">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet id="create-partner-credit-program-table" author="a.lindemann">
+        <createTable tableName="partner_credit_program">
+            <column name="partner_id" type="uuid">
+                <constraints nullable="false"/>
+            </column>
+            <column name="credit_program_id" type="uuid">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <addPrimaryKey columnNames="partner_id,credit_program_id"
+                       constraintName="pk_partner_credit_program" tableName="partner_credit_program"/>
+    </changeSet>
+
+    <changeSet id="add-partner-credit-program-foreign-keys" author="a.lindemann">
+        <addForeignKeyConstraint
+                baseTableName="partner_credit_program"
+                baseColumnNames="partner_id"
+                referencedTableName="partner"
+                referencedColumnNames="id"
+                foreignKeyConstraintName="fk_partner_credit_program_partner"
+                constraintName="fk_partner_credit_program_partner"/>
+
+    </changeSet>
+
+</databaseChangeLog>
