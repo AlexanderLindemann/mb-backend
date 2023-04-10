@@ -10,7 +10,7 @@ import pro.mbroker.api.dto.response.BankResponse;
 import java.util.List;
 import java.util.UUID;
 
-@Api("API Банка")
+@Api(value = "API Банка", tags = "API Банка")
 @RestController
 @RequestMapping("/public/bank")
 public interface BankController {

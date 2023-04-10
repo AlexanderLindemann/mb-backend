@@ -7,6 +7,9 @@ import pro.mbroker.api.dto.request.BankProgramRequest;
 import pro.mbroker.api.dto.response.CreditProgramResponse;
 import pro.mbroker.app.entity.CreditProgram;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Mapper(config = ProgramMapperConfig.class)
 public interface ProgramMapper {
     @Mapping(target = "creditProgramDetail", ignore = true)
@@ -24,4 +27,9 @@ public interface ProgramMapper {
     @Mapping(target = "bank", ignore = true)
     void updateProgramFromRequest(BankProgramRequest updateProgramRequest, @MappingTarget CreditProgram creditProgram);
 
+    default List<CreditProgramResponse> convertCreditProgramsToResponses(List<CreditProgram> creditPrograms) {
+        return creditPrograms.stream()
+                .map(this::toProgramResponseMapper)
+                .collect(Collectors.toList());
+    }
 }

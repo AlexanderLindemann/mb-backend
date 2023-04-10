@@ -5,7 +5,7 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-@Api("API Загрузки файлов")
+@Api(value = "API Загрузки файлов", tags = "API Загрузки файлов")
 @RestController
 @RequestMapping("/public/attachment")
 public interface AttachmentController {

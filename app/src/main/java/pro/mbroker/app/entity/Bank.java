@@ -28,10 +28,10 @@ public class Bank {
     @Column(name = "order_number")
     private Integer orderNumber;
 
-    @OneToMany(mappedBy = "bank", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "bank", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<BankContact> contacts;
 
-    @OneToMany(mappedBy = "bank", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "bank", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CreditProgram> creditPrograms;
 
 }

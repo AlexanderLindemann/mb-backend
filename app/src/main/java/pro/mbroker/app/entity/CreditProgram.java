@@ -5,8 +5,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.Cascade;
-import org.hibernate.annotations.Fetch;
-import org.hibernate.annotations.FetchMode;
 import org.springframework.data.annotation.CreatedDate;
 
 import javax.persistence.*;
@@ -45,13 +43,11 @@ public class CreditProgram {
     @OneToOne(fetch = FetchType.LAZY)
     @Cascade(org.hibernate.annotations.CascadeType.ALL)
     @JoinColumn(name = "credit_program_detail_id", referencedColumnName = "id")
-    @Fetch(FetchMode.JOIN)
     private CreditProgramDetail creditProgramDetail;
 
     @OneToOne(fetch = FetchType.LAZY)
     @Cascade(org.hibernate.annotations.CascadeType.ALL)
     @JoinColumn(name = "credit_parameter_id", referencedColumnName = "id")
-    @Fetch(FetchMode.JOIN)
     private CreditParameter creditParameter;
 
     @DecimalMin(value = "0.00", inclusive = true, message = "Base rate cannot be negative")

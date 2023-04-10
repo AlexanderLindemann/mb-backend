@@ -52,8 +52,7 @@ public class CreditProgramServiceImpl implements CreditProgramService {
     }
 
     private List<CreditProgram> getPrograms(List<UUID> creditProgramIds) {
-        List<CreditProgram> allByIdIn = creditProgramRepository.findAllByIdIn(creditProgramIds);
-        return allByIdIn;
+        return creditProgramRepository.findAllByIdIn(creditProgramIds);
     }
 
     @Override

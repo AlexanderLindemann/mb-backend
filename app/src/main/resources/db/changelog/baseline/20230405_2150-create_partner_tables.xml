@@ -4,31 +4,48 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
 
-    <changeSet id="create-partner-table" author="a.lindemann">
+    <changeSet id="create-partner-table-and-real_estate_address-tables" author="a.lindemann">
         <createTable tableName="partner">
             <column name="id" type="uuid">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
-            <column name="partner_name" type="varchar(100)">
+            <column name="smart_deal_organization_id" type="integer">
                 <constraints nullable="false"/>
             </column>
-            <column name="partner_type" type="varchar(50)">
+            <column name="name" type="varchar(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="type" type="varchar(50)">
                 <constraints nullable="false"/>
             </column>
             <column name="real_estate_type" type="varchar"/>
-            <column name="residential_complex_name" type="varchar(100)">
-                <constraints nullable="false"/>
-            </column>
-            <column name="region" type="varchar(50)">
-                <constraints nullable="false"/>
-            </column>
-            <column name="address" type="varchar(100)"/>
             <column name="credit_purpose_type" type="varchar"/>
             <column name="bank_id" type="uuid">
                 <constraints nullable="false"/>
             </column>
         </createTable>
+
+        <createTable tableName="real_estate_address">
+            <column name="id" type="uuid">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="residential_complex_name" type="varchar(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="region" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="address" type="varchar(100)"/>
+            <column name="partner_id" type="uuid">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <addForeignKeyConstraint baseTableName="real_estate_address" baseColumnNames="partner_id"
+                                 constraintName="fk_partner_real_estate_address_id"
+                                 referencedTableName="partner" referencedColumnNames="id"
+                                 onDelete="CASCADE"/>
     </changeSet>
+
     <changeSet id="create-partner-credit-program-table" author="a.lindemann">
         <createTable tableName="partner_credit_program">
             <column name="partner_id" type="uuid">
@@ -49,8 +66,16 @@
                 referencedTableName="partner"
                 referencedColumnNames="id"
                 foreignKeyConstraintName="fk_partner_credit_program_partner"
-                constraintName="fk_partner_credit_program_partner"/>
+                constraintName="fk_partner_credit_program_partner"
+                onDelete="CASCADE"/>
 
+        <addForeignKeyConstraint
+                baseTableName="partner_credit_program"
+                baseColumnNames="credit_program_id"
+                referencedTableName="credit_program"
+                referencedColumnNames="id"
+                foreignKeyConstraintName="fk_partner_credit_program_credit_program"
+                constraintName="fk_partner_credit_program_credit_program"/>
     </changeSet>
 
 </databaseChangeLog>

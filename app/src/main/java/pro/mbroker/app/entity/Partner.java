@@ -4,8 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.Cascade;
 import pro.mbroker.api.enums.PartnerType;
-import pro.mbroker.api.enums.RegionType;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -22,26 +22,19 @@ public class Partner {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
+    //ID организации из смарта
+    @Column(name = "smart_deal_organization_id", nullable = false)
+    private Integer smartDealOrganizationId;
     //Название партнера
-    @Column(name = "partner_name", nullable = false)
-    private String partnerName;
+    @Column(name = "name", nullable = false)
+    private String name;
     //Тип партнера
-    @Column(name = "partner_type", nullable = false)
+    @Column(name = "type", nullable = false)
     @Enumerated(EnumType.STRING)
-    private PartnerType partnerType;
+    private PartnerType type;
     //Вид недвижимости
     @Column(name = "real_estate_type")
     private String realEstateType;
-    //Название ЖК
-    @Column(name = "residential_complex_name", nullable = false, length = 100)
-    private String residentialComplexName;
-    //Регион
-    @Column(name = "region", nullable = false)
-    @Enumerated(EnumType.STRING)
-    private RegionType region;
-    //Адрес
-    @Column(name = "address", length = 100)
-    private String address;
     //Цель кредита
     @Column(name = "credit_purpose_type")
     private String creditPurposeType;
@@ -56,4 +49,8 @@ public class Partner {
             joinColumns = @JoinColumn(name = "partner_id"),
             inverseJoinColumns = @JoinColumn(name = "credit_program_id"))
     private List<CreditProgram> creditPrograms = new ArrayList<>();
+    @OneToMany(mappedBy = "partner", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Cascade(org.hibernate.annotations.CascadeType.DELETE)
+    private List<RealEstateAddress> realEstateAddress = new ArrayList<>();
+
 }

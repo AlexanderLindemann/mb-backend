@@ -6,7 +6,6 @@ import lombok.ToString;
 import pro.mbroker.api.enums.CreditPurposeType;
 import pro.mbroker.api.enums.PartnerType;
 import pro.mbroker.api.enums.RealEstateType;
-import pro.mbroker.api.enums.RegionType;
 
 import java.util.List;
 import java.util.UUID;
@@ -17,19 +16,17 @@ import java.util.UUID;
 public class PartnerResponse {
     private UUID id;
 
-    private String partnerName;
+    private Integer smartDealOrganizationId;
 
-    private PartnerType partnerType;
+    private String name;
+
+    private PartnerType type;
 
     private List<RealEstateType> realEstateType;
 
-    private String residentialComplexName;
-
-    private RegionType region;
-
-    private String address;
-
     private List<CreditPurposeType> creditPurposeType;
+
+    private List<RealEstateAddressResponse> realEstateAddress;
 
     private BankResponse bank;
 
