@@ -26,7 +26,7 @@ public class Partner {
     @Column(name = "smart_deal_organization_id", nullable = false)
     private Integer smartDealOrganizationId;
     //Название партнера
-    @Column(name = "name", nullable = false)
+    @Column(name = "name", nullable = false, length = 1000)
     private String name;
     //Тип партнера
     @Column(name = "type", nullable = false)

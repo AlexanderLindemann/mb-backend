@@ -20,7 +20,7 @@ public class RealEstateAddress {
     private UUID id;
 
     //Название ЖК
-    @Column(name = "residential_complex_name", nullable = false, length = 100)
+    @Column(name = "residential_complex_name", nullable = false, length = 1000)
     private String residentialComplexName;
 
     //Регион
@@ -28,7 +28,7 @@ public class RealEstateAddress {
     @Enumerated(EnumType.STRING)
     private RegionType region;
     //Адрес
-    @Column(name = "address", length = 100)
+    @Column(name = "address", length = 1000)
     private String address;
 
     @ManyToOne(fetch = FetchType.LAZY)
