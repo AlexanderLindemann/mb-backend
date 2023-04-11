@@ -15,7 +15,8 @@ public interface DirectoryService {
     List<Class<? extends EnumWithValue<String>>> DIRECTORY_ENUMS = Arrays.asList(
             CreditPurposeType.class,
             EmploymentType.class,
-            RealEstateType.class
+            RealEstateType.class,
+            RegionType.class
     );
     List<Class<? extends EnumWithValue<String>>> REGION_ENUMS = Arrays.asList(
             RegionType.class
@@ -23,7 +24,4 @@ public interface DirectoryService {
 
 
     List<EnumDescription> getAllDirectory();
-
-
-    List<EnumDescription> getAllRegion();
 }
