@@ -11,3 +11,6 @@ databaseChangeLog:
   - include:
       file: 20230405_1000-add_foreign_key_constraint_bank_to_credit_program.xml
       relativeToChangelogFile: true
+  - include:
+      file: 20230405_2150-create_partner_tables.xml
+      relativeToChangelogFile: true

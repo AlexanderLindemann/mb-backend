@@ -1,14 +1,15 @@
-package pro.mbroker.app.model.bank;
+package pro.mbroker.app.entity;
 
-import lombok.*;
-import pro.mbroker.app.model.program.CreditProgram;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import javax.persistence.*;
 import java.util.List;
 import java.util.UUID;
 
 @Entity
-@Builder
 @Getter
 @Setter
 @NoArgsConstructor
@@ -27,10 +28,10 @@ public class Bank {
     @Column(name = "order_number")
     private Integer orderNumber;
 
-    @OneToMany(mappedBy = "bank", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "bank", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<BankContact> contacts;
 
-    @OneToMany(mappedBy = "bank", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "bank", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CreditProgram> creditPrograms;
 
 }

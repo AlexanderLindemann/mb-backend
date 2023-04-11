@@ -4,7 +4,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import pro.mbroker.api.dto.request.CreditParameterResponse;
-import pro.mbroker.app.model.program.CreditParameter;
+import pro.mbroker.app.entity.CreditParameter;
 
 @Mapper(config = ProgramMapperConfig.class)
 public interface CreditParameterMapper {

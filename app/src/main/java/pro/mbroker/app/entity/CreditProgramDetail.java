@@ -1,4 +1,4 @@
-package pro.mbroker.app.model.program;
+package pro.mbroker.app.entity;
 
 import lombok.Getter;
 import lombok.Setter;

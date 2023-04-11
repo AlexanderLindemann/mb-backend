@@ -4,11 +4,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import pro.mbroker.app.entity.Bank;
+import pro.mbroker.app.entity.BankContact;
 import pro.mbroker.app.exception.ItemNotFoundException;
-import pro.mbroker.app.model.bank.Bank;
-import pro.mbroker.app.model.bank.BankContact;
-import pro.mbroker.app.model.bank.BankContactRepository;
-import pro.mbroker.app.model.bank.BankRepository;
+import pro.mbroker.app.repository.BankContactRepository;
+import pro.mbroker.app.repository.BankRepository;
 import pro.mbroker.app.service.BankContactService;
 
 import java.util.UUID;

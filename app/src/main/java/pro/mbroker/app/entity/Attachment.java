@@ -1,4 +1,4 @@
-package pro.mbroker.app.model.document;
+package pro.mbroker.app.entity;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;

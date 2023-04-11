@@ -9,7 +9,7 @@ import pro.mbroker.api.dto.response.EnumDescription;
 
 import java.util.List;
 
-@Api("API справочника")
+@Api(value = "API справочника", tags = "API справочника")
 @RestController
 @RequestMapping("/public/filter")
 public interface DirectoryController {
