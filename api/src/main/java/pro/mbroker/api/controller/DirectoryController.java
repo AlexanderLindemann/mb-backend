@@ -17,8 +17,4 @@ public interface DirectoryController {
     @GetMapping("/directory")
     List<EnumDescription> getAllDirectory();
 
-    @ApiOperation("Получить все возможные типы ENUM регионов")
-    @GetMapping("/region")
-    List<EnumDescription> getAllRegion();
-
 }

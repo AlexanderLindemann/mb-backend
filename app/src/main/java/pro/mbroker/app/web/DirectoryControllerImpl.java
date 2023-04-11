@@ -20,9 +20,4 @@ public class DirectoryControllerImpl implements DirectoryController {
         return directoryService.getAllDirectory();
     }
 
-    @Override
-    public List<EnumDescription> getAllRegion() {
-        return directoryService.getAllRegion();
-    }
-
 }
