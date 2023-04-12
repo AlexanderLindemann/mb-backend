@@ -52,6 +52,12 @@ public class PartnerRealEstateControllerImpl implements PartnerRealEstateControl
         return buildPartnerResponse(partner);
     }
 
+    @Override
+    public List<RealEstateAddressResponse> getRealEstateAddressByPartnerId(UUID partnerId) {
+        List<RealEstateAddress> address = partnerRealEstateService.getRealEstateAddressByPartnerId(partnerId);
+        return realEstateAddressMapper.toRealEstateAddressResponseList(address);
+    }
+
     private PartnerResponse buildPartnerResponse(Partner partner) {
         List<CreditProgramResponse> creditProgramResponses = programMapper.convertCreditProgramsToResponses(partner.getCreditPrograms());
         BankResponse bankResponse = bankMapper.toBankResponseMapper(partner.getBank());

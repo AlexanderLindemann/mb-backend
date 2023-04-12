@@ -12,6 +12,7 @@ import pro.mbroker.app.repository.RealEstateAddressRepository;
 import pro.mbroker.app.service.PartnerRealEstateService;
 import pro.mbroker.app.service.PartnerService;
 
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -44,6 +45,12 @@ public class PartnerRealEstateServiceImpl implements PartnerRealEstateService {
         RealEstateAddress realEstateAddress = getRealEstateAddress(addressId);
         realEstateAddressMapper.updateRealEstateAddress(request, realEstateAddress);
         return realEstateAddressRepository.save(realEstateAddress);
+    }
+
+    @Override
+    public List<RealEstateAddress> getRealEstateAddressByPartnerId(UUID partnerId) {
+        List<RealEstateAddress> allByPartnerId = realEstateAddressRepository.findAllByPartnerId(partnerId);
+        return allByPartnerId;
     }
 
     @Transactional(readOnly = true)

@@ -1,4 +1,4 @@
-package pro.mbroker.app;
+package pro.mbroker.app.service;
 
 import org.hamcrest.Matchers;
 import org.junit.Test;
@@ -9,29 +9,25 @@ import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Transactional;
 import pro.mbroker.app.entity.Bank;
-import pro.mbroker.app.entity.BankContact;
 import pro.mbroker.app.repository.BankRepository;
-import pro.mbroker.app.service.BankContactService;
-import pro.mbroker.app.service.BankService;
 
 import java.util.List;
 import java.util.UUID;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hibernate.validator.internal.util.Contracts.assertNotNull;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @Transactional
 @Sql(scripts = "classpath:sql/test_data.sql")
+@Sql(value = "classpath:sql/clear_all.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
 public class BankServiceTest {
 
     @Autowired
     private BankService bankService;
-    @Autowired
-    private BankContactService bankContactService;
-
     @Autowired
     private BankRepository bankRepository;
 
@@ -66,13 +62,6 @@ public class BankServiceTest {
         Bank bank = bankService.getBankById(UUID.fromString("0c371042-d848-11ed-afa1-0242ac120002"));
         assertNotNull(bank.getId());
         assertEquals("aTestBank1", bank.getName());
-    }
-
-    @Test
-    public void testDeleteBank() {
-        bankService.deleteBankById(UUID.fromString("0c371042-d848-11ed-afa1-0242ac120002"));
-        List<Bank> allBankSortByName = bankService.getAllBank(0, 10, "name", "asc");
-        assertFalse(allBankSortByName.stream().anyMatch(bank -> bank.getId().equals("0c371042-d848-11ed-afa1-0242ac120002")));
     }
 
 }

@@ -34,16 +34,12 @@ public interface BankController {
                                   @RequestParam(defaultValue = "asc") String sortOrder);
 
     @ApiOperation("получить банк по id")
-    @GetMapping("/{id}")
+    @GetMapping("/{bankId}")
     BankResponse getBankById(@PathVariable UUID bankId);
 
     @ApiOperation("получить logo по id банка")
     @GetMapping("/{bankId}/logo")
     MultipartFile getLogoBankById(@PathVariable UUID bankId);
-
-    @ApiOperation("удалить банк по id")
-    @DeleteMapping("/{id}")
-    void deleteBank(@PathVariable UUID bankId);
 
     @ApiOperation("обновить name банка по id банка")
     @PutMapping("/{id}")

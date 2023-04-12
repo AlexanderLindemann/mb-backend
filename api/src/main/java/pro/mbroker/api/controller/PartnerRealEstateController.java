@@ -5,8 +5,10 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.web.bind.annotation.*;
 import pro.mbroker.api.dto.request.RealEstateAddressRequest;
 import pro.mbroker.api.dto.response.PartnerResponse;
+import pro.mbroker.api.dto.response.RealEstateAddressResponse;
 
 import javax.validation.Valid;
+import java.util.List;
 import java.util.UUID;
 
 @Api(value = "API Адресов ЖК Застройщика", tags = "API Адресов ЖК Застройщика")
@@ -30,4 +32,8 @@ public interface PartnerRealEstateController {
     @ApiOperation("обновить данные по ЖК застройщика")
     @PutMapping("/{addressId}")
     PartnerResponse updateRealEstateAddress(@PathVariable UUID addressId, @RequestBody @Valid RealEstateAddressRequest request);
+
+    @ApiOperation("получить все ЖК по id застройщика")
+    @GetMapping("/{partnerId}/all")
+    List<RealEstateAddressResponse> getRealEstateAddressByPartnerId(@PathVariable UUID partnerId);
 }

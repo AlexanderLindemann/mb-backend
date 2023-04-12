@@ -52,7 +52,6 @@ public class PartnerControllerImpl implements PartnerController {
         Partner partner = partnerService.getPartner(partnerId);
         return buildPartnerResponse(partner);
     }
-
     private PartnerResponse buildPartnerResponse(Partner partner) {
         List<CreditProgramResponse> creditProgramResponses = partner.getCreditPrograms().stream()
                 .map(creditProgram -> programMapper.toProgramResponseMapper(creditProgram)
