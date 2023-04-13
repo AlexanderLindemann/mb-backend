@@ -53,8 +53,8 @@ public class PartnerRealEstateControllerImpl implements PartnerRealEstateControl
     }
 
     @Override
-    public List<RealEstateAddressResponse> getRealEstateAddressByPartnerId(UUID partnerId) {
-        List<RealEstateAddress> address = partnerRealEstateService.getRealEstateAddressByPartnerId(partnerId);
+    public List<RealEstateAddressResponse> getRealEstateAddressByPartnerId(int page, int size, String sortBy, String sortOrder, UUID partnerId) {
+        List<RealEstateAddress> address = partnerRealEstateService.getRealEstateAddressByPartnerId(page, size, sortBy, sortOrder, partnerId);
         return realEstateAddressMapper.toRealEstateAddressResponseList(address);
     }
 

@@ -2,6 +2,10 @@ package pro.mbroker.app.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pro.mbroker.api.dto.request.RealEstateAddressRequest;
@@ -48,9 +52,11 @@ public class PartnerRealEstateServiceImpl implements PartnerRealEstateService {
     }
 
     @Override
-    public List<RealEstateAddress> getRealEstateAddressByPartnerId(UUID partnerId) {
-        List<RealEstateAddress> allByPartnerId = realEstateAddressRepository.findAllByPartnerId(partnerId);
-        return allByPartnerId;
+    public List<RealEstateAddress> getRealEstateAddressByPartnerId(int page, int size, String sortBy, String sortOrder, UUID partnerId) {
+        Sort sort = Sort.by(Sort.Direction.fromString(sortOrder), sortBy);
+        Pageable pageable = PageRequest.of(page, size, sort);
+        Page<RealEstateAddress> allByPartnerId = realEstateAddressRepository.findAllByPartnerId(partnerId, pageable);
+        return allByPartnerId.getContent();
     }
 
     @Transactional(readOnly = true)

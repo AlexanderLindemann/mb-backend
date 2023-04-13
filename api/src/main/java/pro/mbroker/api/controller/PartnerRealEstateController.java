@@ -35,5 +35,9 @@ public interface PartnerRealEstateController {
 
     @ApiOperation("получить все ЖК по id застройщика")
     @GetMapping("/{partnerId}/all")
-    List<RealEstateAddressResponse> getRealEstateAddressByPartnerId(@PathVariable UUID partnerId);
+    List<RealEstateAddressResponse> getRealEstateAddressByPartnerId(@RequestParam(defaultValue = "0") int page,
+                                                                    @RequestParam(defaultValue = "10") int size,
+                                                                    @RequestParam(defaultValue = "name") String sortBy,
+                                                                    @RequestParam(defaultValue = "asc") String sortOrder,
+                                                                    @PathVariable UUID partnerId);
 }

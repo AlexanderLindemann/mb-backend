@@ -14,5 +14,5 @@ public interface PartnerRealEstateService {
 
     RealEstateAddress updateRealEstateAddress(UUID addressId, RealEstateAddressRequest request);
 
-    List<RealEstateAddress> getRealEstateAddressByPartnerId(UUID partnerId);
+    List<RealEstateAddress> getRealEstateAddressByPartnerId(int page, int size, String sortBy, String sortOrder, UUID partnerId);
 }
