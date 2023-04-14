@@ -27,6 +27,6 @@ public interface PartnerController {
                                         @RequestParam(defaultValue = "asc") String sortOrder);
 
     @ApiOperation("получить партнера по id")
-    @GetMapping("/{id}")
+    @GetMapping("/{partnerId}")
     PartnerResponse getPartnerById(@PathVariable UUID partnerId);
 }

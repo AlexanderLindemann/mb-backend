@@ -66,13 +66,6 @@ public class BankControllerImpl implements BankController {
 
     @Override
     @Transactional
-    public void deleteBank(UUID id) {
-        bankService.deleteBankById(id);
-    }
-
-
-    @Override
-    @Transactional
     public BankResponse updateBankName(UUID id, String name) {
         Bank bank = bankService.updateBankName(id, name);
         return bankMapper.toBankResponseMapper(bank);

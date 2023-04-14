@@ -17,6 +17,7 @@ import pro.mbroker.app.mapper.ProgramMapper;
 import pro.mbroker.app.mapper.RealEstateAddressMapper;
 import pro.mbroker.app.service.PartnerRealEstateService;
 import pro.mbroker.app.service.PartnerService;
+import pro.mbroker.app.util.Pagination;
 
 import java.util.List;
 import java.util.UUID;
@@ -50,6 +51,12 @@ public class PartnerRealEstateControllerImpl implements PartnerRealEstateControl
         RealEstateAddress realEstateAddress = partnerRealEstateService.updateRealEstateAddress(addressId, request);
         Partner partner = partnerService.getPartner(realEstateAddress.getPartner().getId());
         return buildPartnerResponse(partner);
+    }
+
+    @Override
+    public List<RealEstateAddressResponse> getRealEstateAddressByPartnerId(int page, int size, String sortBy, String sortOrder, UUID partnerId) {
+        List<RealEstateAddress> address = partnerRealEstateService.getRealEstateAddressByPartnerId(new Pagination(page, size, sortBy, sortOrder), partnerId);
+        return realEstateAddressMapper.toRealEstateAddressResponseList(address);
     }
 
     private PartnerResponse buildPartnerResponse(Partner partner) {
