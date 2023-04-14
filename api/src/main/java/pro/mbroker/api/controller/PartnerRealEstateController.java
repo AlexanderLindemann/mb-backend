@@ -24,17 +24,17 @@ public interface PartnerRealEstateController {
     );
 
     @ApiOperation("удалить адрес застройщика по id")
-    @DeleteMapping("/{addressId}/")
+    @DeleteMapping("/{realEstateId}/")
     void deleteRealEstateAddress(
-            @PathVariable UUID addressId
+            @PathVariable UUID realEstateId
     );
 
     @ApiOperation("обновить данные по ЖК застройщика")
-    @PutMapping("/{addressId}")
-    PartnerResponse updateRealEstateAddress(@PathVariable UUID addressId, @RequestBody @Valid RealEstateAddressRequest request);
+    @PutMapping("/{realEstateId}")
+    PartnerResponse updateRealEstateAddress(@PathVariable UUID realEstateId, @RequestBody @Valid RealEstateAddressRequest request);
 
     @ApiOperation("получить все ЖК по id застройщика")
-    @GetMapping("/{partnerId}/all")
+    @GetMapping("/{partnerId}/real_estate")
     List<RealEstateAddressResponse> getRealEstateAddressByPartnerId(@RequestParam(defaultValue = "0") int page,
                                                                     @RequestParam(defaultValue = "10") int size,
                                                                     @RequestParam(defaultValue = "name") String sortBy,
