@@ -15,6 +15,7 @@ import pro.mbroker.app.mapper.RealEstateAddressMapper;
 import pro.mbroker.app.repository.RealEstateAddressRepository;
 import pro.mbroker.app.service.PartnerRealEstateService;
 import pro.mbroker.app.service.PartnerService;
+import pro.mbroker.app.util.Pagination;
 
 import java.util.List;
 import java.util.UUID;
@@ -52,9 +53,9 @@ public class PartnerRealEstateServiceImpl implements PartnerRealEstateService {
     }
 
     @Override
-    public List<RealEstateAddress> getRealEstateAddressByPartnerId(int page, int size, String sortBy, String sortOrder, UUID partnerId) {
-        Sort sort = Sort.by(Sort.Direction.fromString(sortOrder), sortBy);
-        Pageable pageable = PageRequest.of(page, size, sort);
+    public List<RealEstateAddress> getRealEstateAddressByPartnerId(Pagination pagination, UUID partnerId) {
+        Sort sort = Sort.by(Sort.Direction.fromString(pagination.getSortOrder()), pagination.getSortBy());
+        Pageable pageable = PageRequest.of(pagination.getPage(), pagination.getSize(), sort);
         Page<RealEstateAddress> allByPartnerId = realEstateAddressRepository.findAllByPartnerId(partnerId, pageable);
         return allByPartnerId.getContent();
     }
