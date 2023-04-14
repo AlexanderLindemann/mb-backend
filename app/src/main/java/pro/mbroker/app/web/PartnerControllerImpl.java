@@ -9,10 +9,9 @@ import pro.mbroker.api.dto.request.PartnerRequest;
 import pro.mbroker.api.dto.response.CreditProgramResponse;
 import pro.mbroker.api.dto.response.PartnerResponse;
 import pro.mbroker.app.entity.Partner;
-import pro.mbroker.app.mapper.BankMapper;
 import pro.mbroker.app.mapper.PartnerMapper;
 import pro.mbroker.app.mapper.ProgramMapper;
-import pro.mbroker.app.mapper.RealEstateAddressMapper;
+import pro.mbroker.app.mapper.RealEstateMapper;
 import pro.mbroker.app.service.PartnerService;
 import pro.mbroker.app.util.CreditProgramConverter;
 
@@ -26,8 +25,7 @@ import java.util.stream.Collectors;
 public class PartnerControllerImpl implements PartnerController {
     private final PartnerService partnerService;
     private final PartnerMapper partnerMapper;
-    private final RealEstateAddressMapper realEstateAddressMapper;
-    private final BankMapper bankMapper;
+    private final RealEstateMapper realEstateMapper;
     private final ProgramMapper programMapper;
     private final CreditProgramConverter creditProgramConverter;
 
@@ -52,6 +50,7 @@ public class PartnerControllerImpl implements PartnerController {
         Partner partner = partnerService.getPartner(partnerId);
         return buildPartnerResponse(partner);
     }
+
     private PartnerResponse buildPartnerResponse(Partner partner) {
         List<CreditProgramResponse> creditProgramResponses = partner.getCreditPrograms().stream()
                 .map(creditProgram -> programMapper.toProgramResponseMapper(creditProgram)
@@ -61,8 +60,7 @@ public class PartnerControllerImpl implements PartnerController {
 
         return partnerMapper.toPartnerResponseMapper(partner)
                 .setBankCreditProgram(creditProgramResponses)
-                .setRealEstateAddress(realEstateAddressMapper.toRealEstateAddressResponseList(partner.getRealEstateAddress()))
-                .setBank(bankMapper.toBankResponseMapper(partner.getBank()));
+                .setRealEstates(realEstateMapper.toRealEstateAddressResponseList(partner.getRealEstates()));
     }
 
 }

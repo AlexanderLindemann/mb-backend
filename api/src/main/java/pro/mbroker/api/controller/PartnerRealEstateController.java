@@ -3,9 +3,9 @@ package pro.mbroker.api.controller;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.web.bind.annotation.*;
-import pro.mbroker.api.dto.request.RealEstateAddressRequest;
+import pro.mbroker.api.dto.request.RealEstateRequest;
 import pro.mbroker.api.dto.response.PartnerResponse;
-import pro.mbroker.api.dto.response.RealEstateAddressResponse;
+import pro.mbroker.api.dto.response.RealEstateResponse;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -20,7 +20,7 @@ public interface PartnerRealEstateController {
     @PostMapping("/{partnerId}/")
     PartnerResponse addRealEstateAddress(
             @PathVariable UUID partnerId,
-            @RequestBody RealEstateAddressRequest request
+            @RequestBody RealEstateRequest request
     );
 
     @ApiOperation("удалить адрес застройщика по id")
@@ -31,13 +31,13 @@ public interface PartnerRealEstateController {
 
     @ApiOperation("обновить данные по ЖК застройщика")
     @PutMapping("/{realEstateId}")
-    PartnerResponse updateRealEstateAddress(@PathVariable UUID realEstateId, @RequestBody @Valid RealEstateAddressRequest request);
+    PartnerResponse updateRealEstateAddress(@PathVariable UUID realEstateId, @RequestBody @Valid RealEstateRequest request);
 
     @ApiOperation("получить все ЖК по id застройщика")
     @GetMapping("/{partnerId}/real_estate")
-    List<RealEstateAddressResponse> getRealEstateAddressByPartnerId(@RequestParam(defaultValue = "0") int page,
-                                                                    @RequestParam(defaultValue = "10") int size,
-                                                                    @RequestParam(defaultValue = "name") String sortBy,
-                                                                    @RequestParam(defaultValue = "asc") String sortOrder,
-                                                                    @PathVariable UUID partnerId);
+    List<RealEstateResponse> getRealEstateAddressByPartnerId(@RequestParam(defaultValue = "0") int page,
+                                                             @RequestParam(defaultValue = "10") int size,
+                                                             @RequestParam(defaultValue = "name") String sortBy,
+                                                             @RequestParam(defaultValue = "asc") String sortOrder,
+                                                             @PathVariable UUID partnerId);
 }

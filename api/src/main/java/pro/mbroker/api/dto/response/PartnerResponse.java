@@ -26,9 +26,7 @@ public class PartnerResponse {
 
     private List<CreditPurposeType> creditPurposeType;
 
-    private List<RealEstateAddressResponse> realEstateAddress;
-
-    private BankResponse bank;
+    private List<RealEstateResponse> realEstates;
 
     private List<CreditProgramResponse> bankCreditProgram;
 }

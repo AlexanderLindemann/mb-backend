@@ -1,7 +1,7 @@
 package pro.mbroker.app.service;
 
-import pro.mbroker.api.dto.request.RealEstateAddressRequest;
-import pro.mbroker.app.entity.RealEstateAddress;
+import pro.mbroker.api.dto.request.RealEstateRequest;
+import pro.mbroker.app.entity.RealEstate;
 import pro.mbroker.app.util.Pagination;
 
 import java.util.List;
@@ -9,11 +9,11 @@ import java.util.UUID;
 
 public interface PartnerRealEstateService {
 
-    RealEstateAddress addRealEstateAddress(UUID partnerId, RealEstateAddressRequest request);
+    RealEstate addRealEstateAddress(UUID partnerId, RealEstateRequest request);
 
     void deleteRealEstateAddress(UUID addressId);
 
-    RealEstateAddress updateRealEstateAddress(UUID addressId, RealEstateAddressRequest request);
+    RealEstate updateRealEstateAddress(UUID addressId, RealEstateRequest request);
 
-    List<RealEstateAddress> getRealEstateAddressByPartnerId(Pagination pagination, UUID partnerId);
+    List<RealEstate> getRealEstateAddressByPartnerId(Pagination pagination, UUID partnerId);
 }

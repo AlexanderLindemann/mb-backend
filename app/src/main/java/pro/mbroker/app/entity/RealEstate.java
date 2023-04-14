@@ -12,8 +12,8 @@ import java.util.UUID;
 @ToString(of = "id")
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "real_estate_address")
-public class RealEstateAddress {
+@Table(name = "real_estate")
+public class RealEstate {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
