@@ -30,6 +30,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @RequiredArgsConstructor
 public class CalculatorServiceImpl implements CalculatorService {
+    public static final int MONTHS_IN_YEAR = 12;
     private final RealEstateRepository realEstateRepository;
     private final DirectoryService directoryService;
 
@@ -44,7 +45,7 @@ public class CalculatorServiceImpl implements CalculatorService {
         }
         return new PropertyMortgageDTO()
                 .setMortgageSum(request.getMortgageSum())
-                .setCreditTerm(request.getCreditTerm() * 12)
+                .setCreditTerm(request.getCreditTerm() * MONTHS_IN_YEAR)
                 .setDownPayment(request.getDownPayment())
                 .setBankLoanProgramDto(new ArrayList<>(bankLoanProgramDtoMap.values()));
     }
@@ -55,11 +56,11 @@ public class CalculatorServiceImpl implements CalculatorService {
     }
 
     private LoanProgramCalculationDto createLoanProgramCalculationDto(CalculatorRequest request, CreditProgram creditProgram) {
-        BigDecimal calculateMonthlyPayment = calculateMonthlyPayment(request.getMortgageSum(), request.getDownPayment(), creditProgram.getBaseRate(), request.getCreditTerm() * 12);
+        BigDecimal calculateMonthlyPayment = calculateMonthlyPayment(request.getMortgageSum(), request.getDownPayment(), creditProgram.getBaseRate(), request.getCreditTerm() * MONTHS_IN_YEAR);
         return new LoanProgramCalculationDto()
                 .setCalculatedRate(creditProgram.getBaseRate())
                 .setMonthlyPayment(calculateMonthlyPayment)
-                .setOverpayment(calculateOverpayment(calculateMonthlyPayment, request.getCreditTerm() * 12, request.getMortgageSum()));
+                .setOverpayment(calculateOverpayment(calculateMonthlyPayment, request.getCreditTerm() * MONTHS_IN_YEAR, request.getMortgageSum()));
     }
 
     private List<CreditProgram> filterCreditPrograms(CalculatorRequest request) {
@@ -78,8 +79,8 @@ public class CalculatorServiceImpl implements CalculatorService {
         return creditPurposeTypes.contains(request.getCreditPurposeType()) &&
                 realEstateTypes.contains(request.getRealEstateType()) &&
                 mortgageSum.compareTo(creditProgram.getCreditParameter().getMaxMortgageSum()) <= 0 &&
-                creditProgram.getCreditParameter().getMinCreditTerm() <= request.getCreditTerm() * 12 &&
-                creditProgram.getCreditParameter().getMaxCreditTerm() >= request.getCreditTerm() * 12 &&
+                creditProgram.getCreditParameter().getMinCreditTerm() <= request.getCreditTerm() * MONTHS_IN_YEAR &&
+                creditProgram.getCreditParameter().getMaxCreditTerm() >= request.getCreditTerm() * MONTHS_IN_YEAR &&
                 isRegionEligible(request, creditProgram);
     }
 
