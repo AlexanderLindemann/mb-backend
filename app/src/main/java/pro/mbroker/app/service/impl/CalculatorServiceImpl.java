@@ -39,29 +39,27 @@ public class CalculatorServiceImpl implements CalculatorService {
         List<CreditProgram> creditPrograms = filterCreditPrograms(request);
         Map<UUID, BankLoanProgramDto> bankLoanProgramDtoMap = new HashMap<>();
         for (CreditProgram creditProgram : creditPrograms) {
-            LoanProgramCalculationDto loanProgramCalculationDto = createLoanProgramCalculationDto(request, creditProgram);
             bankLoanProgramDtoMap.computeIfAbsent(creditProgram.getBank().getId(), bankLoanProgram ->
-                    createBankLoanProgramDto(creditProgram)).getLoanProgramCalculationDto().add(loanProgramCalculationDto);
+                    createBankLoanProgramDto(creditProgram)).getLoanProgramCalculationDto().add(createLoanProgramCalculationDto(request, creditProgram));
         }
         return new PropertyMortgageDTO()
                 .setMortgageSum(request.getMortgageSum())
-                .setCreditTerm(request.getCreditTerm())
+                .setCreditTerm(request.getCreditTerm() * 12)
                 .setDownPayment(request.getDownPayment())
                 .setBankLoanProgramDto(new ArrayList<>(bankLoanProgramDtoMap.values()));
     }
 
     private BankLoanProgramDto createBankLoanProgramDto(CreditProgram creditProgram) {
         return new BankLoanProgramDto()
-                .setBankName(creditProgram.getBank().getName())
-                .setLoanProgramCalculationDto(new ArrayList<>());
+                .setBankName(creditProgram.getBank().getName());
     }
 
     private LoanProgramCalculationDto createLoanProgramCalculationDto(CalculatorRequest request, CreditProgram creditProgram) {
-        BigDecimal calculateMonthlyPayment = calculateMonthlyPayment(request.getMortgageSum(), request.getDownPayment(), creditProgram.getBaseRate(), request.getCreditTerm());
+        BigDecimal calculateMonthlyPayment = calculateMonthlyPayment(request.getMortgageSum(), request.getDownPayment(), creditProgram.getBaseRate(), request.getCreditTerm() * 12);
         return new LoanProgramCalculationDto()
                 .setCalculatedRate(creditProgram.getBaseRate())
                 .setMonthlyPayment(calculateMonthlyPayment)
-                .setOverpayment(calculateOverpayment(calculateMonthlyPayment, request.getCreditTerm(), request.getMortgageSum()));
+                .setOverpayment(calculateOverpayment(calculateMonthlyPayment, request.getCreditTerm() * 12, request.getMortgageSum()));
     }
 
     private List<CreditProgram> filterCreditPrograms(CalculatorRequest request) {
@@ -80,8 +78,8 @@ public class CalculatorServiceImpl implements CalculatorService {
         return creditPurposeTypes.contains(request.getCreditPurposeType()) &&
                 realEstateTypes.contains(request.getRealEstateType()) &&
                 mortgageSum.compareTo(creditProgram.getCreditParameter().getMaxMortgageSum()) <= 0 &&
-                creditProgram.getCreditParameter().getMinCreditTerm() <= request.getCreditTerm() &&
-                creditProgram.getCreditParameter().getMaxCreditTerm() >= request.getCreditTerm() &&
+                creditProgram.getCreditParameter().getMinCreditTerm() <= request.getCreditTerm() * 12 &&
+                creditProgram.getCreditParameter().getMaxCreditTerm() >= request.getCreditTerm() * 12 &&
                 isRegionEligible(request, creditProgram);
     }
 
@@ -107,10 +105,9 @@ public class CalculatorServiceImpl implements CalculatorService {
         List<RegionType> creditProgramExcludeRegionTypes = Converter.convertStringListToEnumList(creditProgram.getCreditProgramDetail().getExclude(), RegionType.class);
 
         List<EnumDescription> filteredRegion = directoryService.getFilteredRegion(creditProgramIncludeRegionTypes, creditProgramExcludeRegionTypes);
-        List<String> regionCodes = filteredRegion.stream()
+        return filteredRegion.stream()
                 .flatMap(enumDescription -> enumDescription.getValues().stream())
                 .map(EnumItemDescription::getCode)
-                .collect(Collectors.toList());
-        return regionCodes.contains(realEstate.getRegion().getValue());
+                .anyMatch(code -> code.equals(realEstate.getRegion().getValue()));
     }
 }
