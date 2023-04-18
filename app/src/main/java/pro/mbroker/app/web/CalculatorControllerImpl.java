@@ -6,7 +6,12 @@ import org.springframework.stereotype.Component;
 import pro.mbroker.api.controller.CalculatorController;
 import pro.mbroker.api.dto.PropertyMortgageDTO;
 import pro.mbroker.api.dto.request.CalculatorRequest;
+import pro.mbroker.api.enums.CreditPurposeType;
+import pro.mbroker.api.enums.RealEstateType;
 import pro.mbroker.app.service.CalculatorService;
+
+import java.math.BigDecimal;
+import java.util.UUID;
 
 @Slf4j
 @Component
@@ -15,7 +20,23 @@ public class CalculatorControllerImpl implements CalculatorController {
     private final CalculatorService calculatorService;
 
     @Override
-    public PropertyMortgageDTO getCreditOffer(CalculatorRequest request) {
-        return calculatorService.getCreditOffer(request);
+    public PropertyMortgageDTO getCreditOffer(UUID realEstateId,
+                                              CreditPurposeType creditPurposeType,
+                                              RealEstateType realEstateType,
+                                              BigDecimal realEstatePrice,
+                                              BigDecimal downPayment,
+                                              Integer maxMonthlyPayment,
+                                              Integer creditTerm,
+                                              Boolean isMaternalCapital) {
+
+        return calculatorService.getCreditOffer(new CalculatorRequest()
+                .setRealEstateId(realEstateId)
+                .setCreditPurposeType(creditPurposeType)
+                .setRealEstateType(realEstateType)
+                .setRealEstatePrice(realEstatePrice)
+                .setDownPayment(downPayment)
+                .setMaxMonthlyPayment(maxMonthlyPayment)
+                .setCreditTerm(creditTerm)
+                .setIsMaternalCapital(isMaternalCapital));
     }
 }

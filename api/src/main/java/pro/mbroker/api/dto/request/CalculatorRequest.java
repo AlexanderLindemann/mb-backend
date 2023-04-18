@@ -21,7 +21,7 @@ public class CalculatorRequest {
     @NotNull
     private RealEstateType realEstateType;
 
-    private BigDecimal mortgageSum;
+    private BigDecimal realEstatePrice;
 
     private BigDecimal downPayment;
 
