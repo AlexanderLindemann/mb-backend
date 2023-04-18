@@ -36,7 +36,7 @@ public class CalculatorServiceTest {
         int loanTermInMonths = 360;
 
         BigDecimal expectedMonthlyPayment = new BigDecimal("2147.29");
-        BigDecimal actualMonthlyPayment = calculatorService.calculateMonthlyPayment(loanAmount, downPayment, annualInterestRate, loanTermInMonths);
+        BigDecimal actualMonthlyPayment = calculatorService.calculateMonthlyPayment(loanAmount.subtract(downPayment), annualInterestRate, loanTermInMonths);
 
         assertEquals(expectedMonthlyPayment, actualMonthlyPayment);
     }
@@ -61,7 +61,7 @@ public class CalculatorServiceTest {
         calculatorRequest.setCreditTerm(5);
         calculatorRequest.setCreditPurposeType(CreditPurposeType.PURCHASE_UNDER_CONSTRUCTION);
         calculatorRequest.setDownPayment(BigDecimal.valueOf(1000000));
-        calculatorRequest.setMortgageSum(BigDecimal.valueOf(10000000));
+        calculatorRequest.setRealEstatePrice(BigDecimal.valueOf(10000000));
         calculatorRequest.setRealEstateType(RealEstateType.APARTMENT);
         calculatorRequest.setIsMaternalCapital(true);
 

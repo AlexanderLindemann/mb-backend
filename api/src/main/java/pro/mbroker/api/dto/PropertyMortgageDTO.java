@@ -11,7 +11,7 @@ import java.util.List;
 @Setter
 @ToString
 public class PropertyMortgageDTO {
-    private BigDecimal mortgageSum;
+    private BigDecimal realEstatePrice;
 
     private BigDecimal downPayment;
 
