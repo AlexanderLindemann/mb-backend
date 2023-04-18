@@ -1,0 +1,21 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <changeSet id="remove-bank-foreign-key-from-partner-table" author="a.lindemann">
+        <dropColumn
+                tableName="partner"
+                columnName="bank_id"/>
+    </changeSet>
+
+    <changeSet id="rename-table-real_estate_address" author="a.lindemann">
+        <renameTable oldTableName="real_estate_address" newTableName="real_estate"/>
+    </changeSet>
+
+    <changeSet id="2023060115_1933-credit_parameter_program_tables_id2" author="a.lindemann">
+        <modifyDataType tableName="credit_parameter" columnName="min_mortgage_sum" newDataType="int"/>
+        <modifyDataType tableName="credit_parameter" columnName="max_mortgage_sum" newDataType="int"/>
+    </changeSet>
+</databaseChangeLog>

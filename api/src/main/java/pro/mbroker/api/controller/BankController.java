@@ -42,9 +42,9 @@ public interface BankController {
     MultipartFile getLogoBankById(@PathVariable UUID bankId);
 
     @ApiOperation("обновить name банка по id банка")
-    @PutMapping("/{id}")
+    @PutMapping("/{bankId}")
     BankResponse updateBankName(
-            @PathVariable UUID id,
+            @PathVariable UUID bankId,
             @NonNull @RequestParam("name") String name);
 
 

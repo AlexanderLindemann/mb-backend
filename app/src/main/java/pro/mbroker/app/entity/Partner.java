@@ -38,10 +38,6 @@ public class Partner {
     //Цель кредита
     @Column(name = "credit_purpose_type")
     private String creditPurposeType;
-    //Банк
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "bank_id")
-    private Bank bank;
     //Программы банка
     @ManyToMany
     @JoinTable(
@@ -51,6 +47,6 @@ public class Partner {
     private List<CreditProgram> creditPrograms = new ArrayList<>();
     @OneToMany(mappedBy = "partner", cascade = CascadeType.ALL, orphanRemoval = true)
     @Cascade(org.hibernate.annotations.CascadeType.DELETE)
-    private List<RealEstateAddress> realEstateAddress = new ArrayList<>();
+    private List<RealEstate> realEstates = new ArrayList<>();
 
 }

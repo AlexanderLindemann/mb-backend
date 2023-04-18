@@ -26,7 +26,8 @@ public class DirectoryServiceImpl implements DirectoryService {
         return getEnumDescriptions(DIRECTORY_ENUMS);
     }
 
-    private List<EnumDescription> getFilteredRegion(List<RegionType> include, List<RegionType> exclude) {
+    @Override
+    public List<EnumDescription> getFilteredRegion(List<RegionType> include, List<RegionType> exclude) {
         List<RegionType> filteredRegions = (Objects.isNull(include) || include.isEmpty()) ?
                 new ArrayList<>(Arrays.asList(RegionType.values())) : new ArrayList<>(include);
         filteredRegions.removeAll(exclude);

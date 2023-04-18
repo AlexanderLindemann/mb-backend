@@ -8,7 +8,7 @@ import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Transactional;
 import pro.mbroker.api.dto.request.PartnerRequest;
-import pro.mbroker.api.dto.request.RealEstateAddressRequest;
+import pro.mbroker.api.dto.request.RealEstateRequest;
 import pro.mbroker.api.enums.CreditPurposeType;
 import pro.mbroker.api.enums.PartnerType;
 import pro.mbroker.api.enums.RealEstateType;
@@ -68,11 +68,10 @@ public class PartnerServiceTest {
         assertEquals(request.getSmartDealOrganizationId(), partner.getSmartDealOrganizationId());
         assertEquals(request.getName(), partner.getName());
         assertEquals(request.getType(), partner.getType());
-        assertEquals(request.getBankId(), partner.getBank().getId());
         assertEquals(Converter.convertEnumListToStringList(request.getRealEstateType()), partner.getRealEstateType());
         assertEquals(Converter.convertEnumListToStringList(request.getCreditPurposeType()), partner.getCreditPurposeType());
         assertEquals(request.getBankCreditProgram().size(), partner.getCreditPrograms().size());
-        assertEquals(request.getRealEstateAddressRequest().size(), partner.getRealEstateAddress().size());
+        assertEquals(request.getRealEstateRequest().size(), partner.getRealEstates().size());
     }
 
     private PartnerRequest createPartnerRequest() {
@@ -80,18 +79,17 @@ public class PartnerServiceTest {
         request.setSmartDealOrganizationId(123456);
         request.setName("Test Partner");
         request.setType(PartnerType.DEVELOPER);
-        request.setBankId(UUID.fromString("0c371042-d848-11ed-afa1-0242ac120002"));
         request.setRealEstateType(List.of(RealEstateType.APARTMENT, RealEstateType.APARTMENT_COMPLEX));
         request.setCreditPurposeType(List.of(CreditPurposeType.PURCHASE_UNDER_CONSTRUCTION, CreditPurposeType.REFINANCING));
         request.setBankCreditProgram(List.of(UUID.fromString("bfda8d66-d926-11ed-afa1-0242ac120002"), UUID.fromString("8222cb80-d928-11ed-afa1-0242ac120002")));
 
-        List<RealEstateAddressRequest> realEstateAddresses = new ArrayList<>();
-        RealEstateAddressRequest realEstateAddressRequest = new RealEstateAddressRequest();
+        List<RealEstateRequest> realEstateAddresses = new ArrayList<>();
+        RealEstateRequest realEstateAddressRequest = new RealEstateRequest();
         realEstateAddressRequest.setResidentialComplexName("Test Complex");
         realEstateAddressRequest.setRegion(RegionType.MOSCOW);
         realEstateAddressRequest.setAddress("test Address");
         realEstateAddresses.add(realEstateAddressRequest);
-        request.setRealEstateAddressRequest(realEstateAddresses);
+        request.setRealEstateRequest(realEstateAddresses);
         return request;
     }
 

@@ -26,9 +26,7 @@ public class PartnerRequest {
     @NonNull
     private List<CreditPurposeType> creditPurposeType;
 
-    private List<RealEstateAddressRequest> realEstateAddressRequest;
-    @NonNull
-    private UUID bankId;
+    private List<RealEstateRequest> realEstateRequest;
     @NonNull
     private List<UUID> bankCreditProgram;
 

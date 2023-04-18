@@ -8,11 +8,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import pro.mbroker.api.dto.request.RealEstateAddressRequest;
-import pro.mbroker.app.entity.RealEstateAddress;
+import pro.mbroker.api.dto.request.RealEstateRequest;
+import pro.mbroker.app.entity.RealEstate;
 import pro.mbroker.app.exception.ItemNotFoundException;
-import pro.mbroker.app.mapper.RealEstateAddressMapper;
-import pro.mbroker.app.repository.RealEstateAddressRepository;
+import pro.mbroker.app.mapper.RealEstateMapper;
+import pro.mbroker.app.repository.RealEstateRepository;
 import pro.mbroker.app.service.PartnerRealEstateService;
 import pro.mbroker.app.service.PartnerService;
 import pro.mbroker.app.util.Pagination;
@@ -25,44 +25,44 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class PartnerRealEstateServiceImpl implements PartnerRealEstateService {
     private final PartnerService partnerService;
-    private final RealEstateAddressRepository realEstateAddressRepository;
-    private final RealEstateAddressMapper realEstateAddressMapper;
+    private final RealEstateRepository realEstateRepository;
+    private final RealEstateMapper realEstateMapper;
 
     @Override
     @Transactional
-    public RealEstateAddress addRealEstateAddress(UUID partnerId, RealEstateAddressRequest request) {
-        RealEstateAddress realEstateAddress = realEstateAddressMapper.toRealEstateAddressMapper(request)
+    public RealEstate addRealEstateAddress(UUID partnerId, RealEstateRequest request) {
+        RealEstate realEstate = realEstateMapper.toRealEstateMapper(request)
                 .setPartner(partnerService.getPartner(partnerId));
-        RealEstateAddress address = realEstateAddressRepository.save(realEstateAddress);
-        realEstateAddressRepository.flush();
+        RealEstate address = realEstateRepository.save(realEstate);
+        realEstateRepository.flush();
         return getRealEstateAddress(address.getId());
     }
 
     @Override
     @Transactional
     public void deleteRealEstateAddress(UUID addressId) {
-        RealEstateAddress realEstateAddress = getRealEstateAddress(addressId);
-        realEstateAddressRepository.delete(realEstateAddress);
+        RealEstate realEstate = getRealEstateAddress(addressId);
+        realEstateRepository.delete(realEstate);
     }
 
     @Override
-    public RealEstateAddress updateRealEstateAddress(UUID addressId, RealEstateAddressRequest request) {
-        RealEstateAddress realEstateAddress = getRealEstateAddress(addressId);
-        realEstateAddressMapper.updateRealEstateAddress(request, realEstateAddress);
-        return realEstateAddressRepository.save(realEstateAddress);
+    public RealEstate updateRealEstateAddress(UUID addressId, RealEstateRequest request) {
+        RealEstate realEstate = getRealEstateAddress(addressId);
+        realEstateMapper.updateRealEstateAddress(request, realEstate);
+        return realEstateRepository.save(realEstate);
     }
 
     @Override
-    public List<RealEstateAddress> getRealEstateAddressByPartnerId(Pagination pagination, UUID partnerId) {
+    public List<RealEstate> getRealEstateAddressByPartnerId(Pagination pagination, UUID partnerId) {
         Sort sort = Sort.by(Sort.Direction.fromString(pagination.getSortOrder()), pagination.getSortBy());
         Pageable pageable = PageRequest.of(pagination.getPage(), pagination.getSize(), sort);
-        Page<RealEstateAddress> allByPartnerId = realEstateAddressRepository.findAllByPartnerId(partnerId, pageable);
+        Page<RealEstate> allByPartnerId = realEstateRepository.findAllByPartnerId(partnerId, pageable);
         return allByPartnerId.getContent();
     }
 
     @Transactional(readOnly = true)
-    public RealEstateAddress getRealEstateAddress(UUID realEstateAddressId) {
-        return realEstateAddressRepository.findById(realEstateAddressId)
-                .orElseThrow(() -> new ItemNotFoundException(RealEstateAddress.class, realEstateAddressId));
+    public RealEstate getRealEstateAddress(UUID realEstateAddressId) {
+        return realEstateRepository.findById(realEstateAddressId)
+                .orElseThrow(() -> new ItemNotFoundException(RealEstate.class, realEstateAddressId));
     }
 }

@@ -12,22 +12,20 @@ import pro.mbroker.app.util.Converter;
 
 import java.util.List;
 
-@Mapper(uses = {Converter.class, RealEstateAddressMapper.class})
+@Mapper(uses = {Converter.class, RealEstateMapper.class})
 public interface PartnerMapper {
     @Mapping(target = "bankCreditProgram", ignore = true)
     @Mapping(target = "creditPurposeType", qualifiedByName = "stringToCreditPurposeTypeList")
-    @Mapping(target = "bank", ignore = true)
-    @Mapping(target = "realEstateAddress", ignore = true)
+    @Mapping(target = "realEstates", ignore = true)
     @Mapping(target = "realEstateType", qualifiedByName = "stringToRealEstateTypeList")
     PartnerResponse toPartnerResponseMapper(Partner partner);
 
 
-    @Mapping(target = "bank", ignore = true)
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "creditPrograms", ignore = true)
     @Mapping(target = "realEstateType", qualifiedByName = "realEstateTypeListToString")
     @Mapping(target = "creditPurposeType", qualifiedByName = "creditPurposeTypeListToString")
-    @Mapping(target = "realEstateAddress", ignore = true)
+    @Mapping(target = "realEstates", ignore = true)
     Partner toPartnerMapper(PartnerRequest request);
 
     @Named("stringToRealEstateTypeList")
