@@ -14,7 +14,6 @@ import pro.mbroker.app.exception.ItemNotFoundException;
 import pro.mbroker.app.mapper.PartnerMapper;
 import pro.mbroker.app.mapper.RealEstateMapper;
 import pro.mbroker.app.repository.PartnerRepository;
-import pro.mbroker.app.service.BankService;
 import pro.mbroker.app.service.CreditProgramService;
 import pro.mbroker.app.service.PartnerService;
 

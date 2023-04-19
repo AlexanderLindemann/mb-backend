@@ -1,0 +1,51 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <changeSet id="create_partner_application_and_borrower_application_table" author="a.lindemann">
+        <createTable tableName="partner_application">
+            <column name="id" type="UUID">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="full_name" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="credit_purpose_type" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="real_estate_type" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="real_estate_id" type="UUID">
+                <constraints nullable="true" foreignKeyName="fk_partner_application_real_estate"
+                             referencedTableName="real_estate" referencedColumnNames="id"/>
+            </column>
+            <column name="partner_id" type="UUID">
+                <constraints nullable="false" foreignKeyName="fk_partner_application_partner_id"
+                             referencedTableName="partner" referencedColumnNames="id"/>
+            </column>
+        </createTable>
+
+        <createTable tableName="borrower_application">
+            <column name="id" type="UUID">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="credit_program_id" type="UUID">
+                <constraints nullable="true" foreignKeyName="fk_borrower_application_credit_program"
+                             referencedTableName="credit_program" referencedColumnNames="id"/>
+            </column>
+            <column name="application_status" type="varchar(255)"/>
+            <column name="last_edit_date" type="timestamp"/>
+            <column name="monthly_payment" type="decimal"/>
+            <column name="down_payment" type="decimal"/>
+            <column name="credit_term" type="integer"/>
+            <column name="overpayment" type="decimal"/>
+            <column name="partner_application_id" type="UUID">
+                <constraints nullable="false" foreignKeyName="fk_borrower_application_partner_application"
+                             referencedTableName="partner_application" referencedColumnNames="id"/>
+            </column>
+        </createTable>
+    </changeSet>
+</databaseChangeLog>

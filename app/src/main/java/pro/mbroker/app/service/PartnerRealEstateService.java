@@ -9,11 +9,13 @@ import java.util.UUID;
 
 public interface PartnerRealEstateService {
 
-    RealEstate addRealEstateAddress(UUID partnerId, RealEstateRequest request);
+    RealEstate addRealEstate(UUID partnerId, RealEstateRequest request);
 
-    void deleteRealEstateAddress(UUID addressId);
+    void deleteRealEstate(UUID addressId);
 
-    RealEstate updateRealEstateAddress(UUID addressId, RealEstateRequest request);
+    RealEstate updateRealEstate(UUID addressId, RealEstateRequest request);
 
-    List<RealEstate> getRealEstateAddressByPartnerId(Pagination pagination, UUID partnerId);
+    List<RealEstate> getRealEstateByPartnerId(Pagination pagination, UUID partnerId);
+
+    List<RealEstate> getCurrentRealEstate(Pagination pagination);
 }

@@ -52,10 +52,10 @@ public class BankControllerImpl implements BankController {
 
     @Override
     @Transactional(readOnly = true)
-    public BankResponse getBankById(UUID id) {
-        Bank bank = bankService.getBankById(id);
+    public BankResponse getBankById(UUID bankId) {
+        Bank bank = bankService.getBankById(bankId);
         return bankMapper.toBankResponseMapper(bank)
-                .setCreditProgram(creditProgramController.getProgramsByBankId(id));
+                .setCreditProgram(creditProgramController.getProgramsByBankId(bankId));
     }
 
     @Override
@@ -66,8 +66,8 @@ public class BankControllerImpl implements BankController {
 
     @Override
     @Transactional
-    public BankResponse updateBankName(UUID id, String name) {
-        Bank bank = bankService.updateBankName(id, name);
+    public BankResponse updateBankName(UUID bankId, String name) {
+        Bank bank = bankService.updateBankName(bankId, name);
         return bankMapper.toBankResponseMapper(bank);
     }
 

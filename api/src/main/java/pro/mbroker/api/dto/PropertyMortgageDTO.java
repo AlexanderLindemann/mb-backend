@@ -15,7 +15,7 @@ public class PropertyMortgageDTO {
 
     private BigDecimal downPayment;
 
-    private Integer creditTerm;
+    private Integer monthCreditTerm;
 
     private List<BankLoanProgramDto> bankLoanProgramDto;
 

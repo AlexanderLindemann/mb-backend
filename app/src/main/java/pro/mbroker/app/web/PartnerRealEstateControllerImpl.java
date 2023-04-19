@@ -16,6 +16,7 @@ import pro.mbroker.app.mapper.RealEstateMapper;
 import pro.mbroker.app.service.PartnerRealEstateService;
 import pro.mbroker.app.service.PartnerService;
 import pro.mbroker.app.util.Pagination;
+import pro.smartdeal.ng.common.security.service.CurrentUserService;
 
 import java.util.List;
 import java.util.UUID;
@@ -32,28 +33,34 @@ public class PartnerRealEstateControllerImpl implements PartnerRealEstateControl
     private final RealEstateMapper realEstateMapper;
 
     @Override
-    public PartnerResponse addRealEstateAddress(UUID partnerId, RealEstateRequest request) {
-        partnerRealEstateService.addRealEstateAddress(partnerId, request);
+    public PartnerResponse addRealEstate(UUID partnerId, RealEstateRequest request) {
+        partnerRealEstateService.addRealEstate(partnerId, request);
         Partner partner = partnerService.getPartner(partnerId);
         return buildPartnerResponse(partner);
     }
 
     @Override
-    public void deleteRealEstateAddress(UUID addressId) {
-        partnerRealEstateService.deleteRealEstateAddress(addressId);
+    public void deleteRealEstate(UUID addressId) {
+        partnerRealEstateService.deleteRealEstate(addressId);
     }
 
     @Override
-    public PartnerResponse updateRealEstateAddress(UUID addressId, RealEstateRequest request) {
-        RealEstate realEstate = partnerRealEstateService.updateRealEstateAddress(addressId, request);
+    public PartnerResponse updateRealEstate(UUID addressId, RealEstateRequest request) {
+        RealEstate realEstate = partnerRealEstateService.updateRealEstate(addressId, request);
         Partner partner = partnerService.getPartner(realEstate.getPartner().getId());
         return buildPartnerResponse(partner);
     }
 
     @Override
-    public List<RealEstateResponse> getRealEstateAddressByPartnerId(int page, int size, String sortBy, String sortOrder, UUID partnerId) {
-        List<RealEstate> address = partnerRealEstateService.getRealEstateAddressByPartnerId(new Pagination(page, size, sortBy, sortOrder), partnerId);
-        return realEstateMapper.toRealEstateAddressResponseList(address);
+    public List<RealEstateResponse> getRealEstateByPartnerId(int page, int size, String sortBy, String sortOrder, UUID partnerId) {
+        List<RealEstate> realEstates = partnerRealEstateService.getRealEstateByPartnerId(new Pagination(page, size, sortBy, sortOrder), partnerId);
+        return realEstateMapper.toRealEstateAddressResponseList(realEstates);
+    }
+
+    @Override
+    public List<RealEstateResponse> getCurrentRealEstate(int page, int size, String sortBy, String sortOrder) {
+        List<RealEstate> currentRealEstates = partnerRealEstateService.getCurrentRealEstate(new Pagination(page, size, sortBy, sortOrder));
+        return realEstateMapper.toRealEstateAddressResponseList(currentRealEstates);
     }
 
     private PartnerResponse buildPartnerResponse(Partner partner) {

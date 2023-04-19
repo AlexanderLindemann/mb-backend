@@ -47,5 +47,4 @@ public interface BankController {
             @PathVariable UUID bankId,
             @NonNull @RequestParam("name") String name);
 
-
 }
