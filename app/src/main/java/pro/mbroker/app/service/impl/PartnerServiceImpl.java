@@ -30,6 +30,7 @@ public class PartnerServiceImpl implements PartnerService {
     private final RealEstateMapper realEstateMapper;
 
     @Override
+    @Transactional
     public Partner createPartner(PartnerRequest request) {
         List<RealEstate> realEstates = realEstateMapper.toRealEstateAddressList(request.getRealEstateRequest());
 
@@ -41,6 +42,7 @@ public class PartnerServiceImpl implements PartnerService {
         return partnerRepository.save(partner);
     }
 
+    @Override
     public Partner getPartner(UUID partnerId) {
         return partnerRepository.findById(partnerId)
                 .orElseThrow(() -> new ItemNotFoundException(Partner.class, partnerId));
@@ -49,9 +51,13 @@ public class PartnerServiceImpl implements PartnerService {
     @Override
     @Transactional(readOnly = true)
     public List<Partner> getAllPartner(int page, int size, String sortBy, String sortOrder) {
-        Sort.Direction direction = sortOrder.equalsIgnoreCase("desc") ? Sort.Direction.DESC : Sort.Direction.ASC;
-        Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortBy));
-        return partnerRepository.findAll(pageable).getContent();
+        return partnerRepository.findAll(createPageable(page, size, sortBy, sortOrder)).getContent();
+    }
+
+    @Override
+    public Pageable createPageable(int page, int size, String sortBy, String sortOrder) {
+        Sort sort = Sort.by(Sort.Direction.fromString(sortOrder), sortBy);
+        return PageRequest.of(page, size, sort);
     }
 
 }

@@ -15,8 +15,6 @@ import pro.mbroker.app.mapper.ProgramMapper;
 import pro.mbroker.app.mapper.RealEstateMapper;
 import pro.mbroker.app.service.PartnerRealEstateService;
 import pro.mbroker.app.service.PartnerService;
-import pro.mbroker.app.util.Pagination;
-import pro.smartdeal.ng.common.security.service.CurrentUserService;
 
 import java.util.List;
 import java.util.UUID;
@@ -53,13 +51,13 @@ public class PartnerRealEstateControllerImpl implements PartnerRealEstateControl
 
     @Override
     public List<RealEstateResponse> getRealEstateByPartnerId(int page, int size, String sortBy, String sortOrder, UUID partnerId) {
-        List<RealEstate> realEstates = partnerRealEstateService.getRealEstateByPartnerId(new Pagination(page, size, sortBy, sortOrder), partnerId);
+        List<RealEstate> realEstates = partnerRealEstateService.getRealEstateByPartnerId(page, size, sortBy, sortOrder, partnerId);
         return realEstateMapper.toRealEstateAddressResponseList(realEstates);
     }
 
     @Override
     public List<RealEstateResponse> getCurrentRealEstate(int page, int size, String sortBy, String sortOrder) {
-        List<RealEstate> currentRealEstates = partnerRealEstateService.getCurrentRealEstate(new Pagination(page, size, sortBy, sortOrder));
+        List<RealEstate> currentRealEstates = partnerRealEstateService.getCurrentRealEstate(page, size, sortBy, sortOrder);
         return realEstateMapper.toRealEstateAddressResponseList(currentRealEstates);
     }
 

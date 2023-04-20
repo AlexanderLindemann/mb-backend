@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import pro.mbroker.api.controller.BankContactController;
+import pro.mbroker.api.dto.request.BankContactRequest;
 import pro.mbroker.api.dto.response.BankContactResponse;
 import pro.mbroker.api.dto.response.BankResponse;
 import pro.mbroker.app.entity.Bank;
@@ -28,8 +29,8 @@ public class BankContactControllerImpl implements BankContactController {
 
     @Override
     @Transactional
-    public BankResponse addBankContact(UUID bankId, String fullName, String email) {
-        Bank bank = bankContactService.addBankContact(bankId, fullName, email);
+    public BankResponse addBankContact(BankContactRequest request) {
+        Bank bank = bankContactService.addBankContact(request.getBankId(), request.getFullName(), request.getEmail());
         return bankMapper.toBankResponseMapper(bank);
     }
 

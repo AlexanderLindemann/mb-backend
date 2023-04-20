@@ -58,10 +58,11 @@ public class CalculatorServiceImpl implements CalculatorService {
     private LoanProgramCalculationDto createLoanProgramCalculationDto(CalculatorRequest request, CreditProgram creditProgram) {
         BigDecimal mortgageSum = getMortgageSum(request);
         BigDecimal calculateMonthlyPayment = calculateMonthlyPayment(mortgageSum, creditProgram.getBaseRate(), request.getCreditTerm() * MONTHS_IN_YEAR);
+        BigDecimal downPayment = request.getDownPayment() != null ? request.getDownPayment() : BigDecimal.ZERO;
         return new LoanProgramCalculationDto()
                 .setCalculatedRate(creditProgram.getBaseRate())
                 .setMonthlyPayment(calculateMonthlyPayment)
-                .setOverpayment(calculateOverpayment(calculateMonthlyPayment, request.getCreditTerm() * MONTHS_IN_YEAR, request.getRealEstatePrice()));
+                .setOverpayment(calculateOverpayment(calculateMonthlyPayment, request.getCreditTerm() * MONTHS_IN_YEAR, request.getRealEstatePrice(), downPayment));
     }
 
     private List<CreditProgram> filterCreditPrograms(CalculatorRequest request) {
@@ -98,9 +99,9 @@ public class CalculatorServiceImpl implements CalculatorService {
         return monthlyPayment.setScale(2, RoundingMode.HALF_UP);
     }
 
-    public BigDecimal calculateOverpayment(BigDecimal monthlyPayment, int loanTermMonths, BigDecimal totalLoanAmount) {
+    public BigDecimal calculateOverpayment(BigDecimal monthlyPayment, int loanTermMonths, BigDecimal realEstatePrice, BigDecimal downPayment) {
         BigDecimal totalPayment = monthlyPayment.multiply(BigDecimal.valueOf(loanTermMonths));
-        BigDecimal overpayment = totalPayment.subtract(totalLoanAmount);
+        BigDecimal overpayment = totalPayment.subtract(realEstatePrice).add(downPayment);
         return overpayment.setScale(2, RoundingMode.HALF_UP);
     }
 

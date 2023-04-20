@@ -3,6 +3,7 @@ package pro.mbroker.api.controller;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.web.bind.annotation.*;
+import pro.mbroker.api.dto.request.BankContactRequest;
 import pro.mbroker.api.dto.response.BankContactResponse;
 import pro.mbroker.api.dto.response.BankResponse;
 
@@ -15,11 +16,9 @@ import java.util.UUID;
 public interface BankContactController {
 
     @ApiOperation("добавить контакт для банка")
-    @PostMapping("/{bankId}")
+    @PostMapping()
     BankResponse addBankContact(
-            @PathVariable UUID bankId,
-            @RequestParam("fullName") String fullName,
-            @RequestParam("email") String email);
+            @RequestBody BankContactRequest request);
 
     @ApiOperation("удалить контакт банка по contactId")
     @DeleteMapping("/{contactId}")

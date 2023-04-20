@@ -1,6 +1,7 @@
 package pro.mbroker.app.util;
 
 
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
 import net.minidev.json.parser.JSONParser;
@@ -11,9 +12,8 @@ import java.util.Base64;
 
 @Component
 @Slf4j
+@NoArgsConstructor
 public final class TokenExtractor {
-    private TokenExtractor() {
-    }
 
     public static int extractSdCurrentOrganizationId(String token) {
         String payload = getPayload(token);
