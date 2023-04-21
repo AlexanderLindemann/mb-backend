@@ -9,12 +9,11 @@ import pro.smartdeal.common.enums.EnumWithValue;
 @RequiredArgsConstructor
 @DictionaryEnum(code = "CreditPurposeType", name = "Цели кредита")
 public enum CreditPurposeType implements EnumWithValue<String> {
-    PURCHASE_UNDER_CONSTRUCTION("PURCHASE_UNDER_CONSTRUCTION", "Покупка строящегося жилья", null),
-    PURCHASE_READY_HOUSE("PURCHASE_READY_HOUSE", "Покупка готового жилья", null),
-    REFINANCING("REFINANCING", "Рефинансирование", null);
+    PURCHASE_UNDER_CONSTRUCTION("PURCHASE_UNDER_CONSTRUCTION", "Покупка строящегося жилья"),
+    PURCHASE_READY_HOUSE("PURCHASE_READY_HOUSE", "Покупка готового жилья"),
+    REFINANCING("REFINANCING", "Рефинансирование");
 
     private final String value;
     private final String name;
-    private final String description;
 }
 

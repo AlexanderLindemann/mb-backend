@@ -9,19 +9,18 @@ import pro.smartdeal.common.enums.EnumWithValue;
 @RequiredArgsConstructor
 @DictionaryEnum(code = "EmploymentType", name = "Тип работы персоны")
 public enum EmploymentType implements EnumWithValue<String> {
-    EMPLOYEE("EMPLOYEE", "Наёмный работник", null),
-    MILITARY("MILITARY", "Военнослужащий", null),
-    UNEMPLOYED("UNEMPLOYED", "Неработающий", null),
-    RETIREE("RETIREE", "Пенсионер", null),
-    UNEMPLOYED_RETIREE("UNEMPLOYED_RETIREE", "Неработающий пенсионер", null),
-    STUDENT("STUDENT", "Студент", null),
-    BUSINESS_OWNER("BUSINESS_OWNER", "Собственник бизнеса / Доля в бизнесе", null),
-    SOLE_PROPRIETOR("SOLE_PROPRIETOR", "ИП", null),
-    SELF_EMPLOYED("SELF_EMPLOYED", "Самозанятый", null);
+    EMPLOYEE("EMPLOYEE", "Наёмный работник"),
+    MILITARY("MILITARY", "Военнослужащий"),
+    UNEMPLOYED("UNEMPLOYED", "Неработающий"),
+    RETIREE("RETIREE", "Пенсионер"),
+    UNEMPLOYED_RETIREE("UNEMPLOYED_RETIREE", "Неработающий пенсионер"),
+    STUDENT("STUDENT", "Студент"),
+    BUSINESS_OWNER("BUSINESS_OWNER", "Собственник бизнеса / Доля в бизнесе"),
+    SOLE_PROPRIETOR("SOLE_PROPRIETOR", "ИП"),
+    SELF_EMPLOYED("SELF_EMPLOYED", "Самозанятый");
 
     private final String value;
     private final String name;
-    private final String description;
 
 }
 

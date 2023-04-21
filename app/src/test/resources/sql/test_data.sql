@@ -24,7 +24,7 @@ VALUES ('bfda8d66-d926-11ed-afa1-0242ac120002', 'testCreditProgramName1', '2023-
        ('4a8d6fe4-dabe-11ed-afa1-0242ac120002', 'testCreditProgramName3', '2023-04-12 14:38:37.000000', '2023-11-12 14:38:39.000000', 'testDescription3', 'testFullDescription3', 'eb3d875e-dabd-11ed-afa1-0242ac120002', 'b6e7ac3c-dabd-11ed-afa1-0242ac120002', 12.00, '1fd0708a-d848-11ed-afa1-0242ac120002');
 
 INSERT INTO public.partner (id, smart_deal_organization_id, name, type, real_estate_type, credit_purpose_type)
-VALUES ('5fec2326-d92e-11ed-afa1-0242ac120002', 123456, 'testName', 'DEVELOPER', 'APARTMENT,APARTMENT_COMPLEX', 'PURCHASE_UNDER_CONSTRUCTION,REFINANCING');
+VALUES ('5fec2326-d92e-11ed-afa1-0242ac120002', 2633, 'testName', 'DEVELOPER', 'APARTMENT,APARTMENT_COMPLEX', 'PURCHASE_UNDER_CONSTRUCTION,REFINANCING');
 
 INSERT INTO public.real_estate (id, residential_complex_name, region, address, partner_id)
 VALUES ('2b8850b2-d930-11ed-afa1-0242ac120002', 'testResidentialComplexName1', 'VORONEZH', 'testAddress1', '5fec2326-d92e-11ed-afa1-0242ac120002'),

@@ -45,10 +45,11 @@ public class CalculatorServiceTest {
     public void testCalculateOverpayment() {
         BigDecimal monthlyPayment = new BigDecimal("2147.29");
         int loanTermMonths = 360;
-        BigDecimal totalLoanAmount = new BigDecimal("400000");
+        BigDecimal realEstatePrice = new BigDecimal("500000");
+        BigDecimal downPayment = new BigDecimal("100000");
 
         BigDecimal expectedOverpayment = new BigDecimal("373024.40");
-        BigDecimal actualOverpayment = calculatorService.calculateOverpayment(monthlyPayment, loanTermMonths, totalLoanAmount);
+        BigDecimal actualOverpayment = calculatorService.calculateOverpayment(monthlyPayment, loanTermMonths, realEstatePrice, downPayment);
 
         assertEquals(expectedOverpayment, actualOverpayment);
     }
@@ -67,9 +68,9 @@ public class CalculatorServiceTest {
 
         PropertyMortgageDTO creditOffer = calculatorService.getCreditOffer(calculatorRequest);
         assertEquals(creditOffer.getBankLoanProgramDto().get(0).getLoanProgramCalculationDto().get(0).getMonthlyPayment(), new BigDecimal("214109.37"));
-        assertEquals(creditOffer.getBankLoanProgramDto().get(0).getLoanProgramCalculationDto().get(0).getOverpayment(), new BigDecimal("2846562.20"));
+        assertEquals(creditOffer.getBankLoanProgramDto().get(0).getLoanProgramCalculationDto().get(0).getOverpayment(), new BigDecimal("3846562.20"));
         assertEquals(creditOffer.getBankLoanProgramDto().get(0).getLoanProgramCalculationDto().get(1).getMonthlyPayment(), new BigDecimal("238444.97"));
-        assertEquals(creditOffer.getBankLoanProgramDto().get(0).getLoanProgramCalculationDto().get(1).getOverpayment(), new BigDecimal("4306698.20"));
+        assertEquals(creditOffer.getBankLoanProgramDto().get(0).getLoanProgramCalculationDto().get(1).getOverpayment(), new BigDecimal("5306698.20"));
     }
 
 }

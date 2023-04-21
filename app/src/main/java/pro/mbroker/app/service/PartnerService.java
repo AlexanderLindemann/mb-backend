@@ -13,4 +13,5 @@ public interface PartnerService {
     Partner getPartner(UUID partnerId);
 
     List<Partner> getAllPartner(int page, int size, String sortBy, String sortOrder);
+
 }

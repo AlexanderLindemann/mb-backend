@@ -21,13 +21,13 @@ public interface BankController {
     );
 
     @ApiOperation("обновить логотип банка")
-    @PostMapping("/{bankId}/logo")
+    @PutMapping("/{bankId}/logo")
     BankResponse updateLogo(@PathVariable UUID bankId,
                             @RequestParam("logo") MultipartFile logo
     );
 
     @ApiOperation("получить все банки")
-    @GetMapping("/all")
+    @GetMapping()
     List<BankResponse> getAllBank(@RequestParam(defaultValue = "0") int page,
                                   @RequestParam(defaultValue = "10") int size,
                                   @RequestParam(defaultValue = "name") String sortBy,
@@ -46,6 +46,5 @@ public interface BankController {
     BankResponse updateBankName(
             @PathVariable UUID bankId,
             @NonNull @RequestParam("name") String name);
-
 
 }

@@ -11,6 +11,7 @@ import pro.mbroker.app.repository.BankContactRepository;
 import pro.mbroker.app.repository.BankRepository;
 import pro.mbroker.app.service.BankContactService;
 
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -42,6 +43,12 @@ public class BankContactServiceImpl implements BankContactService {
         UUID bankId = bankContact.getBank().getId();
         bankContactRepository.deleteById(contactId);
         return getBank(bankId);
+    }
+
+    @Override
+    public List<BankContact> getBankContact(UUID bankId) {
+        Bank bank = getBank(bankId);
+        return bankContactRepository.findAllByBank(bank);
     }
 
     private Bank getBank(UUID bankId) {

@@ -18,26 +18,33 @@ public interface PartnerRealEstateController {
 
     @ApiOperation("добавить адрес застройщика")
     @PostMapping("/{partnerId}/")
-    PartnerResponse addRealEstateAddress(
+    PartnerResponse addRealEstate(
             @PathVariable UUID partnerId,
             @RequestBody RealEstateRequest request
     );
 
     @ApiOperation("удалить адрес застройщика по id")
     @DeleteMapping("/{realEstateId}/")
-    void deleteRealEstateAddress(
+    void deleteRealEstate(
             @PathVariable UUID realEstateId
     );
 
     @ApiOperation("обновить данные по ЖК застройщика")
     @PutMapping("/{realEstateId}")
-    PartnerResponse updateRealEstateAddress(@PathVariable UUID realEstateId, @RequestBody @Valid RealEstateRequest request);
+    PartnerResponse updateRealEstate(@PathVariable UUID realEstateId, @RequestBody @Valid RealEstateRequest request);
 
     @ApiOperation("получить все ЖК по id застройщика")
     @GetMapping("/{partnerId}/real_estate")
-    List<RealEstateResponse> getRealEstateAddressByPartnerId(@RequestParam(defaultValue = "0") int page,
-                                                             @RequestParam(defaultValue = "10") int size,
-                                                             @RequestParam(defaultValue = "name") String sortBy,
-                                                             @RequestParam(defaultValue = "asc") String sortOrder,
-                                                             @PathVariable UUID partnerId);
+    List<RealEstateResponse> getRealEstateByPartnerId(@RequestParam(defaultValue = "0") int page,
+                                                      @RequestParam(defaultValue = "10") int size,
+                                                      @RequestParam(defaultValue = "name") String sortBy,
+                                                      @RequestParam(defaultValue = "asc") String sortOrder,
+                                                      @PathVariable UUID partnerId);
+
+    @ApiOperation("получить все ЖК действующего застройщика")
+    @GetMapping("/{partnerId}/current_real_estate")
+    List<RealEstateResponse> getCurrentRealEstate(@RequestParam(defaultValue = "0") int page,
+                                                  @RequestParam(defaultValue = "10") int size,
+                                                  @RequestParam(defaultValue = "name") String sortBy,
+                                                  @RequestParam(defaultValue = "asc") String sortOrder);
 }
