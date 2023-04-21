@@ -45,7 +45,7 @@ public class CalculatorServiceImpl implements CalculatorService {
         }
         return new PropertyMortgageDTO()
                 .setRealEstatePrice(request.getRealEstatePrice())
-                .setCreditTerm(Optional.ofNullable(request.getCreditTerm())
+                .setMonthCreditTerm(Optional.ofNullable(request.getCreditTerm())
                         .orElse(0) * MONTHS_IN_YEAR)
                 .setDownPayment(request.getDownPayment())
                 .setBankLoanProgramDto(new ArrayList<>(bankLoanProgramDtoMap.values()));
