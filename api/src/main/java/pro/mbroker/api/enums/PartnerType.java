@@ -9,11 +9,10 @@ import pro.smartdeal.common.enums.EnumWithValue;
 @RequiredArgsConstructor
 @DictionaryEnum(code = "PartnerType", name = "Тип партнера")
 public enum PartnerType implements EnumWithValue<String> {
-    DEVELOPER("DEVELOPER", "Застройщик", null),
-    REAL_ESTATE_AGENCY("REAL_ESTATE_AGENCY", "Агентство недвижимости", null),
-    PRIVATE_BROKER("PRIVATE_BROKER", "Частный брокер", null);
+    DEVELOPER("DEVELOPER", "Застройщик"),
+    REAL_ESTATE_AGENCY("REAL_ESTATE_AGENCY", "Агентство недвижимости"),
+    PRIVATE_BROKER("PRIVATE_BROKER", "Частный брокер");
 
     private final String value;
     private final String name;
-    private final String description;
 }

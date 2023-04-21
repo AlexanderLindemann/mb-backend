@@ -9,16 +9,15 @@ import pro.smartdeal.common.enums.EnumWithValue;
 @RequiredArgsConstructor
 @DictionaryEnum(code = "RealEstateType", name = "Тип недвижимости")
 public enum RealEstateType implements EnumWithValue<String> {
-    APARTMENT("APARTMENT", "Квартира", null),
-    APARTMENT_COMPLEX("APARTMENT_COMPLEX", "Апартаменты", null),
-    ROOM_SHARE("ROOM_SHARE", "Доля в квартире", null),
-    ROOM("ROOM", "Комната", null),
-    HOUSE_WITH_LAND("HOUSE_WITH_LAND", "Дом с землёй", null),
-    TOWNHOUSE("TOWNHOUSE", "Таунхаус", null),
-    COMMERCIAL("COMMERCIAL", "Коммерческая недвижимость", null);
-
+    APARTMENT("APARTMENT", "Квартира"),
+    APARTMENT_COMPLEX("APARTMENT_COMPLEX", "Апартаменты"),
+    ROOM_SHARE("ROOM_SHARE", "Доля в квартире"),
+    ROOM("ROOM", "Комната"),
+    HOUSE_WITH_LAND("HOUSE_WITH_LAND", "Дом с землёй"),
+    TOWNHOUSE("TOWNHOUSE", "Таунхаус"),
+    COMMERCIAL("COMMERCIAL", "Коммерческая недвижимость");
+      
     private final String value;
     private final String name;
-    private final String description;
 }
 

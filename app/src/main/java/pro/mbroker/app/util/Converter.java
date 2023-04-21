@@ -1,13 +1,14 @@
 package pro.mbroker.app.util;
 
+import lombok.NoArgsConstructor;
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@NoArgsConstructor
 public final class Converter {
-    private Converter() {
-    }
 
     public static String convertEnumListToStringList(List<? extends Enum<?>> enums) {
         return enums.stream()

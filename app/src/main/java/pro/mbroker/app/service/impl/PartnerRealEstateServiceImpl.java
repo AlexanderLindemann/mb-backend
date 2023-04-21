@@ -15,6 +15,7 @@ import pro.mbroker.app.repository.PartnerRepository;
 import pro.mbroker.app.repository.RealEstateRepository;
 import pro.mbroker.app.service.PartnerRealEstateService;
 import pro.mbroker.app.service.PartnerService;
+import pro.mbroker.app.util.Pagination;
 import pro.mbroker.app.util.TokenExtractor;
 import pro.smartdeal.ng.common.security.service.CurrentUserService;
 
@@ -57,14 +58,14 @@ public class PartnerRealEstateServiceImpl implements PartnerRealEstateService {
 
     @Override
     public List<RealEstate> getRealEstateByPartnerId(int page, int size, String sortBy, String sortOrder, UUID partnerId) {
-        Pageable pageable = partnerService.createPageable(page, size, sortBy, sortOrder);
+        Pageable pageable = Pagination.createPageable(page, size, sortBy, sortOrder);
         Page<RealEstate> allByPartnerId = realEstateRepository.findAllByPartnerId(partnerId, pageable);
         return allByPartnerId.getContent();
     }
 
     @Override
     public List<RealEstate> getCurrentRealEstate(int page, int size, String sortBy, String sortOrder) {
-        Pageable pageable = partnerService.createPageable(page, size, sortBy, sortOrder);
+        Pageable pageable = Pagination.createPageable(page, size, sortBy, sortOrder);
         int organizationId = TokenExtractor
                 .extractSdCurrentOrganizationId(currentUserService.getCurrentUserToken());
         Partner partner = partnerRepository.findBySmartDealOrganizationId(organizationId)

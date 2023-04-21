@@ -10,7 +10,7 @@ import pro.mbroker.app.exception.ItemNotFoundException;
 import pro.mbroker.app.repository.PartnerApplicationRepository;
 import pro.mbroker.app.repository.PartnerRepository;
 import pro.mbroker.app.service.PartnerApplicationService;
-import pro.mbroker.app.service.PartnerService;
+import pro.mbroker.app.util.Pagination;
 import pro.mbroker.app.util.TokenExtractor;
 import pro.smartdeal.ng.common.security.service.CurrentUserService;
 
@@ -20,7 +20,6 @@ import java.util.List;
 @Slf4j
 @RequiredArgsConstructor
 public class PartnerApplicationServiceImpl implements PartnerApplicationService {
-    private final PartnerService partnerService;
     private final PartnerRepository partnerRepository;
     private final CurrentUserService currentUserService;
     private final PartnerApplicationRepository partnerApplicationRepository;
@@ -29,7 +28,7 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
     public List<PartnerApplication> getAllPartnerApplication(int page, int size, String sortBy, String sortOrder) {
         log.info("Getting all partner applications with pagination: page={}, size={}, sortBy={}, sortOrder={}", page, size, sortBy, sortOrder);
 
-        Pageable pageable = partnerService.createPageable(page, size, sortBy, sortOrder);
+        Pageable pageable = Pagination.createPageable(page, size, sortBy, sortOrder);
         Partner partner = getPartnerByOrganizationId();
 
         List<PartnerApplication> partnerApplicationPage = partnerApplicationRepository.findAllByPartner(partner, pageable);

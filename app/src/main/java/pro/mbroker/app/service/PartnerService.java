@@ -1,6 +1,5 @@
 package pro.mbroker.app.service;
 
-import org.springframework.data.domain.Pageable;
 import pro.mbroker.api.dto.request.PartnerRequest;
 import pro.mbroker.app.entity.Partner;
 
@@ -15,5 +14,4 @@ public interface PartnerService {
 
     List<Partner> getAllPartner(int page, int size, String sortBy, String sortOrder);
 
-    Pageable createPageable(int page, int size, String sortBy, String sortOrder);
 }

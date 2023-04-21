@@ -9,14 +9,13 @@ import pro.smartdeal.common.enums.EnumWithValue;
 @RequiredArgsConstructor
 @DictionaryEnum(code = "ApplicationStatus", name = "Статус заявки")
 public enum ApplicationStatus implements EnumWithValue<String> {
-    UPLOADING_DOCUMENTS("UPLOADING_DOCUMENTS", "Загрузка документов", null),
-    IN_REVIEW("IN_REVIEW", "На рассмотрении", null),
-    APPROVED("APPROVED", "Одобрено", null),
-    REJECTED("REJECTED", "Отклонено", null);
+    UPLOADING_DOCUMENTS("UPLOADING_DOCUMENTS", "Загрузка документов"),
+    IN_REVIEW("IN_REVIEW", "На рассмотрении"),
+    APPROVED("APPROVED", "Одобрено"),
+    REJECTED("REJECTED", "Отклонено");
 
 
     private final String value;
     private final String name;
-    private final String description;
 }
 
