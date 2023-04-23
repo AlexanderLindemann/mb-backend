@@ -61,16 +61,16 @@ public class CalculatorServiceTest {
         calculatorRequest.setRealEstateId(UUID.fromString("2b8850b2-d930-11ed-afa1-0242ac120002"));
         calculatorRequest.setCreditTerm(5);
         calculatorRequest.setCreditPurposeType(CreditPurposeType.PURCHASE_UNDER_CONSTRUCTION);
-        calculatorRequest.setDownPayment(BigDecimal.valueOf(1000000));
-        calculatorRequest.setRealEstatePrice(BigDecimal.valueOf(10000000));
+        calculatorRequest.setDownPayment(BigDecimal.valueOf(10000000));
+        calculatorRequest.setRealEstatePrice(BigDecimal.valueOf(20000000));
         calculatorRequest.setRealEstateType(RealEstateType.APARTMENT);
         calculatorRequest.setIsMaternalCapital(true);
 
         PropertyMortgageDTO creditOffer = calculatorService.getCreditOffer(calculatorRequest);
-        assertEquals(creditOffer.getBankLoanProgramDto().get(0).getLoanProgramCalculationDto().get(0).getMonthlyPayment(), new BigDecimal("214109.37"));
-        assertEquals(creditOffer.getBankLoanProgramDto().get(0).getLoanProgramCalculationDto().get(0).getOverpayment(), new BigDecimal("3846562.20"));
-        assertEquals(creditOffer.getBankLoanProgramDto().get(0).getLoanProgramCalculationDto().get(1).getMonthlyPayment(), new BigDecimal("238444.97"));
-        assertEquals(creditOffer.getBankLoanProgramDto().get(0).getLoanProgramCalculationDto().get(1).getOverpayment(), new BigDecimal("5306698.20"));
+        assertEquals(creditOffer.getBankLoanProgramDto().get(0).getLoanProgramCalculationDto().get(0).getMonthlyPayment(), new BigDecimal("237899.30"));
+        assertEquals(creditOffer.getBankLoanProgramDto().get(0).getLoanProgramCalculationDto().get(0).getOverpayment(), new BigDecimal("4273958.00"));
+        assertEquals(creditOffer.getBankLoanProgramDto().get(0).getLoanProgramCalculationDto().get(1).getMonthlyPayment(), new BigDecimal("264938.86"));
+        assertEquals(creditOffer.getBankLoanProgramDto().get(0).getLoanProgramCalculationDto().get(1).getOverpayment(), new BigDecimal("5896331.60"));
     }
 
 }

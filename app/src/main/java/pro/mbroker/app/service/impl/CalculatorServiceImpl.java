@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @RequiredArgsConstructor
 public class CalculatorServiceImpl implements CalculatorService {
-    public static final int MONTHS_IN_YEAR = 12;
+    private static final int MONTHS_IN_YEAR = 12;
     private final RealEstateRepository realEstateRepository;
     private final DirectoryService directoryService;
 
@@ -57,7 +57,7 @@ public class CalculatorServiceImpl implements CalculatorService {
     }
 
     private LoanProgramCalculationDto createLoanProgramCalculationDto(CalculatorRequest request, CreditProgram creditProgram) {
-        BigDecimal mortgageSum = getMortgageSum(request);
+        BigDecimal mortgageSum = getMortgageSum(request.getRealEstatePrice(), request.getDownPayment());
         BigDecimal calculateMonthlyPayment = calculateMonthlyPayment(mortgageSum, creditProgram.getBaseRate(), request.getCreditTerm() * MONTHS_IN_YEAR);
         BigDecimal downPayment = request.getDownPayment() != null ? request.getDownPayment() : BigDecimal.ZERO;
         return new LoanProgramCalculationDto()
@@ -76,7 +76,8 @@ public class CalculatorServiceImpl implements CalculatorService {
     }
 
     private boolean isProgramEligible(CalculatorRequest request, CreditProgram creditProgram) {
-        BigDecimal mortgageSum = getMortgageSum(request);
+        BigDecimal mortgageSum = getMortgageSum(request.getRealEstatePrice(), request.getDownPayment());
+        int downPaymentPercentage = calculateDownPaymentPercentage(request.getDownPayment(), request.getRealEstatePrice());
         String creditPurposeType = creditProgram.getCreditProgramDetail().getCreditPurposeType();
         String realEstateType = creditProgram.getCreditProgramDetail().getRealEstateType();
         List<CreditPurposeType> creditPurposeTypes = Converter.convertStringListToEnumList(creditPurposeType, CreditPurposeType.class);
@@ -89,18 +90,20 @@ public class CalculatorServiceImpl implements CalculatorService {
                 mortgageSum.compareTo(creditProgram.getCreditParameter().getMaxMortgageSum()) <= 0 &&
                 creditProgram.getCreditParameter().getMinCreditTerm() <= creditTermMonths &&
                 creditProgram.getCreditParameter().getMaxCreditTerm() >= creditTermMonths &&
+                downPaymentPercentage >= (creditProgram.getCreditParameter().getMinDownPayment()) &&
+                downPaymentPercentage <= (creditProgram.getCreditParameter().getMaxDownPayment()) &&
                 isRegionEligible(request, creditProgram);
     }
 
-    private BigDecimal getMortgageSum(CalculatorRequest request) {
-        if (request.getRealEstatePrice() == null || request.getRealEstatePrice().compareTo(BigDecimal.ZERO) == 0) {
+    private BigDecimal getMortgageSum(BigDecimal realEstatePrice, BigDecimal downPayment) {
+        if (realEstatePrice == null || realEstatePrice.compareTo(BigDecimal.ZERO) == 0) {
             return BigDecimal.ZERO;
         }
-        BigDecimal downPayment = Optional.ofNullable(request.getDownPayment())
-                .orElse(BigDecimal.ZERO);
-        return request.getRealEstatePrice().subtract(downPayment);
+        return realEstatePrice.subtract(Optional.ofNullable(downPayment)
+                .orElse(BigDecimal.ZERO));
     }
 
+    @Override
     public BigDecimal calculateMonthlyPayment(BigDecimal mortgageSum, double annualInterestRate, int loanTermInMonths) {
         BigDecimal monthlyInterestRate = BigDecimal.valueOf(annualInterestRate).divide(BigDecimal.valueOf(1200), 8, RoundingMode.HALF_UP);
         BigDecimal numerator = monthlyInterestRate.add(BigDecimal.ONE).pow(loanTermInMonths).multiply(monthlyInterestRate);
@@ -109,10 +112,22 @@ public class CalculatorServiceImpl implements CalculatorService {
         return monthlyPayment.setScale(2, RoundingMode.HALF_UP);
     }
 
+    @Override
     public BigDecimal calculateOverpayment(BigDecimal monthlyPayment, int loanTermMonths, BigDecimal realEstatePrice, BigDecimal downPayment) {
         BigDecimal totalPayment = monthlyPayment.multiply(BigDecimal.valueOf(loanTermMonths));
         BigDecimal overpayment = totalPayment.subtract(realEstatePrice).add(downPayment);
         return overpayment.setScale(2, RoundingMode.HALF_UP);
+    }
+
+    private int calculateDownPaymentPercentage(BigDecimal downPayment, BigDecimal realEstatePrice) {
+        if (realEstatePrice == null || realEstatePrice.compareTo(BigDecimal.ZERO) == 0) {
+            throw new IllegalArgumentException("Real estate price must be non-null and non-zero.");
+        }
+        if (downPayment == null) {
+            downPayment = BigDecimal.ZERO;
+        }
+        BigDecimal downPaymentPercentage = downPayment.divide(realEstatePrice, 4, BigDecimal.ROUND_HALF_UP).multiply(new BigDecimal("100"));
+        return downPaymentPercentage.intValue();
     }
 
     private boolean isRegionEligible(CalculatorRequest request, CreditProgram creditProgram) {
