@@ -31,6 +31,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class CalculatorServiceImpl implements CalculatorService {
     private static final int MONTHS_IN_YEAR = 12;
+    private static final String PERCENTAGE_MAX = "100";
     private final RealEstateRepository realEstateRepository;
     private final DirectoryService directoryService;
 
@@ -126,7 +127,7 @@ public class CalculatorServiceImpl implements CalculatorService {
         if (downPayment == null) {
             downPayment = BigDecimal.ZERO;
         }
-        BigDecimal downPaymentPercentage = downPayment.divide(realEstatePrice, 4, BigDecimal.ROUND_HALF_UP).multiply(new BigDecimal("100"));
+        BigDecimal downPaymentPercentage = downPayment.divide(realEstatePrice, 4, BigDecimal.ROUND_HALF_UP).multiply(new BigDecimal(PERCENTAGE_MAX));
         return downPaymentPercentage.intValue();
     }
 
