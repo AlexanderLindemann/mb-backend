@@ -20,6 +20,6 @@ public interface PartnerApplicationController {
     @GetMapping()
     List<PartnerApplicationDto> getAllPartnerApplication(@RequestParam(defaultValue = "0") int page,
                                                          @RequestParam(defaultValue = "10") int size,
-                                                         @RequestParam(defaultValue = "name") String sortBy,
+                                                         @RequestParam(defaultValue = "fullName") String sortBy,
                                                          @RequestParam(defaultValue = "asc") String sortOrder);
 }

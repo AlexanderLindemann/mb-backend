@@ -6,6 +6,7 @@ import lombok.ToString;
 import pro.mbroker.api.dto.request.CreditParameterResponse;
 import pro.mbroker.api.dto.request.CreditProgramDetailResponse;
 
+import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.util.UUID;
 
@@ -30,5 +31,9 @@ public class CreditProgramResponse {
     private CreditParameterResponse creditParameter;
 
     private Double baseRate;
+
+    private BankResponse bank;
+
+    private LocalDateTime updatedAt;
 }
 

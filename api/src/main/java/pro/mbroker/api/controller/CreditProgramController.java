@@ -30,4 +30,12 @@ public interface CreditProgramController {
     @ApiOperation("обновить программу кредита")
     @PutMapping("/{creditProgramId}")
     CreditProgramResponse updateProgram(@PathVariable UUID creditProgramId, @RequestBody @Valid BankProgramRequest updateProgramRequest);
+
+    @ApiOperation("Получить список всех кредитных программ")
+    @GetMapping()
+    List<CreditProgramResponse> getAllCreditProgram(@RequestParam(defaultValue = "0") int page,
+                                                    @RequestParam(defaultValue = "10") int size,
+                                                    @RequestParam(defaultValue = "updatedAt") String sortBy,
+                                                    @RequestParam(defaultValue = "asc") String sortOrder);
+
 }

@@ -37,7 +37,7 @@ public interface PartnerRealEstateController {
     @GetMapping("/{partnerId}/real_estate")
     List<RealEstateResponse> getRealEstateByPartnerId(@RequestParam(defaultValue = "0") int page,
                                                       @RequestParam(defaultValue = "10") int size,
-                                                      @RequestParam(defaultValue = "name") String sortBy,
+                                                      @RequestParam(defaultValue = "residentialComplexName") String sortBy,
                                                       @RequestParam(defaultValue = "asc") String sortOrder,
                                                       @PathVariable UUID partnerId);
 
@@ -45,6 +45,6 @@ public interface PartnerRealEstateController {
     @GetMapping("/{partnerId}/current_real_estate")
     List<RealEstateResponse> getCurrentRealEstate(@RequestParam(defaultValue = "0") int page,
                                                   @RequestParam(defaultValue = "10") int size,
-                                                  @RequestParam(defaultValue = "name") String sortBy,
+                                                  @RequestParam(defaultValue = "residentialComplexName") String sortBy,
                                                   @RequestParam(defaultValue = "asc") String sortOrder);
 }

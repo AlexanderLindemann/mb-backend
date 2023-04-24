@@ -2,6 +2,7 @@ package pro.mbroker.app.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pro.mbroker.api.dto.request.BankProgramRequest;
@@ -75,6 +76,11 @@ public class CreditProgramServiceImpl implements CreditProgramService {
     @Override
     public List<CreditProgram> getProgramsByBankId(UUID bankId) {
         return creditProgramRepository.findAllByBankId(bankId);
+    }
+
+    @Override
+    public List<CreditProgram> getAllCreditProgram(Pageable pageable) {
+        return creditProgramRepository.findAllWithBankBy(pageable);
     }
 
     private CreditProgram getProgram(UUID creditProgramId) {

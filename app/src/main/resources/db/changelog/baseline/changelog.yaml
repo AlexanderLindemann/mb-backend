@@ -20,3 +20,6 @@ databaseChangeLog:
   - include:
       file: 20230418_1800-add-partner_application-borrower_application-tables.xml
       relativeToChangelogFile: true
+  - include:
+      file: 20230424_1230-add-base-entity_parameter.xml
+      relativeToChangelogFile: true

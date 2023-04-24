@@ -2,6 +2,7 @@ package pro.mbroker.app.web;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Component;
 import pro.mbroker.api.controller.CalculatorController;
 import pro.mbroker.api.dto.PropertyMortgageDTO;
@@ -9,6 +10,7 @@ import pro.mbroker.api.dto.request.CalculatorRequest;
 import pro.mbroker.api.enums.CreditPurposeType;
 import pro.mbroker.api.enums.RealEstateType;
 import pro.mbroker.app.service.CalculatorService;
+import pro.smartdeal.common.security.Permission;
 
 import java.math.BigDecimal;
 import java.util.UUID;
@@ -20,6 +22,7 @@ public class CalculatorControllerImpl implements CalculatorController {
     private final CalculatorService calculatorService;
 
     @Override
+    @Secured({Permission.Code.MB_REQUEST_READ_ORGANIZATION, Permission.Code.MB_REQUEST_READ_OWN})
     public PropertyMortgageDTO getCreditOffer(UUID realEstateId,
                                               CreditPurposeType creditPurposeType,
                                               RealEstateType realEstateType,

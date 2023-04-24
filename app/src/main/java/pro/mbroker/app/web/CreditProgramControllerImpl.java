@@ -2,17 +2,18 @@ package pro.mbroker.app.web;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import pro.mbroker.api.controller.CreditProgramController;
 import pro.mbroker.api.dto.request.BankProgramRequest;
 import pro.mbroker.api.dto.response.CreditProgramResponse;
 import pro.mbroker.app.entity.CreditProgram;
-import pro.mbroker.app.mapper.CreditParameterMapper;
 import pro.mbroker.app.mapper.CreditProgramDetailMapper;
 import pro.mbroker.app.mapper.ProgramMapper;
 import pro.mbroker.app.service.CreditProgramService;
 import pro.mbroker.app.util.CreditProgramConverter;
+import pro.mbroker.app.util.Pagination;
 
 import java.util.List;
 import java.util.UUID;
@@ -25,7 +26,6 @@ public class CreditProgramControllerImpl implements CreditProgramController {
     private final CreditProgramService creditProgramService;
     private final ProgramMapper programMapper;
     private final CreditProgramDetailMapper creditProgramDetailMapper;
-    private final CreditParameterMapper creditParameterMapper;
     private final CreditProgramConverter creditProgramConverter;
 
     @Override
@@ -40,8 +40,6 @@ public class CreditProgramControllerImpl implements CreditProgramController {
     public CreditProgramResponse getProgramByCreditProgramId(UUID creditProgramId) {
         CreditProgram creditProgram = creditProgramService.getProgramByCreditProgramId(creditProgramId);
         return programMapper.toProgramResponseMapper(creditProgram)
-                .setCreditParameter(creditParameterMapper
-                        .toCreditParameterResponseMapper(creditProgram.getCreditParameter()))
                 .setCreditProgramDetail(creditProgramConverter.convertCreditDetailToEnumFormat(creditProgram.getCreditProgramDetail()));
     }
 
@@ -50,17 +48,28 @@ public class CreditProgramControllerImpl implements CreditProgramController {
         List<CreditProgram> programsByBankId = creditProgramService.getProgramsByBankId(bankId);
         return programsByBankId.stream()
                 .map(creditProgram -> programMapper.toProgramResponseMapper(creditProgram)
-                        .setCreditParameter(creditParameterMapper
-                                .toCreditParameterResponseMapper(creditProgram.getCreditParameter()))
                         .setCreditProgramDetail(creditProgramConverter.convertCreditDetailToEnumFormat(creditProgram.getCreditProgramDetail())))
                 .collect(Collectors.toList());
     }
 
     @Override
+    @Transactional
     public CreditProgramResponse updateProgram(UUID creditProgramId, BankProgramRequest request) {
         CreditProgram creditProgram = creditProgramService.updateProgram(creditProgramId, request, creditProgramConverter.convertCreditDetailToStringFormat(request));
         return programMapper.toProgramResponseMapper(creditProgram)
                 .setCreditProgramDetail(creditProgramConverter.convertCreditDetailToEnumFormat(creditProgram.getCreditProgramDetail()));
+    }
+
+    @Override
+    public List<CreditProgramResponse> getAllCreditProgram(int page, int size,
+                                                           String sortBy, String sortOrder) {
+        Pageable pageable = Pagination.createPageable(page, size, sortBy, sortOrder);
+        List<CreditProgram> allCreditProgram = creditProgramService.getAllCreditProgram(pageable);
+        List<CreditProgramResponse> creditProgramResponses = allCreditProgram.stream()
+                .map(creditProgram -> programMapper.toProgramResponseMapper(creditProgram)
+                        .setCreditProgramDetail(creditProgramConverter.convertCreditDetailToEnumFormat(creditProgram.getCreditProgramDetail())))
+                .collect(Collectors.toList());
+        return creditProgramResponses;
     }
 
 }

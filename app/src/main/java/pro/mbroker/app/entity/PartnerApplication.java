@@ -17,7 +17,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "partner_application")
-public class PartnerApplication {
+public class PartnerApplication extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
