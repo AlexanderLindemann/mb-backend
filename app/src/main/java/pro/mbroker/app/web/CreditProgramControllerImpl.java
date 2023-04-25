@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 import pro.mbroker.api.controller.CreditProgramController;
 import pro.mbroker.api.dto.request.BankProgramRequest;
 import pro.mbroker.api.dto.response.CreditProgramResponse;
@@ -29,7 +28,6 @@ public class CreditProgramControllerImpl implements CreditProgramController {
     private final CreditProgramConverter creditProgramConverter;
 
     @Override
-    @Transactional
     public CreditProgramResponse createCreditProgram(BankProgramRequest request) {
         CreditProgram creditProgram = creditProgramService.createCreditParameter(request, creditProgramConverter.convertCreditDetailToStringFormat(request));
         return programMapper.toProgramResponseMapper(creditProgram)
@@ -53,7 +51,6 @@ public class CreditProgramControllerImpl implements CreditProgramController {
     }
 
     @Override
-    @Transactional
     public CreditProgramResponse updateProgram(UUID creditProgramId, BankProgramRequest request) {
         CreditProgram creditProgram = creditProgramService.updateProgram(creditProgramId, request, creditProgramConverter.convertCreditDetailToStringFormat(request));
         return programMapper.toProgramResponseMapper(creditProgram)

@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 import pro.mbroker.api.controller.BankContactController;
 import pro.mbroker.api.dto.request.BankContactRequest;
 import pro.mbroker.api.dto.response.BankContactResponse;
@@ -30,7 +29,6 @@ public class BankContactControllerImpl implements BankContactController {
 
 
     @Override
-    @Transactional
     @Secured(Permission.Code.MB_ADMIN_ACCESS)
     public BankResponse addBankContact(BankContactRequest request) {
         Bank bank = bankContactService.addBankContact(request.getBankId(), request.getFullName(), request.getEmail());
@@ -39,7 +37,6 @@ public class BankContactControllerImpl implements BankContactController {
 
 
     @Override
-    @Transactional
     @Secured(Permission.Code.MB_ADMIN_ACCESS)
     public BankResponse deleteBankContact(UUID contactId) {
         Bank bank = bankContactService.deleteBankContact(contactId);

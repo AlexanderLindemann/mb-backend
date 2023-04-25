@@ -48,12 +48,9 @@ public class CreditProgramServiceImpl implements CreditProgramService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<CreditProgram> getProgramByCreditProgramIds(List<UUID> creditProgramIds) {
         return getPrograms(creditProgramIds);
-    }
-
-    private List<CreditProgram> getPrograms(List<UUID> creditProgramIds) {
-        return creditProgramRepository.findAllByIdIn(creditProgramIds);
     }
 
     @Override
@@ -74,11 +71,13 @@ public class CreditProgramServiceImpl implements CreditProgramService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<CreditProgram> getProgramsByBankId(UUID bankId) {
         return creditProgramRepository.findAllByBankId(bankId);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<CreditProgram> getAllCreditProgram(Pageable pageable) {
         return creditProgramRepository.findAllWithBankBy(pageable);
     }
@@ -86,5 +85,9 @@ public class CreditProgramServiceImpl implements CreditProgramService {
     private CreditProgram getProgram(UUID creditProgramId) {
         return creditProgramRepository.findById(creditProgramId)
                 .orElseThrow(() -> new ItemNotFoundException(CreditProgram.class, creditProgramId));
+    }
+
+    private List<CreditProgram> getPrograms(List<UUID> creditProgramIds) {
+        return creditProgramRepository.findAllByIdIn(creditProgramIds);
     }
 }

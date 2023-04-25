@@ -9,7 +9,6 @@ import pro.mbroker.api.enums.RealEstateType;
 
 import javax.persistence.*;
 import java.util.List;
-import java.util.UUID;
 
 @Entity
 @Getter
@@ -18,10 +17,6 @@ import java.util.UUID;
 @AllArgsConstructor
 @Table(name = "partner_application")
 public class PartnerApplication extends BaseEntity {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private UUID id;
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "partner_id", referencedColumnName = "id")

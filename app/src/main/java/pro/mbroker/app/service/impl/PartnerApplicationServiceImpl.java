@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import pro.mbroker.app.entity.Partner;
 import pro.mbroker.app.entity.PartnerApplication;
 import pro.mbroker.app.exception.ItemNotFoundException;
@@ -25,6 +26,7 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
     private final PartnerApplicationRepository partnerApplicationRepository;
 
     @Override
+    @Transactional(readOnly = true)
     public List<PartnerApplication> getAllPartnerApplication(int page, int size, String sortBy, String sortOrder) {
         log.info("Getting all partner applications with pagination: page={}, size={}, sortBy={}, sortOrder={}", page, size, sortBy, sortOrder);
 

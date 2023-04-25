@@ -7,15 +7,15 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-import pro.mbroker.app.exception.ItemNotFoundException;
-import pro.mbroker.app.entity.Bank;
-import pro.mbroker.app.repository.BankRepository;
 import pro.mbroker.app.entity.Attachment;
+import pro.mbroker.app.entity.Bank;
+import pro.mbroker.app.exception.ItemNotFoundException;
 import pro.mbroker.app.repository.AttachmentRepository;
+import pro.mbroker.app.repository.BankRepository;
 import pro.mbroker.app.service.AttachmentService;
 import pro.mbroker.app.service.BankService;
-import pro.mbroker.app.util.Pagination;
 
 import java.util.List;
 import java.util.UUID;
@@ -31,6 +31,7 @@ public class BankServiceImpl implements BankService {
     private static final int ORDER_STEP = 10;
 
     @Override
+    @Transactional
     public Bank createBank(String name) {
         Bank bank = new Bank()
                 .setName(name);
@@ -39,16 +40,19 @@ public class BankServiceImpl implements BankService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Bank getBankById(UUID id) {
         return getBank(id);
     }
 
+    //todo вместо удаления будет статус: удален (переделать в будущем)
     @Override
     public void deleteBankById(UUID id) {
         bankRepository.deleteById(id);
     }
 
     @Override
+    @Transactional
     public Bank updateBankName(UUID bankId, String name) {
         Bank bank = getBank(bankId);
         bank.setName(name);
@@ -56,6 +60,7 @@ public class BankServiceImpl implements BankService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public MultipartFile getLogoBankById(UUID bankId) {
         Bank bank = getBank(bankId);
         Attachment attachment = attachmentRepository.findById(bank.getLogoAttachmentId())
@@ -64,6 +69,7 @@ public class BankServiceImpl implements BankService {
     }
 
     @Override
+    @Transactional
     public Bank updateLogo(UUID bankId, MultipartFile logo) {
         Bank bank = getBank(bankId);
         bank.setLogoAttachmentId(attachmentService.upload(logo));
@@ -72,6 +78,7 @@ public class BankServiceImpl implements BankService {
 
 
     @Override
+    @Transactional(readOnly = true)
     public List<Bank> getAllBank(int page, int size, String sortBy, String sortOrder) {
         Sort sort = Sort.by(Sort.Direction.fromString(sortOrder), sortBy);
         Pageable pageable = PageRequest.of(page, size, sort);

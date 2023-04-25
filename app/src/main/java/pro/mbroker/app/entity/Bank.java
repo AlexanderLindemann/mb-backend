@@ -7,7 +7,6 @@ import lombok.Setter;
 
 import javax.persistence.*;
 import java.util.List;
-import java.util.UUID;
 
 @Entity
 @Getter
@@ -16,10 +15,6 @@ import java.util.UUID;
 @AllArgsConstructor
 @Table(name = "bank")
 public class Bank extends BaseEntity {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private UUID id;
 
     @Column(name = "name", nullable = false)
     private String name;

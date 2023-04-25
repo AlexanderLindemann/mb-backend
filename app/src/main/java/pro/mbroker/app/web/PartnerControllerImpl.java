@@ -3,7 +3,6 @@ package pro.mbroker.app.web;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 import pro.mbroker.api.controller.PartnerController;
 import pro.mbroker.api.dto.request.PartnerRequest;
 import pro.mbroker.api.dto.response.CreditProgramResponse;
@@ -37,7 +36,6 @@ public class PartnerControllerImpl implements PartnerController {
     }
 
     @Override
-    @Transactional(readOnly = true)
     public List<PartnerResponse> getAllPartner(int page, int size, String sortBy, String sortOrder) {
         List<Partner> partnerList = partnerService.getAllPartner(page, size, sortBy, sortOrder);
         return partnerList.stream()
@@ -56,7 +54,6 @@ public class PartnerControllerImpl implements PartnerController {
                 .map(creditProgram -> programMapper.toProgramResponseMapper(creditProgram)
                         .setCreditProgramDetail(creditProgramConverter.convertCreditDetailToEnumFormat(creditProgram.getCreditProgramDetail())))
                 .collect(Collectors.toList());
-
 
         return partnerMapper.toPartnerResponseMapper(partner)
                 .setBankCreditProgram(creditProgramResponses)

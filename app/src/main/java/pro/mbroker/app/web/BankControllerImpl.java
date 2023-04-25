@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import pro.mbroker.api.controller.BankController;
 import pro.mbroker.api.controller.CreditProgramController;
@@ -28,7 +27,6 @@ public class BankControllerImpl implements BankController {
     private final CreditProgramController creditProgramController;
 
     @Override
-    @Transactional
     @Secured(Permission.Code.MB_ADMIN_ACCESS)
     public BankResponse createBank(String name) {
         Bank bank = bankService.createBank(name);
@@ -36,7 +34,6 @@ public class BankControllerImpl implements BankController {
     }
 
     @Override
-    @Transactional
     @Secured(Permission.Code.MB_ADMIN_ACCESS)
     public BankResponse updateLogo(UUID bankId, MultipartFile logo) {
         Bank bank = bankService.updateLogo(bankId, logo);
@@ -44,7 +41,6 @@ public class BankControllerImpl implements BankController {
     }
 
     @Override
-    @Transactional(readOnly = true)
     public List<BankResponse> getAllBank(int page, int size,
                                          String sortBy, String sortOrder) {
         List<Bank> bankList = bankService.getAllBank(page, size, sortBy, sortOrder);
@@ -55,7 +51,6 @@ public class BankControllerImpl implements BankController {
 
 
     @Override
-    @Transactional(readOnly = true)
     public BankResponse getBankById(UUID bankId) {
         Bank bank = bankService.getBankById(bankId);
         return bankMapper.toBankResponseMapper(bank)
@@ -69,7 +64,6 @@ public class BankControllerImpl implements BankController {
 
 
     @Override
-    @Transactional
     @Secured(Permission.Code.MB_ADMIN_ACCESS)
     public BankResponse updateBankName(UUID bankId, String name) {
         Bank bank = bankService.updateBankName(bankId, name);
