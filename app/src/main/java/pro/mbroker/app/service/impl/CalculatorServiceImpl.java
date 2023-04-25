@@ -31,7 +31,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class CalculatorServiceImpl implements CalculatorService {
     private static final int MONTHS_IN_YEAR = 12;
-    private static final String PERCENTAGE_MAX = "100";
+    private static final int PERCENTAGE_MAX = 100;
     private final RealEstateRepository realEstateRepository;
     private final DirectoryService directoryService;
 
