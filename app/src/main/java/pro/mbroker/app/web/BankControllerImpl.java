@@ -1,5 +1,6 @@
 package pro.mbroker.app.web;
 
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -66,7 +67,7 @@ public class BankControllerImpl implements BankController {
 
     @Override
     @Transactional
-    public BankResponse updateBankName(UUID bankId, String name) {
+    public BankResponse updateBankName(UUID bankId, @NonNull String name) {
         Bank bank = bankService.updateBankName(bankId, name);
         return bankMapper.toBankResponseMapper(bank);
     }
