@@ -4,8 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
 import pro.mbroker.api.enums.PartnerType;
 
 import javax.persistence.*;
@@ -46,8 +44,7 @@ public class Partner {
             joinColumns = @JoinColumn(name = "partner_id"),
             inverseJoinColumns = @JoinColumn(name = "credit_program_id"))
     private List<CreditProgram> creditPrograms = new ArrayList<>();
-    @OneToMany(mappedBy = "partner", cascade = CascadeType.ALL, orphanRemoval = true)
-    @OnDelete(action = OnDeleteAction.CASCADE)
+    @OneToMany(mappedBy = "partner")
     private List<RealEstate> realEstates = new ArrayList<>();
 
 }
