@@ -2,7 +2,7 @@ package pro.mbroker.app.web;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 import pro.mbroker.api.controller.BankController;
@@ -11,7 +11,6 @@ import pro.mbroker.api.dto.response.BankResponse;
 import pro.mbroker.app.entity.Bank;
 import pro.mbroker.app.mapper.BankMapper;
 import pro.mbroker.app.service.BankService;
-import pro.smartdeal.common.security.Permission;
 
 import java.util.List;
 import java.util.UUID;
@@ -27,14 +26,14 @@ public class BankControllerImpl implements BankController {
     private final CreditProgramController creditProgramController;
 
     @Override
-    @Secured(Permission.Code.MB_ADMIN_ACCESS)
+    @PreAuthorize("hasAuthority(T(pro.smartdeal.common.security.Permission$Code).MB_ADMIN_ACCESS)")
     public BankResponse createBank(String name) {
         Bank bank = bankService.createBank(name);
         return bankMapper.toBankResponseMapper(bank);
     }
 
     @Override
-    @Secured(Permission.Code.MB_ADMIN_ACCESS)
+    @PreAuthorize("hasAuthority(T(pro.smartdeal.common.security.Permission$Code).MB_ADMIN_ACCESS)")
     public BankResponse updateLogo(UUID bankId, MultipartFile logo) {
         Bank bank = bankService.updateLogo(bankId, logo);
         return bankMapper.toBankResponseMapper(bank);
@@ -64,7 +63,7 @@ public class BankControllerImpl implements BankController {
 
 
     @Override
-    @Secured(Permission.Code.MB_ADMIN_ACCESS)
+    @PreAuthorize("hasAuthority(T(pro.smartdeal.common.security.Permission$Code).MB_ADMIN_ACCESS)")
     public BankResponse updateBankName(UUID bankId, String name) {
         Bank bank = bankService.updateBankName(bankId, name);
         return bankMapper.toBankResponseMapper(bank);

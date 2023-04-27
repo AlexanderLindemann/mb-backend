@@ -2,7 +2,7 @@ package pro.mbroker.app.web;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 import pro.mbroker.api.controller.BankContactController;
 import pro.mbroker.api.dto.request.BankContactRequest;
@@ -13,7 +13,6 @@ import pro.mbroker.app.entity.BankContact;
 import pro.mbroker.app.mapper.BankContactMapper;
 import pro.mbroker.app.mapper.BankMapper;
 import pro.mbroker.app.service.BankContactService;
-import pro.smartdeal.common.security.Permission;
 
 import java.util.List;
 import java.util.UUID;
@@ -29,7 +28,7 @@ public class BankContactControllerImpl implements BankContactController {
 
 
     @Override
-    @Secured(Permission.Code.MB_ADMIN_ACCESS)
+    @PreAuthorize("hasAuthority(T(pro.smartdeal.common.security.Permission$Code).MB_ADMIN_ACCESS)")
     public BankResponse addBankContact(BankContactRequest request) {
         Bank bank = bankContactService.addBankContact(request.getBankId(), request.getFullName(), request.getEmail());
         return bankMapper.toBankResponseMapper(bank);
@@ -37,7 +36,7 @@ public class BankContactControllerImpl implements BankContactController {
 
 
     @Override
-    @Secured(Permission.Code.MB_ADMIN_ACCESS)
+    @PreAuthorize("hasAuthority(T(pro.smartdeal.common.security.Permission$Code).MB_ADMIN_ACCESS)")
     public BankResponse deleteBankContact(UUID contactId) {
         Bank bank = bankContactService.deleteBankContact(contactId);
         return bankMapper.toBankResponseMapper(bank);
