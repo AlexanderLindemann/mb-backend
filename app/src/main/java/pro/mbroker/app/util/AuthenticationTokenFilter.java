@@ -13,11 +13,12 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 public class AuthenticationTokenFilter extends OncePerRequestFilter {
+    private static final int BEARER_PREFIX_LENGTH = 7;
 
     private final TokenExtractor tokenExtractor;
 
@@ -26,16 +27,12 @@ public class AuthenticationTokenFilter extends OncePerRequestFilter {
         String authHeader = request.getHeader("Authorization");
 
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            String token = authHeader.substring(7);
+            String token = authHeader.substring(BEARER_PREFIX_LENGTH);
             Authentication authentication = getAuthentication(token);
             SecurityContextHolder.getContext().setAuthentication(authentication);
         }
 
-        try {
-            filterChain.doFilter(request, response);
-        } catch (IOException | ServletException e) {
-            throw new RuntimeException(e);
-        }
+        filterChain.doFilter(request, response);
     }
 
     private Authentication getAuthentication(String token) {
@@ -51,14 +48,11 @@ public class AuthenticationTokenFilter extends OncePerRequestFilter {
     }
 
     private List<SimpleGrantedAuthority> getAuthorities(String token) {
-        List<SimpleGrantedAuthority> authorities = new ArrayList<>();
         List<String> permissions = tokenExtractor.getPermissions(token);
 
-        for (String permission : permissions) {
-            authorities.add(new SimpleGrantedAuthority(permission));
-        }
-
-        return authorities;
+        return permissions.stream()
+                .map(SimpleGrantedAuthority::new)
+                .collect(Collectors.toList());
     }
 }
 
