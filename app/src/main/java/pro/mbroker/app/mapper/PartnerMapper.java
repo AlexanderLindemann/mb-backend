@@ -2,6 +2,7 @@ package pro.mbroker.app.mapper;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
 import org.mapstruct.Named;
 import pro.mbroker.api.dto.request.PartnerRequest;
 import pro.mbroker.api.dto.response.PartnerResponse;
@@ -27,6 +28,12 @@ public interface PartnerMapper {
     @Mapping(target = "creditPurposeType", qualifiedByName = "creditPurposeTypeListToString")
     @Mapping(target = "realEstates", ignore = true)
     Partner toPartnerMapper(PartnerRequest request);
+
+    @Mapping(target = "realEstates", ignore = true)
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "creditPrograms", ignore = true)
+    void updatePartnerFromRequest(PartnerRequest partnerRequest, @MappingTarget Partner partner);
+
 
     @Named("stringToRealEstateTypeList")
     default List<RealEstateType> stringToRealEstateTypeList(String str) {
