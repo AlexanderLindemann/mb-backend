@@ -29,4 +29,11 @@ public interface PartnerController {
     @ApiOperation("получить партнера по id")
     @GetMapping("/{partnerId}")
     PartnerResponse getPartnerById(@PathVariable UUID partnerId);
+
+    @ApiOperation("обновить партнера по id")
+    @PutMapping("/{partnerId}")
+    PartnerResponse updatePartnerById(
+            @PathVariable UUID partnerId,
+            @RequestBody PartnerRequest request);
+
 }

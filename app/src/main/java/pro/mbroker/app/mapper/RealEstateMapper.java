@@ -22,6 +22,9 @@ public interface RealEstateMapper {
     @Mapping(target = "partner", ignore = true)
     void updateRealEstateAddress(RealEstateRequest realEstateRequest, @MappingTarget RealEstate realEstate);
 
+    @Mapping(target = "partner", ignore = true)
+    void updateRealEstateAddressList(List<RealEstateRequest> realEstateRequest, @MappingTarget List<RealEstate> realEstate);
+
     default List<RealEstate> toRealEstateAddressList(List<RealEstateRequest> addressRequests) {
         return addressRequests.stream()
                 .map(this::toRealEstateMapper)

@@ -9,9 +9,9 @@ VALUES ('48d91494-d868-11ed-afa1-0242ac120002'::UUID, 'Alexander Testovich', 'te
        ('09bdec64-dabe-11ed-afa1-0242ac120002'::UUID, 'Alexander Testovich2', 'test-email@gmail2.com','0c371042-d848-11ed-afa1-0242ac120002'::UUID);
 
 INSERT INTO public.credit_parameter (id, min_mortgage_sum, max_mortgage_sum, min_credit_term, max_credit_term, min_down_payment, max_down_payment, is_maternal_capital)
-VALUES ('090ec5f2-d926-11ed-afa1-0242ac120002', 5000000, 20000000, 36, 360, 500000, 1000000, true),
-       ('b906eca8-d928-11ed-afa1-0242ac120002', 7000000, 25000000, 36, 360, 1000000, 2000000, false),
-       ('b6e7ac3c-dabd-11ed-afa1-0242ac120002', 1000000, 30000000, 20, 240, 500000, 2000000, true);
+VALUES ('090ec5f2-d926-11ed-afa1-0242ac120002', 5000000, 20000000, 36, 360, 20, 100, true),
+       ('b906eca8-d928-11ed-afa1-0242ac120002', 7000000, 25000000, 36, 360, 30, 100, false),
+       ('b6e7ac3c-dabd-11ed-afa1-0242ac120002', 1000000, 30000000, 20, 240, 10, 90, true);
 
 INSERT INTO public.credit_program_detail (id, credit_purpose_type, real_estate_type, include, exclude)
 VALUES ('98a78d76-d925-11ed-afa1-0242ac120002', 'PURCHASE_READY_HOUSE,PURCHASE_UNDER_CONSTRUCTION', 'TOWNHOUSE,APARTMENT', null, 'ROSTOV,PRIMORSKY,PSKOV'),
