@@ -1,0 +1,41 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <changeSet id="add-base-entity_parameter" author="a.lindemann">
+        <addColumn tableName="bank">
+            <column name="created_at" type="TIMESTAMP WITHOUT TIME ZONE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="created_by" type="integer">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_by" type="integer"/>
+        </addColumn>
+
+        <addColumn tableName="credit_program">
+            <column name="created_at" type="TIMESTAMP WITHOUT TIME ZONE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="created_by" type="integer">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_by" type="integer"/>
+        </addColumn>
+
+        <addColumn tableName="partner_application">
+            <column name="created_at" type="TIMESTAMP WITHOUT TIME ZONE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="created_by" type="integer">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_by" type="integer"/>
+        </addColumn>
+    </changeSet>
+</databaseChangeLog>

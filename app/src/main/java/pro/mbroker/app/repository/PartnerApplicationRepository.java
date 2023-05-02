@@ -12,4 +12,5 @@ import java.util.UUID;
 public interface PartnerApplicationRepository extends JpaRepository<PartnerApplication, UUID> {
     @EntityGraph(attributePaths = {"borrowerApplications.creditProgram", "borrowerApplications.creditProgram.bank"})
     List<PartnerApplication> findAllByPartner(Partner partner, Pageable pageable);
+
 }
