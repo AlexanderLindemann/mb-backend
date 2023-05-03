@@ -36,4 +36,8 @@ public interface PartnerController {
             @PathVariable UUID partnerId,
             @RequestBody PartnerRequest request);
 
+    @ApiOperation("получить действующего застройщика")
+    @GetMapping("/current")
+    PartnerResponse getCurrentPartner();
+
 }

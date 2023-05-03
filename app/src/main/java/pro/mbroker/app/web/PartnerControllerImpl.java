@@ -57,13 +57,17 @@ public class PartnerControllerImpl implements PartnerController {
         return buildPartnerResponse(partner);
     }
 
+    @Override
+    public PartnerResponse getCurrentPartner() {
+        Partner partner = partnerService.getCurrentPartner();
+        return buildPartnerResponse(partner);
+    }
+
     private PartnerResponse buildPartnerResponse(Partner partner) {
         List<CreditProgramResponse> creditProgramResponses = partner.getCreditPrograms().stream()
                 .map(creditProgram -> programMapper.toProgramResponseMapper(creditProgram)
                         .setCreditProgramDetail(creditProgramConverter.convertCreditDetailToEnumFormat(creditProgram.getCreditProgramDetail())))
                 .collect(Collectors.toList());
-
-
         return partnerMapper.toPartnerResponseMapper(partner)
                 .setBankCreditProgram(creditProgramResponses)
                 .setRealEstates(realEstateMapper.toRealEstateAddressResponseList(partner.getRealEstates()));
