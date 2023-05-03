@@ -19,12 +19,20 @@ public interface ProgramMapper {
     @Mapping(target = "creditProgramDetail", ignore = true)
     @Mapping(target = "creditParameter", ignore = true)
     @Mapping(target = "bank", ignore = true)
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "updatedAt", ignore = true)
+    @Mapping(target = "createdBy", ignore = true)
+    @Mapping(target = "updatedBy", ignore = true)
     CreditProgram toProgramMapper(BankProgramRequest bankProgramRequest);
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "creditParameter", ignore = true)
     @Mapping(target = "creditProgramDetail", ignore = true)
     @Mapping(target = "bank", ignore = true)
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "updatedAt", ignore = true)
+    @Mapping(target = "createdBy", ignore = true)
+    @Mapping(target = "updatedBy", ignore = true)
     void updateProgramFromRequest(BankProgramRequest updateProgramRequest, @MappingTarget CreditProgram creditProgram);
 
     default List<CreditProgramResponse> convertCreditProgramsToResponses(List<CreditProgram> creditPrograms) {
