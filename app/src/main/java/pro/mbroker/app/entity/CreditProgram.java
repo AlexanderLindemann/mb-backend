@@ -19,7 +19,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "credit_program")
-public class CreditProgram {
+public class CreditProgram extends BaseEntity{
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
