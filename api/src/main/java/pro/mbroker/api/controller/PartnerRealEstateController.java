@@ -42,7 +42,7 @@ public interface PartnerRealEstateController {
                                                       @PathVariable UUID partnerId);
 
     @ApiOperation("получить все ЖК действующего застройщика")
-    @GetMapping("/{partnerId}/current_real_estate")
+    @GetMapping("/current_real_estate")
     List<RealEstateResponse> getCurrentRealEstate(@RequestParam(defaultValue = "0") int page,
                                                   @RequestParam(defaultValue = "10") int size,
                                                   @RequestParam(defaultValue = "name") String sortBy,
