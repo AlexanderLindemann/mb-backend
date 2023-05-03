@@ -11,7 +11,6 @@ import javax.persistence.*;
 import javax.validation.constraints.DecimalMax;
 import javax.validation.constraints.DecimalMin;
 import java.time.ZonedDateTime;
-import java.util.UUID;
 
 @Entity
 @Getter
@@ -19,10 +18,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "credit_program")
-public class CreditProgram extends BaseEntity{
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private UUID id;
+public class CreditProgram extends BaseEntity {
 
     @Column(name = "credit_program_name", nullable = false)
     private String programName;
