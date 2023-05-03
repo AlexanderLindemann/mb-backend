@@ -10,7 +10,7 @@ import org.springframework.data.annotation.CreatedDate;
 import javax.persistence.*;
 import javax.validation.constraints.DecimalMax;
 import javax.validation.constraints.DecimalMin;
-import java.time.ZonedDateTime;
+import java.time.LocalDateTime;
 
 @Entity
 @Getter
@@ -25,10 +25,10 @@ public class CreditProgram extends BaseEntity {
 
     @CreatedDate
     @Column(name = "start_program_date")
-    private ZonedDateTime programStartDate;
+    private LocalDateTime programStartDate;
 
     @Column(name = "end_program_date")
-    private ZonedDateTime programEndDate;
+    private LocalDateTime programEndDate;
 
     @Column(name = "description", length = 1000)
     private String description;

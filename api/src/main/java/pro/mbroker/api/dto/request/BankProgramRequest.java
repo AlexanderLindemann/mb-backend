@@ -11,7 +11,7 @@ import javax.validation.constraints.DecimalMax;
 import javax.validation.constraints.DecimalMin;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-import java.time.ZonedDateTime;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -25,9 +25,9 @@ public class BankProgramRequest {
     @NotNull(message = "Program name is required")
     private String programName;
 
-    private ZonedDateTime programStartDate;
+    private LocalDateTime programStartDate;
 
-    private ZonedDateTime programEndDate;
+    private LocalDateTime programEndDate;
 
     @Size(max = 1000, message = "Description cannot be longer than 1000 characters")
     private String description;
