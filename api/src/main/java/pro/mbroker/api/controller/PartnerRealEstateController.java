@@ -45,6 +45,6 @@ public interface PartnerRealEstateController {
     @GetMapping("/current_real_estate")
     List<RealEstateResponse> getCurrentRealEstate(@RequestParam(defaultValue = "0") int page,
                                                   @RequestParam(defaultValue = "10") int size,
-                                                  @RequestParam(defaultValue = "name") String sortBy,
+                                                  @RequestParam(defaultValue = "residentialComplexName") String sortBy,
                                                   @RequestParam(defaultValue = "asc") String sortOrder);
 }
