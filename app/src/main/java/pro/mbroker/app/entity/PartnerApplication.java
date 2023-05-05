@@ -22,7 +22,7 @@ public class PartnerApplication extends BaseEntity {
     @JoinColumn(name = "partner_id", referencedColumnName = "id")
     private Partner partner;
 
-    @Column(name = "fullName", nullable = false)
+    @Column(name = "fullName")
     private String borrowerFullName;
 
     @Enumerated(EnumType.STRING)

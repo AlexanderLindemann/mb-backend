@@ -17,6 +17,8 @@ import pro.mbroker.app.repository.PartnerRepository;
 import pro.mbroker.app.service.CreditProgramService;
 import pro.mbroker.app.service.PartnerService;
 import pro.mbroker.app.util.Pagination;
+import pro.mbroker.app.util.TokenExtractor;
+import pro.smartdeal.ng.common.security.service.CurrentUserService;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -26,6 +28,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class PartnerServiceImpl implements PartnerService {
     private final CreditProgramService creditProgramService;
+    private final CurrentUserService currentUserService;
     private final PartnerRepository partnerRepository;
     private final CreditProgramRepository creditProgramRepository;
     private final PartnerMapper partnerMapper;
@@ -65,6 +68,15 @@ public class PartnerServiceImpl implements PartnerService {
         modifyRealEstates(request.getRealEstateRequest(), partner);
         modifyCreditPrograms(request.getBankCreditProgram(), partner);
         return partnerRepository.save(partner);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Partner getCurrentPartner() {
+        int organizationId = TokenExtractor
+                .extractSdCurrentOrganizationId(currentUserService.getCurrentUserToken());
+        return partnerRepository.findBySmartDealOrganizationId(organizationId)
+                .orElseThrow(() -> new ItemNotFoundException(Partner.class, String.valueOf(organizationId)));
     }
 
 

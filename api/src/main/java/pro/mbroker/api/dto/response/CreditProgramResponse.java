@@ -7,7 +7,6 @@ import pro.mbroker.api.dto.request.CreditParameterResponse;
 import pro.mbroker.api.dto.request.CreditProgramDetailResponse;
 
 import java.time.LocalDateTime;
-import java.time.ZonedDateTime;
 import java.util.UUID;
 
 @Getter
@@ -18,9 +17,9 @@ public class CreditProgramResponse {
 
     private String programName;
 
-    private ZonedDateTime programStartDate;
+    private LocalDateTime programStartDate;
 
-    private ZonedDateTime programEndDate;
+    private LocalDateTime programEndDate;
 
     private String description;
 

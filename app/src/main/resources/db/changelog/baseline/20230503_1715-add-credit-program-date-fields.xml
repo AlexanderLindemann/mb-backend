@@ -1,0 +1,11 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <changeSet id="20230503_1015-credit_program_date_fields" author="a.lindemann">
+        <modifyDataType tableName="credit_program" columnName="start_program_date" newDataType="datetime"/>
+        <modifyDataType tableName="credit_program" columnName="end_program_date" newDataType="datetime"/>
+    </changeSet>
+</databaseChangeLog>

@@ -15,4 +15,6 @@ public interface PartnerService {
     List<Partner> getAllPartner(int page, int size, String sortBy, String sortOrder);
 
     Partner updatePartnerById(UUID partnerId, PartnerRequest request);
+
+    Partner getCurrentPartner();
 }
