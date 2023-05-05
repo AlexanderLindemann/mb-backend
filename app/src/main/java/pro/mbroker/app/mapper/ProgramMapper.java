@@ -10,9 +10,10 @@ import pro.mbroker.app.entity.CreditProgram;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Mapper(config = ProgramMapperConfig.class)
+@Mapper(config = ProgramMapperConfig.class, uses = BankMapper.class)
 public interface ProgramMapper {
     @Mapping(target = "creditProgramDetail", ignore = true)
+    @Mapping(source = "bank", target = "bank")
     CreditProgramResponse toProgramResponseMapper(CreditProgram creditProgram);
 
     @Mapping(target = "id", ignore = true)

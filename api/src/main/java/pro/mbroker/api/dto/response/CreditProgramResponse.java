@@ -30,5 +30,9 @@ public class CreditProgramResponse {
     private CreditParameterResponse creditParameter;
 
     private Double baseRate;
+
+    private BankResponse bank;
+
+    private LocalDateTime updatedAt;
 }
 

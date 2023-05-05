@@ -62,7 +62,7 @@ public class SwaggerConfiguration  {
                 .securitySchemes(List.of(jwtSchema()))
                 .select()
                 .apis(RequestHandlerSelectors.basePackage(BASE_PROJECT_PACKAGE))
-                .paths(PathSelectors.ant(PUBLIC_API_ANT_PATTERN))
+                .paths(PathSelectors.any())
                 .build();
     }
 
@@ -83,8 +83,4 @@ public class SwaggerConfiguration  {
                 .securityReferences(defaultAuth())
                 .build();
     }
-
-
-
-
 }

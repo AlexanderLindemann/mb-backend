@@ -46,6 +46,7 @@ public class BankContactServiceImpl implements BankContactService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<BankContact> getBankContact(UUID bankId) {
         Bank bank = getBank(bankId);
         return bankContactRepository.findAllByBank(bank);

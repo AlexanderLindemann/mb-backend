@@ -48,6 +48,7 @@ public class PartnerServiceImpl implements PartnerService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Partner getPartner(UUID partnerId) {
         return partnerRepository.findById(partnerId)
                 .orElseThrow(() -> new ItemNotFoundException(Partner.class, partnerId));

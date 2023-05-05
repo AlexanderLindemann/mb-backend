@@ -50,6 +50,7 @@ public class PartnerRealEstateServiceImpl implements PartnerRealEstateService {
     }
 
     @Override
+    @Transactional
     public RealEstate updateRealEstate(UUID addressId, RealEstateRequest request) {
         RealEstate realEstate = getRealEstate(addressId);
         realEstateMapper.updateRealEstateAddress(request, realEstate);
@@ -57,6 +58,7 @@ public class PartnerRealEstateServiceImpl implements PartnerRealEstateService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<RealEstate> getRealEstateByPartnerId(int page, int size, String sortBy, String sortOrder, UUID partnerId) {
         Pageable pageable = Pagination.createPageable(page, size, sortBy, sortOrder);
         Page<RealEstate> allByPartnerId = realEstateRepository.findAllByPartnerId(partnerId, pageable);
@@ -64,6 +66,7 @@ public class PartnerRealEstateServiceImpl implements PartnerRealEstateService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<RealEstate> getCurrentRealEstate(int page, int size, String sortBy, String sortOrder) {
         Pageable pageable = Pagination.createPageable(page, size, sortBy, sortOrder);
         int organizationId = TokenExtractor
