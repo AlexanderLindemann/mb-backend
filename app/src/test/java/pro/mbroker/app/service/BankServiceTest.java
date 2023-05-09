@@ -19,11 +19,11 @@ import pro.smartdeal.ng.common.security.service.CurrentUserService;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hibernate.validator.internal.util.Contracts.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -42,6 +42,8 @@ public class BankServiceTest {
 
     @Value("${test_token}")
     private String apiToken;
+
+    private static final UUID BANK_ID = UUID.fromString("0c371042-d848-11ed-afa1-0242ac120002");
 
     @Before
     public void setUp() {
@@ -76,9 +78,18 @@ public class BankServiceTest {
 
     @Test
     public void testGetBankById() {
-        Bank bank = bankService.getBankById(UUID.fromString("0c371042-d848-11ed-afa1-0242ac120002"));
+        Bank bank = bankService.getBankById(BANK_ID);
         assertNotNull(bank.getId());
         assertEquals("aTestBank1", bank.getName());
+    }
+
+    @Test
+    public void testDeleteBank() {
+        bankService.deleteBankById(BANK_ID);
+        List<Bank> allBankSortByName = bankService.getAllBank(0, 10, "name", "asc");
+        assertThat(allBankSortByName.size(), Matchers.is(3));
+        List<UUID> bankIds = allBankSortByName.stream().map(Bank::getId).collect(Collectors.toList());
+        assertFalse(bankIds.contains(BANK_ID));
     }
 
 }

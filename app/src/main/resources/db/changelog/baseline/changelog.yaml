@@ -29,3 +29,6 @@ databaseChangeLog:
   - include:
       file: 20230503_1715-add-credit-program-date-fields.xml
       relativeToChangelogFile: true
+  - include:
+      file: 20230505_1805-add-column-isActive.xml
+      relativeToChangelogFile: true

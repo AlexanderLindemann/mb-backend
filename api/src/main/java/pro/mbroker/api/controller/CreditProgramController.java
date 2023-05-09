@@ -38,4 +38,9 @@ public interface CreditProgramController {
                                                     @RequestParam(defaultValue = "updatedAt") String sortBy,
                                                     @RequestParam(defaultValue = "asc") String sortOrder);
 
+    @ApiOperation("удалить программу кредита по id")
+    @DeleteMapping("/{creditProgramId}/")
+    void deleteCreditProgram(
+            @PathVariable(value = "creditProgramId") UUID creditProgramId
+    );
 }

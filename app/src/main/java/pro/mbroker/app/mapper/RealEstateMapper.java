@@ -14,12 +14,22 @@ import java.util.stream.Collectors;
 public interface RealEstateMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "partner", ignore = true)
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "updatedAt", ignore = true)
+    @Mapping(target = "createdBy", ignore = true)
+    @Mapping(target = "updatedBy", ignore = true)
+    @Mapping(target = "active", ignore = true)
     RealEstate toRealEstateMapper(RealEstateRequest address);
 
     RealEstateResponse toRealEstateResponseMapper(RealEstate address);
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "partner", ignore = true)
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "updatedAt", ignore = true)
+    @Mapping(target = "createdBy", ignore = true)
+    @Mapping(target = "updatedBy", ignore = true)
+    @Mapping(target = "active", ignore = true)
     void updateRealEstateAddress(RealEstateRequest realEstateRequest, @MappingTarget RealEstate realEstate);
 
     @Mapping(target = "partner", ignore = true)

@@ -13,7 +13,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "real_estate")
-public class RealEstate {
+public class RealEstate extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

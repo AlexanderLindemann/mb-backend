@@ -24,6 +24,7 @@ public interface ProgramMapper {
     @Mapping(target = "updatedAt", ignore = true)
     @Mapping(target = "createdBy", ignore = true)
     @Mapping(target = "updatedBy", ignore = true)
+    @Mapping(target = "active", ignore = true)
     CreditProgram toProgramMapper(BankProgramRequest bankProgramRequest);
 
     @Mapping(target = "id", ignore = true)
@@ -34,6 +35,7 @@ public interface ProgramMapper {
     @Mapping(target = "updatedAt", ignore = true)
     @Mapping(target = "createdBy", ignore = true)
     @Mapping(target = "updatedBy", ignore = true)
+    @Mapping(target = "active", ignore = true)
     void updateProgramFromRequest(BankProgramRequest updateProgramRequest, @MappingTarget CreditProgram creditProgram);
 
     default List<CreditProgramResponse> convertCreditProgramsToResponses(List<CreditProgram> creditPrograms) {

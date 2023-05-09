@@ -6,6 +6,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -14,6 +15,7 @@ import pro.mbroker.app.entity.Bank;
 import pro.mbroker.app.exception.ItemNotFoundException;
 import pro.mbroker.app.repository.AttachmentRepository;
 import pro.mbroker.app.repository.BankRepository;
+import pro.mbroker.app.repository.specification.BankSpecification;
 import pro.mbroker.app.service.AttachmentService;
 import pro.mbroker.app.service.BankService;
 
@@ -42,13 +44,7 @@ public class BankServiceImpl implements BankService {
     @Override
     @Transactional(readOnly = true)
     public Bank getBankById(UUID id) {
-        return getBank(id);
-    }
-
-    //todo вместо удаления будет статус: удален (переделать в будущем)
-    @Override
-    public void deleteBankById(UUID id) {
-        bankRepository.deleteById(id);
+        return getIsActiveBank(id);
     }
 
     @Override
@@ -82,12 +78,26 @@ public class BankServiceImpl implements BankService {
     public List<Bank> getAllBank(int page, int size, String sortBy, String sortOrder) {
         Sort sort = Sort.by(Sort.Direction.fromString(sortOrder), sortBy);
         Pageable pageable = PageRequest.of(page, size, sort);
-        Page<Bank> bankPage = bankRepository.findAll(pageable);
+        Specification<Bank> specification = BankSpecification.isActive();
+        Page<Bank> bankPage = bankRepository.findAll(specification, pageable);
         return bankPage.getContent();
+    }
+
+    @Override
+    public void deleteBankById(UUID bankId) {
+        Bank bank = getBank(bankId);
+        bank.setActive(false);
+        bankRepository.save(bank);
     }
 
     private Bank getBank(UUID bankId) {
         return bankRepository.findById(bankId)
+                .orElseThrow(() -> new ItemNotFoundException(Bank.class, bankId));
+    }
+
+    private Bank getIsActiveBank(UUID bankId) {
+        Specification<Bank> specification = BankSpecification.bankByIdAndIsActive(bankId);
+        return bankRepository.findOne(specification)
                 .orElseThrow(() -> new ItemNotFoundException(Bank.class, bankId));
     }
 }

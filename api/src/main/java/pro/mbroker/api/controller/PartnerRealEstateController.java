@@ -26,7 +26,7 @@ public interface PartnerRealEstateController {
     @ApiOperation("удалить адрес застройщика по id")
     @DeleteMapping("/{realEstateId}/")
     void deleteRealEstate(
-            @PathVariable UUID realEstateId
+            @PathVariable(value = "realEstateId") UUID realEstateId
     );
 
     @ApiOperation("обновить данные по ЖК застройщика")

@@ -46,8 +46,8 @@ public class PartnerControllerImpl implements PartnerController {
     }
 
     @Override
-    public PartnerResponse getPartnerById(UUID partnerId) {
-        Partner partner = partnerService.getPartner(partnerId);
+    public PartnerResponse getPartnerResponseById(UUID partnerId) {
+        Partner partner = partnerService.getIsActivePartner(partnerId);
         return buildPartnerResponse(partner);
     }
 
@@ -61,6 +61,11 @@ public class PartnerControllerImpl implements PartnerController {
     public PartnerResponse getCurrentPartner() {
         Partner partner = partnerService.getCurrentPartner();
         return buildPartnerResponse(partner);
+    }
+
+    @Override
+    public void deletePartner(UUID partnerId) {
+        partnerService.deletePartner(partnerId);
     }
 
     private PartnerResponse buildPartnerResponse(Partner partner) {

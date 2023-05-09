@@ -37,4 +37,9 @@ public class PartnerApplicationControllerImpl implements PartnerApplicationContr
         PartnerApplication partnerApplication = partnerApplicationService.updatePartnerApplication(partnerApplicationId, request);
         return partnerApplicationMapper.toPartnerApplicationResponse(partnerApplication);
     }
+
+    @Override
+    public void deletePartnerApplication(UUID partnerApplicationId) {
+        partnerApplicationService.deletePartnerApplication(partnerApplicationId);
+    }
 }

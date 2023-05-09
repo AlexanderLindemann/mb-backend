@@ -28,7 +28,7 @@ public interface PartnerController {
 
     @ApiOperation("получить партнера по id")
     @GetMapping("/{partnerId}")
-    PartnerResponse getPartnerById(@PathVariable UUID partnerId);
+    PartnerResponse getPartnerResponseById(@PathVariable UUID partnerId);
 
     @ApiOperation("обновить партнера по id")
     @PutMapping("/{partnerId}")
@@ -40,4 +40,9 @@ public interface PartnerController {
     @GetMapping("/current")
     PartnerResponse getCurrentPartner();
 
+    @ApiOperation("удалить партнера по id")
+    @DeleteMapping("/{partnerId}/")
+    void deletePartner(
+            @PathVariable(value = "partnerId") UUID partnerId
+    );
 }

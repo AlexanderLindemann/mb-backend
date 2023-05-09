@@ -69,4 +69,9 @@ public class BankControllerImpl implements BankController {
         return bankMapper.toBankResponseMapper(bank);
     }
 
+    @Override
+    public void deleteBankById(UUID bankId) {
+        bankService.deleteBankById(bankId);
+    }
+
 }

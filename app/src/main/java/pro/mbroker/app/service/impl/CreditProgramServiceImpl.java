@@ -3,6 +3,7 @@ package pro.mbroker.app.service.impl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pro.mbroker.api.dto.request.BankProgramRequest;
@@ -14,6 +15,7 @@ import pro.mbroker.app.mapper.CreditParameterMapper;
 import pro.mbroker.app.mapper.CreditProgramDetailMapper;
 import pro.mbroker.app.mapper.ProgramMapper;
 import pro.mbroker.app.repository.CreditProgramRepository;
+import pro.mbroker.app.repository.specification.CreditProgramSpecification;
 import pro.mbroker.app.service.BankService;
 import pro.mbroker.app.service.CreditProgramService;
 
@@ -44,7 +46,7 @@ public class CreditProgramServiceImpl implements CreditProgramService {
     @Override
     @Transactional(readOnly = true)
     public CreditProgram getProgramByCreditProgramId(UUID creditProgramId) {
-        return getProgram(creditProgramId);
+        return getIsActiveCreditProgram(creditProgramId);
     }
 
     @Override
@@ -73,13 +75,28 @@ public class CreditProgramServiceImpl implements CreditProgramService {
     @Override
     @Transactional(readOnly = true)
     public List<CreditProgram> getProgramsByBankId(UUID bankId) {
-        return creditProgramRepository.findAllByBankId(bankId);
+        Specification<CreditProgram> specification = CreditProgramSpecification.creditProgramByBankIdAndIsActive(bankId);
+        return creditProgramRepository.findAll(specification);
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<CreditProgram> getAllCreditProgram(Pageable pageable) {
-        return creditProgramRepository.findAllWithBankBy(pageable);
+        List<CreditProgram> allWithBankBy = creditProgramRepository.findAllWithBankBy(pageable);
+        return allWithBankBy;
+    }
+
+    @Override
+    public void deleteCreditProgram(UUID creditProgramId) {
+        CreditProgram program = getProgram(creditProgramId);
+        program.setActive(false);
+        creditProgramRepository.save(program);
+    }
+
+    private CreditProgram getIsActiveCreditProgram(UUID creditProgramId) {
+        Specification<CreditProgram> specification = CreditProgramSpecification.creditProgramByIdAndIsActive(creditProgramId);
+        return creditProgramRepository.findOne(specification)
+                .orElseThrow(() -> new ItemNotFoundException(CreditProgram.class, creditProgramId));
     }
 
     private CreditProgram getProgram(UUID creditProgramId) {

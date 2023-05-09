@@ -69,4 +69,9 @@ public class CreditProgramControllerImpl implements CreditProgramController {
         return creditProgramResponses;
     }
 
+    @Override
+    public void deleteCreditProgram(UUID creditProgramId) {
+        creditProgramService.deleteCreditProgram(creditProgramId);
+    }
+
 }

@@ -38,8 +38,8 @@ public class PartnerRealEstateControllerImpl implements PartnerRealEstateControl
     }
 
     @Override
-    public void deleteRealEstate(UUID addressId) {
-        partnerRealEstateService.deleteRealEstate(addressId);
+    public void deleteRealEstate(UUID realEstateId) {
+        partnerRealEstateService.deleteRealEstate(realEstateId);
     }
 
     @Override

@@ -12,4 +12,6 @@ public interface PartnerApplicationService {
     PartnerApplication createPartnerApplication(PartnerApplicationRequest request);
 
     PartnerApplication updatePartnerApplication(UUID partnerApplicationId, PartnerApplicationRequest request);
+
+    void deletePartnerApplication(UUID partnerApplicationId);
 }

@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pro.mbroker.api.dto.request.RealEstateRequest;
@@ -13,6 +14,7 @@ import pro.mbroker.app.exception.ItemNotFoundException;
 import pro.mbroker.app.mapper.RealEstateMapper;
 import pro.mbroker.app.repository.PartnerRepository;
 import pro.mbroker.app.repository.RealEstateRepository;
+import pro.mbroker.app.repository.specification.RealEstateSpecification;
 import pro.mbroker.app.service.PartnerRealEstateService;
 import pro.mbroker.app.service.PartnerService;
 import pro.mbroker.app.util.Pagination;
@@ -44,9 +46,10 @@ public class PartnerRealEstateServiceImpl implements PartnerRealEstateService {
 
     @Override
     @Transactional
-    public void deleteRealEstate(UUID addressId) {
-        RealEstate realEstate = getRealEstate(addressId);
-        realEstateRepository.delete(realEstate);
+    public void deleteRealEstate(UUID realEstateId) {
+        RealEstate realEstate = getRealEstate(realEstateId);
+        realEstate.setActive(false);
+        realEstateRepository.save(realEstate);
     }
 
     @Override
@@ -61,7 +64,8 @@ public class PartnerRealEstateServiceImpl implements PartnerRealEstateService {
     @Transactional(readOnly = true)
     public List<RealEstate> getRealEstateByPartnerId(int page, int size, String sortBy, String sortOrder, UUID partnerId) {
         Pageable pageable = Pagination.createPageable(page, size, sortBy, sortOrder);
-        Page<RealEstate> allByPartnerId = realEstateRepository.findAllByPartnerId(partnerId, pageable);
+        Specification<RealEstate> specification = RealEstateSpecification.realEstateByPartnerIdAndIsActive(partnerId);
+        Page<RealEstate> allByPartnerId = realEstateRepository.findAll(specification, pageable);
         return allByPartnerId.getContent();
     }
 
@@ -73,7 +77,8 @@ public class PartnerRealEstateServiceImpl implements PartnerRealEstateService {
                 .extractSdCurrentOrganizationId(currentUserService.getCurrentUserToken());
         Partner partner = partnerRepository.findBySmartDealOrganizationId(organizationId)
                 .orElseThrow(() -> new ItemNotFoundException(Partner.class, String.valueOf(organizationId)));
-        return realEstateRepository.findAllByPartnerId(partner.getId(), pageable).getContent();
+        Specification<RealEstate> specification = RealEstateSpecification.realEstateByPartnerIdAndIsActive(partner.getId());
+        return realEstateRepository.findAll(specification, pageable).getContent();
     }
 
     @Transactional(readOnly = true)

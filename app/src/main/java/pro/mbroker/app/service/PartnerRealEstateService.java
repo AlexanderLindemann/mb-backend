@@ -10,7 +10,7 @@ public interface PartnerRealEstateService {
 
     RealEstate addRealEstate(UUID partnerId, RealEstateRequest request);
 
-    void deleteRealEstate(UUID addressId);
+    void deleteRealEstate(UUID realEstateId);
 
     RealEstate updateRealEstate(UUID addressId, RealEstateRequest request);
 
