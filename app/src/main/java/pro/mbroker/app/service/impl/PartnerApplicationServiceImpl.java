@@ -84,6 +84,7 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
     }
 
     @Override
+    @Transactional
     public void deletePartnerApplication(UUID partnerApplicationId) {
         PartnerApplication partnerApplication = getPartnerApplicationById(partnerApplicationId);
         partnerApplication.setActive(false);

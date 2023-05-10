@@ -87,6 +87,7 @@ public class CreditProgramServiceImpl implements CreditProgramService {
     }
 
     @Override
+    @Transactional
     public void deleteCreditProgram(UUID creditProgramId) {
         CreditProgram program = getProgram(creditProgramId);
         program.setActive(false);

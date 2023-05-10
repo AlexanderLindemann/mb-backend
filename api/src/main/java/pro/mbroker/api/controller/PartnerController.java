@@ -41,7 +41,7 @@ public interface PartnerController {
     PartnerResponse getCurrentPartner();
 
     @ApiOperation("удалить партнера по id")
-    @DeleteMapping("/{partnerId}/")
+    @DeleteMapping("/{partnerId}")
     void deletePartner(
             @PathVariable(value = "partnerId") UUID partnerId
     );

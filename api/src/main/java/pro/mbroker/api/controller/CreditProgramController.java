@@ -39,7 +39,7 @@ public interface CreditProgramController {
                                                     @RequestParam(defaultValue = "asc") String sortOrder);
 
     @ApiOperation("удалить программу кредита по id")
-    @DeleteMapping("/{creditProgramId}/")
+    @DeleteMapping("/{creditProgramId}")
     void deleteCreditProgram(
             @PathVariable(value = "creditProgramId") UUID creditProgramId
     );

@@ -84,6 +84,7 @@ public class BankServiceImpl implements BankService {
     }
 
     @Override
+    @Transactional
     public void deleteBankById(UUID bankId) {
         Bank bank = getBank(bankId);
         bank.setActive(false);

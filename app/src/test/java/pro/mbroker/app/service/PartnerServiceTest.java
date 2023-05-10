@@ -34,23 +34,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @Transactional
 @Sql(scripts = "classpath:sql/test_data.sql")
 @Sql(value = "classpath:sql/clear_all.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
-@TestPropertySource(locations = "classpath:application-test.yaml")
-public class PartnerServiceTest {
+public class PartnerServiceTest extends AbstractServiceTest {
 
     @Autowired
     private PartnerService partnerService;
-
-    @MockBean
-    private CurrentUserService currentUserService;
-
-    @Value("${test_token}")
-    private String apiToken;
-
-    @Before
-    public void setUp() {
-        Mockito.when(currentUserService.getCurrentUserToken()).thenReturn(apiToken);
-    }
-
 
     @Test
     public void testCreatePartner() {

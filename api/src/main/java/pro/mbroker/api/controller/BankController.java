@@ -48,7 +48,7 @@ public interface BankController {
             @NonNull @RequestParam("name") String name);
 
     @ApiOperation("удалить банк по id")
-    @DeleteMapping("/{bankId}/")
+    @DeleteMapping("/{bankId}")
     void deleteBankById(
             @PathVariable(value = "bankId") UUID bankId
     );

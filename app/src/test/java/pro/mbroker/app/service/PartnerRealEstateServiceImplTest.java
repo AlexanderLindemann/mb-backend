@@ -1,52 +1,33 @@
 package pro.mbroker.app.service;
 
 import org.hamcrest.Matchers;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Transactional;
 import pro.mbroker.api.dto.request.RealEstateRequest;
 import pro.mbroker.api.enums.RegionType;
 import pro.mbroker.app.entity.RealEstate;
-import pro.smartdeal.ng.common.security.service.CurrentUserService;
 
 import java.util.List;
-import java.util.UUID;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static pro.mbroker.app.TestConstants.PARTNER_ID;
+import static pro.mbroker.app.TestConstants.REAL_ESTATE_ID;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @Transactional
 @Sql(scripts = "classpath:sql/test_data.sql")
 @Sql(value = "classpath:sql/clear_all.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
-@TestPropertySource(locations = "classpath:application-test.yaml")
-public class PartnerRealEstateServiceImplTest {
+public class PartnerRealEstateServiceImplTest extends AbstractServiceTest {
 
     @Autowired
     private PartnerRealEstateService partnerRealEstateService;
-    @MockBean
-    private CurrentUserService currentUserService;
-
-    @Value("${test_token}")
-    private String apiToken;
-
-    @Before
-    public void setUp() {
-        Mockito.when(currentUserService.getCurrentUserToken()).thenReturn(apiToken);
-    }
-
-    private static final UUID REAL_ESTATE_ID = UUID.fromString("2b8850b2-d930-11ed-afa1-0242ac120002");
-    private static final UUID PARTNER_ID = UUID.fromString("5fec2326-d92e-11ed-afa1-0242ac120002");
 
     @Test
     public void testAddRealEstate() {
