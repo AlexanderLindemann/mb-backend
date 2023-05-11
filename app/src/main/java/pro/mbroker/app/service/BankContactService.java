@@ -10,7 +10,7 @@ public interface BankContactService {
 
     Bank addBankContact(UUID id, String fullName, String email);
 
-    Bank deleteBankContact(UUID contactId);
+    void deleteBankContact(UUID contactId);
 
     List<BankContact> getBankContact(UUID bankId);
 }

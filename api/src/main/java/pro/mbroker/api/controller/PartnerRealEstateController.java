@@ -17,16 +17,16 @@ import java.util.UUID;
 public interface PartnerRealEstateController {
 
     @ApiOperation("добавить адрес застройщика")
-    @PostMapping("/{partnerId}/")
+    @PostMapping("/{partnerId}")
     PartnerResponse addRealEstate(
             @PathVariable UUID partnerId,
             @RequestBody RealEstateRequest request
     );
 
     @ApiOperation("удалить адрес застройщика по id")
-    @DeleteMapping("/{realEstateId}/")
+    @DeleteMapping("/{realEstateId}")
     void deleteRealEstate(
-            @PathVariable UUID realEstateId
+            @PathVariable(value = "realEstateId") UUID realEstateId
     );
 
     @ApiOperation("обновить данные по ЖК застройщика")

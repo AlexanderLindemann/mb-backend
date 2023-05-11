@@ -37,12 +37,12 @@ public class BankContactServiceImpl implements BankContactService {
 
 
     @Override
-    public Bank deleteBankContact(UUID contactId) {
+    @Transactional
+    public void deleteBankContact(UUID contactId) {
         BankContact bankContact = bankContactRepository.findById(contactId)
                 .orElseThrow(() -> new ItemNotFoundException(BankContact.class, contactId));
-        UUID bankId = bankContact.getBank().getId();
-        bankContactRepository.deleteById(contactId);
-        return getBank(bankId);
+        bankContact.setActive(false);
+        bankContactRepository.save(bankContact);
     }
 
     @Override

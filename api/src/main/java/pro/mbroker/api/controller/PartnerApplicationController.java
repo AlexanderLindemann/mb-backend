@@ -33,4 +33,10 @@ public interface PartnerApplicationController {
     PartnerApplicationResponse updatePartnerApplication(
             @PathVariable UUID partnerApplicationId,
             @RequestBody PartnerApplicationRequest request);
+
+    @ApiOperation("удалить заявку по id")
+    @DeleteMapping("/{partnerApplicationId}")
+    void deletePartnerApplication(
+            @PathVariable(value = "partnerApplicationId") UUID partnerApplicationId
+    );
 }

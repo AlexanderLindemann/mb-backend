@@ -23,6 +23,7 @@ public interface PartnerApplicationMapper {
     @Mapping(target = "updatedAt", ignore = true)
     @Mapping(target = "createdBy", ignore = true)
     @Mapping(target = "updatedBy", ignore = true)
+    @Mapping(target = "active", ignore = true)
     @Mapping(target = "borrowerApplications", source = "borrowerApplications", qualifiedByName = "toBorrowerApplicationList")
     PartnerApplication toPartnerApplication(PartnerApplicationRequest request);
 

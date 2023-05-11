@@ -22,7 +22,7 @@ public interface BankContactController {
 
     @ApiOperation("удалить контакт банка по contactId")
     @DeleteMapping("/{contactId}")
-    BankResponse deleteBankContact(
+    void deleteBankContact(
             @PathVariable UUID contactId);
 
     @ApiOperation("получить контакты банка по bankId")

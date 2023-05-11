@@ -13,27 +13,27 @@ import pro.mbroker.api.enums.RegionType;
 import pro.mbroker.app.entity.RealEstate;
 
 import java.util.List;
-import java.util.UUID;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static pro.mbroker.app.TestConstants.PARTNER_ID;
+import static pro.mbroker.app.TestConstants.REAL_ESTATE_ID;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @Transactional
 @Sql(scripts = "classpath:sql/test_data.sql")
 @Sql(value = "classpath:sql/clear_all.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
-public class PartnerRealEstateServiceImplTest {
+public class PartnerRealEstateServiceImplTest extends AbstractServiceTest {
 
     @Autowired
     private PartnerRealEstateService partnerRealEstateService;
 
     @Test
     public void testAddRealEstate() {
-        UUID partnerId = UUID.fromString("5fec2326-d92e-11ed-afa1-0242ac120002");
         RealEstateRequest request = getRealEstateRequest();
 
-        RealEstate result = partnerRealEstateService.addRealEstate(partnerId, request);
+        RealEstate result = partnerRealEstateService.addRealEstate(PARTNER_ID, request);
         assertEquals(result.getAddress(), "Test Address");
         assertEquals(result.getRegion(), RegionType.MOSCOW);
         assertEquals(result.getResidentialComplexName(), "Test Complex Name");
@@ -41,10 +41,9 @@ public class PartnerRealEstateServiceImplTest {
 
     @Test
     public void testUpdateRealEstate() {
-        UUID realEstateId = UUID.fromString("2b8850b2-d930-11ed-afa1-0242ac120002");
         RealEstateRequest request = getRealEstateRequest();
 
-        RealEstate result = partnerRealEstateService.updateRealEstate(realEstateId, request);
+        RealEstate result = partnerRealEstateService.updateRealEstate(REAL_ESTATE_ID, request);
         assertEquals(result.getAddress(), "Test Address");
         assertEquals(result.getRegion(), RegionType.MOSCOW);
         assertEquals(result.getResidentialComplexName(), "Test Complex Name");
@@ -52,12 +51,18 @@ public class PartnerRealEstateServiceImplTest {
 
     @Test
     public void testGetRealEstateByPartnerId() {
-        UUID partnerId = UUID.fromString("5fec2326-d92e-11ed-afa1-0242ac120002");
-
-        List<RealEstate> result = partnerRealEstateService.getRealEstateByPartnerId(0, 2, "residentialComplexName", "asc", partnerId);
+        List<RealEstate> result = partnerRealEstateService.getRealEstateByPartnerId(0, 2, "residentialComplexName", "asc", PARTNER_ID);
         assertThat(result.size(), Matchers.is(2));
         assertEquals(result.get(0).getResidentialComplexName(), "testResidentialComplexName1");
         assertEquals(result.get(1).getResidentialComplexName(), "testResidentialComplexName2");
+    }
+
+    @Test
+    public void testDeleteRealEstate() {
+        partnerRealEstateService.deleteRealEstate(REAL_ESTATE_ID);
+        List<RealEstate> result = partnerRealEstateService.getRealEstateByPartnerId(0, 10, "residentialComplexName", "asc", PARTNER_ID);
+        assertThat(result.size(), Matchers.is(1));
+        assertEquals(result.get(0).getResidentialComplexName(), "testResidentialComplexName2");
     }
 
     private RealEstateRequest getRealEstateRequest() {

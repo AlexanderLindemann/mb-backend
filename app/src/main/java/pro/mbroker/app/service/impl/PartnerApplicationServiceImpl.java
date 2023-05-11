@@ -36,15 +36,14 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
     private final PartnerApplicationMapper partnerApplicationMapper;
 
     @Override
+    @Transactional(readOnly = true)
     public List<PartnerApplication> getAllPartnerApplication(int page, int size, String sortBy, String sortOrder) {
         log.info("Getting all partner applications with pagination: page={}, size={}, sortBy={}, sortOrder={}", page, size, sortBy, sortOrder);
 
         Pageable pageable = Pagination.createPageable(page, size, sortBy, sortOrder);
         Partner partner = getPartnerByOrganizationId();
-
-        List<PartnerApplication> partnerApplicationPage = partnerApplicationRepository.findAllByPartner(partner, pageable);
+        List<PartnerApplication> partnerApplicationPage = partnerApplicationRepository.findAllIsActive(partner.getId(), pageable);
         log.info("Found {} partner applications for organization ID: {}", partnerApplicationPage.size(), partner.getSmartDealOrganizationId());
-
         return partnerApplicationPage;
     }
 
@@ -82,6 +81,19 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
         updatedPartnerApplication.setBorrowerApplications(updatedBorrowerApplications);
         partnerApplicationMapper.updatePartnerApplication(updatedPartnerApplication, existingPartnerApplication);
         return partnerApplicationRepository.save(existingPartnerApplication);
+    }
+
+    @Override
+    @Transactional
+    public void deletePartnerApplication(UUID partnerApplicationId) {
+        PartnerApplication partnerApplication = getPartnerApplicationById(partnerApplicationId);
+        partnerApplication.setActive(false);
+        partnerApplicationRepository.save(partnerApplication);
+    }
+
+    private PartnerApplication getPartnerApplicationById(UUID partnerApplicationId) {
+        return partnerApplicationRepository.findById(partnerApplicationId)
+                .orElseThrow(() -> new ItemNotFoundException(PartnerApplication.class, String.valueOf(partnerApplicationId)));
     }
 
     private List<BorrowerApplication> buildBorrowerApplications(PartnerApplicationRequest request, PartnerApplication partnerApplication) {
@@ -123,6 +135,6 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
 
         log.info("Retrieving partner by organization ID: {}", organizationId);
         return partnerRepository.findBySmartDealOrganizationId(organizationId)
-                .orElseThrow(() -> new ItemNotFoundException(Partner.class, String.valueOf(organizationId)));
+                .orElseThrow(() -> new ItemNotFoundException(Partner.class, "organization_id: " + String.valueOf(organizationId)));
     }
 }

@@ -12,9 +12,13 @@ public interface PartnerService {
 
     Partner getPartner(UUID partnerId);
 
+    Partner getIsActivePartner(UUID partnerId);
+
     List<Partner> getAllPartner(int page, int size, String sortBy, String sortOrder);
 
     Partner updatePartnerById(UUID partnerId, PartnerRequest request);
 
     Partner getCurrentPartner();
+
+    void deletePartner(UUID partnerId);
 }

@@ -27,11 +27,21 @@ public interface PartnerMapper {
     @Mapping(target = "realEstateType", qualifiedByName = "realEstateTypeListToString")
     @Mapping(target = "creditPurposeType", qualifiedByName = "creditPurposeTypeListToString")
     @Mapping(target = "realEstates", ignore = true)
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "updatedAt", ignore = true)
+    @Mapping(target = "createdBy", ignore = true)
+    @Mapping(target = "updatedBy", ignore = true)
+    @Mapping(target = "active", ignore = true)
     Partner toPartnerMapper(PartnerRequest request);
 
     @Mapping(target = "realEstates", ignore = true)
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "creditPrograms", ignore = true)
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "updatedAt", ignore = true)
+    @Mapping(target = "createdBy", ignore = true)
+    @Mapping(target = "updatedBy", ignore = true)
+    @Mapping(target = "active", ignore = true)
     void updatePartnerFromRequest(PartnerRequest partnerRequest, @MappingTarget Partner partner);
 
 

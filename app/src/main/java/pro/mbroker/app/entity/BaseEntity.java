@@ -2,7 +2,6 @@ package pro.mbroker.app.entity;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
-import lombok.experimental.SuperBuilder;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
@@ -17,7 +16,6 @@ import java.util.UUID;
 @Setter
 @Getter
 @ToString
-@SuperBuilder(toBuilder = true)
 @NoArgsConstructor
 @AllArgsConstructor
 @MappedSuperclass
@@ -47,4 +45,6 @@ public abstract class BaseEntity implements Serializable {
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private Integer updatedBy;
 
+    @Column(name = "is_active", nullable = false)
+    private boolean isActive = true;
 }

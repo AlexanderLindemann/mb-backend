@@ -1,52 +1,36 @@
 package pro.mbroker.app.service;
 
 import org.hamcrest.Matchers;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Transactional;
 import pro.mbroker.app.entity.Bank;
 import pro.mbroker.app.repository.BankRepository;
-import pro.smartdeal.ng.common.security.service.CurrentUserService;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hibernate.validator.internal.util.Contracts.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
+import static pro.mbroker.app.TestConstants.BANK_ID;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @Transactional
 @Sql(scripts = "classpath:sql/test_data.sql")
 @Sql(value = "classpath:sql/clear_all.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
-@TestPropertySource(locations = "classpath:application-test.yaml")
-public class BankServiceTest {
+public class BankServiceTest extends AbstractServiceTest {
 
     @Autowired
     private BankService bankService;
     @Autowired
     private BankRepository bankRepository;
-    @MockBean
-    private CurrentUserService currentUserService;
-
-    @Value("${test_token}")
-    private String apiToken;
-
-    @Before
-    public void setUp() {
-        Mockito.when(currentUserService.getCurrentUserToken()).thenReturn(apiToken);
-    }
 
     @Test
     public void testGetAllBankWithPagination() {
@@ -76,9 +60,18 @@ public class BankServiceTest {
 
     @Test
     public void testGetBankById() {
-        Bank bank = bankService.getBankById(UUID.fromString("0c371042-d848-11ed-afa1-0242ac120002"));
+        Bank bank = bankService.getBankById(BANK_ID);
         assertNotNull(bank.getId());
         assertEquals("aTestBank1", bank.getName());
+    }
+
+    @Test
+    public void testDeleteBank() {
+        bankService.deleteBankById(BANK_ID);
+        List<Bank> allBankSortByName = bankService.getAllBank(0, 10, "name", "asc");
+        assertThat(allBankSortByName.size(), Matchers.is(3));
+        List<UUID> bankIds = allBankSortByName.stream().map(Bank::getId).collect(Collectors.toList());
+        assertFalse(bankIds.contains(BANK_ID));
     }
 
 }

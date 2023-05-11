@@ -3,7 +3,6 @@ package pro.mbroker.app.entity;
 import lombok.*;
 
 import javax.persistence.*;
-import java.util.UUID;
 
 @Entity
 @Getter
@@ -12,11 +11,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @EqualsAndHashCode(exclude = "id")
 @Table(name = "bank_contact")
-public class BankContact {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private UUID id;
+public class BankContact extends BaseEntity {
 
     @Column(name = "fullName", nullable = false)
     private String fullName;

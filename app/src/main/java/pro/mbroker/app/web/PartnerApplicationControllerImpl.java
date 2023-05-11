@@ -2,6 +2,7 @@ package pro.mbroker.app.web;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 import pro.mbroker.api.controller.PartnerApplicationController;
 import pro.mbroker.api.dto.request.PartnerApplicationRequest;
@@ -36,5 +37,11 @@ public class PartnerApplicationControllerImpl implements PartnerApplicationContr
     public PartnerApplicationResponse updatePartnerApplication(UUID partnerApplicationId, PartnerApplicationRequest request) {
         PartnerApplication partnerApplication = partnerApplicationService.updatePartnerApplication(partnerApplicationId, request);
         return partnerApplicationMapper.toPartnerApplicationResponse(partnerApplication);
+    }
+
+    @Override
+    @PreAuthorize("hasAuthority(T(pro.smartdeal.common.security.Permission$Code).MB_ADMIN_ACCESS)")
+    public void deletePartnerApplication(UUID partnerApplicationId) {
+        partnerApplicationService.deletePartnerApplication(partnerApplicationId);
     }
 }

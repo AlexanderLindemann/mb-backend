@@ -3,6 +3,7 @@ package pro.mbroker.app.web;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 import pro.mbroker.api.controller.CreditProgramController;
 import pro.mbroker.api.dto.request.BankProgramRequest;
@@ -67,6 +68,12 @@ public class CreditProgramControllerImpl implements CreditProgramController {
                         .setCreditProgramDetail(creditProgramConverter.convertCreditDetailToEnumFormat(creditProgram.getCreditProgramDetail())))
                 .collect(Collectors.toList());
         return creditProgramResponses;
+    }
+
+    @Override
+    @PreAuthorize("hasAuthority(T(pro.smartdeal.common.security.Permission$Code).MB_ADMIN_ACCESS)")
+    public void deleteCreditProgram(UUID creditProgramId) {
+        creditProgramService.deleteCreditProgram(creditProgramId);
     }
 
 }

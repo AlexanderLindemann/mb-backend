@@ -69,4 +69,10 @@ public class BankControllerImpl implements BankController {
         return bankMapper.toBankResponseMapper(bank);
     }
 
+    @Override
+    @PreAuthorize("hasAuthority(T(pro.smartdeal.common.security.Permission$Code).MB_ADMIN_ACCESS)")
+    public void deleteBankById(UUID bankId) {
+        bankService.deleteBankById(bankId);
+    }
+
 }

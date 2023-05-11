@@ -1,6 +1,10 @@
 DELETE
 FROM partner_credit_program;
 DELETE
+FROM borrower_application;
+DELETE
+FROM partner_application;
+DELETE
 FROM partner;
 DELETE
 FROM credit_program;
