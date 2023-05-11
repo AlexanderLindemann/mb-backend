@@ -18,6 +18,8 @@ public class BorrowerApplicationRequest {
 
     private BigDecimal monthlyPayment;
 
+    private BigDecimal realEstatePrice;
+
     private BigDecimal downPayment;
 
     private Integer monthCreditTerm;

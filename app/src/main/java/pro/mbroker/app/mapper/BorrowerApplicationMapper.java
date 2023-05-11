@@ -15,6 +15,7 @@ public interface BorrowerApplicationMapper {
     @Mapping(source = "borrowerApplication.creditProgram.bank.name", target = "bankName")
     @Mapping(source = "borrowerApplication.creditProgram.programName", target = "creditProgramName")
     @Mapping(source = "borrowerApplication.creditProgram.baseRate", target = "interestRate")
+    @Mapping(target = "mortgageSum", ignore = true)
     BorrowerApplicationResponse toBorrowerApplicationDto(BorrowerApplication borrowerApplication);
 
     List<BorrowerApplicationResponse> toBorrowerApplicationDtoList(List<BorrowerApplication> borrowerApplications);

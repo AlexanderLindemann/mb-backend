@@ -121,6 +121,7 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
                     borrower.setPartnerApplication(partnerApplication);
                     borrower.setCreditProgram(creditProgramMap.get(borrowerRequest.getCreditProgramId()));
                     borrower.setMonthlyPayment(borrowerRequest.getMonthlyPayment());
+                    borrower.setRealEstatePrice(borrowerRequest.getRealEstatePrice());
                     borrower.setDownPayment(borrowerRequest.getDownPayment());
                     borrower.setMonthCreditTerm(borrowerRequest.getMonthCreditTerm());
                     borrower.setOverpayment(borrowerRequest.getOverpayment());

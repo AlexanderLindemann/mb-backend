@@ -28,6 +28,9 @@ public class BorrowerApplication extends BaseEntity {
     @Column(name = "monthly_payment")
     private BigDecimal monthlyPayment;
 
+    @Column(name = "real_estate_price")
+    private BigDecimal realEstatePrice;
+
     @Column(name = "down_payment")
     private BigDecimal downPayment;
 
