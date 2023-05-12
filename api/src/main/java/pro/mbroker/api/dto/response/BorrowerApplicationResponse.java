@@ -23,6 +23,8 @@ public class BorrowerApplicationResponse {
 
     private LocalDateTime updatedAt;
 
+    private BigDecimal mortgageSum;
+
     private BigDecimal monthlyPayment;
 
     private BigDecimal downPayment;

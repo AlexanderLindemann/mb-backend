@@ -1,6 +1,7 @@
 package pro.mbroker.app.service;
 
 import pro.mbroker.api.dto.request.PartnerApplicationRequest;
+import pro.mbroker.api.dto.response.PartnerApplicationResponse;
 import pro.mbroker.app.entity.PartnerApplication;
 
 import java.util.List;
@@ -14,4 +15,6 @@ public interface PartnerApplicationService {
     PartnerApplication updatePartnerApplication(UUID partnerApplicationId, PartnerApplicationRequest request);
 
     void deletePartnerApplication(UUID partnerApplicationId);
+
+    PartnerApplicationResponse getCalculateMortgage(PartnerApplication partnerApplication);
 }

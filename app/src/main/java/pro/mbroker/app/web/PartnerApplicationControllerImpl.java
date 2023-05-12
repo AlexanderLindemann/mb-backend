@@ -13,6 +13,7 @@ import pro.mbroker.app.service.PartnerApplicationService;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -23,20 +24,22 @@ public class PartnerApplicationControllerImpl implements PartnerApplicationContr
 
     @Override
     public List<PartnerApplicationResponse> getAllPartnerApplication(int page, int size, String sortBy, String sortOrder) {
-        List<PartnerApplication> allPartnerApplication = partnerApplicationService.getAllPartnerApplication(page, size, sortBy, sortOrder);
-        return partnerApplicationMapper.toPartnerApplicationResponseList(allPartnerApplication);
+        return partnerApplicationService.getAllPartnerApplication(page, size, sortBy, sortOrder)
+                .stream()
+                .map(partnerApplicationService::getCalculateMortgage)
+                .collect(Collectors.toList());
     }
 
     @Override
     public PartnerApplicationResponse createPartnerApplication(PartnerApplicationRequest request) {
         PartnerApplication partnerApplication = partnerApplicationService.createPartnerApplication(request);
-        return partnerApplicationMapper.toPartnerApplicationResponse(partnerApplication);
+        return partnerApplicationService.getCalculateMortgage(partnerApplication);
     }
 
     @Override
     public PartnerApplicationResponse updatePartnerApplication(UUID partnerApplicationId, PartnerApplicationRequest request) {
         PartnerApplication partnerApplication = partnerApplicationService.updatePartnerApplication(partnerApplicationId, request);
-        return partnerApplicationMapper.toPartnerApplicationResponse(partnerApplication);
+        return partnerApplicationService.getCalculateMortgage(partnerApplication);
     }
 
     @Override
@@ -44,4 +47,5 @@ public class PartnerApplicationControllerImpl implements PartnerApplicationContr
     public void deletePartnerApplication(UUID partnerApplicationId) {
         partnerApplicationService.deletePartnerApplication(partnerApplicationId);
     }
+
 }

@@ -11,4 +11,6 @@ public interface CalculatorService {
     BigDecimal calculateMonthlyPayment(BigDecimal mortgageSum, double annualInterestRate, int loanTermInMonths);
 
     BigDecimal calculateOverpayment(BigDecimal monthlyPayment, int loanTermMonths, BigDecimal realEstatePrice, BigDecimal downPayment);
+
+    BigDecimal getMortgageSum(BigDecimal realEstatePrice, BigDecimal downPayment);
 }

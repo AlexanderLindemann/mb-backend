@@ -52,6 +52,15 @@ public class CalculatorServiceImpl implements CalculatorService {
                 .setBankLoanProgramDto(new ArrayList<>(bankLoanProgramDtoMap.values()));
     }
 
+    @Override
+    public BigDecimal getMortgageSum(BigDecimal realEstatePrice, BigDecimal downPayment) {
+        if (realEstatePrice == null || realEstatePrice.compareTo(BigDecimal.ZERO) == 0) {
+            return BigDecimal.ZERO;
+        }
+        return realEstatePrice.subtract(Optional.ofNullable(downPayment)
+                .orElse(BigDecimal.ZERO));
+    }
+
     private BankLoanProgramDto createBankLoanProgramDto(CreditProgram creditProgram) {
         return new BankLoanProgramDto()
                 .setBankName(creditProgram.getBank().getName());
@@ -94,14 +103,6 @@ public class CalculatorServiceImpl implements CalculatorService {
                 downPaymentPercentage >= (creditProgram.getCreditParameter().getMinDownPayment()) &&
                 downPaymentPercentage <= (creditProgram.getCreditParameter().getMaxDownPayment()) &&
                 isRegionEligible(request, creditProgram);
-    }
-
-    private BigDecimal getMortgageSum(BigDecimal realEstatePrice, BigDecimal downPayment) {
-        if (realEstatePrice == null || realEstatePrice.compareTo(BigDecimal.ZERO) == 0) {
-            return BigDecimal.ZERO;
-        }
-        return realEstatePrice.subtract(Optional.ofNullable(downPayment)
-                .orElse(BigDecimal.ZERO));
     }
 
     @Override

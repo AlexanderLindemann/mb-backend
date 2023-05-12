@@ -6,34 +6,41 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pro.mbroker.api.dto.request.PartnerApplicationRequest;
+import pro.mbroker.api.dto.response.BorrowerApplicationResponse;
+import pro.mbroker.api.dto.response.PartnerApplicationResponse;
 import pro.mbroker.api.enums.ApplicationStatus;
 import pro.mbroker.app.entity.*;
 import pro.mbroker.app.exception.ItemNotFoundException;
 import pro.mbroker.app.mapper.PartnerApplicationMapper;
 import pro.mbroker.app.repository.*;
+import pro.mbroker.app.service.CalculatorService;
 import pro.mbroker.app.service.PartnerApplicationService;
 import pro.mbroker.app.util.Pagination;
 import pro.mbroker.app.util.TokenExtractor;
 import pro.smartdeal.ng.common.security.service.CurrentUserService;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @Service
 @Slf4j
 @RequiredArgsConstructor
 public class PartnerApplicationServiceImpl implements PartnerApplicationService {
+    private final CalculatorService calculatorService;
+    private final CurrentUserService currentUserService;
     private final PartnerRepository partnerRepository;
     private final CreditProgramRepository creditProgramRepository;
-    private final CurrentUserService currentUserService;
     private final PartnerApplicationRepository partnerApplicationRepository;
     private final BorrowerApplicationRepository borrowerApplicationRepository;
     private final RealEstateRepository realEstateRepository;
     private final PartnerApplicationMapper partnerApplicationMapper;
+
 
     @Override
     @Transactional(readOnly = true)
@@ -91,6 +98,20 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
         partnerApplicationRepository.save(partnerApplication);
     }
 
+    @Override
+    public PartnerApplicationResponse getCalculateMortgage(PartnerApplication partnerApplication) {
+        PartnerApplicationResponse response = partnerApplicationMapper.toPartnerApplicationResponse(partnerApplication);
+        List<BorrowerApplication> borrowerApplications = partnerApplication.getBorrowerApplications();
+        IntStream.range(0, borrowerApplications.size())
+                .forEach(i -> {
+                    BorrowerApplication borrowerApplication = borrowerApplications.get(i);
+                    BorrowerApplicationResponse borrowerApplicationResponse = response.getBorrowerApplications().get(i);
+                    BigDecimal mortgageSum = calculatorService.getMortgageSum(borrowerApplication.getRealEstatePrice(), borrowerApplication.getDownPayment());
+                    borrowerApplicationResponse.setMortgageSum(mortgageSum);
+                });
+        return response;
+    }
+
     private PartnerApplication getPartnerApplicationById(UUID partnerApplicationId) {
         return partnerApplicationRepository.findById(partnerApplicationId)
                 .orElseThrow(() -> new ItemNotFoundException(PartnerApplication.class, String.valueOf(partnerApplicationId)));
@@ -121,6 +142,7 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
                     borrower.setPartnerApplication(partnerApplication);
                     borrower.setCreditProgram(creditProgramMap.get(borrowerRequest.getCreditProgramId()));
                     borrower.setMonthlyPayment(borrowerRequest.getMonthlyPayment());
+                    borrower.setRealEstatePrice(borrowerRequest.getRealEstatePrice());
                     borrower.setDownPayment(borrowerRequest.getDownPayment());
                     borrower.setMonthCreditTerm(borrowerRequest.getMonthCreditTerm());
                     borrower.setOverpayment(borrowerRequest.getOverpayment());
