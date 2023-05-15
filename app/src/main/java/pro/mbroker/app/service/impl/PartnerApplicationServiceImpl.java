@@ -48,10 +48,8 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
         log.info("Getting all partner applications with pagination: page={}, size={}, sortBy={}, sortOrder={}", page, size, sortBy, sortOrder);
 
         Pageable pageable = Pagination.createPageable(page, size, sortBy, sortOrder);
-        Partner partner = getPartnerByOrganizationId();
-        List<PartnerApplication> partnerApplicationPage = partnerApplicationRepository.findAllIsActive(partner.getId(), pageable);
-        log.info("Found {} partner applications for organization ID: {}", partnerApplicationPage.size(), partner.getSmartDealOrganizationId());
-        return partnerApplicationPage;
+        List<UUID> partnerIds = getPartnerByOrganizationId().stream().map(Partner::getId).collect(Collectors.toList());
+        return partnerApplicationRepository.findAllIsActive(partnerIds, pageable);
     }
 
     @Override
@@ -151,12 +149,17 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
                 .collect(Collectors.toList());
     }
 
-    private Partner getPartnerByOrganizationId() {
+    private List<Partner> getPartnerByOrganizationId() {
         String currentUserToken = currentUserService.getCurrentUserToken();
         int organizationId = TokenExtractor.extractSdCurrentOrganizationId(currentUserToken);
 
         log.info("Retrieving partner by organization ID: {}", organizationId);
-        return partnerRepository.findBySmartDealOrganizationId(organizationId)
-                .orElseThrow(() -> new ItemNotFoundException(Partner.class, "organization_id: " + String.valueOf(organizationId)));
+        List<Partner> partnerList = partnerRepository.findBySmartDealOrganizationId(organizationId);
+        if (partnerList.isEmpty()) {
+            throw new ItemNotFoundException(Partner.class, "organization_id: " + organizationId);
+        } else {
+            log.info("Found {} partner for organization ID: {}", partnerList.size(), organizationId);
+        }
+        return partnerList;
     }
 }

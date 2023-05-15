@@ -23,6 +23,7 @@ import pro.smartdeal.ng.common.security.service.CurrentUserService;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -75,9 +76,10 @@ public class PartnerRealEstateServiceImpl implements PartnerRealEstateService {
         Pageable pageable = Pagination.createPageable(page, size, sortBy, sortOrder);
         int organizationId = TokenExtractor
                 .extractSdCurrentOrganizationId(currentUserService.getCurrentUserToken());
-        Partner partner = partnerRepository.findBySmartDealOrganizationId(organizationId)
-                .orElseThrow(() -> new ItemNotFoundException(Partner.class, String.valueOf(organizationId)));
-        Specification<RealEstate> specification = RealEstateSpecification.realEstateByPartnerIdAndIsActive(partner.getId());
+        List<UUID> partnerIds = partnerRepository.findBySmartDealOrganizationId(organizationId).stream()
+                .map(Partner::getId)
+                .collect(Collectors.toList());
+        Specification<RealEstate> specification = RealEstateSpecification.realEstateByPartnerIdsAndIsActive(partnerIds);
         return realEstateRepository.findAll(specification, pageable).getContent();
     }
 
