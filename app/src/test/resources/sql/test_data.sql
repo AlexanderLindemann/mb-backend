@@ -24,19 +24,24 @@ VALUES ('bfda8d66-d926-11ed-afa1-0242ac120002', 'testCreditProgramName1', '2023-
        ('4a8d6fe4-dabe-11ed-afa1-0242ac120002', 'testCreditProgramName3', '2023-04-12 14:38:37.000000', '2023-11-12 14:38:39.000000', 'testDescription3', 'testFullDescription3', 'eb3d875e-dabd-11ed-afa1-0242ac120002', 'b6e7ac3c-dabd-11ed-afa1-0242ac120002', 12.00, '1fd0708a-d848-11ed-afa1-0242ac120002', '2023-04-12 14:38:37.000000', null, 6666, null);
 
 INSERT INTO public.partner (id, smart_deal_organization_id, name, type, real_estate_type, credit_purpose_type)
-VALUES ('5fec2326-d92e-11ed-afa1-0242ac120002', 2633, 'testName', 'DEVELOPER', 'APARTMENT,APARTMENT_COMPLEX', 'PURCHASE_UNDER_CONSTRUCTION,REFINANCING');
+VALUES ('5fec2326-d92e-11ed-afa1-0242ac120002', 2633, 'testName', 'DEVELOPER', 'APARTMENT,APARTMENT_COMPLEX', 'PURCHASE_UNDER_CONSTRUCTION,REFINANCING'),
+       ('dce73f3e-f2db-11ed-a05b-0242ac120003', 2634, 'testName2', 'DEVELOPER', 'APARTMENT,APARTMENT_COMPLEX', 'PURCHASE_UNDER_CONSTRUCTION,REFINANCING');
 
 INSERT INTO public.real_estate (id, residential_complex_name, region, address, partner_id)
 VALUES ('2b8850b2-d930-11ed-afa1-0242ac120002', 'testResidentialComplexName1', 'VORONEZH', 'testAddress1', '5fec2326-d92e-11ed-afa1-0242ac120002'),
-       ('51faca54-d930-11ed-afa1-0242ac120002', 'testResidentialComplexName2', 'CHUKOTKA', 'testAddress2', '5fec2326-d92e-11ed-afa1-0242ac120002');
+       ('51faca54-d930-11ed-afa1-0242ac120002', 'testResidentialComplexName2', 'CHUKOTKA', 'testAddress2', '5fec2326-d92e-11ed-afa1-0242ac120002'),
+       ('bd80be0e-f2db-11ed-a05b-0242ac120003', 'testResidentialComplexName3', 'MOSCOW', 'testAddress3', '5fec2326-d92e-11ed-afa1-0242ac120002');
+
 
 INSERT INTO public.partner_credit_program (partner_id, credit_program_id)
 VALUES ('5fec2326-d92e-11ed-afa1-0242ac120002', 'bfda8d66-d926-11ed-afa1-0242ac120002'),
        ('5fec2326-d92e-11ed-afa1-0242ac120002', '8222cb80-d928-11ed-afa1-0242ac120002'),
-       ('5fec2326-d92e-11ed-afa1-0242ac120002', '4a8d6fe4-dabe-11ed-afa1-0242ac120002');
+       ('5fec2326-d92e-11ed-afa1-0242ac120002', '4a8d6fe4-dabe-11ed-afa1-0242ac120002'),
+       ('dce73f3e-f2db-11ed-a05b-0242ac120003', '4a8d6fe4-dabe-11ed-afa1-0242ac120002');
 
 INSERT INTO public.partner_application (id, full_name, credit_purpose_type, real_estate_type, real_estate_id, partner_id, created_at, updated_at, created_by, updated_by, is_active)
-VALUES ('5ff4b32c-f967-4cb1-8705-7470a321fe34', 'Петров Илья Владимирович', 'PURCHASE_UNDER_CONSTRUCTION', 'APARTMENT', '2b8850b2-d930-11ed-afa1-0242ac120002', '5fec2326-d92e-11ed-afa1-0242ac120002', '2023-05-05 12:12:22.802637', '2023-05-05 12:12:22.802637', 2966, null, true);
+VALUES ('5ff4b32c-f967-4cb1-8705-7470a321fe34', 'Петров Илья Владимирович', 'PURCHASE_UNDER_CONSTRUCTION', 'APARTMENT', '2b8850b2-d930-11ed-afa1-0242ac120002', '5fec2326-d92e-11ed-afa1-0242ac120002', '2023-05-05 12:12:22.802637', '2023-05-05 12:12:22.802637', 2966, null, true),
+       ('7addcbef-c1e0-4de1-adeb-377f864efcfa', 'Иванов Иван Иванович', 'PURCHASE_UNDER_CONSTRUCTION', 'APARTMENT', '2b8850b2-d930-11ed-afa1-0242ac120002', 'dce73f3e-f2db-11ed-a05b-0242ac120003', '2023-05-05 12:12:22.802637', '2023-05-05 12:12:22.802637', 2962, null, true);
 
 INSERT INTO public.borrower_application (id, credit_program_id, application_status, monthly_payment, down_payment, credit_term, overpayment, partner_application_id, created_at, updated_at, created_by, updated_by, is_active)
 VALUES ('3b339aa4-5462-485a-9118-5922cd948566', 'bfda8d66-d926-11ed-afa1-0242ac120002', 'UPLOADING_DOCUMENTS', 60000, 500000, 120, 6000000, '5ff4b32c-f967-4cb1-8705-7470a321fe34', '2023-05-09 14:35:58.039296', '2023-05-09 14:35:58.039296', 2929, null, true);

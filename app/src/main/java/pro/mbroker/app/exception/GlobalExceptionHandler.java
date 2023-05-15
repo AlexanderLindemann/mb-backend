@@ -13,4 +13,10 @@ public class GlobalExceptionHandler {
         ControllerError apiError = new ControllerError(ex.getMessage(), HttpStatus.NOT_FOUND);
         return new ResponseEntity<>(apiError, apiError.getStatus());
     }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<Object> handleAccessDeniedException(AccessDeniedException ex) {
+        ControllerError apiError = new ControllerError(ex.getMessage(), HttpStatus.FORBIDDEN);
+        return new ResponseEntity<>(apiError, apiError.getStatus());
+    }
 }

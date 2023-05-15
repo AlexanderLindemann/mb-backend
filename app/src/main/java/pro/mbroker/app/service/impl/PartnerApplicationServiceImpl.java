@@ -3,6 +3,9 @@ package pro.mbroker.app.service.impl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pro.mbroker.api.dto.request.PartnerApplicationRequest;
@@ -10,6 +13,7 @@ import pro.mbroker.api.dto.response.BorrowerApplicationResponse;
 import pro.mbroker.api.dto.response.PartnerApplicationResponse;
 import pro.mbroker.api.enums.ApplicationStatus;
 import pro.mbroker.app.entity.*;
+import pro.mbroker.app.exception.AccessDeniedException;
 import pro.mbroker.app.exception.ItemNotFoundException;
 import pro.mbroker.app.mapper.PartnerApplicationMapper;
 import pro.mbroker.app.repository.*;
@@ -17,13 +21,11 @@ import pro.mbroker.app.service.CalculatorService;
 import pro.mbroker.app.service.PartnerApplicationService;
 import pro.mbroker.app.util.Pagination;
 import pro.mbroker.app.util.TokenExtractor;
+import pro.smartdeal.common.security.Permission;
 import pro.smartdeal.ng.common.security.service.CurrentUserService;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -72,8 +74,7 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
     @Override
     @Transactional
     public PartnerApplication updatePartnerApplication(UUID partnerApplicationId, PartnerApplicationRequest request) {
-        PartnerApplication existingPartnerApplication = partnerApplicationRepository.findById(partnerApplicationId)
-                .orElseThrow(() -> new ItemNotFoundException(PartnerApplication.class, partnerApplicationId));
+        PartnerApplication existingPartnerApplication = getPartnerApplication(partnerApplicationId);
 
         RealEstate realEstate = realEstateRepository.findById(request.getRealEstateId())
                 .orElseThrow(() -> new ItemNotFoundException(RealEstate.class, request.getRealEstateId()));
@@ -117,6 +118,19 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
                 .orElseThrow(() -> new ItemNotFoundException(PartnerApplication.class, String.valueOf(partnerApplicationId)));
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public PartnerApplication getPartnerApplicationByIdWithPermission(UUID partnerApplicationId) {
+        PartnerApplication partnerApplication = getPartnerApplication(partnerApplicationId);
+        Collection<? extends GrantedAuthority> authorities = SecurityContextHolder.getContext().getAuthentication().getAuthorities();
+
+        if (!authorities.contains(new SimpleGrantedAuthority(Permission.Code.MB_ADMIN_ACCESS))) {
+            checkPermission(authorities, partnerApplication);
+        }
+
+        return partnerApplication;
+    }
+
     private List<BorrowerApplication> buildBorrowerApplications(PartnerApplicationRequest request, PartnerApplication partnerApplication) {
         List<UUID> creditProgramIds = new ArrayList<>();
         List<UUID> existingBorrowerApplicationIds = new ArrayList<>();
@@ -158,5 +172,28 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
         log.info("Retrieving partner by organization ID: {}", organizationId);
         return partnerRepository.findBySmartDealOrganizationId(organizationId)
                 .orElseThrow(() -> new ItemNotFoundException(Partner.class, "organization_id: " + String.valueOf(organizationId)));
+    }
+
+    private PartnerApplication getPartnerApplication(UUID partnerApplicationId) {
+        return partnerApplicationRepository.findById(partnerApplicationId)
+                .orElseThrow(() -> new ItemNotFoundException(PartnerApplication.class, partnerApplicationId));
+    }
+
+    private void checkPermission(Collection<? extends GrantedAuthority> authorities, PartnerApplication partnerApplication) {
+        String currentUserToken = currentUserService.getCurrentUserToken();
+        Integer organizationId = TokenExtractor.extractSdCurrentOrganizationId(currentUserToken);
+        Integer sdId = TokenExtractor.extractSdId(currentUserToken);
+
+        if (authorities.contains(new SimpleGrantedAuthority(Permission.Code.MB_REQUEST_READ_ORGANIZATION)) &&
+                !partnerApplication.getPartner().getSmartDealOrganizationId().equals(organizationId)) {
+
+            throw new AccessDeniedException("organization_id: " + organizationId, PartnerApplication.class);
+        }
+
+        if (authorities.contains(new SimpleGrantedAuthority(Permission.Code.MB_REQUEST_READ_OWN)) &&
+                !partnerApplication.getCreatedBy().equals(sdId)) {
+
+            throw new AccessDeniedException("sd_id: " + sdId, PartnerApplication.class);
+        }
     }
 }

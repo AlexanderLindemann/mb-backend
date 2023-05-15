@@ -31,6 +31,15 @@ public class PartnerApplicationControllerImpl implements PartnerApplicationContr
     }
 
     @Override
+    @PreAuthorize("hasAuthority(T(pro.smartdeal.common.security.Permission$Code).MB_ADMIN_ACCESS) or" +
+            " hasAuthority(T(pro.smartdeal.common.security.Permission$Code).MB_REQUEST_READ_OWN) or" +
+            " hasAnyAuthority(T(pro.smartdeal.common.security.Permission$Code).MB_REQUEST_READ_ORGANIZATION)")
+    public PartnerApplicationResponse getPartnerApplicationById(UUID partnerApplicationId) {
+        PartnerApplication partnerApplication = partnerApplicationService.getPartnerApplicationByIdWithPermission(partnerApplicationId);
+        return partnerApplicationMapper.toPartnerApplicationResponse(partnerApplication);
+    }
+
+    @Override
     public PartnerApplicationResponse createPartnerApplication(PartnerApplicationRequest request) {
         PartnerApplication partnerApplication = partnerApplicationService.createPartnerApplication(request);
         return partnerApplicationService.getCalculateMortgage(partnerApplication);
