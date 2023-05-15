@@ -17,7 +17,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "partner")
-public class Partner extends BaseEntity {
+public class Partner extends BaseEntity {  //TODO переименовать Партнер на застройщика
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
