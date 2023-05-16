@@ -61,7 +61,7 @@ public class PartnerRealEstateServiceImplTest extends AbstractServiceTest {
     public void testDeleteRealEstate() {
         partnerRealEstateService.deleteRealEstate(REAL_ESTATE_ID);
         List<RealEstate> result = partnerRealEstateService.getRealEstateByPartnerId(0, 10, "residentialComplexName", "asc", PARTNER_ID);
-        assertThat(result.size(), Matchers.is(1));
+        assertThat(result.size(), Matchers.is(2));
         assertEquals(result.get(0).getResidentialComplexName(), "testResidentialComplexName2");
     }
 

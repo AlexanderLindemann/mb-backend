@@ -17,4 +17,6 @@ public interface PartnerApplicationService {
     void deletePartnerApplication(UUID partnerApplicationId);
 
     PartnerApplicationResponse getCalculateMortgage(PartnerApplication partnerApplication);
+
+    PartnerApplication getPartnerApplicationByIdWithPermission(UUID partnerApplicationId);
 }

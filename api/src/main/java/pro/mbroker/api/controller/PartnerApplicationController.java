@@ -23,6 +23,10 @@ public interface PartnerApplicationController {
                                                               @RequestParam(defaultValue = "borrowerFullName") String sortBy,
                                                               @RequestParam(defaultValue = "asc") String sortOrder);
 
+    @GetMapping("/{partnerApplicationId}")
+    @ApiOperation("получить заявку по id")
+    PartnerApplicationResponse getPartnerApplicationById(@PathVariable UUID partnerApplicationId);
+
     @ApiOperation("Создать заявку")
     @PostMapping()
     PartnerApplicationResponse createPartnerApplication(@ApiParam(value = "Параметры кредитной заявки") @RequestBody PartnerApplicationRequest request);

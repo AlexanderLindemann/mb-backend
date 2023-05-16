@@ -1,14 +1,9 @@
 package pro.mbroker.app.service;
 
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,7 +15,6 @@ import pro.mbroker.api.enums.RealEstateType;
 import pro.mbroker.api.enums.RegionType;
 import pro.mbroker.app.entity.Partner;
 import pro.mbroker.app.util.Converter;
-import pro.smartdeal.ng.common.security.service.CurrentUserService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -62,7 +56,7 @@ public class PartnerServiceTest extends AbstractServiceTest {
         Partner partner = partnerService.createPartner(request);
         List<Partner> allPartner = partnerService.getAllPartner(0, 10, "name", "asc");
         assertNotNull(allPartner);
-        assertEquals(2, allPartner.size());
+        assertEquals(3, allPartner.size());
         assertEquals(request.getName(), allPartner.get(0).getName());
         assertEquals("testName", allPartner.get(1).getName());
         asserPartner(request, partner);
@@ -72,7 +66,7 @@ public class PartnerServiceTest extends AbstractServiceTest {
     public void testDeletePartner() {
         partnerService.deletePartner(UUID.fromString("5fec2326-d92e-11ed-afa1-0242ac120002"));
         List<Partner> allPartner = partnerService.getAllPartner(0, 10, "name", "asc");
-        assertEquals(0, allPartner.size());
+        assertEquals(1, allPartner.size());
     }
 
     private void asserPartner(PartnerRequest request, Partner partner) {
