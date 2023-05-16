@@ -20,11 +20,11 @@ public interface CreditProgramController {
     CreditProgramResponse createCreditProgram(@ApiParam(value = "Параметры кредита") @RequestBody BankProgramRequest request);
 
     @ApiOperation("Получить программу кредита по идентификатору")
-    @GetMapping("/credit-programs/{creditProgramId}")
+    @GetMapping("/{creditProgramId}")
     CreditProgramResponse getProgramByCreditProgramId(@PathVariable UUID creditProgramId);
 
     @ApiOperation("Получить список программ кредитования по идентификатору банка")
-    @GetMapping("/banks/{bankId}/credit-programs")
+    @GetMapping("/bank/{bankId}")
     List<CreditProgramResponse> getProgramsByBankId(@PathVariable UUID bankId);
 
     @ApiOperation("обновить программу кредита")
