@@ -3,22 +3,22 @@ package pro.mbroker.app.mapper;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
-import pro.mbroker.api.dto.request.BorrowerApplicationRequest;
-import pro.mbroker.api.dto.response.BorrowerApplicationResponse;
-import pro.mbroker.app.entity.BorrowerApplication;
+import pro.mbroker.api.dto.request.BankApplicationRequest;
+import pro.mbroker.api.dto.response.BankApplicationResponse;
+import pro.mbroker.app.entity.BankApplication;
 
 import java.util.List;
 
 @Mapper
-public interface BorrowerApplicationMapper {
+public interface BankApplicationMapper {
 
-    @Mapping(source = "borrowerApplication.creditProgram.bank.name", target = "bankName")
-    @Mapping(source = "borrowerApplication.creditProgram.programName", target = "creditProgramName")
-    @Mapping(source = "borrowerApplication.creditProgram.baseRate", target = "interestRate")
+    @Mapping(source = "bankApplication.creditProgram.bank.name", target = "bankName")
+    @Mapping(source = "bankApplication.creditProgram.programName", target = "creditProgramName")
+    @Mapping(source = "bankApplication.creditProgram.baseRate", target = "interestRate")
     @Mapping(target = "mortgageSum", ignore = true)
-    BorrowerApplicationResponse toBorrowerApplicationDto(BorrowerApplication borrowerApplication);
+    BankApplicationResponse toBankApplicationResponse(BankApplication bankApplication);
 
-    List<BorrowerApplicationResponse> toBorrowerApplicationDtoList(List<BorrowerApplication> borrowerApplications);
+    List<BankApplicationResponse> toBorrowerApplicationDtoList(List<BankApplication> bankApplications);
 
     @Mapping(source = "dto.creditProgramId", target = "creditProgram.id")
     @Mapping(target = "partnerApplication", ignore = true)
@@ -33,9 +33,10 @@ public interface BorrowerApplicationMapper {
     @Mapping(target = "createdBy", ignore = true)
     @Mapping(target = "updatedBy", ignore = true)
     @Mapping(target = "active", ignore = true)
-    BorrowerApplication toBorrowerApplication(BorrowerApplicationRequest dto);
+    @Mapping(target = "mainBorrower", ignore = true)
+    BankApplication toBankApplication(BankApplicationRequest dto);
 
-    @Named("toBorrowerApplicationList")
+    @Named("toBankApplicationList")
     @Mapping(target = "id", ignore = true)
-    List<BorrowerApplication> toBorrowerApplicationList(List<BorrowerApplicationRequest> dtos);
+    List<BankApplication> toBankApplicationList(List<BankApplicationRequest> dtos);
 }

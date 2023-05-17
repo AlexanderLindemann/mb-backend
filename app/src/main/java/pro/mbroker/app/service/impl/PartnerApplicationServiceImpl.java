@@ -9,7 +9,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pro.mbroker.api.dto.request.PartnerApplicationRequest;
-import pro.mbroker.api.dto.response.BorrowerApplicationResponse;
+import pro.mbroker.api.dto.response.BankApplicationResponse;
 import pro.mbroker.api.dto.response.PartnerApplicationResponse;
 import pro.mbroker.api.enums.ApplicationStatus;
 import pro.mbroker.app.entity.*;
@@ -39,7 +39,7 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
     private final PartnerRepository partnerRepository;
     private final CreditProgramRepository creditProgramRepository;
     private final PartnerApplicationRepository partnerApplicationRepository;
-    private final BorrowerApplicationRepository borrowerApplicationRepository;
+    private final BankApplicationRepository bankApplicationRepository;
     private final RealEstateRepository realEstateRepository;
     private final PartnerApplicationMapper partnerApplicationMapper;
 
@@ -64,8 +64,8 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
                 .setPartner(partner)
                 .setRealEstate(realEstate);
 
-        List<BorrowerApplication> borrowerApplications = buildBorrowerApplications(request, partnerApplication);
-        partnerApplication.setBorrowerApplications(borrowerApplications);
+        List<BankApplication> borrowerApplications = buildBorrowerApplications(request, partnerApplication);
+        partnerApplication.setBankApplications(borrowerApplications);
         return partnerApplicationRepository.save(partnerApplication);
     }
 
@@ -83,8 +83,8 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
         updatedPartnerApplication.setRealEstate(realEstate);
         updatedPartnerApplication.setId(existingPartnerApplication.getId());
 
-        List<BorrowerApplication> updatedBorrowerApplications = buildBorrowerApplications(request, updatedPartnerApplication);
-        updatedPartnerApplication.setBorrowerApplications(updatedBorrowerApplications);
+        List<BankApplication> updatedBorrowerApplications = buildBorrowerApplications(request, updatedPartnerApplication);
+        updatedPartnerApplication.setBankApplications(updatedBorrowerApplications);
         partnerApplicationMapper.updatePartnerApplication(updatedPartnerApplication, existingPartnerApplication);
         return partnerApplicationRepository.save(existingPartnerApplication);
     }
@@ -100,13 +100,13 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
     @Override
     public PartnerApplicationResponse getCalculateMortgage(PartnerApplication partnerApplication) {
         PartnerApplicationResponse response = partnerApplicationMapper.toPartnerApplicationResponse(partnerApplication);
-        List<BorrowerApplication> borrowerApplications = partnerApplication.getBorrowerApplications();
+        List<BankApplication> borrowerApplications = partnerApplication.getBankApplications();
         IntStream.range(0, borrowerApplications.size())
                 .forEach(i -> {
-                    BorrowerApplication borrowerApplication = borrowerApplications.get(i);
-                    BorrowerApplicationResponse borrowerApplicationResponse = response.getBorrowerApplications().get(i);
+                    BankApplication borrowerApplication = borrowerApplications.get(i);
+                    BankApplicationResponse bankApplicationResponse = response.getBankApplications().get(i);
                     BigDecimal mortgageSum = calculatorService.getMortgageSum(borrowerApplication.getRealEstatePrice(), borrowerApplication.getDownPayment());
-                    borrowerApplicationResponse.setMortgageSum(mortgageSum);
+                    bankApplicationResponse.setMortgageSum(mortgageSum);
                 });
         return response;
     }
@@ -129,10 +129,10 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
         return partnerApplication;
     }
 
-    private List<BorrowerApplication> buildBorrowerApplications(PartnerApplicationRequest request, PartnerApplication partnerApplication) {
+    private List<BankApplication> buildBorrowerApplications(PartnerApplicationRequest request, PartnerApplication partnerApplication) {
         List<UUID> creditProgramIds = new ArrayList<>();
         List<UUID> existingBorrowerApplicationIds = new ArrayList<>();
-        request.getBorrowerApplications().forEach(borrowerRequest -> {
+        request.getBankApplications().forEach(borrowerRequest -> {
             creditProgramIds.add(borrowerRequest.getCreditProgramId());
             if (borrowerRequest.getId() != null) {
                 existingBorrowerApplicationIds.add(borrowerRequest.getId());
@@ -141,14 +141,14 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
 
         Map<UUID, CreditProgram> creditProgramMap = creditProgramRepository.findByIdInWithBank(creditProgramIds).stream()
                 .collect(Collectors.toMap(CreditProgram::getId, Function.identity()));
-        Map<UUID, BorrowerApplication> existingBorrowerApplicationsMap = borrowerApplicationRepository.findAllById(existingBorrowerApplicationIds).stream()
-                .collect(Collectors.toMap(BorrowerApplication::getId, Function.identity()));
+        Map<UUID, BankApplication> existingBorrowerApplicationsMap = bankApplicationRepository.findAllById(existingBorrowerApplicationIds).stream()
+                .collect(Collectors.toMap(BankApplication::getId, Function.identity()));
 
-        return request.getBorrowerApplications().stream()
+        return request.getBankApplications().stream()
                 .map(borrowerRequest -> {
-                    BorrowerApplication borrower = existingBorrowerApplicationsMap.get(borrowerRequest.getId());
+                    BankApplication borrower = existingBorrowerApplicationsMap.get(borrowerRequest.getId());
                     if (borrower == null) {
-                        borrower = new BorrowerApplication();
+                        borrower = new BankApplication();
                     }
                     borrower.setApplicationStatus(ApplicationStatus.UPLOADING_DOCUMENTS);
                     borrower.setPartnerApplication(partnerApplication);

@@ -9,7 +9,6 @@ import javax.persistence.*;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode(exclude = "id")
 @Table(name = "bank_contact")
 public class BankContact extends BaseEntity {
 

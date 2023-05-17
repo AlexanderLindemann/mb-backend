@@ -12,7 +12,7 @@ import java.util.UUID;
 @Getter
 @Setter
 @ToString
-public class BorrowerApplicationResponse {
+public class BankApplicationResponse {
     private UUID id;
 
     private String bankName;

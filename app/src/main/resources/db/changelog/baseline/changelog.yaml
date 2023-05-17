@@ -35,3 +35,6 @@ databaseChangeLog:
   - include:
       file: 20230510_2145-add-column-real_estate_price_in_partner_application_table.xml
       relativeToChangelogFile: true
+  - include:
+      file: 20230516_1125-create-borrower-profiles-table.xml
+      relativeToChangelogFile: true

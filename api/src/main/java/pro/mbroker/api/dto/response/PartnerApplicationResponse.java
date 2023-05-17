@@ -15,13 +15,11 @@ import java.util.UUID;
 public class PartnerApplicationResponse {
     private UUID id;
 
-    private String borrowerFullName;
-
     private CreditPurposeType creditPurposeType;
 
     private RealEstateType realEstateType;
 
     private RealEstateResponse realEstate;
 
-    private List<BorrowerApplicationResponse> borrowerApplications;
+    private List<BankApplicationResponse> bankApplications;
 }

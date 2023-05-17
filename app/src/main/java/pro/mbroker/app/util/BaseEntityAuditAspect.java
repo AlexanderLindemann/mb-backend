@@ -5,8 +5,8 @@ import lombok.RequiredArgsConstructor;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.springframework.stereotype.Component;
+import pro.mbroker.app.entity.BankApplication;
 import pro.mbroker.app.entity.BaseEntity;
-import pro.mbroker.app.entity.BorrowerApplication;
 import pro.mbroker.app.entity.PartnerApplication;
 import pro.smartdeal.ng.common.security.service.CurrentUserService;
 
@@ -29,9 +29,9 @@ public class BaseEntityAuditAspect {
         }
         if (baseEntity instanceof PartnerApplication) {
             PartnerApplication partnerApplication = (PartnerApplication) baseEntity;
-            if (partnerApplication.getBorrowerApplications() != null) {
-                for (BorrowerApplication borrowerApplication : partnerApplication.getBorrowerApplications()) {
-                    beforeSave(borrowerApplication);
+            if (partnerApplication.getBankApplications() != null) {
+                for (BankApplication bankApplication : partnerApplication.getBankApplications()) {
+                    beforeSave(bankApplication);
                 }
             }
         }

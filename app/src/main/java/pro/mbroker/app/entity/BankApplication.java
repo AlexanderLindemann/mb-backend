@@ -8,18 +8,22 @@ import pro.mbroker.api.enums.ApplicationStatus;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
+import java.util.UUID;
 
 @Entity
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "borrower_application")
-public class BorrowerApplication extends BaseEntity {
+@Table(name = "bank_application")
+public class BankApplication extends BaseEntity {
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "credit_program_id", referencedColumnName = "id")
     private CreditProgram creditProgram;
+
+    @Column(name = "main_borrower")
+    private UUID mainBorrower;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "application_status")

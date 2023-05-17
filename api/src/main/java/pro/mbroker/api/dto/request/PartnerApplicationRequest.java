@@ -22,5 +22,5 @@ public class PartnerApplicationRequest {
 
     private UUID realEstateId;
 
-    private List<BorrowerApplicationRequest> borrowerApplications;
+    private List<BankApplicationRequest> bankApplications;
 }

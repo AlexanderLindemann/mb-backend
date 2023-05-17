@@ -1,0 +1,118 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <changeSet id="create_borrower_profile_table" author="a.lindemann">
+        <createTable tableName="borrower_profile">
+            <column name="id" type="UUID">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="first_name" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="last_name" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="middle_name" type="VARCHAR(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="phone_number" type="VARCHAR(20)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="email" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="TIMESTAMP WITHOUT TIME ZONE" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="created_by" type="integer" defaultValueNumeric="0">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_by" type="integer"/>
+            <column name="is_active" type="BOOLEAN" defaultValueBoolean="true">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="modify_partner_application_table" author="a.lindemann">
+        <dropColumn tableName="partner_application" columnName="full_name"/>
+    </changeSet>
+
+    <changeSet id="rename_partner_application_to_bank_application" author="a.lindemann">
+        <renameTable oldTableName="borrower_application" newTableName="bank_application"/>
+    </changeSet>
+
+    <changeSet id="create_borrower_documents_table" author="a.lindemann">
+        <createTable tableName="borrower_documents">
+            <column name="id" type="UUID">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="borrower_profile_id" type="UUID">
+                <constraints nullable="false" foreignKeyName="fk_borrower_documents_borrower_profile_id"
+                             referencedTableName="borrower_profile" referencedColumnNames="id"/>
+            </column>
+            <column name="attachment_id" type="BIGINT"/>
+            <column name="document_type" type="VARCHAR(255)"/>
+            <column name="bank_id" type="UUID">
+                <constraints nullable="true" foreignKeyName="fk_borrower_documents_bank_id"
+                             referencedTableName="bank" referencedColumnNames="id"/>
+            </column>
+            <column name="created_at" type="TIMESTAMP WITHOUT TIME ZONE" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="created_by" type="integer" defaultValueNumeric="0">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_by" type="integer"/>
+            <column name="is_active" type="BOOLEAN" defaultValueBoolean="true">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="add_main_borrower_bank_application_table" author="a.lindemann">
+        <addColumn tableName="bank_application">
+            <column name="main_borrower" type="UUID">
+                <constraints nullable="false" foreignKeyName="fk_bank_application_borrower_profile_id"
+                             referencedTableName="borrower_profile" referencedColumnNames="id"/>
+            </column>
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="create-borrower-table" author="a.lindemann">
+        <createTable tableName="borrower">
+            <column name="partner_application_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="borrower_profile_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <addPrimaryKey columnNames="partner_application_id,borrower_profile_id"
+                       constraintName="pk_borrower" tableName="borrower"/>
+    </changeSet>
+
+    <changeSet id="add-partner-credit-program-foreign-keys" author="a.lindemann">
+        <addForeignKeyConstraint
+                baseTableName="borrower"
+                baseColumnNames="partner_application_id"
+                referencedTableName="partner_application"
+                referencedColumnNames="id"
+                foreignKeyConstraintName="fk_borrower_partner_application"
+                constraintName="fk_borrower_partner_application"/>
+
+        <addForeignKeyConstraint
+                baseTableName="borrower"
+                baseColumnNames="borrower_profile_id"
+                referencedTableName="borrower_profile"
+                referencedColumnNames="id"
+                foreignKeyConstraintName="fk_borrower_borrower_profile"
+                constraintName="fk_borrower_borrower_profile"/>
+    </changeSet>
+
+</databaseChangeLog>

@@ -8,6 +8,7 @@ import pro.mbroker.api.enums.CreditPurposeType;
 import pro.mbroker.api.enums.RealEstateType;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -22,9 +23,6 @@ public class PartnerApplication extends BaseEntity {
     @JoinColumn(name = "partner_id", referencedColumnName = "id")
     private Partner partner;
 
-    @Column(name = "fullName")
-    private String borrowerFullName;
-
     @Enumerated(EnumType.STRING)
     @Column(name = "credit_purpose_type", nullable = false)
     private CreditPurposeType creditPurposeType;
@@ -38,5 +36,12 @@ public class PartnerApplication extends BaseEntity {
     private RealEstate realEstate;
 
     @OneToMany(mappedBy = "partnerApplication", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private List<BorrowerApplication> borrowerApplications;
+    private List<BankApplication> bankApplications;
+
+    @ManyToMany
+    @JoinTable(
+            name = "borrower",
+            joinColumns = @JoinColumn(name = "partner_application_id"),
+            inverseJoinColumns = @JoinColumn(name = "borrower_profile_id"))
+    private List<BorrowerProfile> borrowerProfiles = new ArrayList<>();
 }
