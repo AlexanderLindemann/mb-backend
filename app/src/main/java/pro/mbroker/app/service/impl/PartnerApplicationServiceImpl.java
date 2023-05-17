@@ -19,6 +19,7 @@ import pro.mbroker.app.mapper.PartnerApplicationMapper;
 import pro.mbroker.app.repository.*;
 import pro.mbroker.app.service.CalculatorService;
 import pro.mbroker.app.service.PartnerApplicationService;
+import pro.mbroker.app.service.PartnerService;
 import pro.mbroker.app.util.Pagination;
 import pro.mbroker.app.util.TokenExtractor;
 import pro.smartdeal.common.security.Permission;
@@ -35,8 +36,8 @@ import java.util.stream.IntStream;
 @RequiredArgsConstructor
 public class PartnerApplicationServiceImpl implements PartnerApplicationService {
     private final CalculatorService calculatorService;
+    private final PartnerService partnerService;
     private final CurrentUserService currentUserService;
-    private final PartnerRepository partnerRepository;
     private final CreditProgramRepository creditProgramRepository;
     private final PartnerApplicationRepository partnerApplicationRepository;
     private final BorrowerApplicationRepository borrowerApplicationRepository;
@@ -50,7 +51,7 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
         log.info("Getting all partner applications with pagination: page={}, size={}, sortBy={}, sortOrder={}", page, size, sortBy, sortOrder);
 
         Pageable pageable = Pagination.createPageable(page, size, sortBy, sortOrder);
-        List<UUID> partnerIds = getPartnerByOrganizationId().stream().map(Partner::getId).collect(Collectors.toList());
+        List<UUID> partnerIds = partnerService.getCurrentPartner().stream().map(Partner::getId).collect(Collectors.toList());
         return partnerApplicationRepository.findAllIsActive(partnerIds, pageable);
     }
 
@@ -163,19 +164,7 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
                 .collect(Collectors.toList());
     }
 
-    private List<Partner> getPartnerByOrganizationId() {
-        String currentUserToken = currentUserService.getCurrentUserToken();
-        int organizationId = TokenExtractor.extractSdCurrentOrganizationId(currentUserToken);
 
-        log.info("Retrieving partner by organization ID: {}", organizationId);
-        List<Partner> partnerList = partnerRepository.findBySmartDealOrganizationId(organizationId);
-        if (partnerList.isEmpty()) {
-            throw new ItemNotFoundException(Partner.class, "organization_id: " + organizationId);
-        } else {
-            log.info("Found {} partner for organization ID: {}", partnerList.size(), organizationId);
-        }
-        return partnerList;
-    }
 
     private PartnerApplication getPartnerApplication(UUID partnerApplicationId) {
         return partnerApplicationRepository.findById(partnerApplicationId)

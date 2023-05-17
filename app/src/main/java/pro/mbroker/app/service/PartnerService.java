@@ -18,7 +18,7 @@ public interface PartnerService {
 
     Partner updatePartnerById(UUID partnerId, PartnerRequest request);
 
-    Partner getCurrentPartner();
+    List<Partner> getCurrentPartner();
 
     void deletePartner(UUID partnerId);
 }
