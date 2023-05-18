@@ -59,12 +59,9 @@ public class PartnerControllerImpl implements PartnerController {
     }
 
     @Override
-    public List<PartnerResponse> getCurrentPartner() {
-        List<Partner> partner = partnerService.getCurrentPartner();
-        return partner.stream()
-                .map(this::buildPartnerResponse)
-                .collect(Collectors.toList());
-
+    public PartnerResponse getCurrentPartner() {
+        Partner partner = partnerService.getCurrentPartner();
+        return buildPartnerResponse(partner);
     }
 
     @Override

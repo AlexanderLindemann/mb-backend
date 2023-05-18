@@ -51,8 +51,8 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
         log.info("Getting all partner applications with pagination: page={}, size={}, sortBy={}, sortOrder={}", page, size, sortBy, sortOrder);
 
         Pageable pageable = Pagination.createPageable(page, size, sortBy, sortOrder);
-        List<UUID> partnerIds = partnerService.getCurrentPartner().stream().map(Partner::getId).collect(Collectors.toList());
-        return partnerApplicationRepository.findAllIsActive(partnerIds, pageable);
+        UUID partnerId = partnerService.getCurrentPartner().getId();
+        return partnerApplicationRepository.findAllIsActive(partnerId, pageable);
     }
 
     @Override

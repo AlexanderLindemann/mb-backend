@@ -77,18 +77,12 @@ public class PartnerServiceImpl implements PartnerService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<Partner> getCurrentPartner() {
-        String currentUserToken = currentUserService.getCurrentUserToken();
-        int organizationId = TokenExtractor.extractSdCurrentOrganizationId(currentUserToken);
-
-        log.info("Retrieving partner by organization ID: {}", organizationId);
-        List<Partner> partnerList = partnerRepository.findBySmartDealOrganizationId(organizationId);
-        if (partnerList.isEmpty()) {
-            throw new ItemNotFoundException(Partner.class, "organization_id: " + organizationId);
-        } else {
-            log.info("Found {} partner for organization ID: {}", partnerList.size(), organizationId);
-        }
-        return partnerList;
+    public Partner getCurrentPartner() {
+        int organizationId = TokenExtractor
+                .extractSdCurrentOrganizationId(currentUserService.getCurrentUserToken());
+        Specification<Partner> specification = PartnerSpecification.partnerByOrganizationIdAndIsActive(organizationId);
+        return partnerRepository.findOne(specification)
+                .orElseThrow(() -> new ItemNotFoundException(Partner.class, "organization_Id:" + organizationId));
     }
 
     @Override

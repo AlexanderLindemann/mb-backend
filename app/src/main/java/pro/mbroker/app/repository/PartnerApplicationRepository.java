@@ -17,7 +17,6 @@ public interface PartnerApplicationRepository extends JpaRepository<PartnerAppli
     List<PartnerApplication> findAllByPartner(Partner partner, Pageable pageable);
 
     @EntityGraph(attributePaths = {"borrowerApplications.creditProgram", "borrowerApplications.creditProgram.bank"})
-    @Query("SELECT pa FROM PartnerApplication pa WHERE pa.partner.id IN :partnerIds AND pa.isActive = true")
-    List<PartnerApplication> findAllIsActive(@Param("partnerIds") List<UUID> partnerIds, Pageable pageable);
-
+    @Query("SELECT pa FROM PartnerApplication pa WHERE pa.id IN (SELECT pa.id FROM PartnerApplication pa WHERE pa.partner.id = :partnerId AND pa.isActive = true)")
+    List<PartnerApplication> findAllIsActive(@Param("partnerId") UUID partnerId, Pageable pageable);
 }
