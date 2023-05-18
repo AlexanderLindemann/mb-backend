@@ -1,0 +1,14 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <changeSet id="add-unique-constraint-to-smart_deal_organization_id" author="a.lindemann">
+        <addUniqueConstraint
+                columnNames="smart_deal_organization_id"
+                constraintName="uk_smart_deal_organization_id"
+                tableName="partner" />
+    </changeSet>
+
+</databaseChangeLog>

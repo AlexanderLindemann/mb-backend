@@ -38,7 +38,7 @@ public interface PartnerController {
 
     @ApiOperation("получить действующего застройщика")
     @GetMapping("/current")
-    List<PartnerResponse> getCurrentPartner();
+    PartnerResponse getCurrentPartner();
 
     @ApiOperation("удалить партнера по id")
     @DeleteMapping("/{partnerId}")
