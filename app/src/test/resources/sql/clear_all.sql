@@ -1,7 +1,9 @@
 DELETE
 FROM partner_credit_program;
 DELETE
-FROM borrower_application;
+FROM bank_application;
+DELETE
+FROM borrower_profile;
 DELETE
 FROM partner_application;
 DELETE

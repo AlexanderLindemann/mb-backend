@@ -9,13 +9,13 @@ import pro.mbroker.app.entity.BankApplication;
 
 import java.util.List;
 
-@Mapper
+@Mapper(uses = BorrowerProfileMapper.class)
 public interface BankApplicationMapper {
 
-    @Mapping(source = "bankApplication.creditProgram.bank.name", target = "bankName")
-    @Mapping(source = "bankApplication.creditProgram.programName", target = "creditProgramName")
     @Mapping(source = "bankApplication.creditProgram.baseRate", target = "interestRate")
     @Mapping(target = "mortgageSum", ignore = true)
+    @Mapping(target = "coBorrowers", ignore = true)
+    @Mapping(source = "creditProgram.id", target = "creditProgramId")
     BankApplicationResponse toBankApplicationResponse(BankApplication bankApplication);
 
     List<BankApplicationResponse> toBorrowerApplicationDtoList(List<BankApplication> bankApplications);

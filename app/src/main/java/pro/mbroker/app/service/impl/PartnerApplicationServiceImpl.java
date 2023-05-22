@@ -8,6 +8,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import pro.mbroker.api.dto.request.BorrowerProfileRequest;
 import pro.mbroker.api.dto.request.PartnerApplicationRequest;
 import pro.mbroker.api.dto.response.BankApplicationResponse;
 import pro.mbroker.api.dto.response.PartnerApplicationResponse;
@@ -15,6 +16,7 @@ import pro.mbroker.api.enums.ApplicationStatus;
 import pro.mbroker.app.entity.*;
 import pro.mbroker.app.exception.AccessDeniedException;
 import pro.mbroker.app.exception.ItemNotFoundException;
+import pro.mbroker.app.mapper.BorrowerProfileMapper;
 import pro.mbroker.app.mapper.PartnerApplicationMapper;
 import pro.mbroker.app.repository.*;
 import pro.mbroker.app.service.CalculatorService;
@@ -36,12 +38,14 @@ import java.util.stream.IntStream;
 public class PartnerApplicationServiceImpl implements PartnerApplicationService {
     private final CalculatorService calculatorService;
     private final CurrentUserService currentUserService;
+    private final BorrowerProfileRepository borrowerProfileRepository;
     private final PartnerRepository partnerRepository;
     private final CreditProgramRepository creditProgramRepository;
     private final PartnerApplicationRepository partnerApplicationRepository;
     private final BankApplicationRepository bankApplicationRepository;
     private final RealEstateRepository realEstateRepository;
     private final PartnerApplicationMapper partnerApplicationMapper;
+    private final BorrowerProfileMapper borrowerProfileMapper;
 
 
     @Override
@@ -60,13 +64,25 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
         RealEstate realEstate = realEstateRepository.findById(request.getRealEstateId())
                 .orElseThrow(() -> new ItemNotFoundException(RealEstate.class, request.getRealEstateId()));
         Partner partner = realEstate.getPartner();
+
         PartnerApplication partnerApplication = partnerApplicationMapper.toPartnerApplication(request)
                 .setPartner(partner)
                 .setRealEstate(realEstate);
 
-        List<BankApplication> borrowerApplications = buildBorrowerApplications(request, partnerApplication);
-        partnerApplication.setBankApplications(borrowerApplications);
+        List<BankApplication> bankApplications = buildBorrowerApplications(request, partnerApplication);
+        partnerApplication.setBankApplications(bankApplications);
+        partnerApplicationRepository.save(partnerApplication);
+        partnerApplicationRepository.flush();
+        BorrowerProfileRequest mainBorrower = request.getMainBorrower();
+        BorrowerProfile borrowerProfile1 = borrowerProfileMapper.toBorrowerProfile(mainBorrower);
+        borrowerProfile1.setPartnerApplication(partnerApplication);
+        BorrowerProfile borrowerProfile = borrowerProfileRepository.save(borrowerProfile1);
+
+        bankApplications.forEach(app -> app.setMainBorrower(borrowerProfile));
+        List<BankApplication> bankApplications1 = bankApplicationRepository.saveAll(bankApplications);
+        partnerApplication.getBorrowerProfiles().add(borrowerProfile);
         return partnerApplicationRepository.save(partnerApplication);
+
     }
 
     @Override
@@ -98,7 +114,7 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
     }
 
     @Override
-    public PartnerApplicationResponse getCalculateMortgage(PartnerApplication partnerApplication) {
+    public PartnerApplicationResponse mapToPartnerApplicationResponseWithMortgageSum(PartnerApplication partnerApplication) {
         PartnerApplicationResponse response = partnerApplicationMapper.toPartnerApplicationResponse(partnerApplication);
         List<BankApplication> borrowerApplications = partnerApplication.getBankApplications();
         IntStream.range(0, borrowerApplications.size())
@@ -127,6 +143,13 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
         }
 
         return partnerApplication;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public PartnerApplication getPartnerApplication(UUID partnerApplicationId) {
+        return partnerApplicationRepository.findById(partnerApplicationId)
+                .orElseThrow(() -> new ItemNotFoundException(PartnerApplication.class, partnerApplicationId));
     }
 
     private List<BankApplication> buildBorrowerApplications(PartnerApplicationRequest request, PartnerApplication partnerApplication) {
@@ -175,11 +198,6 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
             log.info("Found {} partner for organization ID: {}", partnerList.size(), organizationId);
         }
         return partnerList;
-    }
-
-    private PartnerApplication getPartnerApplication(UUID partnerApplicationId) {
-        return partnerApplicationRepository.findById(partnerApplicationId)
-                .orElseThrow(() -> new ItemNotFoundException(PartnerApplication.class, partnerApplicationId));
     }
 
     private void checkPermission(Collection<? extends GrantedAuthority> authorities, PartnerApplication partnerApplication) {

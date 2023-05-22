@@ -16,7 +16,7 @@ import javax.persistence.*;
 @Table(name = "borrower_document")
 public class BorrowerDocument extends BaseEntity {
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "borrower_profile_id", referencedColumnName = "id")
     private BorrowerProfile borrowerProfile;
 
@@ -26,9 +26,6 @@ public class BorrowerDocument extends BaseEntity {
     @Enumerated(EnumType.STRING)
     @Column(name = "document_type")
     private DocumentType documentType;
-
-    @Column(name = "phone_number")
-    private String phoneNumber;
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "bank_id", referencedColumnName = "id")

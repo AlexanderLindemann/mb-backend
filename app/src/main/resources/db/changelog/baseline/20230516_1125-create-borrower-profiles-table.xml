@@ -9,20 +9,24 @@
             <column name="id" type="UUID">
                 <constraints nullable="false" primaryKey="true"/>
             </column>
+            <column name="partner_application_id" type="UUID">
+                <constraints nullable="false" foreignKeyName="fk_borrower_profile_partner_application_id"
+                             referencedTableName="partner_application" referencedColumnNames="id"/>
+            </column>
             <column name="first_name" type="VARCHAR(255)">
-                <constraints nullable="false"/>
+                <constraints nullable="true"/>
             </column>
             <column name="last_name" type="VARCHAR(255)">
-                <constraints nullable="false"/>
+                <constraints nullable="true"/>
             </column>
             <column name="middle_name" type="VARCHAR(255)">
                 <constraints nullable="true"/>
             </column>
             <column name="phone_number" type="VARCHAR(20)">
-                <constraints nullable="false"/>
+                <constraints nullable="true"/>
             </column>
             <column name="email" type="VARCHAR(255)">
-                <constraints nullable="false"/>
+                <constraints nullable="true"/>
             </column>
             <column name="created_at" type="TIMESTAMP WITHOUT TIME ZONE" defaultValueComputed="CURRENT_TIMESTAMP">
                 <constraints nullable="false"/>
@@ -51,9 +55,8 @@
             <column name="id" type="UUID">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
-            <column name="borrower_profile_id" type="UUID">
-                <constraints nullable="false" foreignKeyName="fk_borrower_documents_borrower_profile_id"
-                             referencedTableName="borrower_profile" referencedColumnNames="id"/>
+            <column name="borrower_profile_id" type="uuid">
+                <constraints nullable="false"/>
             </column>
             <column name="attachment_id" type="BIGINT"/>
             <column name="document_type" type="VARCHAR(255)"/>
@@ -78,41 +81,23 @@
     <changeSet id="add_main_borrower_bank_application_table" author="a.lindemann">
         <addColumn tableName="bank_application">
             <column name="main_borrower" type="UUID">
-                <constraints nullable="false" foreignKeyName="fk_bank_application_borrower_profile_id"
+                <constraints nullable="true" foreignKeyName="fk_bank_application_borrower_profile_id"
                              referencedTableName="borrower_profile" referencedColumnNames="id"/>
             </column>
         </addColumn>
     </changeSet>
 
-    <changeSet id="create-borrower-table" author="a.lindemann">
-        <createTable tableName="borrower">
-            <column name="partner_application_id" type="UUID">
-                <constraints nullable="false"/>
-            </column>
-            <column name="borrower_profile_id" type="UUID">
-                <constraints nullable="false"/>
-            </column>
-        </createTable>
-        <addPrimaryKey columnNames="partner_application_id,borrower_profile_id"
-                       constraintName="pk_borrower" tableName="borrower"/>
+    <changeSet id="add_borrower_document_foreign_key" author="a.lindemann">
+        <addForeignKeyConstraint constraintName="fk_borrower_document_borrower_profile"
+                                 baseTableName="borrower_documents" baseColumnNames="borrower_profile_id"
+                                 referencedTableName="borrower_profile" referencedColumnNames="id"/>
     </changeSet>
 
-    <changeSet id="add-partner-credit-program-foreign-keys" author="a.lindemann">
-        <addForeignKeyConstraint
-                baseTableName="borrower"
-                baseColumnNames="partner_application_id"
-                referencedTableName="partner_application"
-                referencedColumnNames="id"
-                foreignKeyConstraintName="fk_borrower_partner_application"
-                constraintName="fk_borrower_partner_application"/>
-
-        <addForeignKeyConstraint
-                baseTableName="borrower"
-                baseColumnNames="borrower_profile_id"
-                referencedTableName="borrower_profile"
-                referencedColumnNames="id"
-                foreignKeyConstraintName="fk_borrower_borrower_profile"
-                constraintName="fk_borrower_borrower_profile"/>
+    <changeSet id="add_bank_application_foreign_key" author="a.lindemann">
+        <addForeignKeyConstraint constraintName="fk_bank_application_partner_application"
+                                 baseTableName="bank_application" baseColumnNames="partner_application_id"
+                                 referencedTableName="partner_application" referencedColumnNames="id"/>
     </changeSet>
+
 
 </databaseChangeLog>

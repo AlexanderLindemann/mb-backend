@@ -10,6 +10,8 @@ import pro.mbroker.app.entity.BaseEntity;
 import pro.mbroker.app.entity.PartnerApplication;
 import pro.smartdeal.ng.common.security.service.CurrentUserService;
 
+import java.util.Collection;
+
 @Aspect
 @Component
 @RequiredArgsConstructor
@@ -19,21 +21,29 @@ public class BaseEntityAuditAspect {
 
     @Before("execution(* pro.mbroker.app.repository.*.save(..)) && args(baseEntity, ..)")
     public void beforeSave(BaseEntity baseEntity) {
-        String currentUserToken = currentUserService.getCurrentUserToken();
-        int sdId = extractSdIdFromToken(currentUserToken);
-
-        if (baseEntity.getCreatedBy() == null) {
-            baseEntity.setCreatedBy(sdId);
-        } else {
-            baseEntity.setUpdatedBy(sdId);
-        }
+        setAuditFields(baseEntity);
         if (baseEntity instanceof PartnerApplication) {
             PartnerApplication partnerApplication = (PartnerApplication) baseEntity;
             if (partnerApplication.getBankApplications() != null) {
                 for (BankApplication bankApplication : partnerApplication.getBankApplications()) {
-                    beforeSave(bankApplication);
+                    setAuditFields(bankApplication);
                 }
             }
+        }
+    }
+
+    @Before("execution(* pro.mbroker.app.repository.*.saveAll(..)) && args(entities, ..)")
+    public void beforeSaveAll(Collection<BaseEntity> entities) {
+        entities.forEach(this::beforeSave);
+    }
+
+    private void setAuditFields(BaseEntity baseEntity) {
+        String currentUserToken = currentUserService.getCurrentUserToken();
+        int sdId = extractSdIdFromToken(currentUserToken);
+        if (baseEntity.getCreatedBy() == null) {
+            baseEntity.setCreatedBy(sdId);
+        } else {
+            baseEntity.setUpdatedBy(sdId);
         }
     }
 

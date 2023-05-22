@@ -39,10 +39,16 @@ VALUES ('5fec2326-d92e-11ed-afa1-0242ac120002', 'bfda8d66-d926-11ed-afa1-0242ac1
        ('5fec2326-d92e-11ed-afa1-0242ac120002', '4a8d6fe4-dabe-11ed-afa1-0242ac120002'),
        ('dce73f3e-f2db-11ed-a05b-0242ac120003', '4a8d6fe4-dabe-11ed-afa1-0242ac120002');
 
-INSERT INTO public.partner_application (id, full_name, credit_purpose_type, real_estate_type, real_estate_id, partner_id, created_at, updated_at, created_by, updated_by, is_active)
-VALUES ('5ff4b32c-f967-4cb1-8705-7470a321fe34', 'Петров Илья Владимирович', 'PURCHASE_UNDER_CONSTRUCTION', 'APARTMENT', '2b8850b2-d930-11ed-afa1-0242ac120002', '5fec2326-d92e-11ed-afa1-0242ac120002', '2023-05-05 12:12:22.802637', '2023-05-05 12:12:22.802637', 2966, null, true),
-       ('7addcbef-c1e0-4de1-adeb-377f864efcfa', 'Иванов Иван Иванович', 'PURCHASE_UNDER_CONSTRUCTION', 'APARTMENT', '2b8850b2-d930-11ed-afa1-0242ac120002', 'dce73f3e-f2db-11ed-a05b-0242ac120003', '2023-05-05 12:12:22.802637', '2023-05-05 12:12:22.802637', 2962, null, true);
+INSERT INTO public.partner_application (id, credit_purpose_type, real_estate_type, real_estate_id, partner_id, created_at, updated_at, created_by, updated_by, is_active)
+VALUES ('5ff4b32c-f967-4cb1-8705-7470a321fe34', 'PURCHASE_UNDER_CONSTRUCTION', 'APARTMENT', '2b8850b2-d930-11ed-afa1-0242ac120002', '5fec2326-d92e-11ed-afa1-0242ac120002', '2023-05-05 12:12:22.802637', '2023-05-05 12:12:22.802637', 2966, null, true),
+       ('7addcbef-c1e0-4de1-adeb-377f864efcfa', 'PURCHASE_UNDER_CONSTRUCTION', 'APARTMENT', '2b8850b2-d930-11ed-afa1-0242ac120002', 'dce73f3e-f2db-11ed-a05b-0242ac120003', '2023-05-05 12:12:22.802637', '2023-05-05 12:12:22.802637', 2962, null, true);
 
-INSERT INTO public.borrower_application (id, credit_program_id, application_status, monthly_payment, down_payment, credit_term, overpayment, partner_application_id, created_at, updated_at, created_by, updated_by, is_active)
-VALUES ('3b339aa4-5462-485a-9118-5922cd948566', 'bfda8d66-d926-11ed-afa1-0242ac120002', 'UPLOADING_DOCUMENTS', 60000, 500000, 120, 6000000, '5ff4b32c-f967-4cb1-8705-7470a321fe34', '2023-05-09 14:35:58.039296', '2023-05-09 14:35:58.039296', 2929, null, true);
+INSERT INTO public.borrower_profile (id, partner_application_id, first_name, last_name, middle_name, phone_number, email, created_at, updated_at, created_by, updated_by, is_active)
+VALUES ('1348b508-f476-11ed-a05b-0242ac120003', '5ff4b32c-f967-4cb1-8705-7470a321fe34', 'Ivan', 'Ivanov', 'Ivanovich', '+90000000000', 'test@test.com', '2023-05-17 13:46:26.000000', null, 0, null, true);
+
+INSERT INTO public.bank_application (id, credit_program_id, application_status, monthly_payment, down_payment, credit_term, overpayment, partner_application_id, created_at, updated_at, created_by, updated_by, is_active, main_borrower)
+VALUES ('3b339aa4-5462-485a-9118-5922cd948566', 'bfda8d66-d926-11ed-afa1-0242ac120002', 'UPLOADING_DOCUMENTS', 60000, 500000, 120, 6000000, '5ff4b32c-f967-4cb1-8705-7470a321fe34', '2023-05-09 14:35:58.039296', '2023-05-09 14:35:58.039296', 2929, null, true, '1348b508-f476-11ed-a05b-0242ac120003');
+
+INSERT INTO public.bank_application (id, credit_program_id, application_status, monthly_payment, down_payment, credit_term, overpayment, partner_application_id, created_at, updated_at, created_by, updated_by, is_active, real_estate_price, main_borrower)
+VALUES ('f5cdbc9c-f53f-11ed-a05b-0242ac120003', 'bfda8d66-d926-11ed-afa1-0242ac120002', 'UPLOADING_DOCUMENTS', 60000, 500000, 120, 6000000, '5ff4b32c-f967-4cb1-8705-7470a321fe34', '2023-05-09 14:35:58.039296', '2023-05-09 14:35:58.039296', 2929, null, true, 10000000, null);
 

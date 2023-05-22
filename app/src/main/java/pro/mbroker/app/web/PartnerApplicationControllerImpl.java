@@ -26,7 +26,7 @@ public class PartnerApplicationControllerImpl implements PartnerApplicationContr
     public List<PartnerApplicationResponse> getAllPartnerApplication(int page, int size, String sortBy, String sortOrder) {
         return partnerApplicationService.getAllPartnerApplication(page, size, sortBy, sortOrder)
                 .stream()
-                .map(partnerApplicationService::getCalculateMortgage)
+                .map(partnerApplicationService::mapToPartnerApplicationResponseWithMortgageSum)
                 .collect(Collectors.toList());
     }
 
@@ -42,13 +42,14 @@ public class PartnerApplicationControllerImpl implements PartnerApplicationContr
     @Override
     public PartnerApplicationResponse createPartnerApplication(PartnerApplicationRequest request) {
         PartnerApplication partnerApplication = partnerApplicationService.createPartnerApplication(request);
-        return partnerApplicationService.getCalculateMortgage(partnerApplication);
+        PartnerApplicationResponse partnerApplicationResponse = partnerApplicationService.mapToPartnerApplicationResponseWithMortgageSum(partnerApplication);
+        return partnerApplicationResponse;
     }
 
     @Override
     public PartnerApplicationResponse updatePartnerApplication(UUID partnerApplicationId, PartnerApplicationRequest request) {
         PartnerApplication partnerApplication = partnerApplicationService.updatePartnerApplication(partnerApplicationId, request);
-        return partnerApplicationService.getCalculateMortgage(partnerApplication);
+        return partnerApplicationService.mapToPartnerApplicationResponseWithMortgageSum(partnerApplication);
     }
 
     @Override

@@ -3,6 +3,7 @@ package pro.mbroker.api.dto.response;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import pro.mbroker.api.dto.request.BorrowerProfileRequest;
 import pro.mbroker.api.enums.CreditPurposeType;
 import pro.mbroker.api.enums.RealEstateType;
 
@@ -22,4 +23,6 @@ public class PartnerApplicationResponse {
     private RealEstateResponse realEstate;
 
     private List<BankApplicationResponse> bankApplications;
+
+    private List<BorrowerProfileRequest> borrowerProfiles;
 }

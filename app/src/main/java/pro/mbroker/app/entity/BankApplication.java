@@ -8,7 +8,6 @@ import pro.mbroker.api.enums.ApplicationStatus;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
-import java.util.UUID;
 
 @Entity
 @Getter
@@ -22,8 +21,9 @@ public class BankApplication extends BaseEntity {
     @JoinColumn(name = "credit_program_id", referencedColumnName = "id")
     private CreditProgram creditProgram;
 
-    @Column(name = "main_borrower")
-    private UUID mainBorrower;
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "main_borrower", referencedColumnName = "id")
+    private BorrowerProfile mainBorrower;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "application_status")
@@ -44,7 +44,7 @@ public class BankApplication extends BaseEntity {
     @Column(name = "overpayment")
     private BigDecimal overpayment;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
     @JoinColumn(name = "partner_application_id", nullable = false)
     private PartnerApplication partnerApplication;
 }

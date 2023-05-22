@@ -38,10 +38,6 @@ public class PartnerApplication extends BaseEntity {
     @OneToMany(mappedBy = "partnerApplication", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<BankApplication> bankApplications;
 
-    @ManyToMany
-    @JoinTable(
-            name = "borrower",
-            joinColumns = @JoinColumn(name = "partner_application_id"),
-            inverseJoinColumns = @JoinColumn(name = "borrower_profile_id"))
+    @OneToMany(mappedBy = "partnerApplication", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<BorrowerProfile> borrowerProfiles = new ArrayList<>();
 }

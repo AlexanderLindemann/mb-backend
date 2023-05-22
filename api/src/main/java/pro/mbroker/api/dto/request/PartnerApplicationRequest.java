@@ -14,8 +14,6 @@ import java.util.UUID;
 @ToString
 public class PartnerApplicationRequest {
 
-    private String borrowerFullName;
-
     private CreditPurposeType creditPurposeType;
 
     private RealEstateType realEstateType;
@@ -23,4 +21,6 @@ public class PartnerApplicationRequest {
     private UUID realEstateId;
 
     private List<BankApplicationRequest> bankApplications;
+
+    private BorrowerProfileRequest mainBorrower;
 }

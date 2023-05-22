@@ -5,9 +5,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Table;
+import javax.persistence.*;
+import java.util.List;
 
 @Entity
 @Getter
@@ -30,6 +29,12 @@ public class BorrowerProfile extends BaseEntity {
     private String phoneNumber;
 
     @Column(name = "email")
-    private Integer email;
+    private String email;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "partner_application_id", referencedColumnName = "id")
+    private PartnerApplication partnerApplication;
+
+    @OneToMany(mappedBy = "borrowerProfile", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<BorrowerDocument> borrowerDocument;
 }
