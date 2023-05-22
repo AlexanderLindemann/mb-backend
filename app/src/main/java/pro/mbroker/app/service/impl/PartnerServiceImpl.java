@@ -82,7 +82,7 @@ public class PartnerServiceImpl implements PartnerService {
                 .extractSdCurrentOrganizationId(currentUserService.getCurrentUserToken());
         Specification<Partner> specification = PartnerSpecification.partnerByOrganizationIdAndIsActive(organizationId);
         return partnerRepository.findOne(specification)
-                .orElseThrow(() -> new ItemNotFoundException(Partner.class, "organization_Id:" + String.valueOf(organizationId)));
+                .orElseThrow(() -> new ItemNotFoundException(Partner.class, "organization_Id:" + organizationId));
     }
 
     @Override
