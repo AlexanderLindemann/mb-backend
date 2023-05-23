@@ -33,7 +33,7 @@ public class AttachmentServiceImpl implements AttachmentService {
 
     @Override
     public MultipartFile download(Long attachmentId) {
-        Attachment attachment = attachmentRepository.findById(attachmentId)
+        Attachment attachment = attachmentRepository.findAttachmentByExternalStorageId(attachmentId)
                 .orElseThrow(() -> new ItemNotFoundException(Attachment.class, attachmentId));
         return attachmentService.download(attachment.getExternalStorageId());
     }
