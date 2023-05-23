@@ -11,7 +11,7 @@ import java.util.UUID;
 
 @Api(value = "API Профилей заемщика", tags = "API Профилей заемщика")
 @RestController
-@RequestMapping("/public/borrower_profil")
+@RequestMapping("/public/borrower_profile")
 public interface BorrowerApplicationController {
     @ApiOperation("Дополнить или обновить банковскую заявку")
     @PostMapping("/bank_application")

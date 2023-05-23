@@ -12,7 +12,7 @@ import java.util.UUID;
 
 @Api(value = "API Банковской Заявки", tags = "API Банковской Заявки")
 @RestController
-@RequestMapping("/public/bank_application")
+@RequestMapping("/public/v1/bank_application")
 public interface BankApplicationController {
 
     @ApiOperation("получить банковскую заявку по id")

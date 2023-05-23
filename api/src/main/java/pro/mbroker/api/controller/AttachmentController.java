@@ -20,6 +20,6 @@ public interface AttachmentController {
     Long upload(@RequestPart("file") MultipartFile file);
 
     @ApiOperation("Загрузить документ клиента")
-    @PostMapping("/document")
+    @PostMapping("/upload")
     BorrowerDocumentResponse uploadDocument(@RequestBody BorrowerDocumentRequest documentDto);
 }
