@@ -33,17 +33,23 @@ public class BorrowerProfileServiceImpl implements BorrowerProfileService {
     @Override
     @Transactional
     public BorrowerResponse createOrUpdateBorrowerApplication(BorrowerRequest request) {
-        BorrowerResponse borrowerResponse = new BorrowerResponse();
         BankApplication bankApplication = bankApplicationService.getBankApplicationById(request.getId());
         PartnerApplication partnerApplication = bankApplication.getPartnerApplication();
+        List<BorrowerProfile> borrowerProfilesToSave = new ArrayList<>();
         if (Objects.nonNull(request.getCoBorrower())) {
-            borrowerResponse.setCoBorrower(saveCoBorrowers(partnerApplication, request.getCoBorrower()));
+            List<BorrowerProfile> coBorrowerProfiles = request.getCoBorrower().stream()
+                    .map(borrower -> prepareBorrowerProfile(partnerApplication, borrower))
+                    .collect(Collectors.toList());
+            borrowerProfilesToSave.addAll(coBorrowerProfiles);
         }
         if (Objects.nonNull(request.getMainBorrower())) {
-            borrowerResponse.setMainBorrower(saveOrUpdateBorrowerProfile(partnerApplication, request.getMainBorrower()));
+            BorrowerProfile mainBorrowerProfile = prepareBorrowerProfile(partnerApplication, request.getMainBorrower());
+            borrowerProfilesToSave.add(mainBorrowerProfile);
         }
+        borrowerProfileRepository.saveAll(borrowerProfilesToSave);
         return getBorrowersByPartnerApplicationId(request.getId());
     }
+
 
     @Override
     @Transactional(readOnly = true)
@@ -75,20 +81,24 @@ public class BorrowerProfileServiceImpl implements BorrowerProfileService {
     @Override
     @Transactional
     public BorrowerResponse createOrUpdateGenericBorrowerApplication(BorrowerRequest request) {
-        BorrowerResponse borrowerResponse = new BorrowerResponse();
         PartnerApplication partnerApplication = partnerApplicationService.getPartnerApplication(request.getId());
+        List<BorrowerProfile> borrowerProfilesToSave = new ArrayList<>();
         if (Objects.nonNull(request.getCoBorrower())) {
-            borrowerResponse.setCoBorrower(saveCoBorrowers(partnerApplication, request.getCoBorrower()));
+            List<BorrowerProfile> coBorrowerProfiles = request.getCoBorrower().stream()
+                    .map(borrower -> prepareBorrowerProfile(partnerApplication, borrower))
+                    .collect(Collectors.toList());
+            borrowerProfilesToSave.addAll(coBorrowerProfiles);
         }
         if (Objects.nonNull(request.getMainBorrower())) {
-            borrowerResponse.setMainBorrower(saveOrUpdateBorrowerProfile(partnerApplication, request.getMainBorrower()));
+            BorrowerProfile mainBorrowerProfile = prepareBorrowerProfile(partnerApplication, request.getMainBorrower());
+            borrowerProfilesToSave.add(mainBorrowerProfile);
         }
+        borrowerProfileRepository.saveAll(borrowerProfilesToSave);
         return getBorrowersByPartnerApplicationId(request.getId());
     }
 
-    private BorrowerProfileResponse saveOrUpdateBorrowerProfile(PartnerApplication partnerApplication, BorrowerProfileRequest borrower) {
+    private BorrowerProfile prepareBorrowerProfile(PartnerApplication partnerApplication, BorrowerProfileRequest borrower) {
         BorrowerProfile borrowerProfile;
-
         if (borrower.getId() != null) {
             borrowerProfile = borrowerProfileRepository.findById(borrower.getId())
                     .map(existingBorrowerProfile -> {
@@ -105,13 +115,8 @@ public class BorrowerProfileServiceImpl implements BorrowerProfileService {
             borrowerProfile.setPartnerApplication(partnerApplication);
         }
 
-        BorrowerProfile savedBorrowerProfile = borrowerProfileRepository.save(borrowerProfile);
-        return borrowerProfileMapper.toBorrowerProfileResponse(savedBorrowerProfile);
+        return borrowerProfile;
     }
 
-    private List<BorrowerProfileResponse> saveCoBorrowers(PartnerApplication partnerApplication, List<BorrowerProfileRequest> borrowers) {
-        return borrowers.stream()
-                .map(borrower -> saveOrUpdateBorrowerProfile(partnerApplication, borrower))
-                .collect(Collectors.toList());
-    }
+
 }

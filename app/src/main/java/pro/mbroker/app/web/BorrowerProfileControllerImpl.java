@@ -25,8 +25,7 @@ public class BorrowerProfileControllerImpl implements BorrowerApplicationControl
 
     @Override
     public BorrowerResponse createOrUpdateGenericBorrowerApplication(BorrowerRequest request) {
-        BorrowerResponse borrowerApplication = borrowerProfileService.createOrUpdateGenericBorrowerApplication(request);
-        return null;
+        return borrowerProfileService.createOrUpdateGenericBorrowerApplication(request);
     }
 
     @Override
