@@ -12,8 +12,8 @@ import java.util.UUID;
 @Setter
 @ToString
 public class BorrowerRequest {
-    @NonNull
-    private UUID bankApplicationId;
+
+    private UUID id;
 
     private BorrowerProfileRequest mainBorrower;
 

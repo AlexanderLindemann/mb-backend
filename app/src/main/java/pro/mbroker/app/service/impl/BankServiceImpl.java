@@ -28,7 +28,6 @@ import java.util.UUID;
 public class BankServiceImpl implements BankService {
 
     private final BankRepository bankRepository;
-    private final AttachmentRepository attachmentRepository;
     private final AttachmentService attachmentService;
     private static final int ORDER_STEP = 10;
 
@@ -59,8 +58,7 @@ public class BankServiceImpl implements BankService {
     @Transactional(readOnly = true)
     public MultipartFile getLogoBankById(UUID bankId) {
         Bank bank = getBank(bankId);
-        Attachment attachment = attachmentRepository.findById(bank.getLogoAttachmentId())
-                .orElseThrow(() -> new ItemNotFoundException(Bank.class, bank.getLogoAttachmentId()));
+        Attachment attachment = attachmentService.getAttachmentById(bank.getLogoAttachmentId());
         return attachmentService.download(attachment.getExternalStorageId());
     }
 

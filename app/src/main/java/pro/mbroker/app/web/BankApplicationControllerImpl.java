@@ -24,7 +24,7 @@ public class BankApplicationControllerImpl implements BankApplicationController 
     public BankApplicationResponse getBankApplicationById(UUID bankApplicationId) {
         BankApplication bankApplication = bankApplicationService.getBankApplicationById(bankApplicationId);
         BankApplicationResponse bankApplicationResponse = bankApplicationMapper.toBankApplicationResponse(bankApplication);
-        bankApplicationResponse.setCoBorrowers(borrowerProfileService.getBorrowersByBankApplicationId(bankApplicationId).getCoBorrower());
+        bankApplicationResponse.setCoBorrowers(borrowerProfileService.getBorrowersByPartnerApplicationId(bankApplicationId).getCoBorrower());
         return bankApplicationResponse;
     }
 }

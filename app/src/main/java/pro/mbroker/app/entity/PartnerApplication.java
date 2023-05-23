@@ -35,8 +35,9 @@ public class PartnerApplication extends BaseEntity {
     @JoinColumn(name = "real_estate_id", referencedColumnName = "id")
     private RealEstate realEstate;
 
-    @OneToMany(mappedBy = "partnerApplication", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private List<BankApplication> bankApplications;
+    @OneToMany(mappedBy = "partnerApplication", cascade = CascadeType.ALL)
+    private List<BankApplication> bankApplications = new ArrayList<>();
+
 
     @OneToMany(mappedBy = "partnerApplication", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<BorrowerProfile> borrowerProfiles = new ArrayList<>();

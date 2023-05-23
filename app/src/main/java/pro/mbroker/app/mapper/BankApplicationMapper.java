@@ -5,6 +5,7 @@ import org.mapstruct.Mapping;
 import org.mapstruct.Named;
 import pro.mbroker.api.dto.request.BankApplicationRequest;
 import pro.mbroker.api.dto.response.BankApplicationResponse;
+import pro.mbroker.api.enums.ApplicationStatus;
 import pro.mbroker.app.entity.BankApplication;
 
 import java.util.List;
@@ -39,4 +40,17 @@ public interface BankApplicationMapper {
     @Named("toBankApplicationList")
     @Mapping(target = "id", ignore = true)
     List<BankApplication> toBankApplicationList(List<BankApplicationRequest> dtos);
+
+    default BankApplication updateBankApplicationFromRequest(BankApplication existing, BankApplicationRequest request) {
+        if (existing == null) {
+            existing = new BankApplication();
+        }
+        existing.setApplicationStatus(ApplicationStatus.UPLOADING_DOCUMENTS);
+        existing.setMonthlyPayment(request.getMonthlyPayment());
+        existing.setRealEstatePrice(request.getRealEstatePrice());
+        existing.setDownPayment(request.getDownPayment());
+        existing.setMonthCreditTerm(request.getMonthCreditTerm());
+        existing.setOverpayment(request.getOverpayment());
+        return existing;
+    }
 }

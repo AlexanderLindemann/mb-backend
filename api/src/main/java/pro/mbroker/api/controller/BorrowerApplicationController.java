@@ -9,15 +9,19 @@ import pro.mbroker.api.dto.response.BorrowerResponse;
 
 import java.util.UUID;
 
-@Api(value = "API Профилей клиента", tags = "API Профилей клиента")
+@Api(value = "API Профилей заемщика", tags = "API Профилей заемщика")
 @RestController
 @RequestMapping("/public/borrower_profil")
 public interface BorrowerApplicationController {
     @ApiOperation("Дополнить или обновить банковскую заявку")
-    @PostMapping()
+    @PostMapping("/bank_application")
     BorrowerResponse createOrUpdateBorrowerApplication(@ApiParam(value = "Параметры заемщиков") @RequestBody BorrowerRequest request);
 
-    @ApiOperation("получить профили клиентов по id банковской заявки")
-    @GetMapping("/{bankApplicationId}")
-    BorrowerResponse getBorrowersByBankApplicationId(@PathVariable UUID bankApplicationId);
+    @ApiOperation("Дополнить или обновить обобщенную банковскую заявку")
+    @PostMapping("/partner_application")
+    BorrowerResponse createOrUpdateGenericBorrowerApplication(@ApiParam(value = "Параметры заемщиков") @RequestBody BorrowerRequest request);
+
+    @ApiOperation("получить обобщенный профиль клиента по id заявки партнера")
+    @GetMapping("/{partnerApplicationId}")
+    BorrowerResponse getBorrowersByPartnerApplicationId(@PathVariable UUID partnerApplicationId);
 }

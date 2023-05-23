@@ -7,6 +7,7 @@ import org.aspectj.lang.annotation.Before;
 import org.springframework.stereotype.Component;
 import pro.mbroker.app.entity.BankApplication;
 import pro.mbroker.app.entity.BaseEntity;
+import pro.mbroker.app.entity.BorrowerProfile;
 import pro.mbroker.app.entity.PartnerApplication;
 import pro.smartdeal.ng.common.security.service.CurrentUserService;
 
@@ -29,8 +30,14 @@ public class BaseEntityAuditAspect {
                     setAuditFields(bankApplication);
                 }
             }
+            if (partnerApplication.getBorrowerProfiles() != null) {
+                for (BorrowerProfile borrowerProfile : partnerApplication.getBorrowerProfiles()) {
+                    setAuditFields(borrowerProfile);
+                }
+            }
         }
     }
+
 
     @Before("execution(* pro.mbroker.app.repository.*.saveAll(..)) && args(entities, ..)")
     public void beforeSaveAll(Collection<BaseEntity> entities) {

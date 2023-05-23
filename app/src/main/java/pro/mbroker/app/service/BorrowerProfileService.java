@@ -10,7 +10,9 @@ public interface BorrowerProfileService {
 
     BorrowerResponse createOrUpdateBorrowerApplication(BorrowerRequest request);
 
-    BorrowerResponse getBorrowersByBankApplicationId(UUID bankApplicationId);
+    BorrowerResponse getBorrowersByPartnerApplicationId(UUID partnerApplicationId);
 
     BorrowerProfile getBorrowerProfile(UUID borrowerProfileId);
+
+    BorrowerResponse createOrUpdateGenericBorrowerApplication(BorrowerRequest request);
 }

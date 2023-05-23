@@ -24,7 +24,13 @@ public class BorrowerProfileControllerImpl implements BorrowerApplicationControl
     }
 
     @Override
-    public BorrowerResponse getBorrowersByBankApplicationId(UUID bankApplicationId) {
-        return  borrowerProfileService.getBorrowersByBankApplicationId(bankApplicationId);
+    public BorrowerResponse createOrUpdateGenericBorrowerApplication(BorrowerRequest request) {
+        BorrowerResponse borrowerApplication = borrowerProfileService.createOrUpdateGenericBorrowerApplication(request);
+        return null;
+    }
+
+    @Override
+    public BorrowerResponse getBorrowersByPartnerApplicationId(UUID partnerApplicationId) {
+        return borrowerProfileService.getBorrowersByPartnerApplicationId(partnerApplicationId);
     }
 }

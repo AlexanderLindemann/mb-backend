@@ -30,4 +30,16 @@ public interface PartnerApplicationMapper {
 
     @Mapping(target = "id", ignore = true)
     void updatePartnerApplication(PartnerApplication update, @MappingTarget PartnerApplication exist);
+
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "partner", ignore = true)
+    @Mapping(target = "realEstate", ignore = true)
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "updatedAt", ignore = true)
+    @Mapping(target = "createdBy", ignore = true)
+    @Mapping(target = "updatedBy", ignore = true)
+    @Mapping(target = "active", ignore = true)
+    @Mapping(target = "borrowerProfiles", ignore = true)
+    void updatePartnerApplicationFromRequest(PartnerApplicationRequest request, @MappingTarget PartnerApplication partnerApplication);
+
 }
