@@ -18,8 +18,11 @@ public class Bank extends BaseEntity {
 
     @Column(name = "name", nullable = false)
     private String name;
-    @Column(name = "logo_attachment_id")
-    private Long logoAttachmentId;
+
+    @OneToOne
+    @JoinColumn(name = "attachment_id", referencedColumnName = "id")
+    private Attachment attachment;
+
     @Column(name = "order_number")
     private Integer orderNumber;
 

@@ -10,7 +10,6 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-import pro.mbroker.app.entity.Attachment;
 import pro.mbroker.app.entity.Bank;
 import pro.mbroker.app.exception.ItemNotFoundException;
 import pro.mbroker.app.repository.AttachmentRepository;
@@ -28,7 +27,6 @@ import java.util.UUID;
 public class BankServiceImpl implements BankService {
 
     private final BankRepository bankRepository;
-    private final AttachmentRepository attachmentRepository;
     private final AttachmentService attachmentService;
     private static final int ORDER_STEP = 10;
 
@@ -59,16 +57,14 @@ public class BankServiceImpl implements BankService {
     @Transactional(readOnly = true)
     public MultipartFile getLogoBankById(UUID bankId) {
         Bank bank = getBank(bankId);
-        Attachment attachment = attachmentRepository.findById(bank.getLogoAttachmentId())
-                .orElseThrow(() -> new ItemNotFoundException(Bank.class, bank.getLogoAttachmentId()));
-        return attachmentService.download(attachment.getExternalStorageId());
+        return attachmentService.download(bank.getAttachment().getExternalStorageId());
     }
 
     @Override
     @Transactional
     public Bank updateLogo(UUID bankId, MultipartFile logo) {
         Bank bank = getBank(bankId);
-        bank.setLogoAttachmentId(attachmentService.upload(logo));
+        bank.setAttachment(attachmentService.upload(logo));
         return bankRepository.save(bank);
     }
 
