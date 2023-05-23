@@ -1,24 +1,17 @@
 package pro.mbroker.app.entity;
 
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import org.springframework.data.annotation.CreatedDate;
 
-import javax.persistence.*;
-import java.time.ZonedDateTime;
+import javax.persistence.Column;
+import javax.persistence.Entity;
 
 @Entity
 @Getter
 @Setter
 @ToString
-@EqualsAndHashCode(of = "id")
-public class Attachment {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+public class Attachment extends BaseEntity {
 
     @Column
     private String name;
@@ -34,9 +27,5 @@ public class Attachment {
 
     @Column(name = "external_storage_id")
     private long externalStorageId;
-
-    @CreatedDate
-    @Column(name = "created_at")
-    private ZonedDateTime createdAt;
 
 }
