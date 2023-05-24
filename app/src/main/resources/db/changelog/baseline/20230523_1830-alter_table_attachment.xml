@@ -1,0 +1,43 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <changeSet id="alter_table_attachment" author="a.lindemann">
+        <addColumn tableName="attachment">
+            <column name="new_id" type="uuid"/>
+            <column name="mime_type" type="varchar(255)"/>
+            <column name="content_md5" type="varchar(255)"/>
+            <column name="created_by" type="integer"/>
+            <column name="updated_at" type="timestamptz"/>
+            <column name="updated_by" type="integer"/>
+            <column name="is_active" type="boolean" defaultValueBoolean="true"/>
+        </addColumn>
+        <dropForeignKeyConstraint baseTableName="profile_attachment"
+                                  constraintName="profile_attachment_attachment_id_fk_const"/>
+        <dropColumn columnName="id" tableName="attachment"/>
+        <renameColumn newColumnName="id" oldColumnName="new_id" tableName="attachment" columnDataType="uuid"/>
+        <addUniqueConstraint columnNames="id" constraintName="unique_id_constraint" tableName="attachment"/>
+        <addColumn tableName="profile_attachment">
+            <column name="new_attachment_id" type="uuid"/>
+        </addColumn>
+        <dropColumn columnName="attachment_id" tableName="profile_attachment"/>
+        <renameColumn newColumnName="attachment_id" oldColumnName="new_attachment_id" tableName="profile_attachment"
+                      columnDataType="uuid"/>
+        <addForeignKeyConstraint baseTableName="profile_attachment" baseColumnNames="attachment_id"
+                                 constraintName="profile_attachment_attachment_id_fk_const"
+                                 referencedTableName="attachment" referencedColumnNames="id"/>
+    </changeSet>
+
+    <changeSet id="update_bank_table_add_logo" author="a.lindemann">
+        <addColumn tableName="bank">
+            <column name="attachment_id" type="uuid"/>
+        </addColumn>
+        <addForeignKeyConstraint constraintName="fk_bank_attachment" baseTableName="bank"
+                                 baseColumnNames="attachment_id"
+                                 referencedTableName="attachment"
+                                 referencedColumnNames="id"/>
+    </changeSet>
+
+</databaseChangeLog>

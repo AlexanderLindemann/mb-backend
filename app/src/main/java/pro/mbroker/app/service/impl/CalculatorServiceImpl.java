@@ -102,7 +102,8 @@ public class CalculatorServiceImpl implements CalculatorService {
                 creditProgram.getCreditParameter().getMaxCreditTerm() >= creditTermMonths &&
                 downPaymentPercentage >= (creditProgram.getCreditParameter().getMinDownPayment()) &&
                 downPaymentPercentage <= (creditProgram.getCreditParameter().getMaxDownPayment()) &&
-                isRegionEligible(request, creditProgram);
+                isRegionEligible(request, creditProgram) &&
+                isMaternalCapital(request, creditProgram);
     }
 
     @Override
@@ -143,5 +144,9 @@ public class CalculatorServiceImpl implements CalculatorService {
                 .flatMap(enumDescription -> enumDescription.getValues().stream())
                 .map(EnumItemDescription::getCode)
                 .anyMatch(code -> code.equals(realEstate.getRegion().getValue()));
+    }
+
+    private boolean isMaternalCapital(CalculatorRequest request, CreditProgram creditProgram) {
+        return creditProgram.getCreditParameter().getIsMaternalCapital().equals(request.getIsMaternalCapital());
     }
 }

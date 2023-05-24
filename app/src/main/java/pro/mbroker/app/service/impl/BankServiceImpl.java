@@ -10,10 +10,9 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-import pro.mbroker.app.entity.Attachment;
 import pro.mbroker.app.entity.Bank;
+import pro.mbroker.app.entity.BankContact;
 import pro.mbroker.app.exception.ItemNotFoundException;
-import pro.mbroker.app.repository.AttachmentRepository;
 import pro.mbroker.app.repository.BankRepository;
 import pro.mbroker.app.repository.specification.BankSpecification;
 import pro.mbroker.app.service.AttachmentService;
@@ -21,6 +20,7 @@ import pro.mbroker.app.service.BankService;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -59,14 +59,14 @@ public class BankServiceImpl implements BankService {
     public MultipartFile getLogoBankById(UUID bankId) {
         Bank bank = getBank(bankId);
         Attachment attachment = attachmentService.getAttachmentById(bank.getLogoAttachmentId());
-        return attachmentService.download(attachment.getExternalStorageId());
+        return attachmentService.download(bank.getAttachment().getExternalStorageId());
     }
 
     @Override
     @Transactional
     public Bank updateLogo(UUID bankId, MultipartFile logo) {
         Bank bank = getBank(bankId);
-        bank.setLogoAttachmentId(attachmentService.upload(logo));
+        bank.setAttachment(attachmentService.upload(logo));
         return bankRepository.save(bank);
     }
 
@@ -78,7 +78,15 @@ public class BankServiceImpl implements BankService {
         Pageable pageable = PageRequest.of(page, size, sort);
         Specification<Bank> specification = BankSpecification.isActive();
         Page<Bank> bankPage = bankRepository.findAll(specification, pageable);
-        return bankPage.getContent();
+        List<Bank> banks = bankPage.getContent();
+        for (Bank bank : banks) {
+            List<BankContact> activeContacts = bank.getContacts()
+                    .stream()
+                    .filter(BankContact::isActive)
+                    .collect(Collectors.toList());
+            bank.setContacts(activeContacts);
+        }
+        return banks;
     }
 
     @Override
@@ -96,7 +104,9 @@ public class BankServiceImpl implements BankService {
 
     private Bank getIsActiveBank(UUID bankId) {
         Specification<Bank> specification = BankSpecification.bankByIdAndIsActive(bankId);
-        return bankRepository.findOne(specification)
+        Bank bank = bankRepository.findOne(specification)
                 .orElseThrow(() -> new ItemNotFoundException(Bank.class, bankId));
+        bank.setContacts(bank.getContacts().stream().filter(BankContact::isActive).collect(Collectors.toList()));
+        return bank;
     }
 }

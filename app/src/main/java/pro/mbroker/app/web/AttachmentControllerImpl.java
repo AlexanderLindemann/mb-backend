@@ -20,7 +20,7 @@ public class AttachmentControllerImpl implements AttachmentController {
 
     @Override
     public Long upload(MultipartFile file) {
-        return attachmentService.upload(file);
+        return attachmentService.upload(file).getExternalStorageId();
     }
 
     @Override

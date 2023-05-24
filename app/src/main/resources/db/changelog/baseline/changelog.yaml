@@ -39,5 +39,8 @@ databaseChangeLog:
       file: 20230518_1900-add-unique-constraint-to-smart_deal_organization_id.xml
       relativeToChangelogFile: true
   - include:
+      file: 20230523_1830-alter_table_attachment.xml
+      relativeToChangelogFile: true
+  - include:
       file: 20230516_1125-create-borrower-profiles-table.xml
       relativeToChangelogFile: true
