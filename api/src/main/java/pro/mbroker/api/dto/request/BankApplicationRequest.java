@@ -10,7 +10,7 @@ import java.util.UUID;
 @Getter
 @Setter
 @ToString
-public class BorrowerApplicationRequest {
+public class BankApplicationRequest {
 
     private UUID id;
 

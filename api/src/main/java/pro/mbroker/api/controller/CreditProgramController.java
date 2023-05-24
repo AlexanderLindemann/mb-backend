@@ -11,7 +11,7 @@ import javax.validation.Valid;
 import java.util.List;
 import java.util.UUID;
 
-@Api(value = "API программы кредита", tags = "API программы кредита")
+@Api(value = "API Программы кредита", tags = "API Программы кредита")
 @RestController
 @RequestMapping("/public/credit_program")
 public interface CreditProgramController {

@@ -9,7 +9,7 @@ import pro.mbroker.app.entity.PartnerApplication;
 
 import java.util.List;
 
-@Mapper(config = ProgramMapperConfig.class, uses = {RealEstateMapper.class, BorrowerApplicationMapper.class})
+@Mapper(config = ProgramMapperConfig.class, uses = {RealEstateMapper.class, BankApplicationMapper.class})
 public interface PartnerApplicationMapper {
 
     PartnerApplicationResponse toPartnerApplicationResponse(PartnerApplication partnerApplication);
@@ -24,9 +24,22 @@ public interface PartnerApplicationMapper {
     @Mapping(target = "createdBy", ignore = true)
     @Mapping(target = "updatedBy", ignore = true)
     @Mapping(target = "active", ignore = true)
-    @Mapping(target = "borrowerApplications", source = "borrowerApplications", qualifiedByName = "toBorrowerApplicationList")
+    @Mapping(target = "borrowerProfiles", ignore = true)
+    @Mapping(target = "bankApplications", source = "bankApplications", qualifiedByName = "toBankApplicationList")
     PartnerApplication toPartnerApplication(PartnerApplicationRequest request);
 
     @Mapping(target = "id", ignore = true)
     void updatePartnerApplication(PartnerApplication update, @MappingTarget PartnerApplication exist);
+
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "partner", ignore = true)
+    @Mapping(target = "realEstate", ignore = true)
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "updatedAt", ignore = true)
+    @Mapping(target = "createdBy", ignore = true)
+    @Mapping(target = "updatedBy", ignore = true)
+    @Mapping(target = "active", ignore = true)
+    @Mapping(target = "borrowerProfiles", ignore = true)
+    void updatePartnerApplicationFromRequest(PartnerApplicationRequest request, @MappingTarget PartnerApplication partnerApplication);
+
 }

@@ -41,3 +41,6 @@ databaseChangeLog:
   - include:
       file: 20230523_1830-alter_table_attachment.xml
       relativeToChangelogFile: true
+  - include:
+      file: 20230516_1125-create-borrower-profiles-table.xml
+      relativeToChangelogFile: true

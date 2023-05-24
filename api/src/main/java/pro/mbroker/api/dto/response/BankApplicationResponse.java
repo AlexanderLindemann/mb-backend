@@ -7,17 +7,20 @@ import pro.mbroker.api.enums.ApplicationStatus;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Getter
 @Setter
 @ToString
-public class BorrowerApplicationResponse {
+public class BankApplicationResponse {
     private UUID id;
 
-    private String bankName;
+    private UUID creditProgramId;
 
-    private String creditProgramName;
+    private BorrowerProfileResponse mainBorrower;
+
+    private List<BorrowerProfileResponse> coBorrowers;
 
     private ApplicationStatus applicationStatus;
 

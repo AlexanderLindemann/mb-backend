@@ -13,4 +13,8 @@ public class ItemNotFoundException extends RestException {
     public ItemNotFoundException(@NonNull Class<?> itemClass, @NonNull UUID id) {
         super(itemClass.getSimpleName() + " with Id=" + id + " not found or was deleted");
     }
+
+    public ItemNotFoundException(@NonNull Class<?> itemClass, @NonNull String msg) {
+        super(StringUtils.capitalize(itemClass.getSimpleName()) + msg);
+    }
 }

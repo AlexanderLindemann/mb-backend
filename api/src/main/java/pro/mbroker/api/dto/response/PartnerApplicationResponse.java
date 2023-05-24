@@ -3,6 +3,7 @@ package pro.mbroker.api.dto.response;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import pro.mbroker.api.dto.request.BorrowerProfileRequest;
 import pro.mbroker.api.enums.CreditPurposeType;
 import pro.mbroker.api.enums.RealEstateType;
 
@@ -15,13 +16,13 @@ import java.util.UUID;
 public class PartnerApplicationResponse {
     private UUID id;
 
-    private String borrowerFullName;
-
     private CreditPurposeType creditPurposeType;
 
     private RealEstateType realEstateType;
 
     private RealEstateResponse realEstate;
 
-    private List<BorrowerApplicationResponse> borrowerApplications;
+    private List<BankApplicationResponse> bankApplications;
+
+    private List<BorrowerProfileRequest> borrowerProfiles;
 }

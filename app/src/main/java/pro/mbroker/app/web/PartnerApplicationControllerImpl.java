@@ -26,7 +26,7 @@ public class PartnerApplicationControllerImpl implements PartnerApplicationContr
     public List<PartnerApplicationResponse> getAllPartnerApplication(int page, int size, String sortBy, String sortOrder) {
         return partnerApplicationService.getAllPartnerApplication(page, size, sortBy, sortOrder)
                 .stream()
-                .map(partnerApplicationService::getCalculateMortgage)
+                .map(partnerApplicationService::buildPartnerApplicationResponse)
                 .collect(Collectors.toList());
     }
 
@@ -36,19 +36,19 @@ public class PartnerApplicationControllerImpl implements PartnerApplicationContr
             " hasAnyAuthority(T(pro.smartdeal.common.security.Permission$Code).MB_REQUEST_READ_ORGANIZATION)")
     public PartnerApplicationResponse getPartnerApplicationById(UUID partnerApplicationId) {
         PartnerApplication partnerApplication = partnerApplicationService.getPartnerApplicationByIdWithPermission(partnerApplicationId);
-        return partnerApplicationService.getCalculateMortgage(partnerApplication);
+        return partnerApplicationService.buildPartnerApplicationResponse(partnerApplication);
     }
 
     @Override
     public PartnerApplicationResponse createPartnerApplication(PartnerApplicationRequest request) {
         PartnerApplication partnerApplication = partnerApplicationService.createPartnerApplication(request);
-        return partnerApplicationService.getCalculateMortgage(partnerApplication);
+        return partnerApplicationService.buildPartnerApplicationResponse(partnerApplication);
     }
 
     @Override
     public PartnerApplicationResponse updatePartnerApplication(UUID partnerApplicationId, PartnerApplicationRequest request) {
         PartnerApplication partnerApplication = partnerApplicationService.updatePartnerApplication(partnerApplicationId, request);
-        return partnerApplicationService.getCalculateMortgage(partnerApplication);
+        return partnerApplicationService.buildPartnerApplicationResponse(partnerApplication);
     }
 
     @Override

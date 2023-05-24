@@ -6,4 +6,4 @@ project/project/
 .gradle
 .gradle/buildOutputCleanup/cache.properties
 .lock
-*/build/**
+/build/

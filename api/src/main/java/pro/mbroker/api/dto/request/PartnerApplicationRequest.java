@@ -14,13 +14,13 @@ import java.util.UUID;
 @ToString
 public class PartnerApplicationRequest {
 
-    private String borrowerFullName;
-
     private CreditPurposeType creditPurposeType;
 
     private RealEstateType realEstateType;
 
     private UUID realEstateId;
 
-    private List<BorrowerApplicationRequest> borrowerApplications;
+    private List<BankApplicationRequest> bankApplications;
+
+    private BorrowerProfileRequest mainBorrower;
 }

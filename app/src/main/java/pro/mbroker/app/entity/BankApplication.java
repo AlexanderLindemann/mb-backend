@@ -14,12 +14,16 @@ import java.math.BigDecimal;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "borrower_application")
-public class BorrowerApplication extends BaseEntity {
+@Table(name = "bank_application")
+public class BankApplication extends BaseEntity {
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "credit_program_id", referencedColumnName = "id")
     private CreditProgram creditProgram;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "main_borrower", referencedColumnName = "id")
+    private BorrowerProfile mainBorrower;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "application_status")
@@ -40,7 +44,7 @@ public class BorrowerApplication extends BaseEntity {
     @Column(name = "overpayment")
     private BigDecimal overpayment;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "partner_application_id", nullable = false)
     private PartnerApplication partnerApplication;
 }
