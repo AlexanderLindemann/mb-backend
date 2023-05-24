@@ -36,7 +36,7 @@ public class PartnerApplicationControllerImpl implements PartnerApplicationContr
             " hasAnyAuthority(T(pro.smartdeal.common.security.Permission$Code).MB_REQUEST_READ_ORGANIZATION)")
     public PartnerApplicationResponse getPartnerApplicationById(UUID partnerApplicationId) {
         PartnerApplication partnerApplication = partnerApplicationService.getPartnerApplicationByIdWithPermission(partnerApplicationId);
-        return partnerApplicationMapper.toPartnerApplicationResponse(partnerApplication);
+        return partnerApplicationService.getCalculateMortgage(partnerApplication);
     }
 
     @Override
