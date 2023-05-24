@@ -20,7 +20,7 @@ public interface PartnerApplicationController {
     @GetMapping()
     List<PartnerApplicationResponse> getAllPartnerApplication(@RequestParam(defaultValue = "0") int page,
                                                               @RequestParam(defaultValue = "10") int size,
-                                                              @RequestParam(defaultValue = "borrowerFullName") String sortBy,
+                                                              @RequestParam(defaultValue = "updatedAt") String sortBy,
                                                               @RequestParam(defaultValue = "asc") String sortOrder);
 
     @GetMapping("/{partnerApplicationId}")
