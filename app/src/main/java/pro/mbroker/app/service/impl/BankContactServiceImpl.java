@@ -2,6 +2,7 @@ package pro.mbroker.app.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pro.mbroker.app.entity.Bank;
@@ -9,6 +10,7 @@ import pro.mbroker.app.entity.BankContact;
 import pro.mbroker.app.exception.ItemNotFoundException;
 import pro.mbroker.app.repository.BankContactRepository;
 import pro.mbroker.app.repository.BankRepository;
+import pro.mbroker.app.repository.specification.BankContactSpecification;
 import pro.mbroker.app.service.BankContactService;
 
 import java.util.List;
@@ -48,14 +50,13 @@ public class BankContactServiceImpl implements BankContactService {
     @Override
     @Transactional(readOnly = true)
     public List<BankContact> getBankContact(UUID bankId) {
-        Bank bank = getBank(bankId);
-        return bankContactRepository.findAllByBank(bank);
+        Specification<BankContact> specification = BankContactSpecification.isActive();
+        return bankContactRepository.findAll(specification);
     }
 
     private Bank getBank(UUID bankId) {
         return bankRepository.findById(bankId)
                 .orElseThrow(() -> new ItemNotFoundException(Bank.class, bankId));
     }
-
 
 }
