@@ -6,7 +6,10 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 import pro.mbroker.api.controller.PartnerApplicationController;
 import pro.mbroker.api.dto.request.PartnerApplicationRequest;
+import pro.mbroker.api.dto.response.BankApplicationResponse;
 import pro.mbroker.api.dto.response.PartnerApplicationResponse;
+import pro.mbroker.api.enums.ApplicationStatus;
+import pro.mbroker.api.enums.RegionType;
 import pro.mbroker.app.entity.PartnerApplication;
 import pro.mbroker.app.mapper.PartnerApplicationMapper;
 import pro.mbroker.app.service.PartnerApplicationService;
@@ -55,6 +58,29 @@ public class PartnerApplicationControllerImpl implements PartnerApplicationContr
     @PreAuthorize("hasAuthority(T(pro.smartdeal.common.security.Permission$Code).MB_ADMIN_ACCESS)")
     public void deletePartnerApplication(UUID partnerApplicationId) {
         partnerApplicationService.deletePartnerApplication(partnerApplicationId);
+    }
+
+    @Override
+    public List<BankApplicationResponse> filter(String firstName,
+                                                String middleName,
+                                                String lastName,
+                                                String phoneNumber,
+                                                String residentialComplexName,
+                                                RegionType region,
+                                                String bankName,
+                                                ApplicationStatus applicationStatus,
+                                                String sortBy,
+                                                String sortDirection) {
+        return partnerApplicationService.search(firstName,
+                middleName,
+                lastName,
+                phoneNumber,
+                residentialComplexName,
+                region,
+                bankName,
+                applicationStatus,
+                sortBy,
+                sortDirection);
     }
 
 }
