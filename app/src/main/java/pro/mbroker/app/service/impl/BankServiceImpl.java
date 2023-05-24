@@ -58,7 +58,6 @@ public class BankServiceImpl implements BankService {
     @Transactional(readOnly = true)
     public MultipartFile getLogoBankById(UUID bankId) {
         Bank bank = getBank(bankId);
-        Attachment attachment = attachmentService.getAttachmentById(bank.getLogoAttachmentId());
         return attachmentService.download(bank.getAttachment().getExternalStorageId());
     }
 
@@ -84,7 +83,8 @@ public class BankServiceImpl implements BankService {
                     .stream()
                     .filter(BankContact::isActive)
                     .collect(Collectors.toList());
-            bank.setContacts(activeContacts);
+            bank.getContacts().clear();
+            bank.getContacts().addAll(activeContacts);
         }
         return banks;
     }

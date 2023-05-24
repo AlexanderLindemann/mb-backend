@@ -12,9 +12,9 @@ public interface AttachmentService {
      * Загружает файл, возвращает идентификатор соответствующего вложения.
      *
      * @param file Файл для загрузки.
-     * @return Идентификатор вложения, представляющего загруженный файл.
+     * @return Attachment, представляющего загруженный файл.
      */
-    Long upload(MultipartFile file);
+    Attachment upload(MultipartFile file);
 
     /**
      * Скачивает файл, соответствующий идентификатору вложения.
