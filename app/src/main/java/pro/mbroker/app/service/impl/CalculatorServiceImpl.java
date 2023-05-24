@@ -147,6 +147,6 @@ public class CalculatorServiceImpl implements CalculatorService {
     }
 
     private boolean isMaternalCapital(CalculatorRequest request, CreditProgram creditProgram) {
-        return creditProgram.getCreditParameter().getIsMaternalCapital().equals(request.getIsMaternalCapital());
+        return !request.getIsMaternalCapital() || creditProgram.getCreditParameter().getIsMaternalCapital().equals(request.getIsMaternalCapital());
     }
 }
