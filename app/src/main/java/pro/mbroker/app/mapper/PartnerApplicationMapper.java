@@ -24,6 +24,7 @@ public interface PartnerApplicationMapper {
     @Mapping(target = "createdBy", ignore = true)
     @Mapping(target = "updatedBy", ignore = true)
     @Mapping(target = "active", ignore = true)
+    @Mapping(target = "mortgageCalculation", ignore = true)
     @Mapping(target = "borrowerProfiles", ignore = true)
     @Mapping(target = "bankApplications", source = "bankApplications", qualifiedByName = "toBankApplicationList")
     PartnerApplication toPartnerApplication(PartnerApplicationRequest request);
@@ -39,6 +40,7 @@ public interface PartnerApplicationMapper {
     @Mapping(target = "createdBy", ignore = true)
     @Mapping(target = "updatedBy", ignore = true)
     @Mapping(target = "active", ignore = true)
+    @Mapping(target = "mortgageCalculation", ignore = true)
     @Mapping(target = "borrowerProfiles", ignore = true)
     void updatePartnerApplicationFromRequest(PartnerApplicationRequest request, @MappingTarget PartnerApplication partnerApplication);
 

@@ -18,6 +18,7 @@ import pro.mbroker.app.exception.AccessDeniedException;
 import pro.mbroker.app.exception.ItemNotFoundException;
 import pro.mbroker.app.mapper.BankApplicationMapper;
 import pro.mbroker.app.mapper.BorrowerProfileMapper;
+import pro.mbroker.app.mapper.MortgageCalculationMapper;
 import pro.mbroker.app.mapper.PartnerApplicationMapper;
 import pro.mbroker.app.repository.BankApplicationRepository;
 import pro.mbroker.app.repository.CreditProgramRepository;
@@ -51,6 +52,7 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
     private final PartnerApplicationMapper partnerApplicationMapper;
     private final BorrowerProfileMapper borrowerProfileMapper;
     private final BankApplicationMapper bankApplicationMapper;
+    private final MortgageCalculationMapper mortgageCalculationMapper;
 
 
     @Override
@@ -182,7 +184,8 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
         Partner partner = realEstate.getPartner();
         return partnerApplicationMapper.toPartnerApplication(request)
                 .setPartner(partner)
-                .setRealEstate(realEstate);
+                .setRealEstate(realEstate)
+                .setMortgageCalculation(mortgageCalculationMapper.toMortgageCalculation(request.getMortgageCalculation()));
     }
 
 
