@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 import pro.mbroker.api.dto.BankLoanProgramDto;
 import pro.mbroker.api.dto.LoanProgramCalculationDto;
 import pro.mbroker.api.dto.PropertyMortgageDTO;
@@ -13,14 +14,17 @@ import pro.mbroker.api.dto.response.EnumItemDescription;
 import pro.mbroker.api.enums.CreditPurposeType;
 import pro.mbroker.api.enums.RealEstateType;
 import pro.mbroker.api.enums.RegionType;
+import pro.mbroker.app.entity.Bank;
 import pro.mbroker.app.entity.CreditProgram;
 import pro.mbroker.app.entity.RealEstate;
 import pro.mbroker.app.exception.ItemNotFoundException;
+import pro.mbroker.app.repository.BankRepository;
 import pro.mbroker.app.repository.RealEstateRepository;
 import pro.mbroker.app.service.CalculatorService;
 import pro.mbroker.app.service.DirectoryService;
 import pro.mbroker.app.util.Converter;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.*;
@@ -34,6 +38,8 @@ public class CalculatorServiceImpl implements CalculatorService {
     private static final int PERCENTAGE_MAX = 100;
     private final RealEstateRepository realEstateRepository;
     private final DirectoryService directoryService;
+    private final AttachmentServiceImpl attachmentService;
+    private final BankRepository bankRepository;
 
     @Override
     @Transactional
@@ -41,8 +47,9 @@ public class CalculatorServiceImpl implements CalculatorService {
         List<CreditProgram> creditPrograms = filterCreditPrograms(request);
         Map<UUID, BankLoanProgramDto> bankLoanProgramDtoMap = new HashMap<>();
         for (CreditProgram creditProgram : creditPrograms) {
-            bankLoanProgramDtoMap.computeIfAbsent(creditProgram.getBank().getId(), bankLoanProgram ->
-                    createBankLoanProgramDto(creditProgram)).getLoanProgramCalculationDto().add(createLoanProgramCalculationDto(request, creditProgram));
+            bankLoanProgramDtoMap.computeIfAbsent(creditProgram.getBank().getId(),
+                    bankLoanProgram ->
+                            createBankLoanProgramDto(creditProgram)).getLoanProgramCalculationDto().add(createLoanProgramCalculationDto(request, creditProgram));
         }
         return new PropertyMortgageDTO()
                 .setRealEstatePrice(request.getRealEstatePrice())
@@ -62,8 +69,10 @@ public class CalculatorServiceImpl implements CalculatorService {
     }
 
     private BankLoanProgramDto createBankLoanProgramDto(CreditProgram creditProgram) {
+        Long logoId = bankRepository.findExternalStorageIdByBankName(creditProgram.getBank().getName());
         return new BankLoanProgramDto()
-                .setBankName(creditProgram.getBank().getName());
+                .setBankName(creditProgram.getBank().getName())
+                .setLogo(generateBase64FromLogo(logoId));
     }
 
     private LoanProgramCalculationDto createLoanProgramCalculationDto(CalculatorRequest request, CreditProgram creditProgram) {
@@ -148,5 +157,16 @@ public class CalculatorServiceImpl implements CalculatorService {
 
     private boolean isMaternalCapital(CalculatorRequest request, CreditProgram creditProgram) {
         return !request.getIsMaternalCapital() || creditProgram.getCreditParameter().getIsMaternalCapital().equals(request.getIsMaternalCapital());
+    }
+
+    private String generateBase64FromLogo(Long logoId) {
+        try {
+            MultipartFile logo = attachmentService.download(logoId);
+            byte[] logoBytes = logo.getBytes();
+            return Base64.getEncoder().encodeToString(logoBytes);
+        } catch (IOException e) {
+            log.error("Ошибка при обработке логотипа: {}", e.getMessage());
+        }
+        return null;
     }
 }

@@ -13,6 +13,8 @@ import java.util.List;
 public class BankLoanProgramDto {
     private String bankName;
 
+    private String logo;
+
     private List<LoanProgramCalculationDto> loanProgramCalculationDto = new ArrayList<>();
 
 
