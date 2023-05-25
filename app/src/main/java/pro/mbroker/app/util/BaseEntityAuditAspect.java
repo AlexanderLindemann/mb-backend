@@ -35,6 +35,9 @@ public class BaseEntityAuditAspect {
                     setAuditFields(borrowerProfile);
                 }
             }
+            if (partnerApplication.getMortgageCalculation() != null) {
+                setAuditFields(partnerApplication.getMortgageCalculation());
+            }
         }
     }
 

@@ -1,0 +1,52 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <changeSet id="create_table" author="a.lindemann">
+        <createTable tableName="mortgage_calculation">
+            <column name="id" type="UUID">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="real_estate_price" type="decimal">
+                <constraints nullable="false"/>
+            </column>
+            <column name="down_payment" type="decimal">
+                <constraints nullable="false"/>
+            </column>
+            <column name="monthly_payment" type="decimal">
+                <constraints nullable="false"/>
+            </column>
+            <column name="credit_term" type="integer">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="TIMESTAMP WITHOUT TIME ZONE" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="created_by" type="integer" defaultValueNumeric="0">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_by" type="integer"/>
+            <column name="is_active" type="BOOLEAN" defaultValueBoolean="true">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="update_partner_application_table" author="a.lindemann">
+        <addColumn tableName="partner_application">
+            <column name="mortgage_calculation_id" type="UUID"/>
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="create_referenced" author="a.lindemann">
+        <addForeignKeyConstraint baseTableName="partner_application"
+                                 baseColumnNames="mortgage_calculation_id"
+                                 constraintName="fk_partner_application_mortgage_calculation"
+                                 referencedTableName="mortgage_calculation"
+                                 referencedColumnNames="id"/>
+    </changeSet>
+
+</databaseChangeLog>

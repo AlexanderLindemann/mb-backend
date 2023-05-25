@@ -3,6 +3,7 @@ package pro.mbroker.api.dto.request;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import pro.mbroker.api.dto.MortgageCalculationDto;
 import pro.mbroker.api.enums.CreditPurposeType;
 import pro.mbroker.api.enums.RealEstateType;
 
@@ -23,4 +24,6 @@ public class PartnerApplicationRequest {
     private List<BankApplicationRequest> bankApplications;
 
     private BorrowerProfileRequest mainBorrower;
+
+    private MortgageCalculationDto mortgageCalculation;
 }
