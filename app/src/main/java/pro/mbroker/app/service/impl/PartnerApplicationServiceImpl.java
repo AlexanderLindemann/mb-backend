@@ -3,6 +3,7 @@ package pro.mbroker.app.service.impl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -13,6 +14,8 @@ import pro.mbroker.api.dto.request.BorrowerProfileRequest;
 import pro.mbroker.api.dto.request.PartnerApplicationRequest;
 import pro.mbroker.api.dto.response.BankApplicationResponse;
 import pro.mbroker.api.dto.response.PartnerApplicationResponse;
+import pro.mbroker.api.enums.ApplicationStatus;
+import pro.mbroker.api.enums.RegionType;
 import pro.mbroker.app.entity.*;
 import pro.mbroker.app.exception.AccessDeniedException;
 import pro.mbroker.app.exception.ItemNotFoundException;
@@ -23,6 +26,7 @@ import pro.mbroker.app.mapper.PartnerApplicationMapper;
 import pro.mbroker.app.repository.BankApplicationRepository;
 import pro.mbroker.app.repository.CreditProgramRepository;
 import pro.mbroker.app.repository.PartnerApplicationRepository;
+import pro.mbroker.app.repository.specification.BankApplicationSpecification;
 import pro.mbroker.app.service.CalculatorService;
 import pro.mbroker.app.service.PartnerApplicationService;
 import pro.mbroker.app.service.PartnerService;
@@ -42,6 +46,9 @@ import java.util.stream.IntStream;
 @Slf4j
 @RequiredArgsConstructor
 public class PartnerApplicationServiceImpl implements PartnerApplicationService {
+
+    private static final String CREATED_AT = "createdAt";
+
     private final CalculatorService calculatorService;
     private final CurrentUserService currentUserService;
     private final PartnerService partnerService;
@@ -138,6 +145,54 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
     public PartnerApplication getPartnerApplication(UUID partnerApplicationId) {
         return partnerApplicationRepository.findById(partnerApplicationId)
                 .orElseThrow(() -> new ItemNotFoundException(PartnerApplication.class, partnerApplicationId));
+    }
+
+    @Override
+    public List<BankApplicationResponse> search(String firstName,
+                                                String middleName,
+                                                String lastName,
+                                                String phoneNumber,
+                                                String residentialComplexName,
+                                                RegionType region,
+                                                String bankName,
+                                                ApplicationStatus applicationStatus,
+                                                String sortBy,
+                                                String sortDirection) {
+
+        List<BankApplication> bankApplications = bankApplicationRepository
+                .findAll(BankApplicationSpecification
+                        .combineSearch(firstName,
+                                middleName,
+                                lastName,
+                                phoneNumber,
+                                residentialComplexName,
+                                region,
+                                bankName,
+                                applicationStatus)
+                );
+
+        sortBankApplicationList(sortBy, sortDirection, bankApplications);
+
+        return bankApplications.stream()
+                .map(bankApplicationMapper::toBankApplicationResponse)
+                .collect(Collectors.toList());
+    }
+
+    private void sortBankApplicationList(String sortBy, String sortDirection, List<BankApplication> bankApplications) {
+        Comparator<BankApplication> comparator;
+        if (sortBy != null) {
+            if (sortBy.equals(CREATED_AT)) {
+                comparator = Comparator.comparing(ba -> ba.getPartnerApplication().getCreatedAt());
+            } else {
+                comparator = Comparator.comparing(ba -> ba.getPartnerApplication().getUpdatedAt());
+            }
+
+            if (sortDirection != null && sortDirection.equals("DESC")) {
+                comparator = comparator.reversed();
+            }
+
+            bankApplications.sort(comparator);
+        }
     }
 
     private List<BankApplication> buildBorrowerApplications(PartnerApplicationRequest request, PartnerApplication partnerApplication) {
