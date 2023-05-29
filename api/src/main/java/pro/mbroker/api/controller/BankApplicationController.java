@@ -2,10 +2,8 @@ package pro.mbroker.api.controller;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import lombok.NonNull;
+import org.springframework.web.bind.annotation.*;
 import pro.mbroker.api.dto.response.BankApplicationResponse;
 
 import java.util.UUID;
@@ -18,5 +16,11 @@ public interface BankApplicationController {
     @ApiOperation("получить банковскую заявку по id")
     @GetMapping("/{bankApplicationId}")
     BankApplicationResponse getBankApplicationById(@PathVariable UUID bankApplicationId);
+
+    @ApiOperation("поменять главного заемщика")
+    @PutMapping("/{bankApplicationId}")
+    BankApplicationResponse changeMainBorrowerByBankApplicationId(
+            @PathVariable UUID bankApplicationId,
+            @NonNull @RequestParam("newMainBorrowerId") UUID newMainBorrowerId);
 
 }

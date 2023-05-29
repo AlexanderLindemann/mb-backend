@@ -24,4 +24,10 @@ public interface BorrowerApplicationController {
     @ApiOperation("получить обобщенный профиль клиента по id заявки партнера")
     @GetMapping("/{partnerApplicationId}")
     BorrowerResponse getBorrowersByPartnerApplicationId(@PathVariable UUID partnerApplicationId);
+
+    @ApiOperation("удалить профиль клиента по id")
+    @DeleteMapping("/{borrowerProfileId}")
+    void deleteBorrowerProfileById(
+            @PathVariable(value = "borrowerProfileId") UUID borrowerProfileId
+    );
 }

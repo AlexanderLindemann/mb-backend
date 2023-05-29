@@ -19,8 +19,7 @@ public class BorrowerProfileControllerImpl implements BorrowerApplicationControl
 
     @Override
     public BorrowerResponse createOrUpdateBorrowerApplication(BorrowerRequest request) {
-        BorrowerResponse borrowerApplication = borrowerProfileService.createOrUpdateBorrowerApplication(request);
-        return borrowerApplication;
+        return borrowerProfileService.createOrUpdateBorrowerApplication(request);
     }
 
     @Override
@@ -31,5 +30,10 @@ public class BorrowerProfileControllerImpl implements BorrowerApplicationControl
     @Override
     public BorrowerResponse getBorrowersByPartnerApplicationId(UUID partnerApplicationId) {
         return borrowerProfileService.getBorrowersByPartnerApplicationId(partnerApplicationId);
+    }
+
+    @Override
+    public void deleteBorrowerProfileById(UUID borrowerProfileId) {
+        borrowerProfileService.deleteBorrowerProfileById(borrowerProfileId);
     }
 }

@@ -1,5 +1,6 @@
 package pro.mbroker.app.web;
 
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -24,7 +25,15 @@ public class BankApplicationControllerImpl implements BankApplicationController 
     public BankApplicationResponse getBankApplicationById(UUID bankApplicationId) {
         BankApplication bankApplication = bankApplicationService.getBankApplicationById(bankApplicationId);
         BankApplicationResponse bankApplicationResponse = bankApplicationMapper.toBankApplicationResponse(bankApplication);
-        bankApplicationResponse.setCoBorrowers(borrowerProfileService.getBorrowersByPartnerApplicationId(bankApplicationId).getCoBorrower());
+        bankApplicationResponse.setCoBorrowers(borrowerProfileService.getBorrowersByBankApplicationId(bankApplication.getId()).getCoBorrower());
+        return bankApplicationResponse;
+    }
+
+    @Override
+    public BankApplicationResponse changeMainBorrowerByBankApplicationId(UUID bankApplicationId, @NonNull UUID newMainBorrowerId) {
+        BankApplication bankApplication = bankApplicationService.changeMainBorrowerByBankApplicationId(bankApplicationId, newMainBorrowerId);
+        BankApplicationResponse bankApplicationResponse = bankApplicationMapper.toBankApplicationResponse(bankApplication);
+        bankApplicationResponse.setCoBorrowers(borrowerProfileService.getBorrowersByBankApplicationId(bankApplication.getId()).getCoBorrower());
         return bankApplicationResponse;
     }
 }
