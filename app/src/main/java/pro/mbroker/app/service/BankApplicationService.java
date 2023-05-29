@@ -8,4 +8,5 @@ public interface BankApplicationService {
 
     BankApplication getBankApplicationById(UUID id);
 
+    BankApplication changeMainBorrowerByBankApplicationId(UUID bankApplicationId, UUID newMainBorrowerId);
 }

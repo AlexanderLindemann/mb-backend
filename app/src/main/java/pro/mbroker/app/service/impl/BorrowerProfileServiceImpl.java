@@ -11,6 +11,7 @@ import pro.mbroker.api.dto.response.BorrowerResponse;
 import pro.mbroker.app.entity.BankApplication;
 import pro.mbroker.app.entity.BorrowerProfile;
 import pro.mbroker.app.entity.PartnerApplication;
+import pro.mbroker.app.exception.ItemConflictException;
 import pro.mbroker.app.exception.ItemNotFoundException;
 import pro.mbroker.app.mapper.BorrowerProfileMapper;
 import pro.mbroker.app.repository.BorrowerProfileRepository;
@@ -47,9 +48,8 @@ public class BorrowerProfileServiceImpl implements BorrowerProfileService {
             borrowerProfilesToSave.add(mainBorrowerProfile);
         }
         borrowerProfileRepository.saveAll(borrowerProfilesToSave);
-        return getBorrowersByPartnerApplicationId(request.getId());
+        return getBorrowersByBankApplicationId(bankApplication.getId());
     }
-
 
     @Override
     @Transactional(readOnly = true)
@@ -64,7 +64,22 @@ public class BorrowerProfileServiceImpl implements BorrowerProfileService {
         }
         Map<UUID, BorrowerProfileResponse> coBorrowerProfiles = partnerApplication.getBorrowerProfiles()
                 .stream()
-                .filter(borrowerProfile -> !borrowerProfile.getId().equals(mainBorrower.getId()))
+                .filter(borrowerProfile -> !borrowerProfile.getId().equals(mainBorrower.getId()) && borrowerProfile.isActive())
+                .collect(Collectors.toMap(BorrowerProfile::getId, borrowerProfileMapper::toBorrowerProfileResponse));
+        return new BorrowerResponse()
+                .setMainBorrower(borrowerProfileMapper.toBorrowerProfileResponse(mainBorrower))
+                .setCoBorrower(new ArrayList<>(coBorrowerProfiles.values()));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public BorrowerResponse getBorrowersByBankApplicationId(UUID bankApplicationId) {
+        BankApplication bankApplication = bankApplicationService.getBankApplicationById(bankApplicationId);
+        PartnerApplication partnerApplication = bankApplication.getPartnerApplication();
+        BorrowerProfile mainBorrower = bankApplication.getMainBorrower();
+        Map<UUID, BorrowerProfileResponse> coBorrowerProfiles = partnerApplication.getBorrowerProfiles()
+                .stream()
+                .filter(borrowerProfile -> !borrowerProfile.getId().equals(mainBorrower.getId()) && borrowerProfile.isActive())
                 .collect(Collectors.toMap(BorrowerProfile::getId, borrowerProfileMapper::toBorrowerProfileResponse));
         return new BorrowerResponse()
                 .setMainBorrower(borrowerProfileMapper.toBorrowerProfileResponse(mainBorrower))
@@ -95,6 +110,22 @@ public class BorrowerProfileServiceImpl implements BorrowerProfileService {
         }
         borrowerProfileRepository.saveAll(borrowerProfilesToSave);
         return getBorrowersByPartnerApplicationId(request.getId());
+    }
+
+    @Override
+    public void deleteBorrowerProfileById(UUID borrowerProfileId) {
+        BorrowerProfile borrowerProfile = getBorrowerProfile(borrowerProfileId);
+        PartnerApplication partnerApplication = borrowerProfile.getPartnerApplication();
+        List<UUID> mainBorrowerIds = partnerApplication.getBankApplications().stream()
+                .map(bankApplication ->
+                        bankApplication.getMainBorrower().getId())
+                .collect(Collectors.toList());
+        if (!mainBorrowerIds.contains(borrowerProfile.getId())) {
+            borrowerProfile.setActive(false);
+            borrowerProfileRepository.save(borrowerProfile);
+        } else {
+            throw new ItemConflictException(BorrowerProfile.class, borrowerProfileId);
+        }
     }
 
     private BorrowerProfile prepareBorrowerProfile(PartnerApplication partnerApplication, BorrowerProfileRequest borrower) {

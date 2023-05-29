@@ -15,4 +15,9 @@ public interface BorrowerProfileService {
     BorrowerProfile getBorrowerProfile(UUID borrowerProfileId);
 
     BorrowerResponse createOrUpdateGenericBorrowerApplication(BorrowerRequest request);
+
+    void deleteBorrowerProfileById(UUID borrowerProfileId);
+
+    BorrowerResponse getBorrowersByBankApplicationId(UUID bankApplicationId);
+
 }

@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import pro.mbroker.api.dto.request.BorrowerRequest;
 import pro.mbroker.api.dto.response.BorrowerResponse;
 
+import javax.validation.constraints.NotNull;
 import java.util.UUID;
 
 @Api(value = "API Профилей заемщика", tags = "API Профилей заемщика")
@@ -24,4 +25,10 @@ public interface BorrowerApplicationController {
     @ApiOperation("получить обобщенный профиль клиента по id заявки партнера")
     @GetMapping("/{partnerApplicationId}")
     BorrowerResponse getBorrowersByPartnerApplicationId(@PathVariable UUID partnerApplicationId);
+
+    @ApiOperation("удалить профиль клиента по id")
+    @DeleteMapping("/{borrowerProfileId}")
+    void deleteBorrowerProfileById(
+            @NotNull @PathVariable(value = "borrowerProfileId") UUID borrowerProfileId
+    );
 }
