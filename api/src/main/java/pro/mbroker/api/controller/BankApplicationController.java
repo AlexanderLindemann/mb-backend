@@ -3,6 +3,7 @@ package pro.mbroker.api.controller;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.NonNull;
+import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.web.bind.annotation.*;
 import pro.mbroker.api.dto.response.BankApplicationResponse;
 
@@ -21,6 +22,6 @@ public interface BankApplicationController {
     @PutMapping("/{bankApplicationId}")
     BankApplicationResponse changeMainBorrowerByBankApplicationId(
             @PathVariable UUID bankApplicationId,
-            @NonNull @RequestParam("newMainBorrowerId") UUID newMainBorrowerId);
+            @NotBlank @RequestParam("newMainBorrowerId") UUID newMainBorrowerId);
 
 }

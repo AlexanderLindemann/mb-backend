@@ -3,6 +3,7 @@ package pro.mbroker.api.controller;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.web.bind.annotation.*;
 import pro.mbroker.api.dto.request.BorrowerRequest;
 import pro.mbroker.api.dto.response.BorrowerResponse;
@@ -28,6 +29,6 @@ public interface BorrowerApplicationController {
     @ApiOperation("удалить профиль клиента по id")
     @DeleteMapping("/{borrowerProfileId}")
     void deleteBorrowerProfileById(
-            @PathVariable(value = "borrowerProfileId") UUID borrowerProfileId
+            @NotBlank @PathVariable(value = "borrowerProfileId") UUID borrowerProfileId
     );
 }
