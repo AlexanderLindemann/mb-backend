@@ -1,5 +1,6 @@
 package pro.mbroker.app.service;
 
+import pro.mbroker.api.dto.request.BankApplicationRequest;
 import pro.mbroker.app.entity.BankApplication;
 
 import java.util.UUID;
@@ -7,6 +8,8 @@ import java.util.UUID;
 public interface BankApplicationService {
 
     BankApplication getBankApplicationById(UUID id);
+
+    BankApplication updateBankApplication(BankApplicationRequest request);
 
     BankApplication changeMainBorrowerByBankApplicationId(UUID bankApplicationId, UUID newMainBorrowerId);
 }

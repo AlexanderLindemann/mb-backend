@@ -3,7 +3,6 @@ package pro.mbroker.app.service.impl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -117,12 +116,12 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
                 .collect(Collectors.toMap(BorrowerProfile::getId, Function.identity()));
         IntStream.range(0, borrowerApplications.size())
                 .forEach(i -> {
-                    BankApplication borrowerApplication = borrowerApplications.get(i);
+                    BankApplication bankApplication = borrowerApplications.get(i);
                     BankApplicationResponse bankApplicationResponse = response.getBankApplications().get(i);
-                    BigDecimal mortgageSum = calculatorService.getMortgageSum(borrowerApplication.getRealEstatePrice(), borrowerApplication.getDownPayment());
+                    BigDecimal mortgageSum = calculatorService.getMortgageSum(bankApplication.getRealEstatePrice(), bankApplication.getDownPayment());
                     bankApplicationResponse.setMortgageSum(mortgageSum);
                     bankApplicationResponse.setCoBorrowers(borrowerProfileMap.values().stream()
-                            .filter(borrowerProfile -> !borrowerProfile.getId().equals(borrowerApplication.getMainBorrower().getId()))
+                            .filter(borrowerProfile -> !borrowerProfile.getId().equals(bankApplication.getMainBorrower().getId()))
                             .map(borrowerProfileMapper::toBorrowerProfileResponse)
                             .collect(Collectors.toList()));
                 });

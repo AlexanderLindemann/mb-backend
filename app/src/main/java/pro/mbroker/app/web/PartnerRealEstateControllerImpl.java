@@ -45,8 +45,8 @@ public class PartnerRealEstateControllerImpl implements PartnerRealEstateControl
     }
 
     @Override
-    public PartnerResponse updateRealEstate(UUID addressId, RealEstateRequest request) {
-        RealEstate realEstate = partnerRealEstateService.updateRealEstate(addressId, request);
+    public PartnerResponse updateRealEstate(RealEstateRequest request) {
+        RealEstate realEstate = partnerRealEstateService.updateRealEstate(request.getId(), request);
         Partner partner = partnerService.getPartner(realEstate.getPartner().getId());
         return buildPartnerResponse(partner);
     }
