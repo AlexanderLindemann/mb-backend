@@ -26,6 +26,7 @@ import pro.mbroker.app.util.Converter;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -94,7 +95,9 @@ public class CalculatorServiceImpl implements CalculatorService {
     }
 
     private List<CreditProgram> filterCreditPrograms(CalculatorRequest request) {
-        List<CreditProgram> creditPrograms = realEstateRepository.findCreditProgramsWithDetailsAndParametersByRealEstateId(request.getRealEstateId());
+        List<CreditProgram> creditPrograms = realEstateRepository
+                .findCreditProgramsWithDetailsAndParametersByRealEstateId(request.getRealEstateId(),
+                                                                          LocalDateTime.now());
         return creditPrograms.stream()
                 .filter(creditProgram -> isProgramEligible(request, creditProgram))
                 .collect(Collectors.toList());
