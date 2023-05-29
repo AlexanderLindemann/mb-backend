@@ -45,4 +45,10 @@ public class GlobalExceptionHandler {
         }
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ex.getMessage());
     }
+
+    @ExceptionHandler(UnknownPermissionValueException.class)
+    public ResponseEntity<Object> UnknownPermissionValueExceptionException(UnknownPermissionValueException ex) {
+        ControllerError apiError = new ControllerError(ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>(apiError, apiError.getStatus());
+    }
 }
