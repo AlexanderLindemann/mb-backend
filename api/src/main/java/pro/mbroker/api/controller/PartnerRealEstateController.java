@@ -30,8 +30,8 @@ public interface PartnerRealEstateController {
     );
 
     @ApiOperation("обновить данные по ЖК застройщика")
-    @PutMapping("/{realEstateId}")
-    PartnerResponse updateRealEstate(@PathVariable UUID realEstateId, @RequestBody @Valid RealEstateRequest request);
+    @PutMapping()
+    PartnerResponse updateRealEstate(@RequestBody @Valid RealEstateRequest request);
 
     @ApiOperation("получить все ЖК по id застройщика")
     @GetMapping("/{partnerId}/real_estate")

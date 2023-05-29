@@ -88,7 +88,6 @@ public enum RegionType implements EnumWithValue<String> {
     ZABAIKALSKY("ZABAIKALSKY", "Забайкальский край"),
     REPUBLIC_OF_CRIMEA("REPUBLIC_OF_CRIMEA", "Республика Крым"),
     VOLOGDA("VOLOGDA", "Вологодская область"),
-    YAMAL_NENETS("YAMAL_NENETS", "Ямало-Ненецкий автономный округ"),
     TUVA("TUVA", "Республика Тыва"),
     VLADIMIR("VLADIMIR", "Владимирская область"),
     VOLGOGRAD("VOLGOGRAD", "Волгоградская область"),

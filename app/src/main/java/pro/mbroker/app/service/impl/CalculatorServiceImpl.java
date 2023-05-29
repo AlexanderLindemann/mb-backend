@@ -14,7 +14,6 @@ import pro.mbroker.api.dto.response.EnumItemDescription;
 import pro.mbroker.api.enums.CreditPurposeType;
 import pro.mbroker.api.enums.RealEstateType;
 import pro.mbroker.api.enums.RegionType;
-import pro.mbroker.app.entity.Bank;
 import pro.mbroker.app.entity.CreditProgram;
 import pro.mbroker.app.entity.RealEstate;
 import pro.mbroker.app.exception.ItemNotFoundException;
@@ -69,10 +68,17 @@ public class CalculatorServiceImpl implements CalculatorService {
     }
 
     private BankLoanProgramDto createBankLoanProgramDto(CreditProgram creditProgram) {
+        if (creditProgram == null || creditProgram.getBank() == null) {
+            log.error("Credit program or its bank is null");
+            throw new IllegalArgumentException("Credit program and its bank cannot be null");
+        }
+        BankLoanProgramDto bankLoanProgramDtoBuilder = new BankLoanProgramDto()
+                .setBankName(creditProgram.getBank().getName());
         Long logoId = bankRepository.findExternalStorageIdByBankName(creditProgram.getBank().getName());
-        return new BankLoanProgramDto()
-                .setBankName(creditProgram.getBank().getName())
-                .setLogo(generateBase64FromLogo(logoId));
+        if (Objects.nonNull(logoId)) {
+            bankLoanProgramDtoBuilder.setLogo(generateBase64FromLogo(logoId));
+        }
+        return bankLoanProgramDtoBuilder;
     }
 
     private LoanProgramCalculationDto createLoanProgramCalculationDto(CalculatorRequest request, CreditProgram creditProgram) {
