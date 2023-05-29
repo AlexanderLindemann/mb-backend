@@ -2,11 +2,11 @@ package pro.mbroker.api.controller;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import lombok.NonNull;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import pro.mbroker.api.dto.response.BankResponse;
 
+import javax.validation.constraints.NotBlank;
 import java.util.List;
 import java.util.UUID;
 
@@ -45,7 +45,7 @@ public interface BankController {
     @PutMapping("/{bankId}")
     BankResponse updateBankName(
             @PathVariable UUID bankId,
-            @NonNull @RequestParam("name") String name);
+            @NotBlank @RequestParam("name") String name);
 
     @ApiOperation("удалить банк по id")
     @DeleteMapping("/{bankId}")
