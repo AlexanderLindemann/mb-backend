@@ -9,6 +9,7 @@ import org.springframework.data.repository.query.Param;
 import pro.mbroker.app.entity.CreditProgram;
 import pro.mbroker.app.entity.RealEstate;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -17,8 +18,16 @@ public interface RealEstateRepository extends JpaRepository<RealEstate, UUID>, J
     @Query("SELECT r FROM RealEstate r JOIN FETCH r.partner WHERE r.id = :id")
     Optional<RealEstate> findRealEstateByIdWithPartner(@Param("id") UUID id);
 
-    @Query("SELECT cp FROM RealEstate r JOIN r.partner p JOIN p.creditPrograms cp JOIN FETCH cp.creditProgramDetail cpd JOIN FETCH cp.creditParameter JOIN FETCH cp.bank WHERE r.id = :id")
-    List<CreditProgram> findCreditProgramsWithDetailsAndParametersByRealEstateId(@Param("id") UUID id);
+    @Query("SELECT cp FROM RealEstate r " +
+            "JOIN r.partner p " +
+            "JOIN p.creditPrograms cp " +
+            "JOIN FETCH cp.creditProgramDetail cpd " +
+            "JOIN FETCH cp.creditParameter " +
+            "JOIN FETCH cp.bank WHERE r.id = :id " +
+            "AND cp.programStartDate < :currentTime " +
+            "AND cp.programEndDate > :currentTime")
+    List<CreditProgram> findCreditProgramsWithDetailsAndParametersByRealEstateId(@Param("id") UUID id,
+                                                                                 @Param("currentTime") LocalDateTime currentTime);
 
     Page<RealEstate> findAllByPartnerId(UUID partnerId, Pageable pageable);
 }
