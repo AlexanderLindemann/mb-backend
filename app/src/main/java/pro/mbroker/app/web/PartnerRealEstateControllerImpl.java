@@ -45,6 +45,7 @@ public class PartnerRealEstateControllerImpl implements PartnerRealEstateControl
     }
 
     @Override
+    @PreAuthorize("hasAuthority(T(pro.smartdeal.common.security.Permission$Code).MB_ADMIN_ACCESS)")
     public PartnerResponse updateRealEstate(RealEstateRequest request) {
         RealEstate realEstate = partnerRealEstateService.updateRealEstate(request.getId(), request);
         Partner partner = partnerService.getPartner(realEstate.getPartner().getId());

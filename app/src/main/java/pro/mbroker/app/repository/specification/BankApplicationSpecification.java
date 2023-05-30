@@ -1,7 +1,7 @@
 package pro.mbroker.app.repository.specification;
 
 import org.springframework.data.jpa.domain.Specification;
-import pro.mbroker.api.enums.ApplicationStatus;
+import pro.mbroker.api.enums.BankApplicationStatus;
 import pro.mbroker.api.enums.RegionType;
 import pro.mbroker.app.entity.*;
 
@@ -68,9 +68,9 @@ public class BankApplicationSpecification {
         };
     }
 
-    public static Specification<BankApplication> applicationStatusEqual(ApplicationStatus applicationStatus) {
+    public static Specification<BankApplication> applicationStatusEqual(BankApplicationStatus applicationStatus) {
         return (root, query, criteriaBuilder) -> applicationStatus == null ? null : criteriaBuilder
-                .equal(root.get("applicationStatus"), applicationStatus);
+                .equal(root.get("bankApplicationStatus"), applicationStatus);
     }
 
     public static Specification<BankApplication> combineSearch(String firstName,
@@ -80,7 +80,7 @@ public class BankApplicationSpecification {
                                                                String residentialComplexName,
                                                                RegionType region,
                                                                String bankName,
-                                                               ApplicationStatus applicationStatus) {
+                                                               BankApplicationStatus applicationStatus) {
         return (root, query, criteriaBuilder) -> {
             Predicate predicate = criteriaBuilder.conjunction();
 

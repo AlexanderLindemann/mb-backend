@@ -21,7 +21,9 @@ public class CalculatorControllerImpl implements CalculatorController {
     private final CalculatorService calculatorService;
 
     @Override
-    @PreAuthorize("hasAuthority(T(pro.smartdeal.common.security.Permission$Code).MB_ADMIN_ACCESS) or hasAuthority(T(pro.smartdeal.common.security.Permission$Code).MB_REQUEST_READ_OWN)")
+    @PreAuthorize("hasAuthority(T(pro.smartdeal.common.security.Permission$Code).MB_ADMIN_ACCESS) " +
+            "or hasAuthority(T(pro.smartdeal.common.security.Permission$Code).MB_REQUEST_READ_OWN)" +
+            "or hasAuthority(T(pro.smartdeal.common.security.Permission$Code).MB_REQUEST_READ_ORGANIZATION)")
     public PropertyMortgageDTO getCreditOffer(UUID realEstateId,
                                               CreditPurposeType creditPurposeType,
                                               RealEstateType realEstateType,

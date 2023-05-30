@@ -29,6 +29,7 @@ public class CreditProgramControllerImpl implements CreditProgramController {
     private final CreditProgramConverter creditProgramConverter;
 
     @Override
+    @PreAuthorize("hasAuthority(T(pro.smartdeal.common.security.Permission$Code).MB_ADMIN_ACCESS)")
     public CreditProgramResponse createCreditProgram(BankProgramRequest request) {
         CreditProgram creditProgram = creditProgramService.createCreditParameter(request, creditProgramConverter.convertCreditDetailToStringFormat(request));
         return programMapper.toProgramResponseMapper(creditProgram)
@@ -52,6 +53,7 @@ public class CreditProgramControllerImpl implements CreditProgramController {
     }
 
     @Override
+    @PreAuthorize("hasAuthority(T(pro.smartdeal.common.security.Permission$Code).MB_ADMIN_ACCESS)")
     public CreditProgramResponse updateProgram(UUID creditProgramId, BankProgramRequest request) {
         CreditProgram creditProgram = creditProgramService.updateProgram(creditProgramId, request, creditProgramConverter.convertCreditDetailToStringFormat(request));
         return programMapper.toProgramResponseMapper(creditProgram)

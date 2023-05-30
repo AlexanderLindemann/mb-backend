@@ -126,28 +126,35 @@ public class CalculatorServiceImpl implements CalculatorService {
 
     @Override
     public BigDecimal calculateMonthlyPayment(BigDecimal mortgageSum, double annualInterestRate, int loanTermInMonths) {
-        BigDecimal monthlyInterestRate = BigDecimal.valueOf(annualInterestRate).divide(BigDecimal.valueOf(1200), 8, RoundingMode.HALF_UP);
-        BigDecimal numerator = monthlyInterestRate.add(BigDecimal.ONE).pow(loanTermInMonths).multiply(monthlyInterestRate);
-        BigDecimal denominator = monthlyInterestRate.add(BigDecimal.ONE).pow(loanTermInMonths).subtract(BigDecimal.ONE);
-        BigDecimal monthlyPayment = mortgageSum.multiply(numerator.divide(denominator, RoundingMode.HALF_UP));
-        return monthlyPayment.setScale(2, RoundingMode.HALF_UP);
+        BigDecimal monthlyInterestRate = BigDecimal.valueOf(annualInterestRate).divide(BigDecimal.valueOf(1200), 8, RoundingMode.HALF_EVEN);
+        BigDecimal base = monthlyInterestRate.add(BigDecimal.ONE).pow(loanTermInMonths);
+        BigDecimal numerator = base.multiply(monthlyInterestRate);
+        BigDecimal denominator = base.subtract(BigDecimal.ONE);
+        BigDecimal monthlyPayment = mortgageSum.multiply(numerator.divide(denominator, 8, RoundingMode.HALF_EVEN));
+        return monthlyPayment.setScale(2, RoundingMode.HALF_EVEN);
     }
+
 
     @Override
     public BigDecimal calculateOverpayment(BigDecimal monthlyPayment, int loanTermMonths, BigDecimal realEstatePrice, BigDecimal downPayment) {
+        if (monthlyPayment == null || realEstatePrice == null || downPayment == null) {
+            throw new IllegalArgumentException("Invalid input: all arguments must be non-null");
+        }
         BigDecimal totalPayment = monthlyPayment.multiply(BigDecimal.valueOf(loanTermMonths));
         BigDecimal overpayment = totalPayment.subtract(realEstatePrice).add(downPayment);
-        return overpayment.setScale(2, RoundingMode.HALF_UP);
+        return overpayment.setScale(2, RoundingMode.HALF_EVEN);
     }
+
 
     private int calculateDownPaymentPercentage(BigDecimal downPayment, BigDecimal realEstatePrice) {
         if (realEstatePrice == null || realEstatePrice.compareTo(BigDecimal.ZERO) == 0) {
             throw new IllegalArgumentException("Real estate price must be non-null and non-zero.");
         }
-        if (downPayment == null) {
-            downPayment = BigDecimal.ZERO;
+        BigDecimal actualDownPayment = Optional.ofNullable(downPayment).orElse(BigDecimal.ZERO);
+        BigDecimal downPaymentPercentage = actualDownPayment.divide(realEstatePrice, 4, RoundingMode.HALF_EVEN).multiply(new BigDecimal(PERCENTAGE_MAX));
+        if (downPaymentPercentage.compareTo(new BigDecimal(Integer.MAX_VALUE)) > 0) {
+            throw new ArithmeticException("Down payment percentage exceeds maximum int value");
         }
-        BigDecimal downPaymentPercentage = downPayment.divide(realEstatePrice, 4, BigDecimal.ROUND_HALF_UP).multiply(new BigDecimal(PERCENTAGE_MAX));
         return downPaymentPercentage.intValue();
     }
 

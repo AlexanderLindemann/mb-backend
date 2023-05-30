@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import pro.mbroker.api.dto.request.PartnerApplicationRequest;
 import pro.mbroker.api.dto.response.BankApplicationResponse;
 import pro.mbroker.api.dto.response.PartnerApplicationResponse;
-import pro.mbroker.api.enums.ApplicationStatus;
+import pro.mbroker.api.enums.BankApplicationStatus;
 import pro.mbroker.api.enums.RegionType;
 
 import java.util.List;
@@ -56,7 +56,7 @@ public interface PartnerApplicationController {
             @RequestParam(required = false) String residentialComplexName,
             @RequestParam(required = false) RegionType region,
             @RequestParam(required = false) String bankName,
-            @RequestParam(required = false) ApplicationStatus applicationStatus,
+            @RequestParam(required = false) BankApplicationStatus applicationStatus,
             @RequestParam(required = false) String sortBy,
             @RequestParam(required = false) String sortDirection
     );
