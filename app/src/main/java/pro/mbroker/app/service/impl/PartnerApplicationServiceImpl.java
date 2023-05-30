@@ -68,12 +68,12 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
         Pageable pageable = Pagination.createPageable(page, size, sortBy, sortOrder);
         List<PartnerApplication> result = new ArrayList<>();
         Collection<? extends GrantedAuthority> authorities = SecurityContextHolder.getContext().getAuthentication().getAuthorities();
-        if (!authorities.contains(new SimpleGrantedAuthority(Permission.Code.MB_ADMIN_ACCESS))) {
+        if (authorities.contains(new SimpleGrantedAuthority(Permission.Code.MB_ADMIN_ACCESS))) {
             result = partnerApplicationRepository.findAllByIsActiveTrue(pageable);
-        } else if (!authorities.contains(new SimpleGrantedAuthority(Permission.Code.MB_REQUEST_READ_ORGANIZATION))) {
+        } else if (authorities.contains(new SimpleGrantedAuthority(Permission.Code.MB_REQUEST_READ_ORGANIZATION))) {
             UUID partnerId = partnerService.getCurrentPartner().getId();
             result = partnerApplicationRepository.findAllIsActiveByPartnerId(partnerId, pageable);
-        } else if (!authorities.contains(new SimpleGrantedAuthority(Permission.Code.MB_REQUEST_READ_OWN))) {
+        } else if (authorities.contains(new SimpleGrantedAuthority(Permission.Code.MB_REQUEST_READ_OWN))) {
             Integer createdBy = partnerService.getCurrentPartner().getCreatedBy();
             result = partnerApplicationRepository.findAllByCreatedByAndActiveTrue(createdBy, pageable);
         }
