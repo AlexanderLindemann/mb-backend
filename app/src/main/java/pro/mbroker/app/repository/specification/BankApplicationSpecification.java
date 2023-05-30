@@ -70,7 +70,7 @@ public class BankApplicationSpecification {
 
     public static Specification<BankApplication> applicationStatusEqual(BankApplicationStatus applicationStatus) {
         return (root, query, criteriaBuilder) -> applicationStatus == null ? null : criteriaBuilder
-                .equal(root.get("applicationStatus"), applicationStatus);
+                .equal(root.get("bankApplicationStatus"), applicationStatus);
     }
 
     public static Specification<BankApplication> combineSearch(String firstName,
