@@ -75,7 +75,7 @@ public class CalculatorServiceImpl implements CalculatorService {
         }
         BankLoanProgramDto bankLoanProgramDtoBuilder = new BankLoanProgramDto()
                 .setBankName(creditProgram.getBank().getName());
-        Long logoId = bankRepository.findExternalStorageIdByBankName(creditProgram.getBank().getName());
+        Long logoId = bankRepository.findIdByBankName(creditProgram.getBank().getName());
         if (Objects.nonNull(logoId)) {
             bankLoanProgramDtoBuilder.setLogo(generateBase64FromLogo(logoId));
         }

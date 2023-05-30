@@ -34,27 +34,28 @@ public class AttachmentServiceImpl implements AttachmentService {
         AttachmentMeta upload = attachmentService.upload(file);
 
         Attachment attachment = attachmentRepository.save(new Attachment()
+                .setId(upload.getId())
                 .setName(upload.getName())
                 .setMimeType(upload.getMimeType())
                 .setSizeBytes(upload.getSizeBytes())
-                .setContentMd5(upload.getMd5Hash())
-                .setExternalStorageId(upload.getId()));
+                .setContentMd5(upload.getMd5Hash()));
         return attachment;
     }
 
     @Override
     @Transactional
     public MultipartFile download(Long attachmentId) {
-        Attachment attachment = attachmentRepository.findAttachmentByExternalStorageId(attachmentId)
+        Attachment attachment = attachmentRepository.findAttachmentById(attachmentId)
                 .orElseThrow(() -> new ItemNotFoundException(Attachment.class, attachmentId));
-        return attachmentService.download(attachment.getExternalStorageId());
+        return attachmentService.download(attachment.getId());
     }
 
     @Override
     @Transactional
-    public BorrowerDocument uploadDocument(BorrowerDocumentRequest documentDto) {
-        Attachment attachment = upload(documentDto.getMultipartFile());
-        BorrowerDocument borrowerDocument = new BorrowerDocument().setAttachmentId(attachment.getExternalStorageId())
+    public BorrowerDocument uploadDocument(MultipartFile file,
+                                           BorrowerDocumentRequest documentDto) {
+        Attachment attachment = upload(file);
+        BorrowerDocument borrowerDocument = new BorrowerDocument().setAttachment(attachment)
                 .setDocumentType(documentDto.getDocumentType());
         if (Objects.nonNull(documentDto.getBankId())) {
             borrowerDocument.setBank(bankRepository.findById(documentDto.getBankId())

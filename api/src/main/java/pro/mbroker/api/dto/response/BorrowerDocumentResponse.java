@@ -14,6 +14,8 @@ public class BorrowerDocumentResponse {
 
     private UUID borrowerProfileId;
 
+    private String attachmentName;
+
     private Long attachmentId;
 
     private DocumentType documentType;

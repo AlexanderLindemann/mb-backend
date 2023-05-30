@@ -58,7 +58,7 @@ public class BankServiceImpl implements BankService {
     @Transactional(readOnly = true)
     public MultipartFile getLogoBankById(UUID bankId) {
         Bank bank = getBank(bankId);
-        return attachmentService.download(bank.getAttachment().getExternalStorageId());
+        return attachmentService.download(bank.getAttachment().getId());
     }
 
     @Override

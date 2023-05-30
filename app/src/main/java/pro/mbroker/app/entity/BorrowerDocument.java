@@ -13,15 +13,16 @@ import javax.persistence.*;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "borrower_document")
+@Table(name = "borrower_documents")
 public class BorrowerDocument extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "borrower_profile_id", referencedColumnName = "id")
     private BorrowerProfile borrowerProfile;
 
-    @Column(name = "attachment_id")
-    private Long attachmentId;
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "attachment_id", referencedColumnName = "id")
+    private Attachment attachment;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "document_type")

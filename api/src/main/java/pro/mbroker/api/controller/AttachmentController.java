@@ -2,6 +2,7 @@ package pro.mbroker.api.controller;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import pro.mbroker.api.dto.request.BorrowerDocumentRequest;
@@ -11,6 +12,7 @@ import pro.mbroker.api.dto.response.BorrowerDocumentResponse;
 @RestController
 @RequestMapping("/public/attachment")
 public interface AttachmentController {
+
     @ApiOperation("Получить файл по attachment_id")
     @PostMapping("/{attachmentId}")
     MultipartFile download(@PathVariable Long attachmentId);
@@ -20,6 +22,7 @@ public interface AttachmentController {
     Long upload(@RequestPart("file") MultipartFile file);
 
     @ApiOperation("Загрузить документ клиента")
-    @PostMapping("/upload")
-    BorrowerDocumentResponse uploadDocument(@RequestBody BorrowerDocumentRequest documentDto);
+    @PostMapping(value = "/upload", consumes =MediaType.MULTIPART_FORM_DATA_VALUE)
+    BorrowerDocumentResponse uploadDocument(@RequestPart("file") MultipartFile file,
+                                            @RequestPart BorrowerDocumentRequest documentDto);
 }

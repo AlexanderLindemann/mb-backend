@@ -7,6 +7,6 @@ import java.util.Optional;
 
 public interface AttachmentRepository extends JpaRepository<Attachment, Long> {
 
-    Optional<Attachment> findAttachmentByExternalStorageId(Long externalId);
+    Optional<Attachment> findAttachmentById(Long externalId);
 
 }
