@@ -3,7 +3,7 @@ package pro.mbroker.api.dto.response;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import pro.mbroker.api.enums.ApplicationStatus;
+import pro.mbroker.api.enums.BankApplicationStatus;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -22,7 +22,7 @@ public class BankApplicationResponse {
 
     private List<BorrowerProfileResponse> coBorrowers;
 
-    private ApplicationStatus applicationStatus;
+    private BankApplicationStatus bankApplicationStatus;
 
     private LocalDateTime updatedAt;
 

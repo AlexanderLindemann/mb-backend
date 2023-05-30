@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import pro.mbroker.api.enums.ApplicationStatus;
+import pro.mbroker.api.enums.BankApplicationStatus;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
@@ -26,8 +26,8 @@ public class BankApplication extends BaseEntity {
     private BorrowerProfile mainBorrower;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "application_status")
-    private ApplicationStatus applicationStatus;
+    @Column(name = "bank_application_status")
+    private BankApplicationStatus bankApplicationStatus;
 
     @Column(name = "monthly_payment")
     private BigDecimal monthlyPayment;

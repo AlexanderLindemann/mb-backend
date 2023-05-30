@@ -7,12 +7,12 @@ import pro.smartdeal.common.enums.EnumWithValue;
 
 @Getter
 @RequiredArgsConstructor
-@DictionaryEnum(code = "ApplicationStatus", name = "Статус заявки")
-public enum ApplicationStatus implements EnumWithValue<String> {
+@DictionaryEnum(code = "PartnerApplicationStatus", name = "Статус заявки партнера")
+public enum PartnerApplicationStatus implements EnumWithValue<String> {
     UPLOADING_DOCUMENTS("UPLOADING_DOCUMENTS", "Загрузка документов"),
-    IN_REVIEW("IN_REVIEW", "На рассмотрении"),
-    APPROVED("APPROVED", "Одобрено"),
-    REJECTED("REJECTED", "Отклонено");
+    IN_REVIEW("SENDING_PREPERATION", "Отправка заявки в банки"),
+    APPROVED("CREDIT_APPROVED", "Кредит выдан"),
+    REJECTED("EXPIRED", "Заявка просрочена");
 
 
     private final String value;

@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import pro.mbroker.api.enums.CreditPurposeType;
+import pro.mbroker.api.enums.PartnerApplicationStatus;
 import pro.mbroker.api.enums.RealEstateType;
 
 import javax.persistence.*;
@@ -26,6 +27,10 @@ public class PartnerApplication extends BaseEntity {
     @Enumerated(EnumType.STRING)
     @Column(name = "credit_purpose_type", nullable = false)
     private CreditPurposeType creditPurposeType;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "partner_application_status")
+    private PartnerApplicationStatus partnerApplicationStatus;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "real_estate_type", nullable = false)

@@ -47,3 +47,6 @@ databaseChangeLog:
   - include:
       file: 20230525_1300-add-mortgage-calculation-table.xml
       relativeToChangelogFile: true
+  - include:
+      file: 20230530_1455-add-new-column-in partner-and-borrower-tables.xml
+      relativeToChangelogFile: true

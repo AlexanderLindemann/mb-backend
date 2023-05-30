@@ -8,10 +8,9 @@ import pro.mbroker.api.controller.PartnerApplicationController;
 import pro.mbroker.api.dto.request.PartnerApplicationRequest;
 import pro.mbroker.api.dto.response.BankApplicationResponse;
 import pro.mbroker.api.dto.response.PartnerApplicationResponse;
-import pro.mbroker.api.enums.ApplicationStatus;
+import pro.mbroker.api.enums.BankApplicationStatus;
 import pro.mbroker.api.enums.RegionType;
 import pro.mbroker.app.entity.PartnerApplication;
-import pro.mbroker.app.mapper.PartnerApplicationMapper;
 import pro.mbroker.app.service.PartnerApplicationService;
 
 import java.util.List;
@@ -23,9 +22,11 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class PartnerApplicationControllerImpl implements PartnerApplicationController {
     private final PartnerApplicationService partnerApplicationService;
-    private final PartnerApplicationMapper partnerApplicationMapper;
 
     @Override
+    @PreAuthorize("hasAuthority(T(pro.smartdeal.common.security.Permission$Code).MB_ADMIN_ACCESS) or" +
+            " hasAuthority(T(pro.smartdeal.common.security.Permission$Code).MB_REQUEST_READ_OWN) or" +
+            " hasAnyAuthority(T(pro.smartdeal.common.security.Permission$Code).MB_REQUEST_READ_ORGANIZATION)")
     public List<PartnerApplicationResponse> getAllPartnerApplication(int page, int size, String sortBy, String sortOrder) {
         return partnerApplicationService.getAllPartnerApplication(page, size, sortBy, sortOrder)
                 .stream()
@@ -43,12 +44,18 @@ public class PartnerApplicationControllerImpl implements PartnerApplicationContr
     }
 
     @Override
+    @PreAuthorize("hasAuthority(T(pro.smartdeal.common.security.Permission$Code).MB_ADMIN_ACCESS) or" +
+            " hasAuthority(T(pro.smartdeal.common.security.Permission$Code).MB_REQUEST_READ_OWN) or" +
+            " hasAnyAuthority(T(pro.smartdeal.common.security.Permission$Code).MB_REQUEST_READ_ORGANIZATION)")
     public PartnerApplicationResponse createPartnerApplication(PartnerApplicationRequest request) {
         PartnerApplication partnerApplication = partnerApplicationService.createPartnerApplication(request);
         return partnerApplicationService.buildPartnerApplicationResponse(partnerApplication);
     }
 
     @Override
+    @PreAuthorize("hasAuthority(T(pro.smartdeal.common.security.Permission$Code).MB_ADMIN_ACCESS) or" +
+            " hasAuthority(T(pro.smartdeal.common.security.Permission$Code).MB_REQUEST_READ_OWN) or" +
+            " hasAnyAuthority(T(pro.smartdeal.common.security.Permission$Code).MB_REQUEST_READ_ORGANIZATION)")
     public PartnerApplicationResponse updatePartnerApplication(UUID partnerApplicationId, PartnerApplicationRequest request) {
         PartnerApplication partnerApplication = partnerApplicationService.updatePartnerApplication(partnerApplicationId, request);
         return partnerApplicationService.buildPartnerApplicationResponse(partnerApplication);
@@ -68,7 +75,7 @@ public class PartnerApplicationControllerImpl implements PartnerApplicationContr
                                                 String residentialComplexName,
                                                 RegionType region,
                                                 String bankName,
-                                                ApplicationStatus applicationStatus,
+                                                BankApplicationStatus applicationStatus,
                                                 String sortBy,
                                                 String sortDirection) {
         return partnerApplicationService.search(firstName,

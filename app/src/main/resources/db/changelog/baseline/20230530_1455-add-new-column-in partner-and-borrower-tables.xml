@@ -1,0 +1,23 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <changeSet id="rename_application_status_column" author="a.lindemann">
+        <renameColumn tableName="bank_application"
+                      oldColumnName="application_status"
+                      newColumnName="bank_application_status"
+                      columnDataType="varchar(255)"/>
+    </changeSet>
+    <changeSet id="add_new_status_columns" author="a.lindemann">
+        <addColumn tableName="partner_application">
+            <column name="partner_application_status" type="varchar(255)"/>
+        </addColumn>
+
+        <addColumn tableName="borrower_profile">
+            <column name="borrower_application_status" type="varchar(255)"/>
+        </addColumn>
+    </changeSet>
+
+</databaseChangeLog>

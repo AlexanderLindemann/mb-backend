@@ -5,7 +5,7 @@ import org.mapstruct.Mapping;
 import org.mapstruct.Named;
 import pro.mbroker.api.dto.request.BankApplicationRequest;
 import pro.mbroker.api.dto.response.BankApplicationResponse;
-import pro.mbroker.api.enums.ApplicationStatus;
+import pro.mbroker.api.enums.BankApplicationStatus;
 import pro.mbroker.app.entity.BankApplication;
 
 import java.util.List;
@@ -24,7 +24,7 @@ public interface BankApplicationMapper {
     @Mapping(source = "dto.creditProgramId", target = "creditProgram.id")
     @Mapping(target = "partnerApplication", ignore = true)
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "applicationStatus", ignore = true)
+    @Mapping(target = "bankApplicationStatus", ignore = true)
     @Mapping(source = "dto.monthlyPayment", target = "monthlyPayment")
     @Mapping(source = "dto.downPayment", target = "downPayment")
     @Mapping(source = "dto.monthCreditTerm", target = "monthCreditTerm")
@@ -45,7 +45,7 @@ public interface BankApplicationMapper {
         if (existing == null) {
             existing = new BankApplication();
         }
-        existing.setApplicationStatus(ApplicationStatus.UPLOADING_DOCUMENTS);
+        existing.setBankApplicationStatus(BankApplicationStatus.READY_TO_SENDING);
         existing.setMonthlyPayment(request.getMonthlyPayment());
         existing.setRealEstatePrice(request.getRealEstatePrice());
         existing.setDownPayment(request.getDownPayment());

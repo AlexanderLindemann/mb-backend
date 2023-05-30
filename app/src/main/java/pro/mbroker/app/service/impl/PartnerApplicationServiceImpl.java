@@ -13,7 +13,7 @@ import pro.mbroker.api.dto.request.BorrowerProfileRequest;
 import pro.mbroker.api.dto.request.PartnerApplicationRequest;
 import pro.mbroker.api.dto.response.BankApplicationResponse;
 import pro.mbroker.api.dto.response.PartnerApplicationResponse;
-import pro.mbroker.api.enums.ApplicationStatus;
+import pro.mbroker.api.enums.BankApplicationStatus;
 import pro.mbroker.api.enums.RegionType;
 import pro.mbroker.app.entity.*;
 import pro.mbroker.app.exception.AccessDeniedException;
@@ -65,10 +65,19 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
     @Transactional(readOnly = true)
     public List<PartnerApplication> getAllPartnerApplication(int page, int size, String sortBy, String sortOrder) {
         log.info("Getting all partner applications with pagination: page={}, size={}, sortBy={}, sortOrder={}", page, size, sortBy, sortOrder);
-
         Pageable pageable = Pagination.createPageable(page, size, sortBy, sortOrder);
-        UUID partnerId = partnerService.getCurrentPartner().getId();
-        return partnerApplicationRepository.findAllIsActive(partnerId, pageable);
+        List<PartnerApplication> result = new ArrayList<>();
+        Collection<? extends GrantedAuthority> authorities = SecurityContextHolder.getContext().getAuthentication().getAuthorities();
+        if (!authorities.contains(new SimpleGrantedAuthority(Permission.Code.MB_ADMIN_ACCESS))) {
+            result = partnerApplicationRepository.findAllByIsActiveTrue(pageable);
+        } else if (!authorities.contains(new SimpleGrantedAuthority(Permission.Code.MB_REQUEST_READ_ORGANIZATION))) {
+            UUID partnerId = partnerService.getCurrentPartner().getId();
+            result = partnerApplicationRepository.findAllIsActiveByPartnerId(partnerId, pageable);
+        } else if (!authorities.contains(new SimpleGrantedAuthority(Permission.Code.MB_REQUEST_READ_OWN))) {
+            Integer createdBy = partnerService.getCurrentPartner().getCreatedBy();
+            result = partnerApplicationRepository.findAllByCreatedByAndActiveTrue(createdBy, pageable);
+        }
+        return result;
     }
 
     @Override
@@ -89,7 +98,7 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
     @Override
     @Transactional
     public PartnerApplication updatePartnerApplication(UUID partnerApplicationId, PartnerApplicationRequest request) {
-        PartnerApplication existingPartnerApplication = getPartnerApplication(partnerApplicationId);
+        PartnerApplication existingPartnerApplication = getPartnerApplicationByIdWithPermission(partnerApplicationId);
         RealEstate realEstate = realEstateService.findById(request.getRealEstateId());
         Partner partner = realEstate.getPartner();
         partnerApplicationMapper.updatePartnerApplicationFromRequest(request, existingPartnerApplication);
@@ -154,7 +163,7 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
                                                 String residentialComplexName,
                                                 RegionType region,
                                                 String bankName,
-                                                ApplicationStatus applicationStatus,
+                                                BankApplicationStatus applicationStatus,
                                                 String sortBy,
                                                 String sortDirection) {
 
