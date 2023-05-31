@@ -38,4 +38,6 @@ public class BankApplicationResponse {
 
     private Double interestRate;
 
+    private String programName;
+
 }
