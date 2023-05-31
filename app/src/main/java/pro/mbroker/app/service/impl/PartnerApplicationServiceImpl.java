@@ -51,10 +51,10 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
     private final CalculatorService calculatorService;
     private final CurrentUserService currentUserService;
     private final PartnerService partnerService;
+    private final RealEstateService realEstateService;
     private final CreditProgramRepository creditProgramRepository;
     private final PartnerApplicationRepository partnerApplicationRepository;
     private final BankApplicationRepository bankApplicationRepository;
-    private final RealEstateService realEstateService;
     private final PartnerApplicationMapper partnerApplicationMapper;
     private final BorrowerProfileMapper borrowerProfileMapper;
     private final BankApplicationMapper bankApplicationMapper;
@@ -74,8 +74,8 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
             UUID partnerId = partnerService.getCurrentPartner().getId();
             result = partnerApplicationRepository.findAllIsActiveByPartnerId(partnerId, pageable);
         } else if (authorities.contains(new SimpleGrantedAuthority(Permission.Code.MB_REQUEST_READ_OWN))) {
-            Integer createdBy = partnerService.getCurrentPartner().getCreatedBy();
-            result = partnerApplicationRepository.findAllByCreatedByAndActiveTrue(createdBy, pageable);
+            Integer createdBy = TokenExtractor.extractSdId(currentUserService.getCurrentUserToken());
+            result = partnerApplicationRepository.findAllByCreatedByAndIsActiveTrue(createdBy, pageable);
         }
         return result;
     }
