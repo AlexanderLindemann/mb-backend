@@ -51,5 +51,8 @@ databaseChangeLog:
       file: 20230530_1455-add-new-column-in partner-and-borrower-tables.xml
       relativeToChangelogFile: true
   - include:
+      file: 20230531_2030-add-new-column-is_material_capital-calculator-table.xml
+      relativeToChangelogFile: true
+  - include:
       file: 20230530_1430-change-borrower-document-and-attachment.xml
       relativeToChangelogFile: true
