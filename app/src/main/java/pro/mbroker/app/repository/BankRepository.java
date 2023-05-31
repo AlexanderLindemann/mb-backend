@@ -15,7 +15,7 @@ public interface BankRepository extends JpaRepository<Bank, UUID>, JpaSpecificat
     @Query(value = "SELECT COALESCE(MAX(order_number), 0) FROM bank", nativeQuery = true)
     Integer findMaxOrderNumber();
 
-    @Query("SELECT a.externalStorageId FROM Bank b JOIN b.attachment a WHERE b.name = :bankName")
-    Long findExternalStorageIdByBankName(@Param("bankName") String bankName);
+    @Query("SELECT a.id FROM Bank b JOIN b.attachment a WHERE b.name = :bankName")
+    Long findIdByBankName(@Param("bankName") String bankName);
 
 }

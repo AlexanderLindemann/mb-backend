@@ -1,0 +1,78 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <changeSet id="drop_attachment_id_in_the_tables" author="a.verbitskii">
+        <dropColumn tableName="borrower_documents" columnName="attachment_id"/>
+        <dropColumn tableName="bank" columnName="attachment_id"/>
+    </changeSet>
+
+    <changeSet author="your_name" id="remove_constraint_profile_attachment">
+        <dropForeignKeyConstraint baseTableName="profile_attachment" constraintName="profile_attachment_attachment_id_fk_const"/>
+    </changeSet>
+
+
+    <changeSet id="drop-attachment-table" author="a.verbitskii">
+        <dropTable tableName="attachment"/>
+    </changeSet>
+
+
+    <changeSet id="create-attachment-table" author="a.verbitskii">
+
+        <createTable tableName="attachment">
+            <column name="id" type="BIGINT">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="name" type="VARCHAR(255)"/>
+            <column name="size_bytes" type="BIGINT"/>
+            <column name="mime_type" type="VARCHAR(255)"/>
+            <column name="content_md5" type="VARCHAR(255)"/>
+            <column name="created_at" type="timestamptz"/>
+            <column name="created_by" type="integer"/>
+            <column name="updated_at" type="timestamptz"/>
+            <column name="updated_by" type="integer"/>
+            <column name="is_active" type="boolean" defaultValueBoolean="true"/>
+        </createTable>
+    </changeSet>
+
+    <changeSet author="a.verbitskii" id="add_attachment_relationships">
+
+        <addColumn tableName="bank">
+            <column name="attachment_id" type="BIGINT"/>
+        </addColumn>
+
+        <addColumn tableName="borrower_documents">
+            <column name="attachment_id" type="BIGINT"/>
+        </addColumn>
+
+        <dropColumn tableName="profile_attachment" columnName="attachment_id"/>
+        <addColumn tableName="profile_attachment">
+            <column name="attachment_id" type="bigint"/>
+        </addColumn>
+
+        <addUniqueConstraint tableName="bank" constraintName="unique_bank_attachment_id" columnNames="attachment_id"/>
+        <addUniqueConstraint tableName="borrower_documents" constraintName="unique_borrower_documents_attachment_id" columnNames="attachment_id"/>
+        <addUniqueConstraint tableName="profile_attachment" constraintName="unique_profile_attachment_attachment_id" columnNames="attachment_id"/>
+
+        <!-- Связь с таблицей bank -->
+        <addForeignKeyConstraint baseTableName="attachment" baseColumnNames="id"
+                                 constraintName="fk_attachment_bank"
+                                 referencedTableName="bank" referencedColumnNames="attachment_id"
+                                 onDelete="CASCADE" onUpdate="CASCADE"/>
+
+        <!-- Связь с таблицей borrower_document -->
+        <addForeignKeyConstraint baseTableName="attachment" baseColumnNames="id"
+                                 constraintName="fk_attachment_borrower_documents"
+                                 referencedTableName="borrower_documents" referencedColumnNames="attachment_id"
+                                 onDelete="CASCADE" onUpdate="CASCADE"/>
+
+        <!-- Связь с таблицей Profile через таблицу profile_attachment -->
+        <addForeignKeyConstraint baseTableName="profile_attachment" baseColumnNames="attachment_id"
+                                 constraintName="fk_profile_attachment_attachment"
+                                 referencedTableName="attachment" referencedColumnNames="id"
+                                 onDelete="CASCADE" onUpdate="CASCADE"/>
+    </changeSet>
+
+</databaseChangeLog>

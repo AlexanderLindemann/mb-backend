@@ -15,8 +15,6 @@ public class BorrowerDocumentRequest {
 
     private UUID borrowerProfileId;
 
-    private MultipartFile multipartFile;
-
     private DocumentType documentType;
 
     private UUID bankId;

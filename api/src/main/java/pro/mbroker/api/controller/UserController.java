@@ -9,7 +9,7 @@ import pro.mbroker.api.dto.response.UserResponse;
 
 @Api(value = "API Получения данных пользователя", tags = "API Получения данных пользователя")
 @RestController
-@RequestMapping("/api/v1/user")
+@RequestMapping("/public/v1/user")
 public interface UserController { // Контроллер, который отдает информацию о пользователе
 
     @ApiOperation("Получение прав пользователя")

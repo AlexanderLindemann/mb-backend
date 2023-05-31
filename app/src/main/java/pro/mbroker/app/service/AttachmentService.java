@@ -31,7 +31,8 @@ public interface AttachmentService {
      * @param documentDto Объект BorrowerDocumentRequest, содержащий информацию о документе.
      * @return Сохраненный объект BorrowerDocument, представляющий загруженный документ.
      */
-    BorrowerDocument uploadDocument(BorrowerDocumentRequest documentDto);
+    BorrowerDocument uploadDocument(MultipartFile file,
+                                    BorrowerDocumentRequest documentDto);
 
     /**
      * Получает объект вложения по идентификатору.

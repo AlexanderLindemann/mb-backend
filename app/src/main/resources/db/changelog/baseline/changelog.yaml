@@ -50,3 +50,6 @@ databaseChangeLog:
   - include:
       file: 20230530_1455-add-new-column-in partner-and-borrower-tables.xml
       relativeToChangelogFile: true
+  - include:
+      file: 20230530_1430-change-borrower-document-and-attachment.xml
+      relativeToChangelogFile: true
