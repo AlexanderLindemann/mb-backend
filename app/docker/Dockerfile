@@ -22,6 +22,7 @@ CMD java \
     -Dcom.sun.management.jmxremote.rmi.port=8003 \
     -Dcom.sun.management.jmxremote.ssl=false \
     -Dcom.sun.management.jmxremote.authenticate=false \
+    -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=8004 \
     $MEM_ARGS \
     $JVM_ARGS \
 	-jar app.jar \
@@ -36,5 +37,8 @@ EXPOSE 8080
 
 #JMX Port
 EXPOSE 8003
+
+#DEBUG Port
+EXPOSE 8004
 
 COPY app.jar /app
