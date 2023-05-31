@@ -99,11 +99,9 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
     @Transactional
     public PartnerApplication updatePartnerApplication(UUID partnerApplicationId, PartnerApplicationRequest request) {
         PartnerApplication existingPartnerApplication = getPartnerApplicationByIdWithPermission(partnerApplicationId);
-        RealEstate realEstate = realEstateService.findById(request.getRealEstateId());
-        Partner partner = realEstate.getPartner();
         partnerApplicationMapper.updatePartnerApplicationFromRequest(request, existingPartnerApplication);
-        existingPartnerApplication.setPartner(partner);
-        existingPartnerApplication.setRealEstate(realEstate);
+        mortgageCalculationMapper.updateMortgageCalculationFromRequest(request.getMortgageCalculation(), existingPartnerApplication.getMortgageCalculation());
+        existingPartnerApplication.setRealEstate(realEstateService.findById(request.getRealEstateId()));
         List<BankApplication> updatedBorrowerApplications = buildBorrowerApplications(request, existingPartnerApplication);
         existingPartnerApplication.setBankApplications(updatedBorrowerApplications);
         return partnerApplicationRepository.save(existingPartnerApplication);
@@ -186,6 +184,31 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
                 .collect(Collectors.toList());
     }
 
+    private List<BankApplication> buildBorrowerApplications(PartnerApplicationRequest request, PartnerApplication partnerApplication) {
+        bankApplicationMapper.updateBankApplicationsFromRequests(partnerApplication.getBankApplications(), request.getBankApplications());
+        List<UUID> creditProgramIds = request.getBankApplications().stream()
+                .map(BankApplicationRequest::getCreditProgramId)
+                .collect(Collectors.toList());
+        List<UUID> existingBorrowerApplicationIds = request.getBankApplications().stream()
+                .map(BankApplicationRequest::getId)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+        Map<UUID, CreditProgram> creditProgramMap = creditProgramRepository.findByIdInWithBank(creditProgramIds).stream()
+                .collect(Collectors.toMap(CreditProgram::getId, Function.identity()));
+        List<BankApplication> applicationList = bankApplicationRepository.findAllById(existingBorrowerApplicationIds);
+        Map<UUID, BankApplication> existingBorrowerApplicationsMap = applicationList.stream()
+                .collect(Collectors.toMap(BankApplication::getId, Function.identity()));
+        return request.getBankApplications().stream()
+                .map(borrowerRequest -> {
+                    BankApplication existingBankApplication = existingBorrowerApplicationsMap.get(borrowerRequest.getId());
+                    BankApplication updatedBankApplication = bankApplicationMapper.updateBankApplicationFromRequest(existingBankApplication, borrowerRequest);
+                    updatedBankApplication.setPartnerApplication(partnerApplication);
+                    updatedBankApplication.setCreditProgram(creditProgramMap.get(borrowerRequest.getCreditProgramId()));
+                    return updatedBankApplication;
+                })
+                .collect(Collectors.toList());
+    }
+
     private void sortBankApplicationList(String sortBy, String sortDirection, List<BankApplication> bankApplications) {
         Comparator<BankApplication> comparator;
         if (sortBy != null) {
@@ -201,29 +224,6 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
 
             bankApplications.sort(comparator);
         }
-    }
-
-    private List<BankApplication> buildBorrowerApplications(PartnerApplicationRequest request, PartnerApplication partnerApplication) {
-        List<UUID> creditProgramIds = request.getBankApplications().stream()
-                .map(BankApplicationRequest::getCreditProgramId)
-                .collect(Collectors.toList());
-        List<UUID> existingBorrowerApplicationIds = request.getBankApplications().stream()
-                .map(BankApplicationRequest::getId)
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList());
-        Map<UUID, CreditProgram> creditProgramMap = creditProgramRepository.findByIdInWithBank(creditProgramIds).stream()
-                .collect(Collectors.toMap(CreditProgram::getId, Function.identity()));
-        Map<UUID, BankApplication> existingBorrowerApplicationsMap = bankApplicationRepository.findAllById(existingBorrowerApplicationIds).stream()
-                .collect(Collectors.toMap(BankApplication::getId, Function.identity()));
-        return request.getBankApplications().stream()
-                .map(borrowerRequest -> {
-                    BankApplication existingBankApplication = existingBorrowerApplicationsMap.get(borrowerRequest.getId());
-                    BankApplication updatedBankApplication = bankApplicationMapper.updateBankApplicationFromRequest(existingBankApplication, borrowerRequest);
-                    updatedBankApplication.setPartnerApplication(partnerApplication);
-                    updatedBankApplication.setCreditProgram(creditProgramMap.get(borrowerRequest.getCreditProgramId()));
-                    return updatedBankApplication;
-                })
-                .collect(Collectors.toList());
     }
 
 

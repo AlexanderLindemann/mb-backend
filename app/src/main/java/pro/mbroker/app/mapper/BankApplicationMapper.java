@@ -8,7 +8,12 @@ import pro.mbroker.api.dto.response.BankApplicationResponse;
 import pro.mbroker.api.enums.BankApplicationStatus;
 import pro.mbroker.app.entity.BankApplication;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Mapper(uses = BorrowerProfileMapper.class)
 public interface BankApplicationMapper {
@@ -53,4 +58,20 @@ public interface BankApplicationMapper {
         existing.setOverpayment(request.getOverpayment());
         return existing;
     }
+
+    default List<BankApplication> updateBankApplicationsFromRequests(List<BankApplication> existingList, List<BankApplicationRequest> requestList) {
+        Map<UUID, BankApplication> existingMap = existingList.stream()
+                .collect(Collectors.toMap(BankApplication::getId, Function.identity()));
+        List<BankApplication> resultList = new ArrayList<>();
+        for (BankApplicationRequest request : requestList) {
+            BankApplication existing = existingMap.get(request.getId());
+            if (existing == null) {
+                existing = new BankApplication();
+            }
+            updateBankApplicationFromRequest(existing, request);
+            resultList.add(existing);
+        }
+        return resultList;
+    }
+
 }

@@ -9,7 +9,7 @@ import pro.mbroker.app.entity.PartnerApplication;
 
 import java.util.List;
 
-@Mapper(config = ProgramMapperConfig.class, uses = {RealEstateMapper.class, BankApplicationMapper.class})
+@Mapper(config = ProgramMapperConfig.class, uses = {RealEstateMapper.class, BankApplicationMapper.class, MortgageCalculationMapper.class})
 public interface PartnerApplicationMapper {
 
     PartnerApplicationResponse toPartnerApplicationResponse(PartnerApplication partnerApplication);
@@ -41,8 +41,8 @@ public interface PartnerApplicationMapper {
     @Mapping(target = "createdBy", ignore = true)
     @Mapping(target = "updatedBy", ignore = true)
     @Mapping(target = "active", ignore = true)
+    @Mapping(target = "bankApplications", ignore = true)
     @Mapping(target = "partnerApplicationStatus", ignore = true)
-    @Mapping(target = "mortgageCalculation", ignore = true)
     @Mapping(target = "borrowerProfiles", ignore = true)
     void updatePartnerApplicationFromRequest(PartnerApplicationRequest request, @MappingTarget PartnerApplication partnerApplication);
 

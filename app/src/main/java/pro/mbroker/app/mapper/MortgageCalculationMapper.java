@@ -2,6 +2,7 @@ package pro.mbroker.app.mapper;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
 import pro.mbroker.api.dto.MortgageCalculationDto;
 import pro.mbroker.app.entity.MortgageCalculation;
 
@@ -14,4 +15,13 @@ public interface MortgageCalculationMapper {
     @Mapping(target = "updatedBy", ignore = true)
     @Mapping(target = "active", ignore = true)
     MortgageCalculation toMortgageCalculation(MortgageCalculationDto mortgageCalculationDto);
+
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "updatedAt", ignore = true)
+    @Mapping(target = "createdBy", ignore = true)
+    @Mapping(target = "updatedBy", ignore = true)
+    @Mapping(target = "active", ignore = true)
+    void updateMortgageCalculationFromRequest(MortgageCalculationDto request, @MappingTarget MortgageCalculation mortgageCalculation);
+
 }
