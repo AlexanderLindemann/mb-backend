@@ -30,4 +30,7 @@ public class MortgageCalculation extends BaseEntity {
     @Column(name = "credit_term", nullable = false)
     private Integer monthCreditTerm;
 
+    @Column(name = "is_maternal_capital", nullable = false)
+    private Boolean isMaternalCapital;
+
 }

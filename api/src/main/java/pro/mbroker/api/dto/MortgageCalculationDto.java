@@ -19,4 +19,6 @@ public class MortgageCalculationDto {
 
     private Integer monthCreditTerm;
 
+    private Boolean isMaternalCapital;
+
 }
