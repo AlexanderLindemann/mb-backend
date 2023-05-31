@@ -67,6 +67,9 @@ public class CreditProgramServiceImpl implements CreditProgramService {
         }
         programMapper.updateProgramFromRequest(updateProgramRequest, creditProgram);
         creditProgram.setCreditParameter(creditParameter);
+        if (!creditProgram.getBank().getId().equals(updateProgramRequest.getBankId())) {
+            creditProgram.setBank(bankService.getBankById(updateProgramRequest.getBankId()));
+        }
         CreditProgramDetail creditProgramDetailCurrent = creditProgram.getCreditProgramDetail();
         creditProgramDetailMapper.updateProgramDetail(updateCreditProgramDetail, creditProgramDetailCurrent);
         return creditProgramRepository.save(creditProgram);

@@ -24,6 +24,6 @@ public interface PartnerApplicationRepository extends JpaRepository<PartnerAppli
     List<PartnerApplication> findAllByIsActiveTrue(Pageable pageable);
 
     @EntityGraph(attributePaths = {"bankApplications.creditProgram", "bankApplications.creditProgram.bank"})
-    List<PartnerApplication> findAllByCreatedByAndActiveTrue(Integer createBy, Pageable pageable);
+    List<PartnerApplication> findAllByCreatedByAndIsActiveTrue(Integer createBy, Pageable pageable);
 
 }
