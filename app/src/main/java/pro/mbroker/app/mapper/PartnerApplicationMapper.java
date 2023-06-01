@@ -44,6 +44,7 @@ public interface PartnerApplicationMapper {
     @Mapping(target = "bankApplications", ignore = true)
     @Mapping(target = "partnerApplicationStatus", ignore = true)
     @Mapping(target = "borrowerProfiles", ignore = true)
+    @Mapping(target = "mortgageCalculation", ignore = true)
     void updatePartnerApplicationFromRequest(PartnerApplicationRequest request, @MappingTarget PartnerApplication partnerApplication);
 
 }

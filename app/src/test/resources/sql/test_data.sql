@@ -48,6 +48,6 @@ VALUES ('1348b508-f476-11ed-a05b-0242ac120003', '5ff4b32c-f967-4cb1-8705-7470a32
        ('7cb535d6-f92e-11ed-be56-0242ac120002', '7addcbef-c1e0-4de1-adeb-377f864efcfa', 'Petr', 'Petrov', 'Petrovich', '+90000000000', 'test2@test.com', '2023-05-17 13:46:26.000000', null, 0, null, true);
 
 INSERT INTO public.bank_application (id, credit_program_id, application_status, monthly_payment, down_payment, credit_term, overpayment, partner_application_id, created_at, updated_at, created_by, updated_by, is_active, main_borrower)
-VALUES ('3b339aa4-5462-485a-9118-5922cd948566', 'bfda8d66-d926-11ed-afa1-0242ac120002', 'UPLOADING_DOCUMENTS', 60000, 500000, 120, 6000000, '5ff4b32c-f967-4cb1-8705-7470a321fe34', '2023-05-09 14:35:58.039296', '2023-05-09 14:35:58.039296', 2929, null, true, '1348b508-f476-11ed-a05b-0242ac120003'),
-       ('f5cdbc9c-f53f-11ed-a05b-0242ac120003', 'bfda8d66-d926-11ed-afa1-0242ac120002', 'UPLOADING_DOCUMENTS', 60000, 500000, 120, 6000000, '5ff4b32c-f967-4cb1-8705-7470a321fe34', '2023-05-09 14:35:58.039296', '2023-05-09 14:35:58.039296', 2929, null, true, '7cb535d6-f92e-11ed-be56-0242ac120002');
+VALUES ('3b339aa4-5462-485a-9118-5922cd948566', 'bfda8d66-d926-11ed-afa1-0242ac120002', 'DATA_NO_ENTERED', 60000, 500000, 120, 6000000, '5ff4b32c-f967-4cb1-8705-7470a321fe34', '2023-05-09 14:35:58.039296', '2023-05-09 14:35:58.039296', 2929, null, true, '1348b508-f476-11ed-a05b-0242ac120003'),
+       ('f5cdbc9c-f53f-11ed-a05b-0242ac120003', 'bfda8d66-d926-11ed-afa1-0242ac120002', 'DATA_NO_ENTERED', 60000, 500000, 120, 6000000, '5ff4b32c-f967-4cb1-8705-7470a321fe34', '2023-05-09 14:35:58.039296', '2023-05-09 14:35:58.039296', 2929, null, true, '7cb535d6-f92e-11ed-be56-0242ac120002');
 

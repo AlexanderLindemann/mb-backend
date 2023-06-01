@@ -1,8 +1,6 @@
 package pro.mbroker.app.mapper;
 
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.Named;
+import org.mapstruct.*;
 import pro.mbroker.api.dto.request.BankApplicationRequest;
 import pro.mbroker.api.dto.response.BankApplicationResponse;
 import pro.mbroker.api.enums.BankApplicationStatus;
@@ -22,6 +20,7 @@ public interface BankApplicationMapper {
     @Mapping(target = "mortgageSum", ignore = true)
     @Mapping(target = "coBorrowers", ignore = true)
     @Mapping(source = "creditProgram.id", target = "creditProgramId")
+    @Mapping(target = "creditTerm", ignore = true)
     @Mapping(source = "creditProgram.programName", target = "programName")
     BankApplicationResponse toBankApplicationResponse(BankApplication bankApplication);
 
@@ -33,7 +32,7 @@ public interface BankApplicationMapper {
     @Mapping(target = "bankApplicationStatus", ignore = true)
     @Mapping(source = "dto.monthlyPayment", target = "monthlyPayment")
     @Mapping(source = "dto.downPayment", target = "downPayment")
-    @Mapping(source = "dto.monthCreditTerm", target = "monthCreditTerm")
+    @Mapping(source = "dto.creditTerm", target = "monthCreditTerm")
     @Mapping(source = "dto.overpayment", target = "overpayment")
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
@@ -47,6 +46,13 @@ public interface BankApplicationMapper {
     @Mapping(target = "id", ignore = true)
     List<BankApplication> toBankApplicationList(List<BankApplicationRequest> dtos);
 
+    @AfterMapping
+    default void calculateCreditTermInYears(@MappingTarget BankApplicationResponse response, BankApplication bankApplication) {
+        if (bankApplication.getMonthCreditTerm() != null) {
+            response.setCreditTerm(bankApplication.getMonthCreditTerm() / 12);
+        }
+    }
+
     default BankApplication updateBankApplicationFromRequest(BankApplication existing, BankApplicationRequest request) {
         if (existing == null) {
             existing = new BankApplication();
@@ -55,7 +61,7 @@ public interface BankApplicationMapper {
         existing.setMonthlyPayment(request.getMonthlyPayment());
         existing.setRealEstatePrice(request.getRealEstatePrice());
         existing.setDownPayment(request.getDownPayment());
-        existing.setMonthCreditTerm(request.getMonthCreditTerm());
+        existing.setMonthCreditTerm(request.getCreditTerm() * 12);
         existing.setOverpayment(request.getOverpayment());
         return existing;
     }

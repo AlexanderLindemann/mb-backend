@@ -22,7 +22,7 @@ public class BankApplicationRequest {
 
     private BigDecimal downPayment;
 
-    private Integer monthCreditTerm;
+    private Integer creditTerm;
 
     private BigDecimal overpayment;
 

@@ -12,7 +12,6 @@ import pro.mbroker.api.dto.request.BankApplicationRequest;
 import pro.mbroker.api.dto.request.BorrowerProfileRequest;
 import pro.mbroker.api.dto.request.PartnerApplicationRequest;
 import pro.mbroker.api.dto.response.BankApplicationResponse;
-import pro.mbroker.api.dto.response.BorrowerProfileResponse;
 import pro.mbroker.api.dto.response.PartnerApplicationResponse;
 import pro.mbroker.api.enums.BankApplicationStatus;
 import pro.mbroker.api.enums.RegionType;
@@ -122,20 +121,19 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
         List<BankApplication> borrowerApplications = partnerApplication.getBankApplications();
         Map<UUID, BorrowerProfile> borrowerProfileMap = partnerApplication.getBorrowerProfiles().stream()
                 .collect(Collectors.toMap(BorrowerProfile::getId, Function.identity()));
-        if (borrowerApplications != null && borrowerApplications.size() > 0) {
-            IntStream.range(0, borrowerApplications.size())
-                    .forEach(i -> {
-                        BankApplication bankApplication = borrowerApplications.get(i);
-                        BankApplicationResponse bankApplicationResponse = response.getBankApplications().get(i);
-                        BigDecimal mortgageSum = calculatorService.getMortgageSum(bankApplication.getRealEstatePrice(), bankApplication.getDownPayment());
-                        bankApplicationResponse.setMortgageSum(mortgageSum);
-                        bankApplicationResponse.setCoBorrowers(borrowerProfileMap.values().stream()
-                                .filter(borrowerProfile -> bankApplication.getMainBorrower() != null
-                                        && !borrowerProfile.getId().equals(bankApplication.getMainBorrower().getId()))
-                                .map(borrowerProfileMapper::toBorrowerProfileResponse)
-                                .collect(Collectors.toList()));
-                    });
-        }
+        IntStream.range(0, borrowerApplications.size())
+                .forEach(i -> {
+                    BankApplication bankApplication = borrowerApplications.get(i);
+                    BankApplicationResponse bankApplicationResponse = response.getBankApplications().get(i);
+                    BigDecimal mortgageSum = calculatorService.getMortgageSum(bankApplication.getRealEstatePrice(), bankApplication.getDownPayment());
+                    bankApplicationResponse.setMortgageSum(mortgageSum);
+                    BorrowerProfile mainBorrower = bankApplication.getMainBorrower();
+                    UUID mainBorrowerId = mainBorrower != null ? mainBorrower.getId() : null;
+                    bankApplicationResponse.setCoBorrowers(borrowerProfileMap.values().stream()
+                            .filter(borrowerProfile -> mainBorrower == null || !borrowerProfile.getId().equals(mainBorrowerId))
+                            .map(borrowerProfileMapper::toBorrowerProfileResponse)
+                            .collect(Collectors.toList()));
+                });
         return response;
     }
 
@@ -202,6 +200,10 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
         List<BankApplication> applicationList = bankApplicationRepository.findAllById(existingBorrowerApplicationIds);
         Map<UUID, BankApplication> existingBorrowerApplicationsMap = applicationList.stream()
                 .collect(Collectors.toMap(BankApplication::getId, Function.identity()));
+        MortgageCalculation mortgageCalculation = partnerApplication.getMortgageCalculation();
+        if (Objects.isNull(mortgageCalculation.getIsMaternalCapital())) {
+            mortgageCalculation.setIsMaternalCapital(false);
+        }
         return request.getBankApplications().stream()
                 .map(borrowerRequest -> {
                     BankApplication existingBankApplication = existingBorrowerApplicationsMap.get(borrowerRequest.getId());
