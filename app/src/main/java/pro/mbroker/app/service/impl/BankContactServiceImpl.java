@@ -50,7 +50,7 @@ public class BankContactServiceImpl implements BankContactService {
     @Override
     @Transactional(readOnly = true)
     public List<BankContact> getBankContact(UUID bankId) {
-        Specification<BankContact> specification = BankContactSpecification.isActive();
+        Specification<BankContact> specification = BankContactSpecification.bankContactByBankIdAndIsActive(bankId);
         return bankContactRepository.findAll(specification);
     }
 
