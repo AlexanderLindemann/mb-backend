@@ -200,6 +200,10 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
         List<BankApplication> applicationList = bankApplicationRepository.findAllById(existingBorrowerApplicationIds);
         Map<UUID, BankApplication> existingBorrowerApplicationsMap = applicationList.stream()
                 .collect(Collectors.toMap(BankApplication::getId, Function.identity()));
+        MortgageCalculation mortgageCalculation = partnerApplication.getMortgageCalculation();
+        if(Objects.isNull(mortgageCalculation.getIsMaternalCapital())){
+            mortgageCalculation.setIsMaternalCapital(false);
+        }
         return request.getBankApplications().stream()
                 .map(borrowerRequest -> {
                     BankApplication existingBankApplication = existingBorrowerApplicationsMap.get(borrowerRequest.getId());

@@ -11,7 +11,7 @@ import java.util.List;
 
 @Mapper(config = ProgramMapperConfig.class, uses = {RealEstateMapper.class, BankApplicationMapper.class, MortgageCalculationMapper.class})
 public interface PartnerApplicationMapper {
-
+    @Mapping(target = "mortgageCalculation", source = "mortgageCalculation")
     PartnerApplicationResponse toPartnerApplicationResponse(PartnerApplication partnerApplication);
 
     List<PartnerApplicationResponse> toPartnerApplicationResponseList(List<PartnerApplication> partnerApplications);
@@ -44,6 +44,7 @@ public interface PartnerApplicationMapper {
     @Mapping(target = "bankApplications", ignore = true)
     @Mapping(target = "partnerApplicationStatus", ignore = true)
     @Mapping(target = "borrowerProfiles", ignore = true)
+    @Mapping(target = "mortgageCalculation", ignore = true)
     void updatePartnerApplicationFromRequest(PartnerApplicationRequest request, @MappingTarget PartnerApplication partnerApplication);
 
 }

@@ -17,7 +17,7 @@ public class MortgageCalculationDto {
 
     private BigDecimal monthlyPayment;
 
-    private Integer monthCreditTerm;
+    private Integer creditTerm;
 
     private Boolean isMaternalCapital;
 

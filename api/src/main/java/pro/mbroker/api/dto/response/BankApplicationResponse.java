@@ -32,7 +32,7 @@ public class BankApplicationResponse {
 
     private BigDecimal downPayment;
 
-    private Integer monthCreditTerm;
+    private Integer creditTerm;
 
     private BigDecimal overpayment;
 
