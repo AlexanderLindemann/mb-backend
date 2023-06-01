@@ -21,6 +21,7 @@ public interface BankApplicationMapper {
     @Mapping(target = "coBorrowers", ignore = true)
     @Mapping(source = "creditProgram.id", target = "creditProgramId")
     @Mapping(target = "creditTerm", ignore = true)
+    @Mapping(source = "creditProgram.programName", target = "programName")
     BankApplicationResponse toBankApplicationResponse(BankApplication bankApplication);
 
     List<BankApplicationResponse> toBorrowerApplicationDtoList(List<BankApplication> bankApplications);
