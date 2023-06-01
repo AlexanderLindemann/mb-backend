@@ -127,8 +127,10 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
                     BankApplicationResponse bankApplicationResponse = response.getBankApplications().get(i);
                     BigDecimal mortgageSum = calculatorService.getMortgageSum(bankApplication.getRealEstatePrice(), bankApplication.getDownPayment());
                     bankApplicationResponse.setMortgageSum(mortgageSum);
+                    BorrowerProfile mainBorrower = bankApplication.getMainBorrower();
+                    UUID mainBorrowerId = mainBorrower != null ? mainBorrower.getId() : null;
                     bankApplicationResponse.setCoBorrowers(borrowerProfileMap.values().stream()
-                            .filter(borrowerProfile -> !borrowerProfile.getId().equals(bankApplication.getMainBorrower().getId()))
+                            .filter(borrowerProfile -> mainBorrower == null || !borrowerProfile.getId().equals(mainBorrowerId))
                             .map(borrowerProfileMapper::toBorrowerProfileResponse)
                             .collect(Collectors.toList()));
                 });
