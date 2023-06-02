@@ -23,10 +23,21 @@ public class CreditProgramConverter {
 
     public CreditProgramDetail convertCreditDetailToStringFormat(BankProgramRequest createCreditParameter) {
         return new CreditProgramDetail()
-                .setCreditPurposeType(Converter.convertEnumListToStringList(createCreditParameter.getCreditPurposeType()))
-                .setInclude(Converter.convertEnumListToStringList(createCreditParameter.getInclude()))
-                .setExclude(Converter.convertEnumListToStringList(createCreditParameter.getExclude()))
-                .setRealEstateType(Converter.convertEnumListToStringList(createCreditParameter.getRealEstateType()));
+                .setCreditPurposeType(
+                        createCreditParameter.getCreditPurposeType() != null
+                                ? Converter.convertEnumListToStringList(createCreditParameter.getCreditPurposeType())
+                                : null)
+                .setInclude(
+                        createCreditParameter.getInclude() != null
+                                ? Converter.convertEnumListToStringList(createCreditParameter.getInclude())
+                                : null)
+                .setExclude(
+                        createCreditParameter.getExclude() != null
+                                ? Converter.convertEnumListToStringList(createCreditParameter.getExclude())
+                                : null)
+                .setRealEstateType(
+                        createCreditParameter.getRealEstateType() != null
+                                ? Converter.convertEnumListToStringList(createCreditParameter.getRealEstateType())
+                                : null);
     }
-
 }
