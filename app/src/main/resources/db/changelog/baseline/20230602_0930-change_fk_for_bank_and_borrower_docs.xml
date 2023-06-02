@@ -5,19 +5,12 @@
         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
 
     <changeSet author="a.verbitskii" id="add_foreign_key_constraints">
-        <preConditions>
-            <tableExists tableName="attachment" />
-            <tableExists tableName="bank" />
-            <tableExists tableName="borrower_documents" />
-        </preConditions>
-        <dropForeignKeyConstraint
-                baseTableName="attachment"
-                constraintName="fk_attachment_bank"
-        />
-        <dropForeignKeyConstraint
-                baseTableName="attachment"
-                constraintName="fk_attachment_borrower_documents"
-        />
+        <sql>
+            ALTER TABLE attachment DROP CONSTRAINT IF EXISTS fk_attachment_bank;
+            ALTER TABLE attachment DROP CONSTRAINT IF EXISTS fk_attachment_borrower_documents;
+            ALTER TABLE bank DROP CONSTRAINT IF EXISTS fk_attachment_bank;
+            ALTER TABLE borrower_documents DROP CONSTRAINT IF EXISTS fk_attachment_borrower_documents;
+        </sql>
         <addForeignKeyConstraint
                 baseTableName="bank"
                 baseColumnNames="attachment_id"
