@@ -34,7 +34,6 @@ public class BankContactControllerImpl implements BankContactController {
         return bankMapper.toBankResponseMapper(bank);
     }
 
-
     @Override
     @PreAuthorize("hasAuthority(T(pro.smartdeal.common.security.Permission$Code).MB_ADMIN_ACCESS)")
     public void deleteBankContact(UUID contactId) {

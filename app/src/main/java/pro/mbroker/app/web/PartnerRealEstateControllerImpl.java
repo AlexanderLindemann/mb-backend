@@ -32,6 +32,7 @@ public class PartnerRealEstateControllerImpl implements PartnerRealEstateControl
     private final RealEstateMapper realEstateMapper;
 
     @Override
+    @PreAuthorize("hasAuthority(T(pro.smartdeal.common.security.Permission$Code).MB_ADMIN_ACCESS)")
     public PartnerResponse addRealEstate(UUID partnerId, RealEstateRequest request) {
         partnerRealEstateService.addRealEstate(partnerId, request);
         Partner partner = partnerService.getPartner(partnerId);
@@ -45,7 +46,8 @@ public class PartnerRealEstateControllerImpl implements PartnerRealEstateControl
     }
 
     @Override
-    @PreAuthorize("hasAuthority(T(pro.smartdeal.common.security.Permission$Code).MB_ADMIN_ACCESS)")
+    @PreAuthorize("hasAuthority(T(pro.smartdeal.common.security.Permission$Code).MB_ADMIN_ACCESS) or" +
+            " hasAnyAuthority(T(pro.smartdeal.common.security.Permission$Code).MB_REQUEST_READ_ORGANIZATION)")
     public PartnerResponse updateRealEstate(RealEstateRequest request) {
         RealEstate realEstate = partnerRealEstateService.updateRealEstate(request.getId(), request);
         Partner partner = partnerService.getPartner(realEstate.getPartner().getId());

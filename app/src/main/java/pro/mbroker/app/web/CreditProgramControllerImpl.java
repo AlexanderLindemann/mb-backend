@@ -37,6 +37,7 @@ public class CreditProgramControllerImpl implements CreditProgramController {
     }
 
     @Override
+    @PreAuthorize("hasAuthority(T(pro.smartdeal.common.security.Permission$Code).MB_ADMIN_ACCESS)")
     public CreditProgramResponse getProgramByCreditProgramId(UUID creditProgramId) {
         CreditProgram creditProgram = creditProgramService.getProgramByCreditProgramId(creditProgramId);
         return programMapper.toProgramResponseMapper(creditProgram)
@@ -44,6 +45,7 @@ public class CreditProgramControllerImpl implements CreditProgramController {
     }
 
     @Override
+    @PreAuthorize("hasAuthority(T(pro.smartdeal.common.security.Permission$Code).MB_ADMIN_ACCESS)")
     public List<CreditProgramResponse> getProgramsByBankId(UUID bankId) {
         List<CreditProgram> programsByBankId = creditProgramService.getProgramsByBankId(bankId);
         return programsByBankId.stream()
