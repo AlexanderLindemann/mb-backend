@@ -56,3 +56,6 @@ databaseChangeLog:
   - include:
       file: 20230530_1430-change-borrower-document-and-attachment.xml
       relativeToChangelogFile: true
+  - include:
+      file: 20230602_0930-change_fk_for_bank_and_borrower_docs.xml
+      relativeToChangelogFile: true
