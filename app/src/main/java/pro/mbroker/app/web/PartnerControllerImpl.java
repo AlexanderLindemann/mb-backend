@@ -32,6 +32,7 @@ public class PartnerControllerImpl implements PartnerController {
 
 
     @Override
+    @PreAuthorize("hasAuthority(T(pro.smartdeal.common.security.Permission$Code).MB_ADMIN_ACCESS)")
     public PartnerResponse createPartner(PartnerRequest request) {
         Partner partner = partnerService.createPartner(request);
         return buildPartnerResponse(partner);
@@ -47,12 +48,14 @@ public class PartnerControllerImpl implements PartnerController {
     }
 
     @Override
+    @PreAuthorize("hasAuthority(T(pro.smartdeal.common.security.Permission$Code).MB_ADMIN_ACCESS)")
     public PartnerResponse getPartnerResponseById(UUID partnerId) {
         Partner partner = partnerService.getIsActivePartner(partnerId);
         return buildPartnerResponse(partner);
     }
 
     @Override
+    @PreAuthorize("hasAuthority(T(pro.smartdeal.common.security.Permission$Code).MB_ADMIN_ACCESS)")
     public PartnerResponse updatePartnerById(UUID partnerId, PartnerRequest request) {
         Partner partner = partnerService.updatePartnerById(partnerId, request);
         return buildPartnerResponse(partner);

@@ -27,7 +27,7 @@ public interface PartnerApplicationMapper {
     @Mapping(target = "mortgageCalculation", ignore = true)
     @Mapping(target = "borrowerProfiles", ignore = true)
     @Mapping(target = "partnerApplicationStatus", ignore = true)
-    @Mapping(target = "bankApplications", source = "bankApplications", qualifiedByName = "toBankApplicationList")
+    @Mapping(target = "bankApplications", ignore = true)
     PartnerApplication toPartnerApplication(PartnerApplicationRequest request);
 
     @Mapping(target = "id", ignore = true)
