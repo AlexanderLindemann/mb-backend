@@ -4,12 +4,14 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.springframework.web.bind.annotation.*;
+import pro.mbroker.api.dto.request.BankApplicationUpdateRequest;
 import pro.mbroker.api.dto.request.PartnerApplicationRequest;
 import pro.mbroker.api.dto.response.BankApplicationResponse;
 import pro.mbroker.api.dto.response.PartnerApplicationResponse;
 import pro.mbroker.api.enums.BankApplicationStatus;
 import pro.mbroker.api.enums.RegionType;
 
+import javax.validation.constraints.NotNull;
 import java.util.List;
 import java.util.UUID;
 
@@ -60,4 +62,16 @@ public interface PartnerApplicationController {
             @RequestParam(required = false) String sortBy,
             @RequestParam(required = false) String sortDirection
     );
+
+    @ApiOperation("включить программу банка")
+    @PutMapping("/enable_bank_application/{partnerApplicationId}")
+    PartnerApplicationResponse enableBankApplication(
+            @PathVariable UUID partnerApplicationId,
+            @ApiParam(value = "заявка банка") @RequestBody BankApplicationUpdateRequest request);
+
+    @ApiOperation("исключить программу банка")
+    @PutMapping("/disable_bank_application/{partnerApplicationId}")
+    PartnerApplicationResponse disableBankApplication(
+            @PathVariable UUID partnerApplicationId,
+            @NotNull @RequestParam("creditProgramId") UUID creditProgramId);
 }

@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 import pro.mbroker.api.controller.PartnerApplicationController;
+import pro.mbroker.api.dto.request.BankApplicationUpdateRequest;
 import pro.mbroker.api.dto.request.PartnerApplicationRequest;
 import pro.mbroker.api.dto.response.BankApplicationResponse;
 import pro.mbroker.api.dto.response.PartnerApplicationResponse;
@@ -88,6 +89,18 @@ public class PartnerApplicationControllerImpl implements PartnerApplicationContr
                 applicationStatus,
                 sortBy,
                 sortDirection);
+    }
+
+    @Override
+    public PartnerApplicationResponse enableBankApplication(UUID partnerApplicationId, BankApplicationUpdateRequest request) {
+        PartnerApplication partnerApplication = partnerApplicationService.enableBankApplication(partnerApplicationId, request);
+        return partnerApplicationService.buildPartnerApplicationResponse(partnerApplication);
+    }
+
+    @Override
+    public PartnerApplicationResponse disableBankApplication(UUID partnerApplicationId, UUID creditProgramId) {
+        PartnerApplication partnerApplication = partnerApplicationService.disableBankApplication(partnerApplicationId, creditProgramId);
+        return partnerApplicationService.buildPartnerApplicationResponse(partnerApplication);
     }
 
 }
