@@ -16,14 +16,22 @@ public interface PartnerApplicationRepository extends JpaRepository<PartnerAppli
     @EntityGraph(attributePaths = {"bankApplications.creditProgram", "bankApplications.creditProgram.bank"})
     List<PartnerApplication> findAllByPartner(Partner partner, Pageable pageable);
 
-    @EntityGraph(attributePaths = {"bankApplications.creditProgram", "bankApplications.creditProgram.bank"})
-    @Query("SELECT pa FROM PartnerApplication pa WHERE pa.id IN (SELECT pa.id FROM PartnerApplication pa WHERE pa.partner.id = :partnerId AND pa.isActive = true)")
+    @Query("SELECT pa FROM PartnerApplication pa " +
+            "JOIN FETCH pa.bankApplications ba " +
+            "JOIN FETCH ba.creditProgram cp " +
+            "JOIN FETCH cp.bank WHERE pa.partner.id = :partnerId AND pa.isActive = true")
     List<PartnerApplication> findAllIsActiveByPartnerId(@Param("partnerId") UUID partnerId, Pageable pageable);
 
-    @EntityGraph(attributePaths = {"bankApplications.creditProgram", "bankApplications.creditProgram.bank"})
+    @Query("SELECT pa FROM PartnerApplication pa " +
+            "JOIN FETCH pa.bankApplications ba " +
+            "JOIN FETCH ba.creditProgram cp " +
+            "JOIN FETCH cp.bank WHERE pa.isActive = true")
     List<PartnerApplication> findAllByIsActiveTrue(Pageable pageable);
 
-    @EntityGraph(attributePaths = {"bankApplications.creditProgram", "bankApplications.creditProgram.bank"})
+    @Query("SELECT pa FROM PartnerApplication pa " +
+            "JOIN FETCH pa.bankApplications ba " +
+            "JOIN FETCH ba.creditProgram cp " +
+            "JOIN FETCH cp.bank WHERE pa.createdBy = :createdBy AND pa.isActive = true")
     List<PartnerApplication> findAllByCreatedByAndIsActiveTrue(Integer createBy, Pageable pageable);
 
 }
