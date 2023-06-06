@@ -2,6 +2,7 @@ package pro.mbroker.app.mapper;
 
 import org.mapstruct.*;
 import pro.mbroker.api.dto.request.BankApplicationRequest;
+import pro.mbroker.api.dto.request.BankApplicationUpdateRequest;
 import pro.mbroker.api.dto.response.BankApplicationResponse;
 import pro.mbroker.api.enums.BankApplicationStatus;
 import pro.mbroker.app.entity.BankApplication;
@@ -42,6 +43,22 @@ public interface BankApplicationMapper {
     @Mapping(target = "mainBorrower", ignore = true)
     BankApplication toBankApplication(BankApplicationRequest dto);
 
+    @Mapping(source = "dto.creditProgramId", target = "creditProgram.id")
+    @Mapping(target = "partnerApplication", ignore = true)
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "bankApplicationStatus", ignore = true)
+    @Mapping(source = "dto.monthlyPayment", target = "monthlyPayment")
+    @Mapping(source = "dto.downPayment", target = "downPayment")
+    @Mapping(source = "dto.creditTerm", target = "monthCreditTerm")
+    @Mapping(source = "dto.overpayment", target = "overpayment")
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "updatedAt", ignore = true)
+    @Mapping(target = "createdBy", ignore = true)
+    @Mapping(target = "updatedBy", ignore = true)
+    @Mapping(target = "active", ignore = true)
+    @Mapping(target = "mainBorrower", ignore = true)
+    BankApplication toBankApplication(BankApplicationUpdateRequest dto);
+
     @Named("toBankApplicationList")
     @Mapping(target = "id", ignore = true)
     List<BankApplication> toBankApplicationList(List<BankApplicationRequest> dtos);
@@ -63,6 +80,20 @@ public interface BankApplicationMapper {
         existing.setDownPayment(request.getDownPayment());
         existing.setMonthCreditTerm(request.getCreditTerm() * 12);
         existing.setOverpayment(request.getOverpayment());
+        existing.setActive(true);
+        return existing;
+    }
+    default BankApplication updateBankApplicationFromRequest(BankApplication existing, BankApplicationUpdateRequest request) {
+        if (existing == null) {
+            existing = new BankApplication();
+        }
+        existing.setBankApplicationStatus(BankApplicationStatus.READY_TO_SENDING);
+        existing.setMonthlyPayment(request.getMonthlyPayment());
+        existing.setRealEstatePrice(request.getRealEstatePrice());
+        existing.setDownPayment(request.getDownPayment());
+        existing.setMonthCreditTerm(request.getCreditTerm() * 12);
+        existing.setOverpayment(request.getOverpayment());
+        existing.setActive(true);
         return existing;
     }
 

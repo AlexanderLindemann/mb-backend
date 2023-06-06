@@ -9,6 +9,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pro.mbroker.api.dto.request.BankApplicationRequest;
+import pro.mbroker.api.dto.request.BankApplicationUpdateRequest;
 import pro.mbroker.api.dto.request.BorrowerProfileRequest;
 import pro.mbroker.api.dto.request.PartnerApplicationRequest;
 import pro.mbroker.api.dto.response.BankApplicationResponse;
@@ -17,13 +18,14 @@ import pro.mbroker.api.enums.BankApplicationStatus;
 import pro.mbroker.api.enums.RegionType;
 import pro.mbroker.app.entity.*;
 import pro.mbroker.app.exception.AccessDeniedException;
+import pro.mbroker.app.exception.ItemConflictException;
 import pro.mbroker.app.exception.ItemNotFoundException;
 import pro.mbroker.app.mapper.BankApplicationMapper;
 import pro.mbroker.app.mapper.BorrowerProfileMapper;
 import pro.mbroker.app.mapper.MortgageCalculationMapper;
 import pro.mbroker.app.mapper.PartnerApplicationMapper;
 import pro.mbroker.app.repository.BankApplicationRepository;
-import pro.mbroker.app.repository.CreditProgramRepository;
+import pro.mbroker.app.repository.BorrowerProfileRepository;
 import pro.mbroker.app.repository.PartnerApplicationRepository;
 import pro.mbroker.app.repository.specification.BankApplicationSpecification;
 import pro.mbroker.app.service.CalculatorService;
@@ -39,7 +41,6 @@ import java.math.BigDecimal;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 @Service
 @Slf4j
@@ -52,9 +53,9 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
     private final CurrentUserService currentUserService;
     private final PartnerService partnerService;
     private final RealEstateService realEstateService;
-    private final CreditProgramRepository creditProgramRepository;
     private final PartnerApplicationRepository partnerApplicationRepository;
     private final BankApplicationRepository bankApplicationRepository;
+    private final BorrowerProfileRepository borrowerProfileRepository;
     private final PartnerApplicationMapper partnerApplicationMapper;
     private final BorrowerProfileMapper borrowerProfileMapper;
     private final BankApplicationMapper bankApplicationMapper;
@@ -84,28 +85,40 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
     @Transactional
     public PartnerApplication createPartnerApplication(PartnerApplicationRequest request) {
         PartnerApplication partnerApplication = getPartnerApplication(request);
-        BorrowerProfileRequest mainBorrower = request.getMainBorrower();
-        BorrowerProfile borrowerProfile = borrowerProfileMapper.toBorrowerProfile(mainBorrower);
-        borrowerProfile.setPartnerApplication(partnerApplication);
-        List<BankApplication> bankApplications = buildBorrowerApplications(request, partnerApplication);
-        bankApplications.forEach(app -> app.setMainBorrower(borrowerProfile));
+        List<BankApplication> bankApplications = buildBorrowerApplications(request.getBankApplications(), partnerApplication);
         partnerApplication.setBankApplications(bankApplications);
-        partnerApplication.getBorrowerProfiles().add(borrowerProfile);
+        updateMainBorrower(partnerApplication, request.getMainBorrower());
         return partnerApplicationRepository.save(partnerApplication);
     }
-
 
     @Override
     @Transactional
     public PartnerApplication updatePartnerApplication(UUID partnerApplicationId, PartnerApplicationRequest request) {
         PartnerApplication existingPartnerApplication = getPartnerApplicationByIdWithPermission(partnerApplicationId);
+        removeDuplicateBankApplications(existingPartnerApplication);
         partnerApplicationMapper.updatePartnerApplicationFromRequest(request, existingPartnerApplication);
         mortgageCalculationMapper.updateMortgageCalculationFromRequest(request.getMortgageCalculation(), existingPartnerApplication.getMortgageCalculation());
         existingPartnerApplication.setRealEstate(realEstateService.findById(request.getRealEstateId()));
-        List<BankApplication> updatedBorrowerApplications = buildBorrowerApplications(request, existingPartnerApplication);
+        List<BankApplication> updatedBorrowerApplications = buildBorrowerApplications(request.getBankApplications(), existingPartnerApplication);
         existingPartnerApplication.setBankApplications(updatedBorrowerApplications);
+        updateMainBorrower(existingPartnerApplication, request.getMainBorrower());
         return partnerApplicationRepository.save(existingPartnerApplication);
     }
+
+    @Transactional
+    public void removeDuplicateBankApplications(PartnerApplication partnerApplication) {
+        List<BankApplication> bankApplications = partnerApplication.getBankApplications();
+        Map<UUID, BankApplication> uniqueBankApplicationsMap = bankApplications.stream()
+                .collect(Collectors.toMap(
+                        ba -> ba.getCreditProgram().getId(),
+                        Function.identity(),
+                        (existing, replacement) -> existing));
+        List<BankApplication> duplicateBankApplications = new ArrayList<>(bankApplications);
+        duplicateBankApplications.removeAll(uniqueBankApplicationsMap.values());
+        bankApplicationRepository.deleteAll(duplicateBankApplications);
+        partnerApplication.setBankApplications(new ArrayList<>(uniqueBankApplicationsMap.values()));
+    }
+
 
     @Override
     @Transactional
@@ -118,24 +131,28 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
     @Override
     public PartnerApplicationResponse buildPartnerApplicationResponse(PartnerApplication partnerApplication) {
         PartnerApplicationResponse response = partnerApplicationMapper.toPartnerApplicationResponse(partnerApplication);
-        List<BankApplication> borrowerApplications = partnerApplication.getBankApplications();
+        List<BankApplication> activeBankApplications = partnerApplication.getBankApplications().stream()
+                .filter(BankApplication::isActive)
+                .collect(Collectors.toList());
         Map<UUID, BorrowerProfile> borrowerProfileMap = partnerApplication.getBorrowerProfiles().stream()
                 .collect(Collectors.toMap(BorrowerProfile::getId, Function.identity()));
-        IntStream.range(0, borrowerApplications.size())
-                .forEach(i -> {
-                    BankApplication bankApplication = borrowerApplications.get(i);
-                    BankApplicationResponse bankApplicationResponse = response.getBankApplications().get(i);
-                    BigDecimal mortgageSum = calculatorService.getMortgageSum(bankApplication.getRealEstatePrice(), bankApplication.getDownPayment());
-                    bankApplicationResponse.setMortgageSum(mortgageSum);
-                    BorrowerProfile mainBorrower = bankApplication.getMainBorrower();
-                    UUID mainBorrowerId = mainBorrower != null ? mainBorrower.getId() : null;
-                    bankApplicationResponse.setCoBorrowers(borrowerProfileMap.values().stream()
-                            .filter(borrowerProfile -> mainBorrower == null || !borrowerProfile.getId().equals(mainBorrowerId))
-                            .map(borrowerProfileMapper::toBorrowerProfileResponse)
-                            .collect(Collectors.toList()));
-                });
+        List<BankApplicationResponse> activeBankApplicationResponses = new ArrayList<>();
+        for (BankApplication bankApplication : activeBankApplications) {
+            BankApplicationResponse bankApplicationResponse = bankApplicationMapper.toBankApplicationResponse(bankApplication);
+            BigDecimal mortgageSum = calculatorService.getMortgageSum(bankApplication.getRealEstatePrice(), bankApplication.getDownPayment());
+            bankApplicationResponse.setMortgageSum(mortgageSum);
+            BorrowerProfile mainBorrower = bankApplication.getMainBorrower();
+            UUID mainBorrowerId = mainBorrower != null ? mainBorrower.getId() : null;
+            bankApplicationResponse.setCoBorrowers(borrowerProfileMap.values().stream()
+                    .filter(borrowerProfile -> mainBorrower == null || !borrowerProfile.getId().equals(mainBorrowerId))
+                    .map(borrowerProfileMapper::toBorrowerProfileResponse)
+                    .collect(Collectors.toList()));
+            activeBankApplicationResponses.add(bankApplicationResponse);
+        }
+        response.setBankApplications(activeBankApplicationResponses);
         return response;
     }
+
 
     @Override
     @Transactional(readOnly = true)
@@ -186,34 +203,91 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
                 .collect(Collectors.toList());
     }
 
-    private List<BankApplication> buildBorrowerApplications(PartnerApplicationRequest request, PartnerApplication partnerApplication) {
-        bankApplicationMapper.updateBankApplicationsFromRequests(partnerApplication.getBankApplications(), request.getBankApplications());
-        List<UUID> creditProgramIds = request.getBankApplications().stream()
+    @Override
+    public PartnerApplication enableBankApplication(UUID partnerApplicationId, BankApplicationUpdateRequest request) {
+        PartnerApplication partnerApplication = getPartnerApplication(partnerApplicationId);
+        Map<UUID, BankApplication> currentBankApplications = partnerApplication.getBankApplications()
+                .stream()
+                .collect(Collectors.toMap(bankApplication -> bankApplication.getCreditProgram().getId(), Function.identity()));
+        BankApplication currentBankApplication = currentBankApplications.get(request.getCreditProgramId());
+        if (currentBankApplication != null) {
+            bankApplicationMapper.updateBankApplicationFromRequest(currentBankApplication, request);
+        } else {
+            BankApplication newBankApplication = bankApplicationMapper.toBankApplication(request);
+            newBankApplication.setPartnerApplication(partnerApplication);
+            newBankApplication.setMainBorrower(getBorrowerProfile(request.getMainBorrowerId()));
+            currentBankApplications.put(request.getCreditProgramId(), newBankApplication);
+        }
+        partnerApplication.setBankApplications(new ArrayList<>(currentBankApplications.values()));
+        return partnerApplicationRepository.save(partnerApplication);
+    }
+
+    @Override
+    public PartnerApplication disableBankApplication(UUID partnerApplicationId, UUID creditProgramId) {
+        PartnerApplication partnerApplication = getPartnerApplication(partnerApplicationId);
+        Map<UUID, BankApplication> currentBankApplications = partnerApplication.getBankApplications()
+                .stream()
+                .collect(Collectors.toMap(bankApplication -> bankApplication.getCreditProgram().getId(), Function.identity()));
+        BankApplication disabledBankApplication = currentBankApplications.get(creditProgramId);
+        if (disabledBankApplication == null) {
+            throw new ItemConflictException(CreditProgram.class, "This PartnerApplication with" + partnerApplicationId + " does not have such a credit program id: " + creditProgramId);
+        }
+        disabledBankApplication.setActive(false);
+        partnerApplication.setBankApplications(new ArrayList<>(currentBankApplications.values()));
+        return partnerApplicationRepository.save(partnerApplication);
+    }
+
+    private void updateMainBorrower(PartnerApplication partnerApplication, BorrowerProfileRequest borrowerProfileRequest) {
+        BorrowerProfile borrowerProfile;
+        if (borrowerProfileRequest.getId() != null) {
+            borrowerProfile = getBorrowerProfile(borrowerProfileRequest.getId());
+            borrowerProfileMapper.updateBorrowerProfile(borrowerProfileRequest, borrowerProfile);
+        } else {
+            if (!partnerApplication.getBorrowerProfiles().isEmpty()) {
+                throw new ItemConflictException(BorrowerProfile.class,
+                        "The PartnerApplication id: " + partnerApplication.getId() + " already has a mainBorrower. You need to specify the ID of the existing mainBorrower in the request");
+            }
+            borrowerProfile = borrowerProfileMapper.toBorrowerProfile(borrowerProfileRequest);
+            partnerApplication.getBorrowerProfiles().add(borrowerProfile);
+        }
+        borrowerProfile.setPartnerApplication(partnerApplication);
+        partnerApplication.getBankApplications().forEach(app -> app.setMainBorrower(borrowerProfile));
+    }
+
+    private BorrowerProfile getBorrowerProfile(UUID borrowerProfileId) {
+        return borrowerProfileRepository.findById(borrowerProfileId)
+                .orElseThrow(() -> new ItemNotFoundException(BorrowerProfile.class, borrowerProfileId));
+    }
+
+    private List<BankApplication> buildBorrowerApplications(List<BankApplicationRequest> requests, PartnerApplication partnerApplication) {
+        List<UUID> updateCreditProgramIds = requests.stream()
                 .map(BankApplicationRequest::getCreditProgramId)
                 .collect(Collectors.toList());
-        List<UUID> existingBorrowerApplicationIds = request.getBankApplications().stream()
-                .map(BankApplicationRequest::getId)
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList());
-        Map<UUID, CreditProgram> creditProgramMap = creditProgramRepository.findByIdInWithBank(creditProgramIds).stream()
-                .collect(Collectors.toMap(CreditProgram::getId, Function.identity()));
-        List<BankApplication> applicationList = bankApplicationRepository.findAllById(existingBorrowerApplicationIds);
-        Map<UUID, BankApplication> existingBorrowerApplicationsMap = applicationList.stream()
-                .collect(Collectors.toMap(BankApplication::getId, Function.identity()));
         MortgageCalculation mortgageCalculation = partnerApplication.getMortgageCalculation();
-        if (Objects.isNull(mortgageCalculation.getIsMaternalCapital())) {
+        if (mortgageCalculation.getIsMaternalCapital() == null) {
             mortgageCalculation.setIsMaternalCapital(false);
         }
-        return request.getBankApplications().stream()
-                .map(borrowerRequest -> {
-                    BankApplication existingBankApplication = existingBorrowerApplicationsMap.get(borrowerRequest.getId());
-                    BankApplication updatedBankApplication = bankApplicationMapper.updateBankApplicationFromRequest(existingBankApplication, borrowerRequest);
-                    updatedBankApplication.setPartnerApplication(partnerApplication);
-                    updatedBankApplication.setCreditProgram(creditProgramMap.get(borrowerRequest.getCreditProgramId()));
-                    return updatedBankApplication;
-                })
-                .collect(Collectors.toList());
+        Map<UUID, BankApplication> currentBankApplications = partnerApplication.getBankApplications()
+                .stream()
+                .collect(Collectors.toMap(bankApplication -> bankApplication.getCreditProgram().getId(), Function.identity()));
+        requests.forEach(bankApplicationRequest -> {
+            BankApplication currentBankApplication = currentBankApplications.get(bankApplicationRequest.getCreditProgramId());
+            if (currentBankApplication != null) {
+                bankApplicationMapper.updateBankApplicationFromRequest(currentBankApplication, bankApplicationRequest);
+            } else {
+                BankApplication newBankApplication = bankApplicationMapper.toBankApplication(bankApplicationRequest);
+                newBankApplication.setPartnerApplication(partnerApplication);
+                currentBankApplications.put(bankApplicationRequest.getCreditProgramId(), newBankApplication);
+            }
+        });
+        currentBankApplications.forEach((key, value) -> {
+            if (!updateCreditProgramIds.contains(key)) {
+                value.setActive(false);
+            }
+        });
+        return new ArrayList<>(currentBankApplications.values());
     }
+
 
     private void sortBankApplicationList(String sortBy, String sortDirection, List<BankApplication> bankApplications) {
         Comparator<BankApplication> comparator;
@@ -256,7 +330,6 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
                 .setRealEstate(realEstate)
                 .setMortgageCalculation(mortgageCalculationMapper.toMortgageCalculation(request.getMortgageCalculation()));
     }
-
 
     private PartnerApplication getPartnerApplicationById(UUID partnerApplicationId) {
         return partnerApplicationRepository.findById(partnerApplicationId)

@@ -1,5 +1,6 @@
 package pro.mbroker.app.service;
 
+import pro.mbroker.api.dto.request.BankApplicationUpdateRequest;
 import pro.mbroker.api.dto.request.PartnerApplicationRequest;
 import pro.mbroker.api.dto.response.BankApplicationResponse;
 import pro.mbroker.api.dto.response.PartnerApplicationResponse;
@@ -35,4 +36,8 @@ public interface PartnerApplicationService {
                                          BankApplicationStatus applicationStatus,
                                          String sortBy,
                                          String sortDirection);
+
+    PartnerApplication enableBankApplication(UUID partnerApplicationId, BankApplicationUpdateRequest request);
+
+    PartnerApplication disableBankApplication(UUID partnerApplicationId, UUID creditProgramId);
 }
