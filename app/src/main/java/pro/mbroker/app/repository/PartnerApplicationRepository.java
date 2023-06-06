@@ -31,7 +31,7 @@ public interface PartnerApplicationRepository extends JpaRepository<PartnerAppli
     @Query("SELECT pa FROM PartnerApplication pa " +
             "JOIN FETCH pa.bankApplications ba " +
             "JOIN FETCH ba.creditProgram cp " +
-            "JOIN FETCH cp.bank WHERE pa.createdBy = :createdBy AND pa.isActive = true")
+            "JOIN FETCH cp.bank WHERE pa.createdBy = :createBy AND pa.isActive = true")
     List<PartnerApplication> findAllByCreatedByAndIsActiveTrue(Integer createBy, Pageable pageable);
 
 }
