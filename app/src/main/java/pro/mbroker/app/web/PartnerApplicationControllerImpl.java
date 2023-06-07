@@ -70,7 +70,7 @@ public class PartnerApplicationControllerImpl implements PartnerApplicationContr
     }
 
     @Override
-    public List<BankApplicationResponse> filter(String firstName,
+    public List<PartnerApplicationResponse> filter(String firstName,
                                                 String middleName,
                                                 String lastName,
                                                 String phoneNumber,
