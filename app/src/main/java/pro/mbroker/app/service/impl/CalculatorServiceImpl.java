@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 import pro.mbroker.api.dto.BankLoanProgramDto;
 import pro.mbroker.api.dto.LoanProgramCalculationDto;
 import pro.mbroker.api.dto.PropertyMortgageDTO;
@@ -23,7 +22,6 @@ import pro.mbroker.app.service.CalculatorService;
 import pro.mbroker.app.service.DirectoryService;
 import pro.mbroker.app.util.Converter;
 
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
@@ -77,7 +75,7 @@ public class CalculatorServiceImpl implements CalculatorService {
                 .setBankName(creditProgram.getBank().getName());
         Long logoId = bankRepository.findIdByBankName(creditProgram.getBank().getName());
         if (Objects.nonNull(logoId)) {
-            bankLoanProgramDtoBuilder.setLogo(generateBase64FromLogo(logoId));
+            bankLoanProgramDtoBuilder.setLogo(Converter.generateBase64FromLogo(attachmentService.download(logoId)));
         }
         return bankLoanProgramDtoBuilder;
     }
@@ -97,7 +95,7 @@ public class CalculatorServiceImpl implements CalculatorService {
     private List<CreditProgram> filterCreditPrograms(CalculatorRequest request) {
         List<CreditProgram> creditPrograms = realEstateRepository
                 .findCreditProgramsWithDetailsAndParametersByRealEstateId(request.getRealEstateId(),
-                                                                          LocalDateTime.now());
+                        LocalDateTime.now());
         return creditPrograms.stream()
                 .filter(creditProgram -> isProgramEligible(request, creditProgram))
                 .collect(Collectors.toList());
@@ -175,14 +173,4 @@ public class CalculatorServiceImpl implements CalculatorService {
         return !request.getIsMaternalCapital() || creditProgram.getCreditParameter().getIsMaternalCapital().equals(request.getIsMaternalCapital());
     }
 
-    private String generateBase64FromLogo(Long logoId) {
-        try {
-            MultipartFile logo = attachmentService.download(logoId);
-            byte[] logoBytes = logo.getBytes();
-            return Base64.getEncoder().encodeToString(logoBytes);
-        } catch (IOException e) {
-            log.error("Ошибка при обработке логотипа: {}", e.getMessage());
-        }
-        return null;
-    }
 }
