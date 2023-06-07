@@ -4,6 +4,7 @@ import pro.mbroker.api.dto.request.BankApplicationUpdateRequest;
 import pro.mbroker.api.dto.request.PartnerApplicationRequest;
 import pro.mbroker.api.dto.response.BankApplicationResponse;
 import pro.mbroker.api.dto.response.PartnerApplicationResponse;
+import pro.mbroker.api.dto.response.RequiredDocumentResponse;
 import pro.mbroker.api.enums.BankApplicationStatus;
 import pro.mbroker.api.enums.RegionType;
 import pro.mbroker.app.entity.PartnerApplication;
@@ -40,4 +41,6 @@ public interface PartnerApplicationService {
     PartnerApplication enableBankApplication(UUID partnerApplicationId, BankApplicationUpdateRequest request);
 
     PartnerApplication disableBankApplication(UUID partnerApplicationId, UUID creditProgramId);
+
+    List<RequiredDocumentResponse> getRequiredDocuments(UUID partnerApplicationId);
 }

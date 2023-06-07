@@ -9,6 +9,7 @@ import pro.mbroker.api.dto.request.BankApplicationUpdateRequest;
 import pro.mbroker.api.dto.request.PartnerApplicationRequest;
 import pro.mbroker.api.dto.response.BankApplicationResponse;
 import pro.mbroker.api.dto.response.PartnerApplicationResponse;
+import pro.mbroker.api.dto.response.RequiredDocumentResponse;
 import pro.mbroker.api.enums.BankApplicationStatus;
 import pro.mbroker.api.enums.RegionType;
 import pro.mbroker.app.entity.PartnerApplication;
@@ -101,6 +102,11 @@ public class PartnerApplicationControllerImpl implements PartnerApplicationContr
     public PartnerApplicationResponse disableBankApplication(UUID partnerApplicationId, UUID creditProgramId) {
         PartnerApplication partnerApplication = partnerApplicationService.disableBankApplication(partnerApplicationId, creditProgramId);
         return partnerApplicationService.buildPartnerApplicationResponse(partnerApplication);
+    }
+
+    @Override
+    public List<RequiredDocumentResponse> getRequiredDocuments(UUID partnerApplicationId) {
+        return partnerApplicationService.getRequiredDocuments(partnerApplicationId);
     }
 
 }
