@@ -8,6 +8,7 @@ import pro.mbroker.api.dto.request.BankApplicationUpdateRequest;
 import pro.mbroker.api.dto.request.PartnerApplicationRequest;
 import pro.mbroker.api.dto.response.BankApplicationResponse;
 import pro.mbroker.api.dto.response.PartnerApplicationResponse;
+import pro.mbroker.api.dto.response.RequiredDocumentResponse;
 import pro.mbroker.api.enums.BankApplicationStatus;
 import pro.mbroker.api.enums.RegionType;
 
@@ -74,4 +75,8 @@ public interface PartnerApplicationController {
     PartnerApplicationResponse disableBankApplication(
             @PathVariable UUID partnerApplicationId,
             @NotNull @RequestParam("creditProgramId") UUID creditProgramId);
+
+    @GetMapping("/{partnerApplicationId}/required_document")
+    @ApiOperation("получить требуемые документы по id заявки")
+    List<RequiredDocumentResponse> getRequiredDocuments(@PathVariable UUID partnerApplicationId);
 }

@@ -15,7 +15,9 @@ import pro.mbroker.api.dto.request.BorrowerProfileRequest;
 import pro.mbroker.api.dto.request.PartnerApplicationRequest;
 import pro.mbroker.api.dto.response.BankApplicationResponse;
 import pro.mbroker.api.dto.response.PartnerApplicationResponse;
+import pro.mbroker.api.dto.response.RequiredDocumentResponse;
 import pro.mbroker.api.enums.BankApplicationStatus;
+import pro.mbroker.api.enums.DocumentType;
 import pro.mbroker.api.enums.RegionType;
 import pro.mbroker.app.entity.*;
 import pro.mbroker.app.exception.AccessDeniedException;
@@ -40,6 +42,7 @@ import java.math.BigDecimal;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 @Slf4j
@@ -269,6 +272,29 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
         disabledBankApplication.setActive(false);
         partnerApplication.setBankApplications(new ArrayList<>(currentBankApplications.values()));
         return partnerApplicationRepository.save(partnerApplication);
+    }
+
+    @Override
+    public List<RequiredDocumentResponse> getRequiredDocuments(UUID partnerApplicationId) {
+        PartnerApplication partnerApplication = getPartnerApplication(partnerApplicationId);
+        List<Bank> banks = partnerApplication.getBankApplications().stream()
+                .map(BankApplication::getCreditProgram)
+                .map(CreditProgram::getBank)
+                .collect(Collectors.toList());
+        List<RequiredDocumentResponse> response = banks.stream()
+                .flatMap(bank -> Stream.of(DocumentType.APPLICATION_FORM, DocumentType.DATA_PROCESSING_AGREEMENT)
+                        .map(documentType -> new RequiredDocumentResponse()
+                                .setBankId(bank.getId())
+                                .setDocumentType(documentType)
+                                .setBankName(bank.getName())))
+                .collect(Collectors.toList());
+        List.of(DocumentType.BORROWER_SNILS,
+                        DocumentType.BORROWER_PASSPORT,
+                        DocumentType.INCOME_CERTIFICATE,
+                        DocumentType.CERTIFIED_COPY_TK).stream()
+                .map(documentType -> new RequiredDocumentResponse().setDocumentType(documentType))
+                .forEach(response::add);
+        return response;
     }
 
     private void updateMainBorrower(PartnerApplication partnerApplication, BorrowerProfileRequest borrowerProfileRequest) {
