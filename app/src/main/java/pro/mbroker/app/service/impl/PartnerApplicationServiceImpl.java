@@ -8,6 +8,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import pro.mbroker.api.dto.BankWithBankApplicationDto;
 import pro.mbroker.api.dto.request.BankApplicationRequest;
 import pro.mbroker.api.dto.request.BankApplicationUpdateRequest;
 import pro.mbroker.api.dto.request.BorrowerProfileRequest;
@@ -28,10 +29,8 @@ import pro.mbroker.app.repository.BankApplicationRepository;
 import pro.mbroker.app.repository.BorrowerProfileRepository;
 import pro.mbroker.app.repository.PartnerApplicationRepository;
 import pro.mbroker.app.repository.specification.BankApplicationSpecification;
-import pro.mbroker.app.service.CalculatorService;
-import pro.mbroker.app.service.PartnerApplicationService;
-import pro.mbroker.app.service.PartnerService;
-import pro.mbroker.app.service.RealEstateService;
+import pro.mbroker.app.service.*;
+import pro.mbroker.app.util.Converter;
 import pro.mbroker.app.util.Pagination;
 import pro.mbroker.app.util.TokenExtractor;
 import pro.smartdeal.common.security.Permission;
@@ -51,8 +50,10 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
 
     private final CalculatorService calculatorService;
     private final CurrentUserService currentUserService;
+    private final AttachmentService attachmentService;
     private final PartnerService partnerService;
     private final RealEstateService realEstateService;
+    private final CreditProgramService creditProgramService;
     private final PartnerApplicationRepository partnerApplicationRepository;
     private final BankApplicationRepository bankApplicationRepository;
     private final BorrowerProfileRepository borrowerProfileRepository;
@@ -106,6 +107,7 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
     }
 
     @Transactional
+    //TODO удалить проверку на дубли после того, как будем уверены, что дублей в БД не осталось
     public void removeDuplicateBankApplications(PartnerApplication partnerApplication) {
         List<BankApplication> bankApplications = partnerApplication.getBankApplications();
         Map<UUID, BankApplication> uniqueBankApplicationsMap = bankApplications.stream()
@@ -130,6 +132,7 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
 
     @Override
     public PartnerApplicationResponse buildPartnerApplicationResponse(PartnerApplication partnerApplication) {
+        removeDuplicateBankApplications(partnerApplication);
         PartnerApplicationResponse response = partnerApplicationMapper.toPartnerApplicationResponse(partnerApplication);
         List<BankApplication> activeBankApplications = partnerApplication.getBankApplications().stream()
                 .filter(BankApplication::isActive)
@@ -149,8 +152,39 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
                     .collect(Collectors.toList()));
             activeBankApplicationResponses.add(bankApplicationResponse);
         }
-        response.setBankApplications(activeBankApplicationResponses);
+        List<BankWithBankApplicationDto> bankWithBankApplicationDtos = getGroupBankApplication(activeBankApplicationResponses);
+        response.setBankWithBankApplicationDto(bankWithBankApplicationDtos);
         return response;
+    }
+
+    public List<BankWithBankApplicationDto> getGroupBankApplication(List<BankApplicationResponse> activeBankApplicationResponses) {
+        Map<UUID, BankApplicationResponse> creditProgramMap = activeBankApplicationResponses.stream()
+                .collect(Collectors.toMap(BankApplicationResponse::getCreditProgramId, Function.identity()));
+        List<CreditProgram> programByCreditProgramIds = creditProgramService.getProgramByCreditProgramIds(new ArrayList<>(creditProgramMap.keySet()));
+        Map<UUID, Bank> bankMap = programByCreditProgramIds.stream()
+                .map(CreditProgram::getBank)
+                .collect(Collectors.toMap(Bank::getId, Function.identity(), (oldValue, newValue) -> oldValue));
+        Map<UUID, List<BankApplicationResponse>> grouped = programByCreditProgramIds.stream()
+                .collect(Collectors.groupingBy(creditProgram -> creditProgram.getBank().getId(),
+                        Collectors.mapping(creditProgram -> creditProgramMap.get(creditProgram.getId()), Collectors.toList())));
+        List<BankWithBankApplicationDto> result = new ArrayList<>();
+        for (Map.Entry<UUID, List<BankApplicationResponse>> entry : grouped.entrySet()) {
+            BankWithBankApplicationDto dto = new BankWithBankApplicationDto();
+            Bank bank = bankMap.get(entry.getKey());
+            dto.setBankId(entry.getKey());
+            dto.setBankName(bank.getName());
+            if (Objects.nonNull(bank.getAttachment()) && Objects.nonNull(bank.getAttachment().getId())) {
+                Long logoId = bank.getAttachment().getId();
+                try {
+                    dto.setLogo(Converter.generateBase64FromLogo(attachmentService.download(logoId)));
+                } catch (Exception e) {
+                    log.error("Error loading logo: " + e.getMessage());
+                }
+            }
+            dto.setBankApplications(entry.getValue());
+            result.add(dto);
+        }
+        return result;
     }
 
 

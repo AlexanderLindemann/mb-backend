@@ -11,7 +11,7 @@ import java.util.List;
 
 @Mapper(config = ProgramMapperConfig.class, uses = {RealEstateMapper.class, BankApplicationMapper.class, MortgageCalculationMapper.class})
 public interface PartnerApplicationMapper {
-
+    @Mapping(target = "bankWithBankApplicationDto", ignore = true)
     PartnerApplicationResponse toPartnerApplicationResponse(PartnerApplication partnerApplication);
 
     List<PartnerApplicationResponse> toPartnerApplicationResponseList(List<PartnerApplication> partnerApplications);
