@@ -6,6 +6,7 @@ import org.springframework.stereotype.Component;
 import pro.mbroker.api.controller.BankApplicationController;
 import pro.mbroker.api.dto.request.BankApplicationRequest;
 import pro.mbroker.api.dto.response.BankApplicationResponse;
+import pro.mbroker.api.enums.BankApplicationStatus;
 import pro.mbroker.app.entity.BankApplication;
 import pro.mbroker.app.mapper.BankApplicationMapper;
 import pro.mbroker.app.service.BankApplicationService;
@@ -33,6 +34,12 @@ public class BankApplicationControllerImpl implements BankApplicationController 
     @Override
     public BankApplicationResponse changeMainBorrowerByBankApplicationId(UUID bankApplicationId, @NotNull UUID newMainBorrowerId) {
         BankApplication bankApplication = bankApplicationService.changeMainBorrowerByBankApplicationId(bankApplicationId, newMainBorrowerId);
+        return toResponse(bankApplication);
+    }
+
+    @Override
+    public BankApplicationResponse changeStatus(UUID bankApplicationId, BankApplicationStatus status) {
+        BankApplication bankApplication = bankApplicationService.changeStatus(bankApplicationId, status);
         return toResponse(bankApplication);
     }
 

@@ -22,7 +22,7 @@ public class BankApplicationResponse {
 
     private List<BorrowerProfileResponse> coBorrowers;
 
-    private BankApplicationStatus bankApplicationStatus;
+    private BankApplicationStatus status;
 
     private LocalDateTime updatedAt;
 
@@ -38,6 +38,6 @@ public class BankApplicationResponse {
 
     private Double interestRate;
 
-    private String programName;
+    private String creditProgramName;
 
 }

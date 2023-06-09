@@ -3,6 +3,7 @@ package pro.mbroker.api.dto.response;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import pro.mbroker.api.enums.BorrowerProfileStatus;
 import pro.mbroker.api.enums.DocumentType;
 
 import java.util.UUID;
@@ -21,5 +22,7 @@ public class BorrowerDocumentResponse {
     private DocumentType documentType;
 
     private UUID bankId;
+
+    private BorrowerProfileStatus status;
 
 }

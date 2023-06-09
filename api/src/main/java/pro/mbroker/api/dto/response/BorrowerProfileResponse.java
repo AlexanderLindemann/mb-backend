@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import pro.mbroker.api.dto.request.BorrowerDocumentRequest;
+import pro.mbroker.api.enums.BorrowerProfileStatus;
 
 import java.util.List;
 import java.util.UUID;
@@ -24,6 +25,8 @@ public class BorrowerProfileResponse {
     private String phoneNumber;
 
     private String email;
+
+    private BorrowerProfileStatus status;
 
     private List<BorrowerDocumentRequest> documents;
 

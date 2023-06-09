@@ -33,7 +33,7 @@ public class BorrowerProfileServiceImpl implements BorrowerProfileService {
 
     @Override
     @Transactional
-    public BorrowerResponse createOrUpdateBorrowerApplication(BorrowerRequest request) {
+    public BorrowerResponse createOrUpdateBorrowerProfile(BorrowerRequest request) {
         BankApplication bankApplication = bankApplicationService.getBankApplicationById(request.getId());
         PartnerApplication partnerApplication = bankApplication.getPartnerApplication();
         List<BorrowerProfile> borrowerProfilesToSave = new ArrayList<>();
@@ -95,7 +95,7 @@ public class BorrowerProfileServiceImpl implements BorrowerProfileService {
 
     @Override
     @Transactional
-    public BorrowerResponse createOrUpdateGenericBorrowerApplication(BorrowerRequest request) {
+    public BorrowerResponse createOrUpdateGenericBorrowerProfile(BorrowerRequest request) {
         PartnerApplication partnerApplication = partnerApplicationService.getPartnerApplication(request.getId());
         List<BorrowerProfile> borrowerProfilesToSave = new ArrayList<>();
         if (Objects.nonNull(request.getCoBorrower())) {

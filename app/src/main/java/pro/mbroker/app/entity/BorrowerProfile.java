@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import pro.mbroker.api.enums.BorrowerApplicationStatus;
+import pro.mbroker.api.enums.BorrowerProfileStatus;
 
 import javax.persistence.*;
 import java.util.List;
@@ -34,7 +34,7 @@ public class BorrowerProfile extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "borrower_application_status")
-    private BorrowerApplicationStatus borrowerApplicationStatus;
+    private BorrowerProfileStatus borrowerProfileStatus;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "partner_application_id", referencedColumnName = "id")
