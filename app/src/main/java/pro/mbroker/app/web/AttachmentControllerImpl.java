@@ -7,6 +7,7 @@ import org.springframework.web.multipart.MultipartFile;
 import pro.mbroker.api.controller.AttachmentController;
 import pro.mbroker.api.dto.request.BorrowerDocumentRequest;
 import pro.mbroker.api.dto.response.BorrowerDocumentResponse;
+import pro.mbroker.api.enums.DocumentType;
 import pro.mbroker.app.entity.BorrowerDocument;
 import pro.mbroker.app.entity.BorrowerProfile;
 import pro.mbroker.app.mapper.BorrowerDocumentMapper;
@@ -18,6 +19,8 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+
+import java.util.UUID;
 
 @Slf4j
 @Component
@@ -35,9 +38,16 @@ public class AttachmentControllerImpl implements AttachmentController {
 
     @Override
     public BorrowerDocumentResponse uploadDocument(MultipartFile file,
-                                                   BorrowerDocumentRequest documentDto) {
-        BorrowerDocument borrowerDocument = attachmentService.uploadDocument(file, documentDto);
-        BorrowerProfile borrowerProfile = borrowerProfileService.getBorrowerProfile(documentDto.getBorrowerProfileId());
+                                                   UUID borrowerProfileId,
+                                                   DocumentType documentType,
+                                                   UUID bankId) {
+        BorrowerDocument borrowerDocument = attachmentService.uploadDocument(
+                file,
+                new BorrowerDocumentRequest()
+                        .setBorrowerProfileId(borrowerProfileId)
+                        .setDocumentType(documentType)
+                        .setBankId(bankId));
+        BorrowerProfile borrowerProfile = borrowerProfileService.getBorrowerProfile(borrowerProfileId);
         partnerApplicationService.statusChanger(borrowerProfile.getPartnerApplication());
         Map<UUID, BorrowerProfile> borrowerProfileMap = borrowerProfile.getPartnerApplication().getBorrowerProfiles()
                 .stream().collect(Collectors.toMap(BorrowerProfile::getId, Function.identity()));
