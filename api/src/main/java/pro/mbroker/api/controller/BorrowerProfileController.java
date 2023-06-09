@@ -13,14 +13,14 @@ import java.util.UUID;
 @Api(value = "API Профилей заемщика", tags = "API Профилей заемщика")
 @RestController
 @RequestMapping("/public/borrower_profile")
-public interface BorrowerApplicationController {
+public interface BorrowerProfileController {
     @ApiOperation("Дополнить или обновить банковскую заявку")
     @PostMapping("/bank_application")
-    BorrowerResponse createOrUpdateBorrowerApplication(@ApiParam(value = "Параметры заемщиков") @RequestBody BorrowerRequest request);
+    BorrowerResponse createOrUpdateBorrowerProfile(@ApiParam(value = "Параметры заемщиков") @RequestBody BorrowerRequest request);
 
     @ApiOperation("Дополнить или обновить обобщенную банковскую заявку")
     @PostMapping("/partner_application")
-    BorrowerResponse createOrUpdateGenericBorrowerApplication(@ApiParam(value = "Параметры заемщиков") @RequestBody BorrowerRequest request);
+    BorrowerResponse createOrUpdateGenericBorrowerProfile(@ApiParam(value = "Параметры заемщиков") @RequestBody BorrowerRequest request);
 
     @ApiOperation("получить обобщенный профиль клиента по id заявки партнера")
     @GetMapping("/{partnerApplicationId}")

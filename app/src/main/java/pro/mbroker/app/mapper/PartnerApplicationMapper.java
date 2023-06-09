@@ -9,9 +9,11 @@ import pro.mbroker.app.entity.PartnerApplication;
 
 import java.util.List;
 
-@Mapper(config = ProgramMapperConfig.class, uses = {RealEstateMapper.class, BankApplicationMapper.class, MortgageCalculationMapper.class})
+@Mapper(config = ProgramMapperConfig.class, uses = {RealEstateMapper.class, BankApplicationMapper.class, MortgageCalculationMapper.class, BorrowerProfileMapper.class})
 public interface PartnerApplicationMapper {
+
     @Mapping(target = "bankWithBankApplicationDto", ignore = true)
+    @Mapping(source = "partnerApplicationStatus", target = "status")
     PartnerApplicationResponse toPartnerApplicationResponse(PartnerApplication partnerApplication);
 
     List<PartnerApplicationResponse> toPartnerApplicationResponseList(List<PartnerApplication> partnerApplications);

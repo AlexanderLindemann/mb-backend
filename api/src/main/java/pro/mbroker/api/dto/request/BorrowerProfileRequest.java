@@ -3,6 +3,7 @@ package pro.mbroker.api.dto.request;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import pro.mbroker.api.enums.BorrowerProfileStatus;
 
 import java.util.UUID;
 
@@ -22,5 +23,7 @@ public class BorrowerProfileRequest {
     private String phoneNumber;
 
     private String email;
+
+    private BorrowerProfileStatus status;
 
 }

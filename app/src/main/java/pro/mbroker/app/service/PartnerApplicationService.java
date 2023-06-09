@@ -43,4 +43,6 @@ public interface PartnerApplicationService {
     PartnerApplication disableBankApplication(UUID partnerApplicationId, UUID creditProgramId);
 
     List<RequiredDocumentResponse> getRequiredDocuments(UUID partnerApplicationId);
+
+    PartnerApplication statusChanger(PartnerApplication partnerApplication);
 }

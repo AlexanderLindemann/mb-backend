@@ -16,7 +16,7 @@ public interface BorrowerProfileMapper {
     @Mapping(target = "updatedBy", ignore = true)
     @Mapping(target = "active", ignore = true)
     @Mapping(target = "partnerApplication", ignore = true)
-    @Mapping(target = "borrowerApplicationStatus", ignore = true)
+    @Mapping(target = "borrowerProfileStatus", ignore = true)
     @Mapping(target = "borrowerDocument", ignore = true)
     @Mapping(source = "request.firstName", target = "firstName")
     @Mapping(source = "request.lastName", target = "lastName")
@@ -24,6 +24,7 @@ public interface BorrowerProfileMapper {
     @Mapping(source = "request.phoneNumber", target = "phoneNumber")
     BorrowerProfile toBorrowerProfile(BorrowerProfileRequest request);
 
+    @Mapping(source = "borrowerProfileStatus", target = "status")
     BorrowerProfileRequest toBorrowerProfileDto(BorrowerProfile request);
 
 
@@ -31,6 +32,7 @@ public interface BorrowerProfileMapper {
     @Mapping(source = "request.lastName", target = "lastName")
     @Mapping(source = "request.middleName", target = "middleName")
     @Mapping(source = "request.phoneNumber", target = "phoneNumber")
+    @Mapping(source = "borrowerProfileStatus", target = "status")
     @Mapping(target = "documents", ignore = true)
     BorrowerProfileResponse toBorrowerProfileResponse(BorrowerProfile request);
 
@@ -40,7 +42,7 @@ public interface BorrowerProfileMapper {
     @Mapping(target = "createdBy", ignore = true)
     @Mapping(target = "updatedBy", ignore = true)
     @Mapping(target = "active", ignore = true)
-    @Mapping(target = "borrowerApplicationStatus", ignore = true)
+    @Mapping(target = "borrowerProfileStatus", ignore = true)
     @Mapping(target = "partnerApplication", ignore = true)
     @Mapping(target = "borrowerDocument", ignore = true)
     @Mapping(source = "request.firstName", target = "firstName")
@@ -56,7 +58,7 @@ public interface BorrowerProfileMapper {
     @Mapping(target = "updatedBy", ignore = true)
     @Mapping(target = "active", ignore = true)
     @Mapping(target = "partnerApplication", ignore = true)
-    @Mapping(target = "borrowerApplicationStatus", ignore = true)
+    @Mapping(target = "borrowerProfileStatus", ignore = true)
     @Mapping(target = "borrowerDocument", ignore = true)
     @Mapping(source = "request.firstName", target = "firstName")
     @Mapping(source = "request.lastName", target = "lastName")

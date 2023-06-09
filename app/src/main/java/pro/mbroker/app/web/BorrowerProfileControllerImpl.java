@@ -3,7 +3,7 @@ package pro.mbroker.app.web;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import pro.mbroker.api.controller.BorrowerApplicationController;
+import pro.mbroker.api.controller.BorrowerProfileController;
 import pro.mbroker.api.dto.request.BorrowerRequest;
 import pro.mbroker.api.dto.response.BorrowerResponse;
 import pro.mbroker.app.service.BorrowerProfileService;
@@ -13,18 +13,18 @@ import java.util.UUID;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class BorrowerProfileControllerImpl implements BorrowerApplicationController {
+public class BorrowerProfileControllerImpl implements BorrowerProfileController {
     private final BorrowerProfileService borrowerProfileService;
 
 
     @Override
-    public BorrowerResponse createOrUpdateBorrowerApplication(BorrowerRequest request) {
-        return borrowerProfileService.createOrUpdateBorrowerApplication(request);
+    public BorrowerResponse createOrUpdateBorrowerProfile(BorrowerRequest request) {
+        return borrowerProfileService.createOrUpdateBorrowerProfile(request);
     }
 
     @Override
-    public BorrowerResponse createOrUpdateGenericBorrowerApplication(BorrowerRequest request) {
-        return borrowerProfileService.createOrUpdateGenericBorrowerApplication(request);
+    public BorrowerResponse createOrUpdateGenericBorrowerProfile(BorrowerRequest request) {
+        return borrowerProfileService.createOrUpdateGenericBorrowerProfile(request);
     }
 
     @Override

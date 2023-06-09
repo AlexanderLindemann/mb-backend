@@ -5,6 +5,7 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.web.bind.annotation.*;
 import pro.mbroker.api.dto.request.BankApplicationRequest;
 import pro.mbroker.api.dto.response.BankApplicationResponse;
+import pro.mbroker.api.enums.BankApplicationStatus;
 
 import javax.validation.constraints.NotNull;
 import java.util.UUID;
@@ -29,4 +30,9 @@ public interface BankApplicationController {
             @PathVariable UUID bankApplicationId,
             @NotNull @RequestParam("newMainBorrowerId") UUID newMainBorrowerId);
 
+    @ApiOperation("обновить статус заявки")
+    @PutMapping("/{bankApplicationId}/change_status")
+    BankApplicationResponse changeStatus(
+            @PathVariable UUID bankApplicationId,
+            @NotNull @RequestParam("status") BankApplicationStatus status);
 }

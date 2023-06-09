@@ -8,13 +8,13 @@ import java.util.UUID;
 
 public interface BorrowerProfileService {
 
-    BorrowerResponse createOrUpdateBorrowerApplication(BorrowerRequest request);
+    BorrowerResponse createOrUpdateBorrowerProfile(BorrowerRequest request);
 
     BorrowerResponse getBorrowersByPartnerApplicationId(UUID partnerApplicationId);
 
     BorrowerProfile getBorrowerProfile(UUID borrowerProfileId);
 
-    BorrowerResponse createOrUpdateGenericBorrowerApplication(BorrowerRequest request);
+    BorrowerResponse createOrUpdateGenericBorrowerProfile(BorrowerRequest request);
 
     void deleteBorrowerProfileById(UUID borrowerProfileId);
 

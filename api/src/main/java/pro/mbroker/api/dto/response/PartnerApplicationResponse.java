@@ -7,6 +7,7 @@ import pro.mbroker.api.dto.BankWithBankApplicationDto;
 import pro.mbroker.api.dto.MortgageCalculationDto;
 import pro.mbroker.api.dto.request.BorrowerProfileRequest;
 import pro.mbroker.api.enums.CreditPurposeType;
+import pro.mbroker.api.enums.PartnerApplicationStatus;
 import pro.mbroker.api.enums.RealEstateType;
 
 import java.util.List;
@@ -24,9 +25,11 @@ public class PartnerApplicationResponse {
 
     private RealEstateResponse realEstate;
 
+    private MortgageCalculationDto mortgageCalculation;
+
+    private PartnerApplicationStatus status;
+
     private List<BankWithBankApplicationDto> bankWithBankApplicationDto;
 
     private List<BorrowerProfileRequest> borrowerProfiles;
-
-    private MortgageCalculationDto mortgageCalculation;
 }

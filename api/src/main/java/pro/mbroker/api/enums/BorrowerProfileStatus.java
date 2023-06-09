@@ -7,10 +7,10 @@ import pro.smartdeal.common.enums.EnumWithValue;
 
 @Getter
 @RequiredArgsConstructor
-@DictionaryEnum(code = "BorrowerApplicationStatus", name = "Статус заявки профиля заемщика")
-public enum BorrowerApplicationStatus implements EnumWithValue<String> {
+@DictionaryEnum(code = "BorrowerProfileStatus", name = "Статус заявки профиля заемщика")
+public enum BorrowerProfileStatus implements EnumWithValue<String> {
     DATA_NO_ENTERED("DATA_NO_ENTERED", "Внесены не все данные"),
-    IN_REVIEW("DATA_ENTERED", "Внесены все данные");
+    DATA_ENTERED("DATA_ENTERED", "Внесены все данные");
 
 
     private final String value;
