@@ -26,7 +26,7 @@ public interface AttachmentController {
     @ApiOperation("Загрузить документ клиента")
     @PostMapping(value = "/upload", consumes =MediaType.MULTIPART_FORM_DATA_VALUE)
     BorrowerDocumentResponse uploadDocument(@RequestPart("file") MultipartFile file,
-                                            @RequestPart UUID borrowerProfileId,
-                                            @RequestPart DocumentType documentType,
-                                            @RequestPart UUID bankId);
+                                            @RequestParam UUID borrowerProfileId,
+                                            @RequestParam DocumentType documentType,
+                                            @RequestParam UUID bankId);
 }
