@@ -13,6 +13,8 @@ import pro.mbroker.api.dto.response.EnumItemDescription;
 import pro.mbroker.api.enums.CreditPurposeType;
 import pro.mbroker.api.enums.RealEstateType;
 import pro.mbroker.api.enums.RegionType;
+import pro.mbroker.app.entity.Attachment;
+import pro.mbroker.app.entity.Bank;
 import pro.mbroker.app.entity.CreditProgram;
 import pro.mbroker.app.entity.RealEstate;
 import pro.mbroker.app.exception.ItemNotFoundException;
@@ -71,11 +73,12 @@ public class CalculatorServiceImpl implements CalculatorService {
             log.error("Credit program or its bank is null");
             throw new IllegalArgumentException("Credit program and its bank cannot be null");
         }
+        Bank bank = creditProgram.getBank();
+        Attachment attachment = bank.getAttachment();
         BankLoanProgramDto bankLoanProgramDtoBuilder = new BankLoanProgramDto()
-                .setBankName(creditProgram.getBank().getName());
-        Long logoId = bankRepository.findIdByBankName(creditProgram.getBank().getName());
-        if (Objects.nonNull(logoId)) {
-            bankLoanProgramDtoBuilder.setLogo(Converter.generateBase64FromLogo(attachmentService.download(logoId)));
+                .setBankName(bank.getName());
+        if (Objects.nonNull(attachment)) {
+            bankLoanProgramDtoBuilder.setLogo(Converter.generateBase64FromLogo(attachmentService.download(attachment.getId())));
         }
         return bankLoanProgramDtoBuilder;
     }
