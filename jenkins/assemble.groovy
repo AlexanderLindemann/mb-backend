@@ -64,6 +64,11 @@ pipeline {
                 executeGradlewCommand('buildDocker')
             }
         }
+        stage("Publish") {
+            steps {
+                executeGradlewCommand('publish')
+            }
+        }
         stage("Push docker") {
             steps {
                 script {
