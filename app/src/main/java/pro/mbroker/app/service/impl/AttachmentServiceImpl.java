@@ -9,15 +9,18 @@ import pro.mbroker.api.dto.request.BorrowerDocumentRequest;
 import pro.mbroker.app.entity.Attachment;
 import pro.mbroker.app.entity.Bank;
 import pro.mbroker.app.entity.BorrowerDocument;
+import pro.mbroker.app.entity.BorrowerProfile;
 import pro.mbroker.app.exception.ItemNotFoundException;
 import pro.mbroker.app.repository.AttachmentRepository;
 import pro.mbroker.app.repository.BankRepository;
 import pro.mbroker.app.repository.BorrowerDocumentRepository;
+import pro.mbroker.app.repository.BorrowerProfileRepository;
 import pro.mbroker.app.service.AttachmentService;
 import pro.smartdeal.ng.attachment.api.AttachmentControllerService;
 import pro.smartdeal.ng.attachment.api.pojo.AttachmentMeta;
 
 import java.util.Objects;
+import java.util.Optional;
 
 @Service
 @Slf4j
@@ -27,6 +30,7 @@ public class AttachmentServiceImpl implements AttachmentService {
     private final BankRepository bankRepository;
     private final AttachmentRepository attachmentRepository;
     private final BorrowerDocumentRepository borrowerDocumentRepository;
+    private final BorrowerProfileRepository borrowerProfileRepository;
 
     @Override
     @Transactional
@@ -55,8 +59,10 @@ public class AttachmentServiceImpl implements AttachmentService {
     public BorrowerDocument uploadDocument(MultipartFile file,
                                            BorrowerDocumentRequest documentDto) {
         Attachment attachment = upload(file);
+        var borrowerProfile = borrowerProfileRepository.findById(documentDto.getBorrowerProfileId())
+                .orElseThrow(() -> new ItemNotFoundException(BorrowerProfile.class, documentDto.getBorrowerProfileId()));
         BorrowerDocument borrowerDocument = new BorrowerDocument().setAttachment(attachment)
-                .setDocumentType(documentDto.getDocumentType());
+                .setDocumentType(documentDto.getDocumentType()).setBorrowerProfile(borrowerProfile);
         if (Objects.nonNull(documentDto.getBankId())) {
             borrowerDocument.setBank(bankRepository.findById(documentDto.getBankId())
                     .orElseThrow(() -> new ItemNotFoundException(Bank.class, documentDto.getBankId())));
