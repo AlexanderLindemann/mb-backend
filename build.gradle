@@ -2,17 +2,25 @@ plugins {
     id 'io.spring.dependency-management' version '1.0.10.RELEASE'
 }
 
+String userId = execCommand(['whoami']).replaceAll("\\\\|@|_", "-")
+println "Set 'user_id': ${userId}"
+project.ext."user_id" = userId
 
 String buildVersion = project.findProperty('build.version')
 if (!buildVersion) {
+    String datePart = new Date().format('yyMMdd-HHmmss')
+    String commitPart = execCommand(["git", "rev-parse", "--short", "HEAD"])
+    String branchPart = execCommand(["git", "branch", "--show-current"])
+    String userPart = project.ext."user_id"
 
-    buildVersion = getCurrentTime()
+    buildVersion = "${project_version}_${userPart}_${datePart}_${commitPart}_${branchPart}"
 }
-
+println "Set 'build_version': ${buildVersion}"
 project.ext."build_version" = buildVersion
 
 subprojects {
     project.ext."build_version" = rootProject.ext."build_version"
+    project.ext."user_id" = rootProject.ext."user_id"
 
     buildscript {
         repositories {
@@ -80,7 +88,17 @@ subprojects {
 
 }
 
-def getCurrentTime() {
-    def currentTime = new Date().getTime().toString()
-    return currentTime
+String execCommand(List<String> command) {
+    def stdout = new ByteArrayOutputStream()
+    exec {
+        commandLine command
+        standardOutput = stdout;
+    }
+    return "${stdout}".trim()
+}
+
+void execCommandNoOutput(List<String> command) {
+    exec {
+        commandLine command
+    }
 }
