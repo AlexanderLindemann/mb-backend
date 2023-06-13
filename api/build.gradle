@@ -1,6 +1,25 @@
-
+plugins {
+    id 'maven-publish'
+}
 
 dependencies {
     implementation ("ru.smartdeal:common-api:$smartdeal_dependencies_version")
     implementation ('org.springframework.boot:spring-boot-starter-web')
+}
+
+publishing {
+    repositories {
+        maven {
+            url = "https://nexus.practus.ru/repository/mb-maven";
+            credentials {
+                username "$practusUser"
+                password "$practusPassword"
+            }
+        }
+    }
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+        }
+    }
 }
