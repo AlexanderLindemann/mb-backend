@@ -24,8 +24,8 @@ public interface RealEstateRepository extends JpaRepository<RealEstate, UUID>, J
             "JOIN FETCH cp.creditProgramDetail cpd " +
             "JOIN FETCH cp.creditParameter " +
             "JOIN FETCH cp.bank WHERE r.id = :id " +
-            "AND cp.programStartDate < :currentTime " +
-            "AND cp.programEndDate > :currentTime")
+            "AND cp.programStartDate <= :currentTime " +
+            "AND cp.programEndDate >= :currentTime")
     List<CreditProgram> findCreditProgramsWithDetailsAndParametersByRealEstateId(@Param("id") UUID id,
                                                                                  @Param("currentTime") LocalDateTime currentTime);
 
