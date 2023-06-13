@@ -10,11 +10,13 @@ import pro.mbroker.api.dto.request.PartnerRequest;
 import pro.mbroker.api.dto.request.RealEstateRequest;
 import pro.mbroker.app.entity.CreditProgram;
 import pro.mbroker.app.entity.Partner;
+import pro.mbroker.app.entity.PartnerApplication;
 import pro.mbroker.app.entity.RealEstate;
 import pro.mbroker.app.exception.ItemNotFoundException;
 import pro.mbroker.app.mapper.PartnerMapper;
 import pro.mbroker.app.mapper.RealEstateMapper;
 import pro.mbroker.app.repository.CreditProgramRepository;
+import pro.mbroker.app.repository.PartnerApplicationRepository;
 import pro.mbroker.app.repository.PartnerRepository;
 import pro.mbroker.app.repository.specification.PartnerSpecification;
 import pro.mbroker.app.service.CreditProgramService;
@@ -33,6 +35,7 @@ public class PartnerServiceImpl implements PartnerService {
     private final CreditProgramService creditProgramService;
     private final CurrentUserService currentUserService;
     private final PartnerRepository partnerRepository;
+    private final PartnerApplicationRepository partnerApplicationRepository;
     private final CreditProgramRepository creditProgramRepository;
     private final PartnerMapper partnerMapper;
     private final RealEstateMapper realEstateMapper;
@@ -91,6 +94,14 @@ public class PartnerServiceImpl implements PartnerService {
         Partner partner = getPartner(partnerId);
         partner.setActive(false);
         partnerRepository.save(partner);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Partner getPartnerByPartnerApplicationId(UUID partnerApplicationId) {
+        PartnerApplication partnerApplication = partnerApplicationRepository.findById(partnerApplicationId)
+                .orElseThrow(() -> new ItemNotFoundException(PartnerApplication.class, partnerApplicationId));
+        return partnerApplication.getPartner();
     }
 
     @Override

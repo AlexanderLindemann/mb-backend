@@ -70,6 +70,12 @@ public class PartnerControllerImpl implements PartnerController {
     }
 
     @Override
+    public PartnerResponse getPartnerApplicationPartner(UUID partnerApplicationId) {
+        Partner partner = partnerService.getPartnerByPartnerApplicationId(partnerApplicationId);
+        return buildPartnerResponse(partner);
+    }
+
+    @Override
     @PreAuthorize("hasAuthority(T(pro.smartdeal.common.security.Permission$Code).MB_ADMIN_ACCESS)")
     public void deletePartner(UUID partnerId) {
         partnerService.deletePartner(partnerId);

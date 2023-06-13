@@ -21,4 +21,6 @@ public interface PartnerService {
     Partner getCurrentPartner();
 
     void deletePartner(UUID partnerId);
+
+    Partner getPartnerByPartnerApplicationId(UUID partnerApplicationId);
 }

@@ -40,6 +40,10 @@ public interface PartnerController {
     @GetMapping("/current")
     PartnerResponse getCurrentPartner();
 
+    @ApiOperation("получить застройщика по id заявки застройщика")
+    @GetMapping("/current/{partnerApplicationId}")
+    PartnerResponse getPartnerApplicationPartner(@PathVariable UUID partnerApplicationId);
+
     @ApiOperation("удалить партнера по id")
     @DeleteMapping("/{partnerId}")
     void deletePartner(
