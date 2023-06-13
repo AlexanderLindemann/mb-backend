@@ -121,7 +121,7 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
                 borrowerProfile.setBorrowerProfileStatus(BorrowerProfileStatus.DATA_NO_ENTERED);
             }
         });
-        if(Objects.nonNull(partnerApplication.getId())){
+        if (Objects.nonNull(partnerApplication.getId())) {
             checkDocumentStatus(partnerApplication);
         }
         return partnerApplicationRepository.save(partnerApplication);
@@ -260,15 +260,15 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
 
     @Override
     public List<PartnerApplicationResponse> search(String firstName,
-                                                String middleName,
-                                                String lastName,
-                                                String phoneNumber,
-                                                String residentialComplexName,
-                                                RegionType region,
-                                                String bankName,
-                                                BankApplicationStatus applicationStatus,
-                                                String sortBy,
-                                                String sortDirection) {
+                                                   String middleName,
+                                                   String lastName,
+                                                   String phoneNumber,
+                                                   String residentialComplexName,
+                                                   RegionType region,
+                                                   String bankName,
+                                                   BankApplicationStatus applicationStatus,
+                                                   String sortBy,
+                                                   String sortDirection) {
 
         List<PartnerApplication> bankApplications = partnerApplicationRepository
                 .findAll(PartnerApplicationSpecification
@@ -329,6 +329,7 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
         List<Bank> banks = partnerApplication.getBankApplications().stream()
                 .map(BankApplication::getCreditProgram)
                 .map(CreditProgram::getBank)
+                .filter(Objects::nonNull)
                 .collect(Collectors.toList());
         List<RequiredDocumentResponse> response = banks.stream()
                 .flatMap(bank -> Stream.of(DocumentType.APPLICATION_FORM, DocumentType.DATA_PROCESSING_AGREEMENT)
