@@ -51,7 +51,7 @@ public interface PartnerApplicationController {
     );
 
     @GetMapping("search")
-    List<BankApplicationResponse> filter(
+    List<PartnerApplicationResponse> filter(
             @RequestParam(required = false) String firstName,
             @RequestParam(required = false) String middleName,
             @RequestParam(required = false) String lastName,

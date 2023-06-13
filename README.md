@@ -14,6 +14,14 @@ eureka:
         register-with-eureka: false
         fetch-registry: false
 
+или для подключения к удаленному серверу на
+
+eureka:
+    client:
+        serviceUrl:
+            defaultZone: http://sd-dev:10203/eureka/
+
+
 Так же для локальной сборки в родительском build.gradle 
 
 изменить

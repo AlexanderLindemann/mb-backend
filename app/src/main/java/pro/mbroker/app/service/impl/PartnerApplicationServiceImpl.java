@@ -28,7 +28,7 @@ import pro.mbroker.app.mapper.PartnerApplicationMapper;
 import pro.mbroker.app.repository.BankApplicationRepository;
 import pro.mbroker.app.repository.BorrowerProfileRepository;
 import pro.mbroker.app.repository.PartnerApplicationRepository;
-import pro.mbroker.app.repository.specification.BankApplicationSpecification;
+import pro.mbroker.app.repository.specification.PartnerApplicationSpecification;
 import pro.mbroker.app.service.*;
 import pro.mbroker.app.util.Converter;
 import pro.mbroker.app.util.Pagination;
@@ -259,7 +259,7 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
     }
 
     @Override
-    public List<BankApplicationResponse> search(String firstName,
+    public List<PartnerApplicationResponse> search(String firstName,
                                                 String middleName,
                                                 String lastName,
                                                 String phoneNumber,
@@ -270,8 +270,8 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
                                                 String sortBy,
                                                 String sortDirection) {
 
-        List<BankApplication> bankApplications = bankApplicationRepository
-                .findAll(BankApplicationSpecification
+        List<PartnerApplication> bankApplications = partnerApplicationRepository
+                .findAll(PartnerApplicationSpecification
                         .combineSearch(firstName,
                                 middleName,
                                 lastName,
@@ -285,7 +285,7 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
         sortBankApplicationList(sortBy, sortDirection, bankApplications);
 
         return bankApplications.stream()
-                .map(bankApplicationMapper::toBankApplicationResponse)
+                .map(partnerApplicationMapper::toPartnerApplicationResponse)
                 .collect(Collectors.toList());
     }
 
@@ -399,13 +399,13 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
     }
 
 
-    private void sortBankApplicationList(String sortBy, String sortDirection, List<BankApplication> bankApplications) {
-        Comparator<BankApplication> comparator;
+    private void sortBankApplicationList(String sortBy, String sortDirection, List<PartnerApplication> bankApplications) {
+        Comparator<PartnerApplication> comparator;
         if (sortBy != null) {
             if (sortBy.equals(CREATED_AT)) {
-                comparator = Comparator.comparing(ba -> ba.getPartnerApplication().getCreatedAt());
+                comparator = Comparator.comparing(pa -> pa.getCreatedAt());
             } else {
-                comparator = Comparator.comparing(ba -> ba.getPartnerApplication().getUpdatedAt());
+                comparator = Comparator.comparing(pa -> pa.getCreatedAt());
             }
 
             if (sortDirection != null && sortDirection.equals("DESC")) {

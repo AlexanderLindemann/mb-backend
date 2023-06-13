@@ -47,7 +47,16 @@ public class AttachmentServiceImpl implements AttachmentService {
     public MultipartFile download(Long attachmentId) {
         Attachment attachment = attachmentRepository.findAttachmentById(attachmentId)
                 .orElseThrow(() -> new ItemNotFoundException(Attachment.class, attachmentId));
-        return attachmentService.download(attachment.getId());
+        log.info("Начинаю попытку получить Attachment из сервиса Attachment с id {}", attachmentId);
+        try {
+            var file = attachmentService.download(attachment.getId());
+            log.info("Файл {} успешно получен", file.getName());
+            return file;
+        } catch (Exception e) {
+            log.error("При попытке получения файла из сервиса Attachment произошла ошибка. " +
+                    "Будет возвращено null. Ошибка: {}", e.getMessage());
+            return null;
+        }
     }
 
     @Override

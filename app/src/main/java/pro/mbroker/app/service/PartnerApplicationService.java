@@ -27,7 +27,7 @@ public interface PartnerApplicationService {
 
     PartnerApplication getPartnerApplication(UUID partnerApplicationId);
 
-    List<BankApplicationResponse> search(String firstName,
+    List<PartnerApplicationResponse> search(String firstName,
                                          String middleName,
                                          String lastName,
                                          String phoneNumber,
