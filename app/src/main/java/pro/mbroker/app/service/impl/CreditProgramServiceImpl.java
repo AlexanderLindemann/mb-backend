@@ -36,6 +36,8 @@ public class CreditProgramServiceImpl implements CreditProgramService {
     @Override
     @Transactional
     public CreditProgram createCreditParameter(BankProgramRequest createCreditParameter, CreditProgramDetail creditProgramDetail) {
+        createCreditParameter.resetEarliestTime();
+        createCreditParameter.resetLatestTime();
         CreditProgram creditProgram = programMapper.toProgramMapper(createCreditParameter)
                 .setBank(bankService.getBankById(createCreditParameter.getBankId()))
                 .setCreditProgramDetail(creditProgramDetail)

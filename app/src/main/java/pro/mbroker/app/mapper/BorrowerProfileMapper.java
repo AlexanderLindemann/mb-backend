@@ -3,9 +3,14 @@ package pro.mbroker.app.mapper;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
+import pro.mbroker.api.dto.request.BorrowerDocumentRequest;
 import pro.mbroker.api.dto.request.BorrowerProfileRequest;
 import pro.mbroker.api.dto.response.BorrowerProfileResponse;
+import pro.mbroker.app.entity.BorrowerDocument;
 import pro.mbroker.app.entity.BorrowerProfile;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Mapper
 public interface BorrowerProfileMapper {
@@ -33,7 +38,7 @@ public interface BorrowerProfileMapper {
     @Mapping(source = "request.middleName", target = "middleName")
     @Mapping(source = "request.phoneNumber", target = "phoneNumber")
     @Mapping(source = "borrowerProfileStatus", target = "status")
-    @Mapping(target = "documents", ignore = true)
+    @Mapping(target = "documents", expression = "java(mapBorrowerDocuments(request.getBorrowerDocument()))")
     BorrowerProfileResponse toBorrowerProfileResponse(BorrowerProfile request);
 
     @Mapping(target = "id", ignore = true)
@@ -65,5 +70,22 @@ public interface BorrowerProfileMapper {
     @Mapping(source = "request.middleName", target = "middleName")
     @Mapping(source = "request.phoneNumber", target = "phoneNumber")
     void updateBorrowerProfile(BorrowerProfileRequest request, @MappingTarget BorrowerProfile profile);
+
+
+    default BorrowerDocumentRequest toBorrowerDocumentRequest(BorrowerDocument borrowerDocument) {
+        BorrowerDocumentRequest request = new BorrowerDocumentRequest();
+        request.setAttachmentId(borrowerDocument.getAttachment().getId());
+        request.setAttachmentName(borrowerDocument.getAttachment().getName());
+        request.setBankId(borrowerDocument.getBank().getId());
+        request.setBorrowerProfileId(borrowerDocument.getBorrowerProfile().getId());
+        request.setDocumentType(borrowerDocument.getDocumentType());
+        return request;
+    }
+
+    default List<BorrowerDocumentRequest> mapBorrowerDocuments(List<BorrowerDocument> borrowerDocuments) {
+        return borrowerDocuments.stream()
+                .map(this::toBorrowerDocumentRequest)
+                .collect(Collectors.toList());
+    }
 
 }
