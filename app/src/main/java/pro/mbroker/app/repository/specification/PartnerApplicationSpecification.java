@@ -24,7 +24,7 @@ public class PartnerApplicationSpecification {
             Join<PartnerApplication, BankApplication> bankApplicationJoin = root.join("bankApplications");
             Join<BankApplication, BorrowerProfile> borrowerProfileJoin = bankApplicationJoin.join("mainBorrower");
             return firstName == null ? null : criteriaBuilder
-                    .like(borrowerProfileJoin.get("firstName"), "%" + firstName + "%");
+                    .like(criteriaBuilder.upper(borrowerProfileJoin.get("firstName")), "%" + firstName.trim().toUpperCase() + "%");
         };
     }
 
@@ -33,7 +33,7 @@ public class PartnerApplicationSpecification {
             Join<PartnerApplication, BankApplication> bankApplicationJoin = root.join("bankApplications");
             Join<BankApplication, BorrowerProfile> borrowerProfileJoin = bankApplicationJoin.join("mainBorrower");
             return middleName == null ? null : criteriaBuilder
-                    .like(borrowerProfileJoin.get("middleName"), "%" + middleName + "%");
+                    .like(criteriaBuilder.upper(borrowerProfileJoin.get("middleName")), "%" + middleName.trim().toUpperCase() + "%");
         };
     }
 
@@ -42,7 +42,7 @@ public class PartnerApplicationSpecification {
             Join<PartnerApplication, BankApplication> bankApplicationJoin = root.join("bankApplications");
             Join<BankApplication, BorrowerProfile> borrowerProfileJoin = bankApplicationJoin.join("mainBorrower");
             return lastName == null ? null : criteriaBuilder
-                    .like(borrowerProfileJoin.get("lastName"), "%" + lastName + "%");
+                    .like(criteriaBuilder.upper(borrowerProfileJoin.get("lastName")), "%" + lastName.trim().toUpperCase() + "%");
         };
     }
 
@@ -60,7 +60,8 @@ public class PartnerApplicationSpecification {
             Join<PartnerApplication, BankApplication> bankApplicationJoin = root.join("bankApplications");
             Join<BankApplication, CreditProgram> creditProgramJoin = bankApplicationJoin.join("creditProgram");
             Join<CreditProgram, Bank> bankJoin = creditProgramJoin.join("bank");
-            return bankName == null ? null : criteriaBuilder.like(bankJoin.get("name"), "%" + bankName + "%");
+            return bankName == null ? null : criteriaBuilder
+                    .like(criteriaBuilder.upper(bankJoin.get("name")), "%" + bankName.trim().toUpperCase() + "%");
         };
     }
 
@@ -70,7 +71,7 @@ public class PartnerApplicationSpecification {
             Join<BankApplication, PartnerApplication> partnerApplicationJoin = bankApplicationJoin.join("partnerApplication");
             Join<PartnerApplication, RealEstate> realEstateJoin = partnerApplicationJoin.join("realEstate");
             return residentialComplexName == null ? null : criteriaBuilder
-                    .like(realEstateJoin.get("residentialComplexName"), "%" + residentialComplexName + "%");
+                    .like(criteriaBuilder.upper(realEstateJoin.get("residentialComplexName")), "%" + residentialComplexName.trim().toUpperCase() + "%");
         };
     }
 
