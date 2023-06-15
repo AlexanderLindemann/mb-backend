@@ -19,4 +19,8 @@ public class BorrowerDocumentRequest {
 
     private UUID bankId;
 
+    private Long attachmentId;
+
+    private String attachmentName;
+
 }
