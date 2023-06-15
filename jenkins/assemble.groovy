@@ -20,7 +20,7 @@ pipeline {
                 description: 'Branch for build'
         )
         string(name: 'GIT_COMMIT_ID', description: 'ID of Git commit for build', defaultValue: 'HEAD')
-        choice(name: 'DOCKER_REPOSITORY_NAME', choices: ["practus-docker-snapshot", "practus-docker"], description: 'Docker repository for backend apps')
+        choice(name: 'DOCKER_REPOSITORY_NAME', choices: ["mb-docker"], description: 'Docker repository for backend apps')
         string(name: "EXTERNAL_BUILD_VERSION", description: 'If we need to assemble specific')
     }
     environment {
@@ -62,6 +62,11 @@ pipeline {
         stage("Build Docker") {
             steps {
                 executeGradlewCommand('buildDocker')
+            }
+        }
+        stage("Publish") {
+            steps {
+                executeGradlewCommand('publish')
             }
         }
         stage("Push docker") {
