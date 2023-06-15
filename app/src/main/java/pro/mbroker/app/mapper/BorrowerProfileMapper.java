@@ -10,6 +10,7 @@ import pro.mbroker.app.entity.BorrowerDocument;
 import pro.mbroker.app.entity.BorrowerProfile;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Mapper
@@ -76,7 +77,9 @@ public interface BorrowerProfileMapper {
         BorrowerDocumentRequest request = new BorrowerDocumentRequest();
         request.setAttachmentId(borrowerDocument.getAttachment().getId());
         request.setAttachmentName(borrowerDocument.getAttachment().getName());
-        request.setBankId(borrowerDocument.getBank().getId());
+        if (Objects.nonNull(borrowerDocument.getBank())) {
+            request.setBankId(borrowerDocument.getBank().getId());
+        }
         request.setBorrowerProfileId(borrowerDocument.getBorrowerProfile().getId());
         request.setDocumentType(borrowerDocument.getDocumentType());
         return request;
