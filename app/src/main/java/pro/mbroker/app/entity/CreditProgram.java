@@ -5,7 +5,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.Cascade;
-import org.springframework.data.annotation.CreatedDate;
 
 import javax.persistence.*;
 import javax.validation.constraints.DecimalMax;
@@ -23,7 +22,6 @@ public class CreditProgram extends BaseEntity {
     @Column(name = "credit_program_name", nullable = false)
     private String programName;
 
-    @CreatedDate
     @Column(name = "start_program_date")
     private LocalDateTime programStartDate;
 

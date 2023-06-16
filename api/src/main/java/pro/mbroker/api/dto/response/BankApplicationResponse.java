@@ -24,6 +24,8 @@ public class BankApplicationResponse {
 
     private BankApplicationStatus status;
 
+    private LocalDateTime createdAt;
+
     private LocalDateTime updatedAt;
 
     private BigDecimal mortgageSum;

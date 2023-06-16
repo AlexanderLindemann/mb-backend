@@ -51,4 +51,11 @@ public class GlobalExceptionHandler {
         ControllerError apiError = new ControllerError(ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         return new ResponseEntity<>(apiError, apiError.getStatus());
     }
+
+    @ExceptionHandler(ReportGenerationException.class)
+    public ResponseEntity<Object> handleReportGenerationException(ReportGenerationException ex) {
+        ControllerError apiError = new ControllerError(ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>(apiError, apiError.getStatus());
+    }
+
 }

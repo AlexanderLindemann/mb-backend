@@ -37,6 +37,7 @@ import pro.smartdeal.common.security.Permission;
 import pro.smartdeal.ng.common.security.service.CurrentUserService;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -66,19 +67,21 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
 
     @Override
     @Transactional(readOnly = true)
-    public List<PartnerApplication> getAllPartnerApplication(int page, int size, String sortBy, String sortOrder) {
+    public List<PartnerApplication> getAllPartnerApplication(int page, int size, String sortBy, String sortOrder, LocalDateTime startDate, LocalDateTime endDate) {
+        Optional<LocalDateTime> start = Optional.ofNullable(startDate);
+        Optional<LocalDateTime> end = Optional.ofNullable(endDate);
         log.info("Getting all partner applications with pagination: page={}, size={}, sortBy={}, sortOrder={}", page, size, sortBy, sortOrder);
         Pageable pageable = Pagination.createPageable(page, size, sortBy, sortOrder);
         List<PartnerApplication> result = new ArrayList<>();
         Collection<? extends GrantedAuthority> authorities = SecurityContextHolder.getContext().getAuthentication().getAuthorities();
         if (authorities.contains(new SimpleGrantedAuthority(Permission.Code.MB_ADMIN_ACCESS))) {
-            result = partnerApplicationRepository.findAllByIsActiveTrue(pageable);
+            result = partnerApplicationRepository.findAllByIsActiveTrue(start, end, pageable);
         } else if (authorities.contains(new SimpleGrantedAuthority(Permission.Code.MB_REQUEST_READ_ORGANIZATION))) {
             UUID partnerId = partnerService.getCurrentPartner().getId();
-            result = partnerApplicationRepository.findAllIsActiveByPartnerId(partnerId, pageable);
+            result = partnerApplicationRepository.findAllIsActiveByPartnerId(start, end, partnerId, pageable);
         } else if (authorities.contains(new SimpleGrantedAuthority(Permission.Code.MB_REQUEST_READ_OWN))) {
             Integer createdBy = TokenExtractor.extractSdId(currentUserService.getCurrentUserToken());
-            result = partnerApplicationRepository.findAllByCreatedByAndIsActiveTrue(createdBy, pageable);
+            result = partnerApplicationRepository.findAllByCreatedByAndIsActiveTrue(start, end, createdBy, pageable);
         }
         return result;
     }
@@ -107,6 +110,7 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
     }
 
     @Override
+    @Transactional
     public PartnerApplication statusChanger(PartnerApplication partnerApplication) {
         if (Objects.isNull(partnerApplication.getPartnerApplicationStatus())) {
             partnerApplication.setPartnerApplicationStatus(PartnerApplicationStatus.UPLOADING_DOCS);
@@ -127,6 +131,7 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
         return partnerApplicationRepository.save(partnerApplication);
     }
 
+    @Transactional
     public void checkDocumentStatus(PartnerApplication partnerApplication) {
         List<RequiredDocumentResponse> requiredDocuments = getRequiredDocuments(partnerApplication.getId());
         for (BorrowerProfile borrowerProfile : partnerApplication.getBorrowerProfiles()) {
@@ -143,17 +148,6 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
             if (allDocumentsPresent) {
                 borrowerProfile.setBorrowerProfileStatus(BorrowerProfileStatus.DATA_ENTERED);
                 checkBankApplicationStatus(partnerApplication);
-            }
-        }
-    }
-
-    private void checkBankApplicationStatus(PartnerApplication partnerApplication) {
-        boolean allProfilesDataEntered = partnerApplication.getBorrowerProfiles().stream()
-                .allMatch(profile -> profile.getBorrowerProfileStatus() == BorrowerProfileStatus.DATA_ENTERED);
-        if (allProfilesDataEntered) {
-            List<BankApplication> bankApplications = partnerApplication.getBankApplications();
-            for (BankApplication bankApplication : bankApplications) {
-                bankApplication.setBankApplicationStatus(BankApplicationStatus.READY_TO_SENDING);
             }
         }
     }
@@ -209,6 +203,7 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
         return response;
     }
 
+    @Transactional(readOnly = true)
     public List<BankWithBankApplicationDto> getGroupBankApplication(List<BankApplicationResponse> activeBankApplicationResponses) {
         Map<UUID, BankApplicationResponse> creditProgramMap = activeBankApplicationResponses.stream()
                 .collect(Collectors.toMap(BankApplicationResponse::getCreditProgramId, Function.identity()));
@@ -290,6 +285,7 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
     }
 
     @Override
+    @Transactional
     public PartnerApplication enableBankApplication(UUID partnerApplicationId, BankApplicationUpdateRequest request) {
         PartnerApplication partnerApplication = getPartnerApplication(partnerApplicationId);
         Map<UUID, BankApplication> currentBankApplications = partnerApplication.getBankApplications()
@@ -309,6 +305,7 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
     }
 
     @Override
+    @Transactional
     public PartnerApplication disableBankApplication(UUID partnerApplicationId, UUID creditProgramId) {
         PartnerApplication partnerApplication = getPartnerApplication(partnerApplicationId);
         Map<UUID, BankApplication> currentBankApplications = partnerApplication.getBankApplications()
@@ -324,6 +321,7 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<RequiredDocumentResponse> getRequiredDocuments(UUID partnerApplicationId) {
         PartnerApplication partnerApplication = getPartnerApplication(partnerApplicationId);
         List<Bank> banks = partnerApplication.getBankApplications().stream()
@@ -445,5 +443,16 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
     private PartnerApplication getPartnerApplicationById(UUID partnerApplicationId) {
         return partnerApplicationRepository.findById(partnerApplicationId)
                 .orElseThrow(() -> new ItemNotFoundException(PartnerApplication.class, String.valueOf(partnerApplicationId)));
+    }
+
+    private void checkBankApplicationStatus(PartnerApplication partnerApplication) {
+        boolean allProfilesDataEntered = partnerApplication.getBorrowerProfiles().stream()
+                .allMatch(profile -> profile.getBorrowerProfileStatus() == BorrowerProfileStatus.DATA_ENTERED);
+        if (allProfilesDataEntered) {
+            List<BankApplication> bankApplications = partnerApplication.getBankApplications();
+            for (BankApplication bankApplication : bankApplications) {
+                bankApplication.setBankApplicationStatus(BankApplicationStatus.READY_TO_SENDING);
+            }
+        }
     }
 }
