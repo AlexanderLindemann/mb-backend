@@ -87,6 +87,7 @@ public interface BorrowerProfileMapper {
 
     default List<BorrowerDocumentRequest> mapBorrowerDocuments(List<BorrowerDocument> borrowerDocuments) {
         return borrowerDocuments.stream()
+                .filter(BorrowerDocument::isActive)
                 .map(this::toBorrowerDocumentRequest)
                 .collect(Collectors.toList());
     }

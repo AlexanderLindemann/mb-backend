@@ -184,6 +184,7 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
                 .filter(BankApplication::isActive)
                 .collect(Collectors.toList());
         Map<UUID, BorrowerProfile> borrowerProfileMap = partnerApplication.getBorrowerProfiles().stream()
+                .filter(BorrowerProfile::isActive)
                 .collect(Collectors.toMap(BorrowerProfile::getId, Function.identity()));
         List<BankApplicationResponse> activeBankApplicationResponses = new ArrayList<>();
         for (BankApplication bankApplication : activeBankApplications) {
@@ -203,8 +204,7 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
         return response;
     }
 
-    @Transactional(readOnly = true)
-    public List<BankWithBankApplicationDto> getGroupBankApplication(List<BankApplicationResponse> activeBankApplicationResponses) {
+    private List<BankWithBankApplicationDto> getGroupBankApplication(List<BankApplicationResponse> activeBankApplicationResponses) {
         Map<UUID, BankApplicationResponse> creditProgramMap = activeBankApplicationResponses.stream()
                 .collect(Collectors.toMap(BankApplicationResponse::getCreditProgramId, Function.identity()));
         List<CreditProgram> programByCreditProgramIds = creditProgramService.getProgramByCreditProgramIds(new ArrayList<>(creditProgramMap.keySet()));

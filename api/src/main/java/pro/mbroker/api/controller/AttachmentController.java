@@ -24,9 +24,13 @@ public interface AttachmentController {
     Long upload(@RequestPart("file") MultipartFile file);
 
     @ApiOperation("Загрузить документ клиента")
-    @PostMapping(value = "/upload", consumes =MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     BorrowerDocumentResponse uploadDocument(@RequestPart("file") MultipartFile file,
                                             @RequestParam UUID borrowerProfileId,
                                             @RequestParam DocumentType documentType,
                                             @RequestParam UUID bankId);
+
+    @ApiOperation("удалить загруженный документ клиента")
+    @PutMapping(value = "/{attachmentId}/delete_document")
+    void deleteDocument(@PathVariable Long attachmentId);
 }
