@@ -30,5 +30,4 @@ public class BorrowerProfileResponse {
 
     private List<BorrowerDocumentRequest> documents;
 
-
 }
