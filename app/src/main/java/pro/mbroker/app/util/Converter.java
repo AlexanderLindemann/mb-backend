@@ -31,7 +31,7 @@ public final class Converter {
                 .collect(Collectors.toList());
     }
 
-    public static String generateBase64FromLogo(MultipartFile multipartFile) {
+    public static String generateBase64FromFile(MultipartFile multipartFile) {
         try {
             byte[] logoBytes = multipartFile.getBytes();
             return Base64.getEncoder().encodeToString(logoBytes);

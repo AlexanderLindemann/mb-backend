@@ -15,6 +15,7 @@ import pro.mbroker.app.service.AttachmentService;
 import pro.mbroker.app.service.BorrowerDocumentService;
 import pro.mbroker.app.service.BorrowerProfileService;
 import pro.mbroker.app.service.PartnerApplicationService;
+import pro.mbroker.app.util.Converter;
 
 import java.util.Map;
 import java.util.Objects;
@@ -65,6 +66,11 @@ public class AttachmentControllerImpl implements AttachmentController {
     @Override
     public MultipartFile download(Long attachmentId) {
         return attachmentService.download(attachmentId);
+    }
+
+    @Override
+    public String downloadBase64(Long attachmentId) {
+        return Converter.generateBase64FromFile(attachmentService.download(attachmentId));
     }
 
 }

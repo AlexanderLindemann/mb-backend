@@ -223,7 +223,7 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
             if (Objects.nonNull(bank.getAttachment()) && Objects.nonNull(bank.getAttachment().getId())) {
                 Long logoId = bank.getAttachment().getId();
                 try {
-                    dto.setLogo(Converter.generateBase64FromLogo(attachmentService.download(logoId)));
+                    dto.setLogo(Converter.generateBase64FromFile(attachmentService.download(logoId)));
                 } catch (Exception e) {
                     log.error("Error loading logo: " + e.getMessage());
                 }
