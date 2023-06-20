@@ -2,6 +2,11 @@ package pro.mbroker.app.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -19,6 +24,9 @@ import pro.mbroker.app.service.AttachmentService;
 import pro.smartdeal.ng.attachment.api.AttachmentControllerService;
 import pro.smartdeal.ng.attachment.api.pojo.AttachmentMeta;
 
+import java.io.IOException;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -49,18 +57,7 @@ public class AttachmentServiceImpl implements AttachmentService {
     @Override
     @Transactional
     public MultipartFile download(Long attachmentId) {
-        Attachment attachment = attachmentRepository.findAttachmentById(attachmentId)
-                .orElseThrow(() -> new ItemNotFoundException(Attachment.class, attachmentId));
-        log.info("Начинаю попытку получить Attachment из сервиса Attachment с id {}", attachmentId);
-        try {
-            var file = attachmentService.download(attachment.getId());
-            log.info("Файл {} успешно получен", file.getName());
-            return file;
-        } catch (Exception e) {
-            log.error("При попытке получения файла из сервиса Attachment произошла ошибка. " +
-                    "Будет возвращено null. Ошибка: {}", e.getMessage());
-            return null;
-        }
+        return getFileFromAttachmentService(attachmentId);
     }
 
     @Override
@@ -84,5 +81,46 @@ public class AttachmentServiceImpl implements AttachmentService {
     public Attachment getAttachmentById(Long attachmentId) {
         return attachmentRepository.findById(attachmentId)
                 .orElseThrow(() -> new ItemNotFoundException(Attachment.class, attachmentId));
+    }
+
+    @Override
+    public ResponseEntity<InputStreamResource> downloadFile(Long attachmentId) {
+        MultipartFile file = getFileFromAttachmentService(attachmentId);
+        InputStreamResource resource;
+        String originalFilename;
+        if (file != null && file.getOriginalFilename() != null) {
+            try {
+                originalFilename = file.getOriginalFilename();
+                originalFilename = URLDecoder.decode(originalFilename, StandardCharsets.UTF_8.name());
+                log.info("Начиная попытку преобразования файла {} в формат для скачивания",
+                        originalFilename);
+                resource = new InputStreamResource(file.getInputStream());
+                log.info("Файл успешно преобразован");
+            } catch (IOException e) {
+                log.error("Не удалось преобразовать файл: {}", file.getOriginalFilename());
+                return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+            return ResponseEntity.ok()
+                    .contentType(MediaType.parseMediaType(Objects.requireNonNull(file.getContentType())))
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + originalFilename + "\"")
+                    .body(resource);
+        } else {
+            throw new ItemNotFoundException(Attachment.class, attachmentId);
+        }
+    }
+
+    private MultipartFile getFileFromAttachmentService(Long attachmentId) {
+        Attachment attachment = attachmentRepository.findAttachmentById(attachmentId)
+                .orElseThrow(() -> new ItemNotFoundException(Attachment.class, attachmentId));
+        log.info("Начинаю попытку получить Attachment из сервиса Attachment с id {}", attachmentId);
+        try {
+            var file = attachmentService.download(attachment.getId());
+            log.info("Файл {} успешно получен", file.getName());
+            return file;
+        } catch (Exception e) {
+            log.error("При попытке получения файла из сервиса Attachment произошла ошибка. " +
+                    "Будет возвращено null. Ошибка: {}", e.getMessage());
+            return null;
+        }
     }
 }
