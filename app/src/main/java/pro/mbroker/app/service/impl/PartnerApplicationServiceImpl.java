@@ -336,16 +336,16 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
                                 .setDocumentType(documentType)
                                 .setBankName(bank.getName())))
                 .collect(Collectors.toList());
-        List.of(DocumentType.BORROWER_SNILS,
+        Stream.of(DocumentType.BORROWER_SNILS,
                         DocumentType.BORROWER_PASSPORT,
                         DocumentType.INCOME_CERTIFICATE,
-                        DocumentType.CERTIFIED_COPY_TK).stream()
+                        DocumentType.CERTIFIED_COPY_TK)
                 .map(documentType -> new RequiredDocumentResponse().setDocumentType(documentType))
                 .forEach(response::add);
         return response;
     }
 
-    private BorrowerProfile updateMainBorrower(PartnerApplication partnerApplication, BorrowerProfileRequest borrowerProfileRequest) {
+    private void updateMainBorrower(PartnerApplication partnerApplication, BorrowerProfileRequest borrowerProfileRequest) {
         BorrowerProfile borrowerProfile;
         if (borrowerProfileRequest.getId() != null) {
             borrowerProfile = getBorrowerProfile(borrowerProfileRequest.getId());
@@ -360,7 +360,6 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
         }
         borrowerProfile.setPartnerApplication(partnerApplication);
         partnerApplication.getBankApplications().forEach(app -> app.setMainBorrower(borrowerProfile));
-        return borrowerProfile;
     }
 
     private BorrowerProfile getBorrowerProfile(UUID borrowerProfileId) {

@@ -47,7 +47,6 @@ public class BankApplicationServiceImpl implements BankApplicationService {
 
     @Override
     public BankApplication updateBankApplication(BankApplicationRequest request) {
-        BankApplication application = bankApplicationMapper.updateBankApplicationFromRequest(getBankApplicationById(request.getId()), request);
-        return application;
+        return bankApplicationMapper.updateBankApplicationFromRequest(getBankApplicationById(request.getId()), request);
     }
 }

@@ -59,3 +59,6 @@ databaseChangeLog:
   - include:
       file: 20230602_0930-change_fk_for_bank_and_borrower_docs.xml
       relativeToChangelogFile: true
+  - include:
+      file: 20230620_1030-add-new-column_in_application_table.xml
+      relativeToChangelogFile: true

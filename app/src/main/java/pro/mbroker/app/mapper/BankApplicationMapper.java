@@ -42,6 +42,7 @@ public interface BankApplicationMapper {
     @Mapping(target = "updatedBy", ignore = true)
     @Mapping(target = "active", ignore = true)
     @Mapping(target = "mainBorrower", ignore = true)
+    @Mapping(target = "applicationNumber", ignore = true)
     BankApplication toBankApplication(BankApplicationRequest dto);
 
     @Mapping(source = "dto.creditProgramId", target = "creditProgram.id")
@@ -58,6 +59,7 @@ public interface BankApplicationMapper {
     @Mapping(target = "updatedBy", ignore = true)
     @Mapping(target = "active", ignore = true)
     @Mapping(target = "mainBorrower", ignore = true)
+    @Mapping(target = "applicationNumber", ignore = true)
     BankApplication toBankApplication(BankApplicationUpdateRequest dto);
 
     @Named("toBankApplicationList")
@@ -75,7 +77,7 @@ public interface BankApplicationMapper {
         if (existing == null) {
             existing = new BankApplication();
         }
-        existing.setBankApplicationStatus(BankApplicationStatus.READY_TO_SENDING);
+        existing.setBankApplicationStatus(BankApplicationStatus.DATA_NO_ENTERED);
         existing.setMonthlyPayment(request.getMonthlyPayment());
         existing.setRealEstatePrice(request.getRealEstatePrice());
         existing.setDownPayment(request.getDownPayment());
@@ -88,7 +90,7 @@ public interface BankApplicationMapper {
         if (existing == null) {
             existing = new BankApplication();
         }
-        existing.setBankApplicationStatus(BankApplicationStatus.READY_TO_SENDING);
+        existing.setBankApplicationStatus(BankApplicationStatus.DATA_NO_ENTERED);
         existing.setMonthlyPayment(request.getMonthlyPayment());
         existing.setRealEstatePrice(request.getRealEstatePrice());
         existing.setDownPayment(request.getDownPayment());
