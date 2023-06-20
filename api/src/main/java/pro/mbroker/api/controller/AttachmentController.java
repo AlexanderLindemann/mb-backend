@@ -20,8 +20,8 @@ public interface AttachmentController {
     MultipartFile download(@PathVariable Long attachmentId);
 
     @ApiOperation("Получить файл по attachment_id в base64")
-    @GetMapping("/{attachmentId}/base64")
-    String downloadBase64(@PathVariable Long attachmentId);
+    @GetMapping("/{attachmentId}/attachment_head")
+    MultipartFile downloadBase64(@PathVariable Long attachmentId);
 
     @ApiOperation("Загрузить файл и получить attachmentId")
     @PostMapping()
