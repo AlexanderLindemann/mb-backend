@@ -2,6 +2,11 @@ package pro.mbroker.app.web;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 import pro.mbroker.api.controller.AttachmentController;
@@ -18,6 +23,7 @@ import pro.mbroker.app.service.PartnerApplicationService;
 import pro.mbroker.app.util.Converter;
 import pro.smartdeal.ng.attachment.api.AttachmentControllerService;
 
+import java.io.IOException;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
@@ -71,8 +77,19 @@ public class AttachmentControllerImpl implements AttachmentController {
     }
 
     @Override
-    public MultipartFile downloadBase64(Long attachmentId) {
-        return attachmentControllerService.download(attachmentId);
+    public ResponseEntity<InputStreamResource> downloadBase64(Long attachmentId) {
+        MultipartFile file = attachmentControllerService.download(attachmentId);
+        InputStreamResource resource;
+        try {
+            resource = new InputStreamResource(file.getInputStream());
+        } catch (IOException e) {
+            e.printStackTrace();
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType(file.getContentType()))
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + file.getOriginalFilename() + "\"")
+                .body(resource);
     }
 
 }
