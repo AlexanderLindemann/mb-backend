@@ -2,7 +2,9 @@ package pro.mbroker.api.controller;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import pro.mbroker.api.dto.response.BorrowerDocumentResponse;
@@ -21,7 +23,7 @@ public interface AttachmentController {
 
     @ApiOperation("Получить файл по attachment_id в base64")
     @GetMapping("/{attachmentId}/attachment_head")
-    MultipartFile downloadBase64(@PathVariable Long attachmentId);
+    ResponseEntity<InputStreamResource> downloadBase64(@PathVariable Long attachmentId);
 
     @ApiOperation("Загрузить файл и получить attachmentId")
     @PostMapping()
