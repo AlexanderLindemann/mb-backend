@@ -16,6 +16,7 @@ import pro.mbroker.app.service.BorrowerDocumentService;
 import pro.mbroker.app.service.BorrowerProfileService;
 import pro.mbroker.app.service.PartnerApplicationService;
 import pro.mbroker.app.util.Converter;
+import pro.smartdeal.ng.attachment.api.AttachmentControllerService;
 
 import java.util.Map;
 import java.util.Objects;
@@ -32,6 +33,7 @@ public class AttachmentControllerImpl implements AttachmentController {
     private final PartnerApplicationService partnerApplicationService;
     private final BorrowerDocumentService borrowerDocumentService;
     private final BorrowerDocumentMapper borrowerDocumentMapper;
+    private final AttachmentControllerService attachmentControllerService;
 
     @Override
     public Long upload(MultipartFile file) {
@@ -69,8 +71,8 @@ public class AttachmentControllerImpl implements AttachmentController {
     }
 
     @Override
-    public String downloadBase64(Long attachmentId) {
-        return Converter.generateBase64FromFile(attachmentService.download(attachmentId));
+    public MultipartFile downloadBase64(Long attachmentId) {
+        return attachmentControllerService.download(attachmentId);
     }
 
 }
