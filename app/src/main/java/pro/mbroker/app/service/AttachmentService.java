@@ -1,5 +1,7 @@
 package pro.mbroker.app.service;
 
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.multipart.MultipartFile;
 import pro.mbroker.api.dto.request.BorrowerDocumentRequest;
 import pro.mbroker.app.entity.Attachment;
@@ -42,4 +44,14 @@ public interface AttachmentService {
      * @throws ItemNotFoundException если нет вложения с указанным идентификатором.
      */
     Attachment getAttachmentById(Long attachmentId);
+
+    /**
+     * Метод возвращает файл доступный для скачивания из
+     * MultipartFile
+     *
+     * @param attachmentId Идентификатор вложения.
+     * @return Объект вложения, соответствующий идентификатору.
+     * @throws ItemNotFoundException если нет вложения с указанным идентификатором.
+     */
+    ResponseEntity<InputStreamResource> downloadFile(Long attachmentId);
 }

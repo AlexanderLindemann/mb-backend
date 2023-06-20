@@ -39,7 +39,6 @@ public class AttachmentControllerImpl implements AttachmentController {
     private final PartnerApplicationService partnerApplicationService;
     private final BorrowerDocumentService borrowerDocumentService;
     private final BorrowerDocumentMapper borrowerDocumentMapper;
-    private final AttachmentControllerService attachmentControllerService;
 
     @Override
     public Long upload(MultipartFile file) {
@@ -77,19 +76,8 @@ public class AttachmentControllerImpl implements AttachmentController {
     }
 
     @Override
-    public ResponseEntity<InputStreamResource> downloadBase64(Long attachmentId) {
-        MultipartFile file = attachmentControllerService.download(attachmentId);
-        InputStreamResource resource;
-        try {
-            resource = new InputStreamResource(file.getInputStream());
-        } catch (IOException e) {
-            e.printStackTrace();
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-        return ResponseEntity.ok()
-                .contentType(MediaType.parseMediaType(file.getContentType()))
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + file.getOriginalFilename() + "\"")
-                .body(resource);
+    public ResponseEntity<InputStreamResource> downloadFile(Long attachmentId) {
+        return attachmentService.downloadFile(attachmentId);
     }
 
 }

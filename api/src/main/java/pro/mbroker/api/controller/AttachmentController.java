@@ -21,9 +21,9 @@ public interface AttachmentController {
     @GetMapping("/{attachmentId}")
     MultipartFile download(@PathVariable Long attachmentId);
 
-    @ApiOperation("Получить файл по attachment_id в base64")
-    @GetMapping("/{attachmentId}/attachment_head")
-    ResponseEntity<InputStreamResource> downloadBase64(@PathVariable Long attachmentId);
+    @ApiOperation("Получить файл по attachment_id для скачивания")
+    @GetMapping("/{attachmentId}/file")
+    ResponseEntity<InputStreamResource> downloadFile(@PathVariable Long attachmentId);
 
     @ApiOperation("Загрузить файл и получить attachmentId")
     @PostMapping()
