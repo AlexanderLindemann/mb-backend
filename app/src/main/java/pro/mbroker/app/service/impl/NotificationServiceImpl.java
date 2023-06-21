@@ -38,7 +38,7 @@ public class NotificationServiceImpl implements NotificationService {
                 .getCustomerInfoForBankLetter(applicationNumber, PageRequest.of(0, 1));
         log.info("Закончен процесс получения информации для формирования письма. Получено: {}", customerInfoForBankLetter.getContent());
 
-        log.info("Начинаю процесс получения списка id документов для заемщика {}", customerInfoForBankLetter.getContent().get(0).getBorrowerId());
+        log.info("Начинаю процесс получения списка id документов для заемщика {}", customerInfoForBankLetter.getContent().get(FIRST_ELEMENT).getBorrowerId()); //поменять на FIRST_ELEMENT
         var attachmentIds = customerInfoForBankLetter
                 .stream()
                 .flatMap(el -> borrowerDocumentRepository.getaAttachmentIds(el.getBorrowerId()).stream())
