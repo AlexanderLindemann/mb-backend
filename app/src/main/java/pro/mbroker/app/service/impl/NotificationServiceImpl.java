@@ -33,16 +33,25 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Override
     public NotificationBankLetterResponse getCustomerInfoForBankLetter(Integer applicationNumber) {
+        log.info("Начинаю процедуру получения информации для формирования письма");
         var customerInfoForBankLetter = bankApplicationRepository
                 .getCustomerInfoForBankLetter(applicationNumber, PageRequest.of(0, 1));
+        log.info("Закончен процесс получения информации для формирования письма. Получено: {}", customerInfoForBankLetter.getContent());
 
+        log.info("Начинаю процесс получения списка id документов для заемщика {}", customerInfoForBankLetter.getContent().get(0).getBorrowerId());
         var attachmentIds = customerInfoForBankLetter
                 .stream()
                 .flatMap(el -> borrowerDocumentRepository.getaAttachmentIds(el.getBorrowerId()).stream())
                 .collect(Collectors.toList());
+        log.info("Список id документов успешно сформирован {}", attachmentIds);
 
+        log.info("Начинаю процесс получения списка документов для заемщика");
         var attachmentInfoList = convertMultipartFileToByteArray(attachmentIds);
+        log.info("Список документов успешно сформирован");
+
+        log.info("Начинаю процесс получения email адресов для отправки");
         var emails = bankApplicationRepository.getEmailsByBankApplicationId(applicationNumber);
+        log.info("Закончен процесс получения email адресов для отправки. Всего адресов {}", emails.size());
 
         var notificationBankLetterResponse = customerInfoForBankLetter.getContent().get(FIRST_ELEMENT);
         notificationBankLetterResponse.setAttachmentInfo(attachmentInfoList);
