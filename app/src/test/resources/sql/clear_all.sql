@@ -18,3 +18,5 @@ DELETE
 FROM bank_contact;
 DELETE
 FROM bank;
+DELETE
+FROM mortgage_calculation;

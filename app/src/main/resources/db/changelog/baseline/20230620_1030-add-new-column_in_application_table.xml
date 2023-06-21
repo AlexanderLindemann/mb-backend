@@ -1,0 +1,36 @@
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+
+    <changeSet id="add_application_number_in_bank_application" author="a.lindemann">
+        <sql>
+            CREATE SEQUENCE application_number_seq MINVALUE 10000;
+        </sql>
+        <addColumn tableName="bank_application">
+            <column name="application_number" type="INTEGER" defaultValueComputed="nextval('application_number_seq')" />
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="sql_script_for_count_application_number" author="a.lindemann">
+        <sql>
+            WITH numbered_applications AS (
+                SELECT id, ROW_NUMBER() OVER (ORDER BY created_at) + 9999 as rowNum
+                FROM bank_application
+            )
+            UPDATE bank_application
+            SET application_number = numbered_applications.rowNum
+                FROM numbered_applications
+            WHERE bank_application.id = numbered_applications.id;
+
+            SELECT setval('application_number_seq', (SELECT MAX(application_number) FROM bank_application));
+        </sql>
+    </changeSet>
+
+    <changeSet id="add_not_null_constrains" author="a.lindemann">
+        <addNotNullConstraint tableName="bank_application"
+                              columnName="application_number"
+                              columnDataType="INTEGER" />
+    </changeSet>
+
+</databaseChangeLog>

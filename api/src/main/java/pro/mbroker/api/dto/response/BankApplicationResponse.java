@@ -18,6 +18,8 @@ public class BankApplicationResponse {
 
     private UUID creditProgramId;
 
+    private Integer applicationNumber;
+
     private BorrowerProfileResponse mainBorrower;
 
     private List<BorrowerProfileResponse> coBorrowers;

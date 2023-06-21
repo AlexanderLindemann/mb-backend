@@ -9,6 +9,7 @@ import pro.mbroker.api.dto.response.BorrowerProfileResponse;
 import pro.mbroker.app.entity.BorrowerDocument;
 import pro.mbroker.app.entity.BorrowerProfile;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -86,6 +87,9 @@ public interface BorrowerProfileMapper {
     }
 
     default List<BorrowerDocumentRequest> mapBorrowerDocuments(List<BorrowerDocument> borrowerDocuments) {
+        if (borrowerDocuments == null) {
+            return new ArrayList<>();
+        }
         return borrowerDocuments.stream()
                 .filter(BorrowerDocument::isActive)
                 .map(this::toBorrowerDocumentRequest)
