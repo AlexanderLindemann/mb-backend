@@ -28,7 +28,6 @@ import java.io.IOException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
-import java.util.Optional;
 
 @Service
 @Slf4j
@@ -87,22 +86,21 @@ public class AttachmentServiceImpl implements AttachmentService {
     public ResponseEntity<InputStreamResource> downloadFile(Long attachmentId) {
         MultipartFile file = getFileFromAttachmentService(attachmentId);
         InputStreamResource resource;
-        String originalFilename;
         if (file != null && file.getOriginalFilename() != null) {
             try {
-                originalFilename = file.getOriginalFilename();
-                originalFilename = URLDecoder.decode(originalFilename, StandardCharsets.UTF_8.name());
                 log.info("Начиная попытку преобразования файла {} в формат для скачивания",
-                        originalFilename);
+                        file.getOriginalFilename());
                 resource = new InputStreamResource(file.getInputStream());
                 log.info("Файл успешно преобразован");
             } catch (IOException e) {
-                log.error("Не удалось преобразовать файл: {}", file.getOriginalFilename());
+                log.error("Не удалось преобразовать файл: {} . Ошибка: {}",
+                        file.getOriginalFilename(),
+                        e.getMessage());
                 return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
             }
             return ResponseEntity.ok()
                     .contentType(MediaType.parseMediaType(Objects.requireNonNull(file.getContentType())))
-                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + originalFilename + "\"")
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + file.getOriginalFilename() + "\"")
                     .body(resource);
         } else {
             throw new ItemNotFoundException(Attachment.class, attachmentId);

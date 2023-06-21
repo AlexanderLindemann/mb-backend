@@ -1,7 +1,5 @@
 package pro.mbroker.app.exception;
 
-import lombok.NonNull;
-
 import java.io.IOException;
 
 public class ReportGenerationException extends RestException {

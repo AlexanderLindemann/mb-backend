@@ -50,4 +50,5 @@ public class BankApplication extends BaseEntity {
     @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH})
     @JoinColumn(name = "partner_application_id", nullable = false)
     private PartnerApplication partnerApplication;
+
 }
