@@ -46,8 +46,7 @@ public class BankApplication extends BaseEntity {
     @Column(name = "overpayment")
     private BigDecimal overpayment;
 
-    @Generated(GenerationTime.INSERT)
-    @Column(name = "application_number")
+    @Column(name = "application_number", insertable = false)
     private Integer applicationNumber;
 
     @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH})
