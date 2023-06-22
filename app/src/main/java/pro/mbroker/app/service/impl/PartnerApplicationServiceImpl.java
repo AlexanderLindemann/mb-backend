@@ -128,7 +128,7 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
         if (Objects.nonNull(partnerApplication.getId())) {
             checkDocumentStatus(partnerApplication);
         }
-        return partnerApplicationRepository.save(partnerApplication);
+        return partnerApplicationRepository.saveAndFlush(partnerApplication);
     }
 
     @Transactional
