@@ -321,7 +321,7 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
     }
 
     @Override
-    @Transactional(readOnly = true)
+    @Transactional
     public List<RequiredDocumentResponse> getRequiredDocuments(UUID partnerApplicationId) {
         PartnerApplication partnerApplication = getPartnerApplication(partnerApplicationId);
         List<Bank> banks = partnerApplication.getBankApplications().stream()
