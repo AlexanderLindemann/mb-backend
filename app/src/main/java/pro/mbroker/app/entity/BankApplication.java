@@ -45,7 +45,6 @@ public class BankApplication extends BaseEntity {
     @Column(name = "overpayment")
     private BigDecimal overpayment;
 
-    @AutoGenerateSequence
     @Column(name = "application_number")
     private Integer applicationNumber;
 
