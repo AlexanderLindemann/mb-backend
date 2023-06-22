@@ -44,6 +44,8 @@ public class BankApplication extends BaseEntity {
     @Column(name = "overpayment")
     private BigDecimal overpayment;
 
+    @GeneratedValue(strategy=GenerationType.SEQUENCE, generator="application_number_seq")
+    @SequenceGenerator(name="application_number_seq", sequenceName="application_number_seq", allocationSize=1)
     @Column(name = "application_number")
     private Integer applicationNumber;
 
