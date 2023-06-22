@@ -4,6 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.Generated;
+import org.hibernate.annotations.GenerationTime;
 import pro.mbroker.api.enums.BankApplicationStatus;
 
 import javax.persistence.*;
@@ -44,8 +46,7 @@ public class BankApplication extends BaseEntity {
     @Column(name = "overpayment")
     private BigDecimal overpayment;
 
-    @GeneratedValue(strategy=GenerationType.SEQUENCE, generator="application_number_seq")
-    @SequenceGenerator(name="application_number_seq", sequenceName="application_number_seq", allocationSize=1)
+    @Generated(GenerationTime.INSERT)
     @Column(name = "application_number")
     private Integer applicationNumber;
 
