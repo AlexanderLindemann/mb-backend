@@ -5,10 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.springframework.stereotype.Component;
-import pro.mbroker.app.entity.BankApplication;
-import pro.mbroker.app.entity.BaseEntity;
-import pro.mbroker.app.entity.BorrowerProfile;
-import pro.mbroker.app.entity.PartnerApplication;
+import pro.mbroker.app.entity.*;
 import pro.smartdeal.ng.common.security.service.CurrentUserService;
 
 import java.util.Collection;
@@ -37,6 +34,14 @@ public class BaseEntityAuditAspect {
             }
             if (partnerApplication.getMortgageCalculation() != null) {
                 setAuditFields(partnerApplication.getMortgageCalculation());
+            }
+        }
+        if (baseEntity instanceof Bank) {
+            Bank bank = (Bank) baseEntity;
+            if (bank.getContacts() != null) {
+                for (BankContact bankContact : bank.getContacts()) {
+                    setAuditFields(bankContact);
+                }
             }
         }
     }

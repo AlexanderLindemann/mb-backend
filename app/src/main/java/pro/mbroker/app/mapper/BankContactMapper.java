@@ -11,4 +11,5 @@ public interface BankContactMapper {
     BankContactResponse toBankContactResponseMapper(BankContact bankContact);
 
     List<BankContactResponse> toBankContactResponseListMapper(List<BankContact> bankContacts);
+
 }

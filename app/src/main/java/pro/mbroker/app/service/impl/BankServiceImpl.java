@@ -10,6 +10,9 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import pro.mbroker.api.dto.request.BankContactRequest;
+import pro.mbroker.api.dto.request.BankRequest;
+import pro.mbroker.app.entity.Attachment;
 import pro.mbroker.app.entity.Bank;
 import pro.mbroker.app.entity.BankContact;
 import pro.mbroker.app.exception.ItemNotFoundException;
@@ -18,7 +21,9 @@ import pro.mbroker.app.repository.specification.BankSpecification;
 import pro.mbroker.app.service.AttachmentService;
 import pro.mbroker.app.service.BankService;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -33,10 +38,12 @@ public class BankServiceImpl implements BankService {
 
     @Override
     @Transactional
-    public Bank createBank(String name) {
-        Bank bank = new Bank()
-                .setName(name);
+    public Bank createBank(BankRequest bankRequest) {
+        Bank bank = new Bank().setName(bankRequest.getName());
+        bank.setContacts(new ArrayList<>());
+        setBankContacts(bank, bankRequest.getBankContacts());
         bank.setOrderNumber(bankRepository.findMaxOrderNumber() + ORDER_STEP);
+        setAttachmentIfPresent(bank, bankRequest.getAttachment_id());
         return bankRepository.save(bank);
     }
 
@@ -48,9 +55,13 @@ public class BankServiceImpl implements BankService {
 
     @Override
     @Transactional
-    public Bank updateBankName(UUID bankId, String name) {
+    public Bank updateBank(UUID bankId, BankRequest bankRequest) {
         Bank bank = getBank(bankId);
-        bank.setName(name);
+        bank.setName(bankRequest.getName());
+        if (Objects.nonNull(bankRequest.getBankContacts())) {
+            setBankContacts(bank, bankRequest.getBankContacts());
+        }
+        setAttachmentIfPresent(bank, bankRequest.getAttachment_id());
         return bankRepository.save(bank);
     }
 
@@ -108,5 +119,23 @@ public class BankServiceImpl implements BankService {
                 .orElseThrow(() -> new ItemNotFoundException(Bank.class, bankId));
         bank.setContacts(bank.getContacts().stream().filter(BankContact::isActive).collect(Collectors.toList()));
         return bank;
+    }
+
+    private void setBankContacts(Bank bank, List<BankContactRequest> bankContactRequests) {
+        if (Objects.nonNull(bankContactRequests)) {
+            List<BankContact> contacts = bankContactRequests.stream()
+                    .map(request -> new BankContact().setEmail(request.getEmail())
+                            .setFullName(request.getFullName())
+                            .setBank(bank))
+                    .collect(Collectors.toList());
+            bank.getContacts().addAll(contacts);
+        }
+    }
+
+    private void setAttachmentIfPresent(Bank bank, Long attachmentId) {
+        if (Objects.nonNull(attachmentId)) {
+            Attachment attachment = attachmentService.getAttachmentById(attachmentId);
+            bank.setAttachment(attachment);
+        }
     }
 }

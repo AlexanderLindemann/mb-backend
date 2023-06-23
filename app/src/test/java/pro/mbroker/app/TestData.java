@@ -2,10 +2,7 @@ package pro.mbroker.app;
 
 import org.springframework.stereotype.Component;
 import pro.mbroker.api.dto.MortgageCalculationDto;
-import pro.mbroker.api.dto.request.BankApplicationRequest;
-import pro.mbroker.api.dto.request.BankApplicationUpdateRequest;
-import pro.mbroker.api.dto.request.BorrowerProfileRequest;
-import pro.mbroker.api.dto.request.PartnerApplicationRequest;
+import pro.mbroker.api.dto.request.*;
 import pro.mbroker.api.enums.CreditPurposeType;
 import pro.mbroker.api.enums.RealEstateType;
 
@@ -84,5 +81,21 @@ public class TestData {
                 .setMonthlyPayment(BigDecimal.valueOf(100000))
                 .setCreditTerm(30)
                 .setRealEstatePrice(BigDecimal.valueOf(1000000000));
+    }
+
+    public BankRequest getBankRequest() {
+        return new BankRequest()
+                .setName("Test Bank")
+                .setBankContacts(getBankContacts());
+    }
+
+    private List<BankContactRequest> getBankContacts() {
+        new BankContactRequest().setEmail("test email 1")
+                .setFullName("test full name 1");
+        new BankContactRequest().setEmail("test email 2")
+                .setFullName("test full name 2");
+        return List.of(new BankContactRequest().setEmail("test email 1")
+                .setFullName("test full name 1"), new BankContactRequest().setEmail("test email 2")
+                .setFullName("test full name 2"));
     }
 }

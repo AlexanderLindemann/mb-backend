@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 import pro.mbroker.api.controller.BankController;
 import pro.mbroker.api.controller.CreditProgramController;
+import pro.mbroker.api.dto.request.BankRequest;
 import pro.mbroker.api.dto.response.BankResponse;
 import pro.mbroker.app.entity.Bank;
 import pro.mbroker.app.mapper.BankMapper;
@@ -27,8 +28,8 @@ public class BankControllerImpl implements BankController {
 
     @Override
     @PreAuthorize("hasAuthority(T(pro.smartdeal.common.security.Permission$Code).MB_ADMIN_ACCESS)")
-    public BankResponse createBank(String name) {
-        Bank bank = bankService.createBank(name);
+    public BankResponse createBank(BankRequest bankRequest) {
+        Bank bank = bankService.createBank(bankRequest);
         return bankMapper.toBankResponseMapper(bank);
     }
 
@@ -64,8 +65,8 @@ public class BankControllerImpl implements BankController {
 
     @Override
     @PreAuthorize("hasAuthority(T(pro.smartdeal.common.security.Permission$Code).MB_ADMIN_ACCESS)")
-    public BankResponse updateBankName(UUID bankId, String name) {
-        Bank bank = bankService.updateBankName(bankId, name);
+    public BankResponse updateBank(UUID bankId, BankRequest bankRequest) {
+        Bank bank = bankService.updateBank(bankId, bankRequest);
         return bankMapper.toBankResponseMapper(bank);
     }
 
