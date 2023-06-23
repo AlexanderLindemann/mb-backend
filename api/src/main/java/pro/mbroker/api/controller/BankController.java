@@ -2,11 +2,13 @@ package pro.mbroker.api.controller;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import pro.mbroker.api.dto.request.BankRequest;
 import pro.mbroker.api.dto.response.BankResponse;
 
-import javax.validation.constraints.NotBlank;
+import javax.validation.Valid;
 import java.util.List;
 import java.util.UUID;
 
@@ -16,9 +18,8 @@ import java.util.UUID;
 public interface BankController {
     @ApiOperation("создать банк")
     @PostMapping
-    BankResponse createBank(
-            @RequestParam("name") String name
-    );
+    BankResponse createBank
+            (@ApiParam(value = "Параметры банка") @RequestBody BankRequest bankRequest);
 
     @ApiOperation("обновить логотип банка")
     @PutMapping("/{bankId}/logo")
@@ -41,11 +42,11 @@ public interface BankController {
     @GetMapping("/{bankId}/logo")
     MultipartFile getLogoBankById(@PathVariable UUID bankId);
 
-    @ApiOperation("обновить name банка по id банка")
+    @ApiOperation("обновить банк")
     @PutMapping("/{bankId}")
-    BankResponse updateBankName(
+    BankResponse updateBank(
             @PathVariable UUID bankId,
-            @NotBlank @RequestParam("name") String name);
+            @RequestBody @Valid BankRequest bankRequest);
 
     @ApiOperation("удалить банк по id")
     @DeleteMapping("/{bankId}")

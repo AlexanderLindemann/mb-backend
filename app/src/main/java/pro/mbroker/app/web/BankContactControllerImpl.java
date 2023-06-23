@@ -23,16 +23,7 @@ import java.util.UUID;
 public class BankContactControllerImpl implements BankContactController {
 
     private final BankContactService bankContactService;
-    private final BankMapper bankMapper;
     private final BankContactMapper bankContactMapper;
-
-
-    @Override
-    @PreAuthorize("hasAuthority(T(pro.smartdeal.common.security.Permission$Code).MB_ADMIN_ACCESS)")
-    public BankResponse addBankContact(BankContactRequest request) {
-        Bank bank = bankContactService.addBankContact(request.getBankId(), request.getFullName(), request.getEmail());
-        return bankMapper.toBankResponseMapper(bank);
-    }
 
     @Override
     @PreAuthorize("hasAuthority(T(pro.smartdeal.common.security.Permission$Code).MB_ADMIN_ACCESS)")

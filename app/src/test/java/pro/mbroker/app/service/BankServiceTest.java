@@ -8,6 +8,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Transactional;
+import pro.mbroker.app.TestData;
 import pro.mbroker.app.entity.Bank;
 import pro.mbroker.app.repository.BankRepository;
 
@@ -31,6 +32,8 @@ public class BankServiceTest extends AbstractServiceTest {
     private BankService bankService;
     @Autowired
     private BankRepository bankRepository;
+    @Autowired
+    private TestData testData;
 
     @Test
     public void testGetAllBankWithPagination() {
@@ -47,7 +50,7 @@ public class BankServiceTest extends AbstractServiceTest {
     @Test
     public void testCreateBank() {
         String name = "Test Bank";
-        Bank bank = bankService.createBank(name);
+        Bank bank = bankService.createBank(testData.getBankRequest());
         assertNotNull(bank.getId());
         assertEquals(name, bank.getName());
         assertTrue(bank.getOrderNumber() > 0);
