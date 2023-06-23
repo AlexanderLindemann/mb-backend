@@ -16,15 +16,13 @@ import pro.mbroker.app.entity.Attachment;
 import pro.mbroker.app.entity.Bank;
 import pro.mbroker.app.entity.BankContact;
 import pro.mbroker.app.exception.ItemNotFoundException;
+import pro.mbroker.app.repository.BankContactRepository;
 import pro.mbroker.app.repository.BankRepository;
 import pro.mbroker.app.repository.specification.BankSpecification;
 import pro.mbroker.app.service.AttachmentService;
 import pro.mbroker.app.service.BankService;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -33,6 +31,7 @@ import java.util.stream.Collectors;
 public class BankServiceImpl implements BankService {
 
     private final BankRepository bankRepository;
+    private final BankContactRepository bankContactRepository;
     private final AttachmentService attachmentService;
     private static final int ORDER_STEP = 10;
 
@@ -59,7 +58,8 @@ public class BankServiceImpl implements BankService {
         Bank bank = getBank(bankId);
         bank.setName(bankRequest.getName());
         if (Objects.nonNull(bankRequest.getBankContacts())) {
-            setBankContacts(bank, bankRequest.getBankContacts());
+            updateAndAddBankContacts(bank, bankRequest.getBankContacts());
+            markAbsentBankContactsAsInactive(bank, bankRequest.getBankContacts());
         }
         setAttachmentIfPresent(bank, bankRequest.getAttachment_id());
         return bankRepository.save(bank);
@@ -107,6 +107,36 @@ public class BankServiceImpl implements BankService {
         bank.setActive(false);
         bankRepository.save(bank);
     }
+
+    private void updateAndAddBankContacts(Bank bank, List<BankContactRequest> bankContactRequests) {
+        for (BankContactRequest request : bankContactRequests) {
+            if (request.getId() != null) {
+                BankContact existingContact = bankContactRepository.findById(request.getId())
+                        .orElseThrow(() -> new RuntimeException("BankContact not found: " + request.getId())); // обработка исключений согласно вашим правилам
+                existingContact.setEmail(request.getEmail())
+                        .setFullName(request.getFullName());
+            } else {
+                BankContact newContact = new BankContact()
+                        .setEmail(request.getEmail())
+                        .setFullName(request.getFullName())
+                        .setBank(bank);
+                bank.getContacts().add(newContact);
+            }
+        }
+    }
+
+    private void markAbsentBankContactsAsInactive(Bank bank, List<BankContactRequest> bankContactRequests) {
+        Set<UUID> requestIds = bankContactRequests.stream()
+                .map(BankContactRequest::getId)
+                .collect(Collectors.toSet());
+
+        for (BankContact existingContact : bank.getContacts()) {
+            if (!requestIds.contains(existingContact.getId())) {
+                existingContact.setActive(false);
+            }
+        }
+    }
+
 
     private Bank getBank(UUID bankId) {
         return bankRepository.findById(bankId)
