@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import pro.mbroker.api.enums.BankApplicationStatus;
+import pro.mbroker.app.annotations.AutoGenerateSequence;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
@@ -44,7 +45,7 @@ public class BankApplication extends BaseEntity {
     @Column(name = "overpayment")
     private BigDecimal overpayment;
 
-    @Column(name = "application_number", insertable = false)
+    @Column(name = "application_number")
     private Integer applicationNumber;
 
     @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH})
