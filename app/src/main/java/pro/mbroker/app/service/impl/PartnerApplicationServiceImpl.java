@@ -128,7 +128,7 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
         if (Objects.nonNull(partnerApplication.getId())) {
             checkDocumentStatus(partnerApplication);
         }
-        return partnerApplicationRepository.saveAndFlush(partnerApplication);
+        return partnerApplicationRepository.save(partnerApplication);
     }
 
     @Transactional
@@ -150,21 +150,6 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
                 checkBankApplicationStatus(partnerApplication);
             }
         }
-    }
-
-    @Transactional
-    //TODO удалить проверку на дубли после того, как будем уверены, что дублей в БД не осталось
-    public void removeDuplicateBankApplications(PartnerApplication partnerApplication) {
-        List<BankApplication> bankApplications = partnerApplication.getBankApplications();
-        Map<UUID, BankApplication> uniqueBankApplicationsMap = bankApplications.stream()
-                .collect(Collectors.toMap(
-                        ba -> ba.getCreditProgram().getId(),
-                        Function.identity(),
-                        (existing, replacement) -> existing));
-        List<BankApplication> duplicateBankApplications = new ArrayList<>(bankApplications);
-        duplicateBankApplications.removeAll(uniqueBankApplicationsMap.values());
-        bankApplicationRepository.deleteAll(duplicateBankApplications);
-        partnerApplication.setBankApplications(new ArrayList<>(uniqueBankApplicationsMap.values()));
     }
 
 
@@ -321,7 +306,7 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
     }
 
     @Override
-    @Transactional(readOnly = true)
+    @Transactional
     public List<RequiredDocumentResponse> getRequiredDocuments(UUID partnerApplicationId) {
         PartnerApplication partnerApplication = getPartnerApplication(partnerApplicationId);
         List<Bank> banks = partnerApplication.getBankApplications().stream()
