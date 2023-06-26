@@ -16,7 +16,9 @@ public enum BankApplicationStatus implements EnumWithValue<String> {
     APPLICATION_APPROVED("APPLICATION_APPROVED", "На доработке"),
     REJECTED("REJECTED", "Отказано"),
     EXPIRED("EXPIRED", "Просрочено"),
-    CREDIT_APPROVED("CREDIT_APPROVED", "Кредит выдан");
+    CREDIT_APPROVED("CREDIT_APPROVED", "Кредит выдан"),
+    SENDING_TO_BANK("SENDING_TO_BANK", "Отправляется в банк"),
+    SENDING_ERROR("SENDING_ERROR", "Ошибка при отправке");
 
 
     private final String value;

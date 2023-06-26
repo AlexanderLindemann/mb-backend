@@ -26,9 +26,9 @@ public interface BankApplicationRepository extends JpaRepository<BankApplication
             "JOIN pa.mortgageCalculation mc " +
             "JOIN re.partner p " +
             "JOIN bp.borrowerDocument bd " +
-            "WHERE ba.applicationNumber = :applicationNumber")
+            "WHERE ba.id = :bankApplicationId")
     Page<NotificationBankLetterResponse> getCustomerInfoForBankLetter(
-            @Param("applicationNumber") Integer applicationNumber, Pageable pageable);
+            @Param("bankApplicationId") UUID bankApplicationId, Pageable pageable);
 
 
 
@@ -37,7 +37,7 @@ public interface BankApplicationRepository extends JpaRepository<BankApplication
             "JOIN ba.creditProgram cp " +
             "JOIN cp.bank b " +
             "JOIN b.contacts bc " +
-            "WHERE ba.applicationNumber = :applicationNumber")
-    List<String> getEmailsByBankApplicationId(@Param("applicationNumber") Integer applicationNumber);
+            "WHERE ba.id = :bankApplicationId")
+    List<String> getEmailsByBankApplicationId(@Param("bankApplicationId") UUID bankApplicationId);
 
 }

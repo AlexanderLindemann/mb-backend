@@ -2,6 +2,8 @@ package pro.mbroker.app.service;
 
 import pro.mbroker.api.dto.response.NotificationBankLetterResponse;
 
+import java.util.UUID;
+
 public interface NotificationService {
 
     /**
@@ -9,9 +11,9 @@ public interface NotificationService {
      * и его документах для формирования заявки,
      * которая будет отправлена в банк
      *
-     * @param applicationNumber номер заявки
+     * @param bankApplicationId номер заявки
      * @return данные готовые для отправки в письме
      */
-    NotificationBankLetterResponse getCustomerInfoForBankLetter(Integer applicationNumber);
+    NotificationBankLetterResponse getCustomerInfoForBankLetter(UUID bankApplicationId);
 
 }
