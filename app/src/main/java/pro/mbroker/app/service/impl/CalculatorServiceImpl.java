@@ -18,7 +18,6 @@ import pro.mbroker.app.entity.Bank;
 import pro.mbroker.app.entity.CreditProgram;
 import pro.mbroker.app.entity.RealEstate;
 import pro.mbroker.app.exception.ItemNotFoundException;
-import pro.mbroker.app.repository.BankRepository;
 import pro.mbroker.app.repository.RealEstateRepository;
 import pro.mbroker.app.service.CalculatorService;
 import pro.mbroker.app.service.DirectoryService;
@@ -39,7 +38,6 @@ public class CalculatorServiceImpl implements CalculatorService {
     private final RealEstateRepository realEstateRepository;
     private final DirectoryService directoryService;
     private final AttachmentServiceImpl attachmentService;
-    private final BankRepository bankRepository;
 
     @Override
     @Transactional
@@ -51,12 +49,14 @@ public class CalculatorServiceImpl implements CalculatorService {
                     bankLoanProgram ->
                             createBankLoanProgramDto(creditProgram)).getLoanProgramCalculationDto().add(createLoanProgramCalculationDto(request, creditProgram));
         }
+        List<BankLoanProgramDto> bankLoanProgramDtos = new ArrayList<>(bankLoanProgramDtoMap.values());
+        bankLoanProgramDtos.forEach(this::sortLoanProgramCalculationDtoList);
         return new PropertyMortgageDTO()
                 .setRealEstatePrice(request.getRealEstatePrice())
                 .setMonthCreditTerm(Optional.ofNullable(request.getCreditTerm())
                         .orElse(0) * MONTHS_IN_YEAR)
                 .setDownPayment(request.getDownPayment())
-                .setBankLoanProgramDto(new ArrayList<>(bankLoanProgramDtoMap.values()));
+                .setBankLoanProgramDto(bankLoanProgramDtos);
     }
 
     @Override
@@ -81,6 +81,11 @@ public class CalculatorServiceImpl implements CalculatorService {
             bankLoanProgramDtoBuilder.setLogo(Converter.generateBase64FromFile(attachmentService.download(attachment.getId())));
         }
         return bankLoanProgramDtoBuilder;
+    }
+
+    private void sortLoanProgramCalculationDtoList(BankLoanProgramDto bankLoanProgramDto) {
+        bankLoanProgramDto.getLoanProgramCalculationDto()
+                .sort(Comparator.comparing(LoanProgramCalculationDto::getMonthlyPayment));
     }
 
     private LoanProgramCalculationDto createLoanProgramCalculationDto(CalculatorRequest request, CreditProgram creditProgram) {
