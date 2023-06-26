@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import pro.mbroker.api.dto.response.AttachmentInfo;
 import pro.mbroker.api.dto.response.NotificationBankLetterResponse;
 import pro.mbroker.api.enums.BankApplicationStatus;
+import pro.mbroker.api.enums.CreditPurposeType;
 import pro.mbroker.app.entity.Attachment;
 import pro.mbroker.app.exception.ItemNotFoundException;
 import pro.mbroker.app.repository.AttachmentRepository;
@@ -15,6 +16,7 @@ import pro.mbroker.app.repository.BorrowerDocumentRepository;
 import pro.mbroker.app.service.AttachmentService;
 import pro.mbroker.app.service.BankApplicationService;
 import pro.mbroker.app.service.NotificationService;
+import pro.mbroker.app.util.Converter;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -60,9 +62,15 @@ public class NotificationServiceImpl implements NotificationService {
         var emails = bankApplicationRepository.getEmailsByBankApplicationId(bankApplicationId);
         log.info("Закончен процесс получения email адресов для отправки. Всего адресов {}", emails.size());
 
-        var notificationBankLetterResponse = customerInfoForBankLetter.getContent().get(FIRST_ELEMENT);
+        var notificationBankLetterResponse = customerInfoForBankLetter.getContent()
+                .get(FIRST_ELEMENT);
         notificationBankLetterResponse.setAttachmentInfo(attachmentInfoList);
         notificationBankLetterResponse.setEmails(emails);
+        notificationBankLetterResponse.setCreditPurposeTypeName(
+                notificationBankLetterResponse.convertCreditPurposeTypeToString(
+                        Converter.convertStringListToEnumList(notificationBankLetterResponse.getCreditPurposeType(),
+                                CreditPurposeType.class)));
+
 
         return notificationBankLetterResponse;
 
