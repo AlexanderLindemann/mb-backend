@@ -2,6 +2,7 @@ package pro.mbroker.api.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
+import pro.mbroker.api.enums.CreditPurposeType;
 import pro.mbroker.api.enums.RealEstateType;
 
 import java.io.Serializable;
@@ -28,7 +29,8 @@ public class NotificationBankLetterResponse implements Serializable {
     @JsonIgnore
     private RealEstateType realEstateType;
     private String realEstateTypeName;
-    private String creditPurposeType;
+    @JsonIgnore
+    private CreditPurposeType creditPurposeType;
     private String programName;
     private BigDecimal realEstatePrice;
     private BigDecimal downPayment;
@@ -38,6 +40,7 @@ public class NotificationBankLetterResponse implements Serializable {
     private String firstName;
     private String middleName;
     private List<String> emails;
+    private String creditPurposeTypeName;
 
     public NotificationBankLetterResponse(UUID id,
                                           Integer applicationNumber,
@@ -46,7 +49,7 @@ public class NotificationBankLetterResponse implements Serializable {
                                           String residentialComplexName,
                                           String address,
                                           RealEstateType realEstateType,
-                                          String creditPurposeType,
+                                          CreditPurposeType creditPurposeType,
                                           String programName,
                                           BigDecimal realEstatePrice,
                                           BigDecimal downPayment,
@@ -70,5 +73,6 @@ public class NotificationBankLetterResponse implements Serializable {
         this.lastName = lastName;
         this.firstName = firstName;
         this.middleName = middleName;
+        this.creditPurposeTypeName = creditPurposeType.getName();
     }
 }
