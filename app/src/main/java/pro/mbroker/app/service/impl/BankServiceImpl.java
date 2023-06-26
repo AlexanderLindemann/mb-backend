@@ -112,7 +112,7 @@ public class BankServiceImpl implements BankService {
         for (BankContactRequest request : bankContactRequests) {
             if (request.getId() != null) {
                 BankContact existingContact = bankContactRepository.findById(request.getId())
-                        .orElseThrow(() -> new RuntimeException("BankContact not found: " + request.getId())); // обработка исключений согласно вашим правилам
+                        .orElseThrow(() -> new RuntimeException("BankContact not found: " + request.getId()));
                 existingContact.setEmail(request.getEmail())
                         .setFullName(request.getFullName());
             } else {
