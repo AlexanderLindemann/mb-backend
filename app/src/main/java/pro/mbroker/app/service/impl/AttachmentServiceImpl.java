@@ -113,7 +113,7 @@ public class AttachmentServiceImpl implements AttachmentService {
         log.info("Начинаю попытку получить Attachment из сервиса Attachment с id {}", attachmentId);
         try {
             var file = attachmentService.download(attachment.getId());
-            log.info("Файл {} успешно получен", file.getName());
+            log.info("Файл {} успешно получен", file.getOriginalFilename());
             return file;
         } catch (Exception e) {
             log.error("При попытке получения файла из сервиса Attachment произошла ошибка. " +

@@ -6,17 +6,20 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import pro.mbroker.api.dto.response.AttachmentInfo;
 import pro.mbroker.api.dto.response.NotificationBankLetterResponse;
+import pro.mbroker.api.enums.BankApplicationStatus;
 import pro.mbroker.app.entity.Attachment;
 import pro.mbroker.app.exception.ItemNotFoundException;
 import pro.mbroker.app.repository.AttachmentRepository;
 import pro.mbroker.app.repository.BankApplicationRepository;
 import pro.mbroker.app.repository.BorrowerDocumentRepository;
 import pro.mbroker.app.service.AttachmentService;
+import pro.mbroker.app.service.BankApplicationService;
 import pro.mbroker.app.service.NotificationService;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -26,19 +29,23 @@ public class NotificationServiceImpl implements NotificationService {
 
     private static final byte FIRST_ELEMENT = 0;
 
-    private final BankApplicationRepository bankApplicationRepository;
-    private final BorrowerDocumentRepository borrowerDocumentRepository;
     private final AttachmentService attachmentService;
     private final AttachmentRepository attachmentRepository;
+    private final BankApplicationService bankApplicationService;
+    private final BankApplicationRepository bankApplicationRepository;
+    private final BorrowerDocumentRepository borrowerDocumentRepository;
 
     @Override
-    public NotificationBankLetterResponse getCustomerInfoForBankLetter(Integer applicationNumber) {
+    public NotificationBankLetterResponse getCustomerInfoForBankLetter(UUID bankApplicationId) {
+        bankApplicationService.changeStatus(bankApplicationId, BankApplicationStatus.SENDING_TO_BANK);
         log.info("Начинаю процедуру получения информации для формирования письма");
         var customerInfoForBankLetter = bankApplicationRepository
-                .getCustomerInfoForBankLetter(applicationNumber, PageRequest.of(0, 1));
-        log.info("Закончен процесс получения информации для формирования письма. Получено: {}", customerInfoForBankLetter.getContent());
+                .getCustomerInfoForBankLetter(bankApplicationId, PageRequest.of(0, 1));
+        log.info("Закончен процесс получения информации для формирования письма. Получено: {}",
+                customerInfoForBankLetter.getContent());
 
-        log.info("Начинаю процесс получения списка id документов для заемщика {}", customerInfoForBankLetter.getContent().get(FIRST_ELEMENT).getBorrowerId()); //поменять на FIRST_ELEMENT
+        log.info("Начинаю процесс получения списка id документов для заемщика {}",
+                customerInfoForBankLetter.getContent().get(FIRST_ELEMENT).getBorrowerId());
         var attachmentIds = customerInfoForBankLetter
                 .stream()
                 .flatMap(el -> borrowerDocumentRepository.getaAttachmentIds(el.getBorrowerId()).stream())
@@ -50,7 +57,7 @@ public class NotificationServiceImpl implements NotificationService {
         log.info("Список документов успешно сформирован");
 
         log.info("Начинаю процесс получения email адресов для отправки");
-        var emails = bankApplicationRepository.getEmailsByBankApplicationId(applicationNumber);
+        var emails = bankApplicationRepository.getEmailsByBankApplicationId(bankApplicationId);
         log.info("Закончен процесс получения email адресов для отправки. Всего адресов {}", emails.size());
 
         var notificationBankLetterResponse = customerInfoForBankLetter.getContent().get(FIRST_ELEMENT);
