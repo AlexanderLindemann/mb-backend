@@ -10,6 +10,7 @@ import pro.mbroker.api.controller.CreditProgramController;
 import pro.mbroker.api.dto.request.BankRequest;
 import pro.mbroker.api.dto.response.BankResponse;
 import pro.mbroker.app.entity.Bank;
+import pro.mbroker.app.entity.BankContact;
 import pro.mbroker.app.mapper.BankMapper;
 import pro.mbroker.app.service.BankService;
 
@@ -53,6 +54,10 @@ public class BankControllerImpl implements BankController {
     @Override
     public BankResponse getBankById(UUID bankId) {
         Bank bank = bankService.getBankById(bankId);
+        List<BankContact> activeContacts = bank.getContacts().stream()
+                .filter(BankContact::isActive)
+                .collect(Collectors.toList());
+        bank.setContacts(activeContacts);
         return bankMapper.toBankResponseMapper(bank)
                 .setCreditProgram(creditProgramController.getProgramsByBankId(bankId));
     }
@@ -67,6 +72,10 @@ public class BankControllerImpl implements BankController {
     @PreAuthorize("hasAuthority(T(pro.smartdeal.common.security.Permission$Code).MB_ADMIN_ACCESS)")
     public BankResponse updateBank(UUID bankId, BankRequest bankRequest) {
         Bank bank = bankService.updateBank(bankId, bankRequest);
+        List<BankContact> activeContacts = bank.getContacts().stream()
+                .filter(BankContact::isActive)
+                .collect(Collectors.toList());
+        bank.setContacts(activeContacts);
         return bankMapper.toBankResponseMapper(bank);
     }
 
