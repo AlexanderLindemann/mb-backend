@@ -88,6 +88,17 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
 
     @Override
     @Transactional
+    public PartnerApplication changeMainBorrowerByPartnerApplication(UUID partnerApplicationId, UUID newMainBorrowerId) {
+        PartnerApplication partnerApplication = getPartnerApplication(partnerApplicationId);
+        BorrowerProfile borrowerProfile = borrowerProfileRepository.findById(newMainBorrowerId)
+                .orElseThrow(() -> new ItemNotFoundException(BorrowerProfile.class, newMainBorrowerId));
+        partnerApplication.getBankApplications()
+                .forEach(bankApplication -> bankApplication.setMainBorrower(borrowerProfile));
+        return partnerApplicationRepository.save(partnerApplication);
+    }
+
+    @Override
+    @Transactional
     public PartnerApplication createPartnerApplication(PartnerApplicationRequest request) {
         PartnerApplication partnerApplication = getPartnerApplication(request);
         List<BankApplication> bankApplications = buildBankApplications(request.getBankApplications(), partnerApplication);

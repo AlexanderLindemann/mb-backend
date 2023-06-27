@@ -10,6 +10,7 @@ import pro.mbroker.api.dto.response.NotificationBankLetterResponse;
 import pro.mbroker.app.entity.BankApplication;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public interface BankApplicationRepository extends JpaRepository<BankApplication, UUID>, JpaSpecificationExecutor<BankApplication> {
@@ -31,7 +32,6 @@ public interface BankApplicationRepository extends JpaRepository<BankApplication
             @Param("bankApplicationId") UUID bankApplicationId, Pageable pageable);
 
 
-
     @Query(value = "SELECT bc.email " +
             "FROM BankApplication ba " +
             "JOIN ba.creditProgram cp " +
@@ -39,5 +39,7 @@ public interface BankApplicationRepository extends JpaRepository<BankApplication
             "JOIN b.contacts bc " +
             "WHERE ba.id = :bankApplicationId")
     List<String> getEmailsByBankApplicationId(@Param("bankApplicationId") UUID bankApplicationId);
+
+    Optional<BankApplication> findByApplicationNumber(Integer applicationNumber);
 
 }

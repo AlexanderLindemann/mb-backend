@@ -19,5 +19,4 @@ public class BorrowerRequest {
 
     private List<BorrowerProfileRequest> coBorrower;
 
-
 }

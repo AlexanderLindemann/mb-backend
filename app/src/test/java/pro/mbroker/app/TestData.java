@@ -40,7 +40,11 @@ public class TestData {
                 .setEmail("test2@test.com")
                 .setFirstName("TestFirstName2")
                 .setLastName("TestLastName2");
-        return new ArrayList<>(List.of(borrowerProfileRequest1, borrowerProfileRequest2));
+        BorrowerProfileRequest borrowerProfileRequest3 = new BorrowerProfileRequest()
+                .setEmail("test3@test.com")
+                .setFirstName("TestFirstName3")
+                .setLastName("TestLastName3");
+        return new ArrayList<>(List.of(borrowerProfileRequest1, borrowerProfileRequest2, borrowerProfileRequest3));
     }
 
     public MortgageCalculationDto getMortgageCalculation() {
@@ -97,5 +101,12 @@ public class TestData {
         return List.of(new BankContactRequest().setEmail("test email 1")
                 .setFullName("test full name 1"), new BankContactRequest().setEmail("test email 2")
                 .setFullName("test full name 2"));
+    }
+
+    public BorrowerRequest getBorrowerRequest() {
+        return new BorrowerRequest()
+                .setMainBorrower(getBorrowerProfileRequestList().get(0))
+                .setCoBorrower(List.of(getBorrowerProfileRequestList().get(1), getBorrowerProfileRequestList().get(2)));
+
     }
 }
