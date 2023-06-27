@@ -18,6 +18,7 @@ import pro.mbroker.app.entity.Bank;
 import pro.mbroker.app.entity.CreditProgram;
 import pro.mbroker.app.entity.RealEstate;
 import pro.mbroker.app.exception.ItemNotFoundException;
+import pro.mbroker.app.repository.CreditProgramRepository;
 import pro.mbroker.app.repository.RealEstateRepository;
 import pro.mbroker.app.service.CalculatorService;
 import pro.mbroker.app.service.DirectoryService;
@@ -36,6 +37,7 @@ public class CalculatorServiceImpl implements CalculatorService {
     private static final int MONTHS_IN_YEAR = 12;
     private static final int PERCENTAGE_MAX = 100;
     private final RealEstateRepository realEstateRepository;
+    private final CreditProgramRepository creditProgramRepository;
     private final DirectoryService directoryService;
     private final AttachmentServiceImpl attachmentService;
 
@@ -57,6 +59,26 @@ public class CalculatorServiceImpl implements CalculatorService {
                         .orElse(0) * MONTHS_IN_YEAR)
                 .setDownPayment(request.getDownPayment())
                 .setBankLoanProgramDto(bankLoanProgramDtos);
+    }
+
+    @Override
+    @Transactional
+    public LoanProgramCalculationDto getCreditOfferByCreditProgramId(UUID creditProgramId, CalculatorRequest request) {
+        CreditProgram creditProgram = creditProgramRepository.findById(creditProgramId)
+                .orElseThrow(() -> new ItemNotFoundException(CreditProgram.class, creditProgramId));
+        if (isProgramEligible(request, creditProgram)) {
+            BigDecimal mortgageSum = getMortgageSum(request.getRealEstatePrice(), request.getDownPayment());
+            BigDecimal calculateMonthlyPayment = calculateMonthlyPayment(mortgageSum, creditProgram.getBaseRate(), request.getCreditTerm() * MONTHS_IN_YEAR);
+            BigDecimal downPayment = request.getDownPayment() != null ? request.getDownPayment() : BigDecimal.ZERO;
+            return new LoanProgramCalculationDto()
+                    .setCreditProgramId(creditProgram.getId())
+                    .setCreditProgramName(creditProgram.getProgramName())
+                    .setCalculatedRate(creditProgram.getBaseRate())
+                    .setMonthlyPayment(calculateMonthlyPayment)
+                    .setOverpayment(calculateOverpayment(calculateMonthlyPayment, request.getCreditTerm() * MONTHS_IN_YEAR, request.getRealEstatePrice(), downPayment));
+        } else {
+            throw new IllegalArgumentException("Credit program is not eligible for the request");
+        }
     }
 
     @Override
