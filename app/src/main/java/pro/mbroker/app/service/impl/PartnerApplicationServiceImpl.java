@@ -144,7 +144,13 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
 
     @Transactional
     public void checkDocumentStatus(PartnerApplication partnerApplication) {
-        List<RequiredDocumentResponse> requiredDocuments = getRequiredDocuments(partnerApplication.getId());
+        List<RequiredDocumentResponse> requiredDocuments = getRequiredDocuments(partnerApplication.getId())
+                .stream()
+                .filter(requiredDocument ->
+                        requiredDocument.getDocumentType() != DocumentType.DATA_PROCESSING_AGREEMENT &&
+                                requiredDocument.getDocumentType() != DocumentType.CERTIFIED_COPY_TK &&
+                                requiredDocument.getDocumentType() != DocumentType.INCOME_CERTIFICATE)
+                .collect(Collectors.toList());
         for (BorrowerProfile borrowerProfile : partnerApplication.getBorrowerProfiles()) {
             List<BorrowerDocument> borrowerDocuments = borrowerProfile.getBorrowerDocument();
             boolean allDocumentsPresent = requiredDocuments.stream().allMatch(requiredDocument -> {
@@ -152,8 +158,7 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
                 UUID requiredBankId = requiredDocument.getBankId();
                 return borrowerDocuments.stream().anyMatch(borrowerDocument ->
                         borrowerDocument.getDocumentType() == requiredType &&
-                                (requiredType != DocumentType.APPLICATION_FORM &&
-                                        requiredType != DocumentType.DATA_PROCESSING_AGREEMENT ||
+                                (requiredType != DocumentType.APPLICATION_FORM ||
                                         borrowerDocument.getBank().getId().equals(requiredBankId)));
             });
             if (allDocumentsPresent) {
