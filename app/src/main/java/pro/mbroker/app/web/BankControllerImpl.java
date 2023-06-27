@@ -8,6 +8,7 @@ import org.springframework.web.multipart.MultipartFile;
 import pro.mbroker.api.controller.BankController;
 import pro.mbroker.api.controller.CreditProgramController;
 import pro.mbroker.api.dto.request.BankRequest;
+import pro.mbroker.api.dto.response.AttachmentResponse;
 import pro.mbroker.api.dto.response.BankResponse;
 import pro.mbroker.app.entity.Bank;
 import pro.mbroker.app.entity.BankContact;
@@ -63,7 +64,7 @@ public class BankControllerImpl implements BankController {
     }
 
     @Override
-    public MultipartFile getLogoBankById(UUID bankId) {
+    public AttachmentResponse getLogoBankById(UUID bankId) {
         return bankService.getLogoBankById(bankId);
     }
 

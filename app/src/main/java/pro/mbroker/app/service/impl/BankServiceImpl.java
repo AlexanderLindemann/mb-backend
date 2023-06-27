@@ -12,10 +12,12 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import pro.mbroker.api.dto.request.BankContactRequest;
 import pro.mbroker.api.dto.request.BankRequest;
+import pro.mbroker.api.dto.response.AttachmentResponse;
 import pro.mbroker.app.entity.Attachment;
 import pro.mbroker.app.entity.Bank;
 import pro.mbroker.app.entity.BankContact;
 import pro.mbroker.app.exception.ItemNotFoundException;
+import pro.mbroker.app.mapper.AttachmentMapper;
 import pro.mbroker.app.repository.BankContactRepository;
 import pro.mbroker.app.repository.BankRepository;
 import pro.mbroker.app.repository.specification.BankSpecification;
@@ -30,10 +32,12 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class BankServiceImpl implements BankService {
 
-    private final BankRepository bankRepository;
-    private final BankContactRepository bankContactRepository;
-    private final AttachmentService attachmentService;
     private static final int ORDER_STEP = 10;
+
+    private final BankRepository bankRepository;
+    private final AttachmentMapper attachmentMapper;
+    private final AttachmentService attachmentService;
+    private final BankContactRepository bankContactRepository;
 
     @Override
     @Transactional
@@ -67,9 +71,10 @@ public class BankServiceImpl implements BankService {
 
     @Override
     @Transactional(readOnly = true)
-    public MultipartFile getLogoBankById(UUID bankId) {
+    public AttachmentResponse getLogoBankById(UUID bankId) {
         Bank bank = getBank(bankId);
-        return attachmentService.download(bank.getAttachment().getId());
+        return attachmentMapper.toAttachmentResponse(
+                attachmentService.getAttachmentById(bank.getAttachment().getId()));
     }
 
     @Override
