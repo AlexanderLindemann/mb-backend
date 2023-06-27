@@ -83,4 +83,10 @@ public interface PartnerApplicationController {
     @GetMapping("/{partnerApplicationId}/required_document")
     @ApiOperation("получить требуемые документы по id заявки")
     List<RequiredDocumentResponse> getRequiredDocuments(@PathVariable UUID partnerApplicationId);
+
+    @ApiOperation("поменять главного заемщика")
+    @PutMapping("/{partnerApplicationId}/change_status")
+    PartnerApplicationResponse changeMainBorrowerByPartnerApplication(
+            @PathVariable UUID partnerApplicationId,
+            @NotNull @RequestParam("newMainBorrowerId") UUID newMainBorrowerId);
 }

@@ -109,4 +109,11 @@ public class PartnerApplicationControllerImpl implements PartnerApplicationContr
         return partnerApplicationService.getRequiredDocuments(partnerApplicationId);
     }
 
+    @Override
+    @PreAuthorize("hasAuthority(T(pro.smartdeal.common.security.Permission$Code).MB_ADMIN_ACCESS)")
+    public PartnerApplicationResponse changeMainBorrowerByPartnerApplication(UUID partnerApplicationId, UUID newMainBorrowerId) {
+        PartnerApplication partnerApplication = partnerApplicationService.changeMainBorrowerByPartnerApplication(partnerApplicationId, newMainBorrowerId);
+        return partnerApplicationService.buildPartnerApplicationResponse(partnerApplication);
+    }
+
 }

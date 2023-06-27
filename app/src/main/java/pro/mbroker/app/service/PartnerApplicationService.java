@@ -45,4 +45,6 @@ public interface PartnerApplicationService {
     List<RequiredDocumentResponse> getRequiredDocuments(UUID partnerApplicationId);
 
     PartnerApplication statusChanger(PartnerApplication partnerApplication);
+
+    PartnerApplication changeMainBorrowerByPartnerApplication(UUID partnerApplicationId, UUID newMainBorrowerId);
 }
