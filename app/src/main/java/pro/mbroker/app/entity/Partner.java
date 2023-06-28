@@ -44,7 +44,8 @@ public class Partner extends BaseEntity {  //TODO переименовать П�
             joinColumns = @JoinColumn(name = "partner_id"),
             inverseJoinColumns = @JoinColumn(name = "credit_program_id"))
     private List<CreditProgram> creditPrograms = new ArrayList<>();
-    @OneToMany(mappedBy = "partner")
+    //Объекты застройщика
+    @OneToMany(mappedBy = "partner", cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH})
     private List<RealEstate> realEstates = new ArrayList<>();
 
 }
