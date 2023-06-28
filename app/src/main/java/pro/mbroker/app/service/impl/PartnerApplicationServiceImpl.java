@@ -451,7 +451,9 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
         if (allProfilesDataEntered) {
             List<BankApplication> bankApplications = partnerApplication.getBankApplications();
             for (BankApplication bankApplication : bankApplications) {
-                bankApplication.setBankApplicationStatus(BankApplicationStatus.READY_TO_SENDING);
+                if (!bankApplication.getBankApplicationStatus().equals(BankApplicationStatus.SENT_TO_BANK)) {
+                    bankApplication.setBankApplicationStatus(BankApplicationStatus.READY_TO_SENDING);
+                }
             }
         }
     }

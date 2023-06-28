@@ -77,7 +77,9 @@ public interface BankApplicationMapper {
         if (existing == null) {
             existing = new BankApplication();
         }
-        existing.setBankApplicationStatus(BankApplicationStatus.DATA_NO_ENTERED);
+        if (!existing.getBankApplicationStatus().equals(BankApplicationStatus.SENT_TO_BANK)) {
+            existing.setBankApplicationStatus(BankApplicationStatus.DATA_NO_ENTERED);
+        }
         existing.setMonthlyPayment(request.getMonthlyPayment());
         existing.setRealEstatePrice(request.getRealEstatePrice());
         existing.setDownPayment(request.getDownPayment());
@@ -86,6 +88,7 @@ public interface BankApplicationMapper {
         existing.setActive(true);
         return existing;
     }
+
     default BankApplication updateBankApplicationFromRequest(BankApplication existing, BankApplicationUpdateRequest request) {
         if (existing == null) {
             existing = new BankApplication();
