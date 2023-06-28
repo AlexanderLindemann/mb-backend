@@ -25,7 +25,6 @@ import pro.mbroker.app.mapper.BankApplicationMapper;
 import pro.mbroker.app.mapper.BorrowerProfileMapper;
 import pro.mbroker.app.mapper.MortgageCalculationMapper;
 import pro.mbroker.app.mapper.PartnerApplicationMapper;
-import pro.mbroker.app.repository.BankApplicationRepository;
 import pro.mbroker.app.repository.BorrowerProfileRepository;
 import pro.mbroker.app.repository.PartnerApplicationRepository;
 import pro.mbroker.app.repository.specification.PartnerApplicationSpecification;
@@ -57,7 +56,6 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
     private final RealEstateService realEstateService;
     private final CreditProgramService creditProgramService;
     private final PartnerApplicationRepository partnerApplicationRepository;
-    private final BankApplicationRepository bankApplicationRepository;
     private final BorrowerProfileRepository borrowerProfileRepository;
     private final PartnerApplicationMapper partnerApplicationMapper;
     private final BorrowerProfileMapper borrowerProfileMapper;

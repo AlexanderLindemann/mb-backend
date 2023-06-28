@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 import pro.mbroker.api.controller.CalculatorController;
+import pro.mbroker.api.dto.LoanProgramCalculationDto;
 import pro.mbroker.api.dto.PropertyMortgageDTO;
 import pro.mbroker.api.dto.request.CalculatorRequest;
 import pro.mbroker.api.enums.CreditPurposeType;
@@ -32,7 +33,6 @@ public class CalculatorControllerImpl implements CalculatorController {
                                               Integer maxMonthlyPayment,
                                               Integer creditTerm,
                                               Boolean isMaternalCapital) {
-
         return calculatorService.getCreditOffer(new CalculatorRequest()
                 .setRealEstateId(realEstateId)
                 .setCreditPurposeType(creditPurposeType)
@@ -43,4 +43,29 @@ public class CalculatorControllerImpl implements CalculatorController {
                 .setCreditTerm(creditTerm)
                 .setIsMaternalCapital(isMaternalCapital));
     }
+
+    @Override
+    @PreAuthorize("hasAuthority(T(pro.smartdeal.common.security.Permission$Code).MB_ADMIN_ACCESS) " +
+            "or hasAuthority(T(pro.smartdeal.common.security.Permission$Code).MB_REQUEST_READ_OWN)" +
+            "or hasAuthority(T(pro.smartdeal.common.security.Permission$Code).MB_REQUEST_READ_ORGANIZATION)")
+    public LoanProgramCalculationDto getCreditOfferByCreditProgramId(UUID creditProgramId,
+                                                                     UUID realEstateId,
+                                                                     CreditPurposeType creditPurposeType,
+                                                                     RealEstateType realEstateType,
+                                                                     BigDecimal realEstatePrice,
+                                                                     BigDecimal downPayment,
+                                                                     Integer maxMonthlyPayment,
+                                                                     Integer creditTerm,
+                                                                     Boolean isMaternalCapital) {
+        return calculatorService.getCreditOfferByCreditProgramId(creditProgramId, new CalculatorRequest()
+                .setRealEstateId(realEstateId)
+                .setCreditPurposeType(creditPurposeType)
+                .setRealEstateType(realEstateType)
+                .setRealEstatePrice(realEstatePrice)
+                .setDownPayment(downPayment)
+                .setMaxMonthlyPayment(maxMonthlyPayment)
+                .setCreditTerm(creditTerm)
+                .setIsMaternalCapital(isMaternalCapital));
+    }
+
 }
