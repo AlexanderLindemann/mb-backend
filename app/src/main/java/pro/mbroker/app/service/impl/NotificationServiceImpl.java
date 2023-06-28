@@ -37,7 +37,7 @@ public class NotificationServiceImpl implements NotificationService {
     private final BankApplicationRepository bankApplicationRepository;
     private final BorrowerDocumentRepository borrowerDocumentRepository;
 
-    @Override
+    @Override //TODO обработать ситуацию, когда нет данных для отправки
     public NotificationBankLetterResponse getCustomerInfoForBankLetter(UUID bankApplicationId) {
         bankApplicationService.changeStatus(bankApplicationId, BankApplicationStatus.SENDING_TO_BANK);
         log.info("Начинаю процедуру получения информации для формирования письма");
