@@ -44,6 +44,14 @@ public class BaseEntityAuditAspect {
                 }
             }
         }
+        if (baseEntity instanceof Partner) {
+            Partner partner = (Partner) baseEntity;
+            if (partner.getRealEstates() != null) {
+                for (RealEstate realEstate : partner.getRealEstates()) {
+                    setAuditFields(realEstate);
+                }
+            }
+        }
     }
 
 

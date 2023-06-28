@@ -29,7 +29,7 @@ public abstract class AbstractServiceTest {
     public void setUp() {
         Mockito.when(currentUserService.getCurrentUserToken()).thenReturn(apiToken);
         List<GrantedAuthority> authorities = new ArrayList<>();
-        authorities.add(new SimpleGrantedAuthority(Permission.Code.MB_ADMIN_ACCESS)); // Замените на ваши реальные права админа
+        authorities.add(new SimpleGrantedAuthority(Permission.Code.MB_ADMIN_ACCESS));
         Authentication auth = new UsernamePasswordAuthenticationToken("admin", "admin", authorities);
 
         SecurityContextHolder.getContext().setAuthentication(auth);
