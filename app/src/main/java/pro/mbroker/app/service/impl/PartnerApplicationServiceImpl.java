@@ -279,7 +279,7 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
         sortBankApplicationList(sortBy, sortDirection, bankApplications);
 
         return bankApplications.stream()
-                .map(partnerApplicationMapper::toPartnerApplicationResponse)
+                .map(this::buildPartnerApplicationResponse)
                 .collect(Collectors.toList());
     }
 
