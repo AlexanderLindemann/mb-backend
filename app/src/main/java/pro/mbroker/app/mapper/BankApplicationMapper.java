@@ -77,7 +77,11 @@ public interface BankApplicationMapper {
         if (existing == null) {
             existing = new BankApplication();
         }
-        if (!existing.getBankApplicationStatus().equals(BankApplicationStatus.SENT_TO_BANK)) {
+        if (!existing.getBankApplicationStatus().equals(BankApplicationStatus.SENT_TO_BANK) ||
+                !existing.getBankApplicationStatus().equals(BankApplicationStatus.SENDING_TO_BANK) ||
+                !existing.getBankApplicationStatus().equals(BankApplicationStatus.APPLICATION_APPROVED) ||
+                !existing.getBankApplicationStatus().equals(BankApplicationStatus.EXPIRED) ||
+                !existing.getBankApplicationStatus().equals(BankApplicationStatus.READY_TO_SENDING)) {
             existing.setBankApplicationStatus(BankApplicationStatus.DATA_NO_ENTERED);
         }
         existing.setMonthlyPayment(request.getMonthlyPayment());
