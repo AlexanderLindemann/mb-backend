@@ -52,7 +52,7 @@ public class CalculatorServiceImpl implements CalculatorService {
                             createBankLoanProgramDto(creditProgram)).getLoanProgramCalculationDto().add(createLoanProgramCalculationDto(request, creditProgram));
         }
         List<BankLoanProgramDto> bankLoanProgramDtos = new ArrayList<>(bankLoanProgramDtoMap.values());
-        bankLoanProgramDtos.forEach(this::sortLoanProgramCalculationDtoList);
+        sortLoanProgramCalculation(bankLoanProgramDtos);
         return new PropertyMortgageDTO()
                 .setRealEstatePrice(request.getRealEstatePrice())
                 .setMonthCreditTerm(Optional.ofNullable(request.getCreditTerm())
@@ -60,6 +60,7 @@ public class CalculatorServiceImpl implements CalculatorService {
                 .setDownPayment(request.getDownPayment())
                 .setBankLoanProgramDto(bankLoanProgramDtos);
     }
+
 
     @Override
     @Transactional
@@ -105,9 +106,16 @@ public class CalculatorServiceImpl implements CalculatorService {
         return bankLoanProgramDtoBuilder;
     }
 
-    private void sortLoanProgramCalculationDtoList(BankLoanProgramDto bankLoanProgramDto) {
-        bankLoanProgramDto.getLoanProgramCalculationDto()
-                .sort(Comparator.comparing(LoanProgramCalculationDto::getMonthlyPayment));
+    private void sortLoanProgramCalculation(List<BankLoanProgramDto> bankLoanProgramDtos) {
+        bankLoanProgramDtos.forEach(bankLoanProgramDto ->
+                bankLoanProgramDto.getLoanProgramCalculationDto()
+                        .sort(Comparator.comparing(LoanProgramCalculationDto::getMonthlyPayment))
+        );
+        bankLoanProgramDtos.sort(Comparator.comparing(bankLoanProgramDto ->
+                bankLoanProgramDto.getLoanProgramCalculationDto().stream()
+                        .min(Comparator.comparing(LoanProgramCalculationDto::getMonthlyPayment))
+                        .orElseThrow(NoSuchElementException::new)
+                        .getMonthlyPayment()));
     }
 
     private LoanProgramCalculationDto createLoanProgramCalculationDto(CalculatorRequest request, CreditProgram creditProgram) {

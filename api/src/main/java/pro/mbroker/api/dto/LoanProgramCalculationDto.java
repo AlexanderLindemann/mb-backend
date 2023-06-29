@@ -25,5 +25,4 @@ public class LoanProgramCalculationDto {
 
     private BigDecimal overpayment;
 
-
 }
