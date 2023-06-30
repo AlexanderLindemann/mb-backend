@@ -44,11 +44,9 @@ public class PartnerServiceImpl implements PartnerService {
     @Transactional
     public Partner createPartner(PartnerRequest request) {
         List<RealEstate> realEstates = realEstateMapper.toRealEstateAddressList(request.getRealEstateRequest());
-
         Partner partner = partnerMapper.toPartnerMapper(request)
                 .setCreditPrograms(creditProgramService.getProgramByCreditProgramIds(request.getBankCreditProgram()))
                 .setRealEstates(realEstates);
-
         realEstates.forEach(address -> address.setPartner(partner));
         return partnerRepository.save(partner);
     }

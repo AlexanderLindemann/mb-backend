@@ -3,6 +3,7 @@ package pro.mbroker.api.dto.response;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import pro.mbroker.api.dto.request.CreditParameterResponse;
 import pro.mbroker.api.enums.BankApplicationStatus;
 
 import java.math.BigDecimal;
@@ -17,6 +18,8 @@ public class BankApplicationResponse {
     private UUID id;
 
     private UUID creditProgramId;
+
+    private CreditParameterResponse creditParameter;
 
     private Integer applicationNumber;
 
