@@ -447,12 +447,16 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
         boolean allProfilesDataEntered = partnerApplication.getBorrowerProfiles().stream()
                 .allMatch(profile -> profile.getBorrowerProfileStatus() == BorrowerProfileStatus.DATA_ENTERED);
         if (allProfilesDataEntered) {
-            List<BankApplication> bankApplications = partnerApplication.getBankApplications();
-            for (BankApplication bankApplication : bankApplications) {
-                if (!bankApplication.getBankApplicationStatus().equals(BankApplicationStatus.SENT_TO_BANK)) {
-                    bankApplication.setBankApplicationStatus(BankApplicationStatus.READY_TO_SENDING);
-                }
-            }
+            List<BankApplicationStatus> unchangeableStatuses = Arrays.asList(
+                    BankApplicationStatus.SENT_TO_BANK,
+                    BankApplicationStatus.APPLICATION_APPROVED,
+                    BankApplicationStatus.REFINEMENT,
+                    BankApplicationStatus.REJECTED,
+                    BankApplicationStatus.EXPIRED
+            );
+            partnerApplication.getBankApplications().stream()
+                    .filter(bankApplication -> !unchangeableStatuses.contains(bankApplication.getBankApplicationStatus()))
+                    .forEach(bankApplication -> bankApplication.setBankApplicationStatus(BankApplicationStatus.READY_TO_SENDING));
         }
     }
 }
