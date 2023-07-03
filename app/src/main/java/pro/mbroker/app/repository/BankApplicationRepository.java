@@ -37,7 +37,7 @@ public interface BankApplicationRepository extends JpaRepository<BankApplication
             "JOIN ba.creditProgram cp " +
             "JOIN cp.bank b " +
             "JOIN b.contacts bc " +
-            "WHERE ba.id = :bankApplicationId")
+            "WHERE ba.id = :bankApplicationId AND bc.isActive = true")
     List<String> getEmailsByBankApplicationId(@Param("bankApplicationId") UUID bankApplicationId);
 
     Optional<BankApplication> findByApplicationNumber(Integer applicationNumber);
