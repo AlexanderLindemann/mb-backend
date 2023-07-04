@@ -32,7 +32,7 @@ public class NotificationBankLetterResponse implements Serializable {
     private RealEstateType realEstateType;
     private String realEstateTypeName;
     @JsonIgnore
-    private String creditPurposeType;
+    private CreditPurposeType creditPurposeType;
     private String programName;
     private BigDecimal realEstatePrice;
     private BigDecimal downPayment;
@@ -51,7 +51,7 @@ public class NotificationBankLetterResponse implements Serializable {
                                           String residentialComplexName,
                                           String address,
                                           RealEstateType realEstateType,
-                                          String creditPurposeType,
+                                          CreditPurposeType creditPurposeType,
                                           String programName,
                                           BigDecimal realEstatePrice,
                                           BigDecimal downPayment,
