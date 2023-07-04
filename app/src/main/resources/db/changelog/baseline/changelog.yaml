@@ -62,3 +62,6 @@ databaseChangeLog:
   - include:
       file: 20230620_1030-add-new-column_in_application_table.xml
       relativeToChangelogFile: true
+  - include:
+      file: 20230704_1400-modify-creditProgram-detail-table.xml
+      relativeToChangelogFile: true
