@@ -65,9 +65,10 @@ public class AttachmentControllerImpl implements AttachmentController {
                 .setStatus(borrowerProfileMap.get(borrowerProfile.getId()).getBorrowerProfileStatus());
     }
 
-    @Override
+    @Override  //TODO переделать логику. Убрать из этого метода borrowerDocumentService и сделать метод универсальным для аттачментов
     public void deleteDocument(Long attachmentId) {
         borrowerDocumentService.deleteDocumentByAttachmentId(attachmentId);
+        attachmentService.markAttachmentAsDeleted(attachmentId);
     }
 
     @Override
