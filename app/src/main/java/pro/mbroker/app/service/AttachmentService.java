@@ -54,4 +54,12 @@ public interface AttachmentService {
      * @throws ItemNotFoundException если нет вложения с указанным идентификатором.
      */
     ResponseEntity<InputStreamResource> downloadFile(Long attachmentId);
+
+    /**
+     *
+     * Метод помечает файл attachment как удаленный
+     *
+     * @param attachmentId айди вложения
+     */
+    void markAttachmentAsDeleted(Long attachmentId);
 }

@@ -107,6 +107,13 @@ public class AttachmentServiceImpl implements AttachmentService {
         }
     }
 
+    public void markAttachmentAsDeleted(Long attachmentId) {
+        var attachment = attachmentRepository.findAttachmentById(attachmentId)
+                .orElseThrow(() -> new ItemNotFoundException(Attachment.class, attachmentId));
+        attachment.setActive(false);
+        attachmentRepository.save(attachment);
+    }
+
     private MultipartFile getFileFromAttachmentService(Long attachmentId) {
         Attachment attachment = attachmentRepository.findAttachmentById(attachmentId)
                 .orElseThrow(() -> new ItemNotFoundException(Attachment.class, attachmentId));
