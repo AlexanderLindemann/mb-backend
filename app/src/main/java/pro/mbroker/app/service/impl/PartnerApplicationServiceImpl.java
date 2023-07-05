@@ -62,6 +62,17 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
     private final BankApplicationMapper bankApplicationMapper;
     private final MortgageCalculationMapper mortgageCalculationMapper;
 
+    private static final List<DocumentType> REQUIRED_DOCUMENT_TYPES =
+            Arrays.asList(DocumentType.BORROWER_PASSPORT, DocumentType.BORROWER_SNILS);
+
+    private static final List<BankApplicationStatus> UNCHANGEABLE_STATUSES = Arrays.asList(
+            BankApplicationStatus.SENT_TO_BANK,
+            BankApplicationStatus.APPLICATION_APPROVED,
+            BankApplicationStatus.REFINEMENT,
+            BankApplicationStatus.REJECTED,
+            BankApplicationStatus.EXPIRED
+    );
+
 
     @Override
     @Transactional(readOnly = true)
@@ -161,9 +172,9 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
             });
             if (allDocumentsPresent) {
                 borrowerProfile.setBorrowerProfileStatus(BorrowerProfileStatus.DATA_ENTERED);
-                checkBankApplicationStatus(partnerApplication);
             }
         }
+        checkBankApplicationStatus(partnerApplication);
     }
 
 
@@ -420,7 +431,6 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
         Integer sdId = TokenExtractor.extractSdId(currentUserToken);
         if (authorities.contains(new SimpleGrantedAuthority(Permission.Code.MB_REQUEST_READ_ORGANIZATION)) &&
                 !partnerApplication.getPartner().getSmartDealOrganizationId().equals(organizationId)) {
-
             throw new AccessDeniedException("organization_id: " + organizationId, PartnerApplication.class);
         }
         if (authorities.contains(new SimpleGrantedAuthority(Permission.Code.MB_REQUEST_READ_OWN)) &&
@@ -444,19 +454,32 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
     }
 
     private void checkBankApplicationStatus(PartnerApplication partnerApplication) {
-        boolean allProfilesDataEntered = partnerApplication.getBorrowerProfiles().stream()
-                .allMatch(profile -> profile.getBorrowerProfileStatus() == BorrowerProfileStatus.DATA_ENTERED);
-        if (allProfilesDataEntered) {
-            List<BankApplicationStatus> unchangeableStatuses = Arrays.asList(
-                    BankApplicationStatus.SENT_TO_BANK,
-                    BankApplicationStatus.APPLICATION_APPROVED,
-                    BankApplicationStatus.REFINEMENT,
-                    BankApplicationStatus.REJECTED,
-                    BankApplicationStatus.EXPIRED
-            );
-            partnerApplication.getBankApplications().stream()
-                    .filter(bankApplication -> !unchangeableStatuses.contains(bankApplication.getBankApplicationStatus()))
-                    .forEach(bankApplication -> bankApplication.setBankApplicationStatus(BankApplicationStatus.READY_TO_SENDING));
+        List<BankApplication> bankApplications = new ArrayList<>(partnerApplication.getBankApplications());
+        bankApplications.removeIf(app -> !app.isActive() || UNCHANGEABLE_STATUSES.contains(app.getBankApplicationStatus()));
+        for (BankApplication bankApplication : bankApplications) {
+            if (allProfilesHaveRequiredDocuments(bankApplication, partnerApplication)) {
+                bankApplication.setBankApplicationStatus(BankApplicationStatus.READY_TO_SENDING);
+            }
         }
     }
+
+    private boolean allProfilesHaveRequiredDocuments(BankApplication bankApplication, PartnerApplication partnerApplication) {
+        Bank bank = bankApplication.getCreditProgram().getBank();
+        List<BorrowerProfile> borrowerProfiles = partnerApplication.getBorrowerProfiles();
+        return borrowerProfiles.stream()
+                .allMatch(borrowerProfile ->
+                        checkRequiredDocuments(borrowerProfile.getBorrowerDocument(), bank)
+                );
+    }
+
+    private boolean checkRequiredDocuments(List<BorrowerDocument> borrowerDocuments, Bank bank) {
+        Set<DocumentType> documentTypes = borrowerDocuments.stream()
+                .map(BorrowerDocument::getDocumentType)
+                .collect(Collectors.toSet());
+        boolean allRequiredDocumentsPresent = documentTypes.containsAll(REQUIRED_DOCUMENT_TYPES);
+        boolean applicationFormDocumentPresent = borrowerDocuments.stream()
+                .anyMatch(doc -> doc.getDocumentType().equals(DocumentType.APPLICATION_FORM) && doc.getBank().equals(bank));
+        return allRequiredDocumentsPresent && applicationFormDocumentPresent;
+    }
+
 }
