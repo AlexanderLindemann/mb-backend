@@ -68,6 +68,7 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
     private static final List<BankApplicationStatus> UNCHANGEABLE_STATUSES = Arrays.asList(
             BankApplicationStatus.SENT_TO_BANK,
             BankApplicationStatus.APPLICATION_APPROVED,
+            BankApplicationStatus.CREDIT_APPROVED,
             BankApplicationStatus.REFINEMENT,
             BankApplicationStatus.REJECTED,
             BankApplicationStatus.EXPIRED
@@ -161,7 +162,9 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
                                 requiredDocument.getDocumentType() != DocumentType.INCOME_CERTIFICATE)
                 .collect(Collectors.toList());
         for (BorrowerProfile borrowerProfile : partnerApplication.getBorrowerProfiles()) {
-            List<BorrowerDocument> borrowerDocuments = borrowerProfile.getBorrowerDocument();
+            List<BorrowerDocument> borrowerDocuments = borrowerProfile.getBorrowerDocument().stream()
+                    .filter(BorrowerDocument::isActive)
+                    .collect(Collectors.toList());
             boolean allDocumentsPresent = requiredDocuments.stream().allMatch(requiredDocument -> {
                 DocumentType requiredType = requiredDocument.getDocumentType();
                 UUID requiredBankId = requiredDocument.getBankId();
@@ -172,6 +175,8 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
             });
             if (allDocumentsPresent) {
                 borrowerProfile.setBorrowerProfileStatus(BorrowerProfileStatus.DATA_ENTERED);
+            } else {
+                borrowerProfile.setBorrowerProfileStatus(BorrowerProfileStatus.DATA_NO_ENTERED);
             }
         }
         checkBankApplicationStatus(partnerApplication);
@@ -459,6 +464,8 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
         for (BankApplication bankApplication : bankApplications) {
             if (allProfilesHaveRequiredDocuments(bankApplication, partnerApplication)) {
                 bankApplication.setBankApplicationStatus(BankApplicationStatus.READY_TO_SENDING);
+            } else {
+                bankApplication.setBankApplicationStatus(BankApplicationStatus.DATA_NO_ENTERED);
             }
         }
     }
@@ -474,6 +481,7 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
 
     private boolean checkRequiredDocuments(List<BorrowerDocument> borrowerDocuments, Bank bank) {
         Set<DocumentType> documentTypes = borrowerDocuments.stream()
+                .filter(BorrowerDocument::isActive)
                 .map(BorrowerDocument::getDocumentType)
                 .collect(Collectors.toSet());
         boolean allRequiredDocumentsPresent = documentTypes.containsAll(REQUIRED_DOCUMENT_TYPES);

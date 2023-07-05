@@ -7,18 +7,21 @@ import pro.mbroker.app.entity.BorrowerDocument;
 import pro.mbroker.app.exception.ItemNotFoundException;
 import pro.mbroker.app.repository.BorrowerDocumentRepository;
 import pro.mbroker.app.service.BorrowerDocumentService;
+import pro.mbroker.app.service.PartnerApplicationService;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class BorrowerDocumentServiceImpl implements BorrowerDocumentService {
     private final BorrowerDocumentRepository borrowerDocumentRepository;
+    private final PartnerApplicationService partnerApplicationService;
 
     @Override
     public void deleteDocumentByAttachmentId(Long attachmentId) {
         BorrowerDocument borrowerDocument = getBorrowerDocumentByAttachmentId(attachmentId);
         borrowerDocument.setActive(false);
         borrowerDocumentRepository.save(borrowerDocument);
+        partnerApplicationService.statusChanger(borrowerDocument.getBorrowerProfile().getPartnerApplication());
     }
 
     @Override
