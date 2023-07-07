@@ -6,6 +6,7 @@ import org.springframework.stereotype.Component;
 import pro.mbroker.api.controller.BorrowerProfileController;
 import pro.mbroker.api.dto.request.BorrowerRequest;
 import pro.mbroker.api.dto.response.BorrowerResponse;
+import pro.mbroker.app.service.BorrowerDocumentService;
 import pro.mbroker.app.service.BorrowerProfileService;
 
 import java.util.UUID;
@@ -14,7 +15,9 @@ import java.util.UUID;
 @Component
 @RequiredArgsConstructor
 public class BorrowerProfileControllerImpl implements BorrowerProfileController {
+
     private final BorrowerProfileService borrowerProfileService;
+    private final BorrowerDocumentService borrowerDocumentService;
 
 
     @Override
@@ -35,5 +38,10 @@ public class BorrowerProfileControllerImpl implements BorrowerProfileController 
     @Override
     public void deleteBorrowerProfileById(UUID borrowerProfileId) {
         borrowerProfileService.deleteBorrowerProfileById(borrowerProfileId);
+    }
+
+    @Override
+    public void deleteBorrowerDocument(Long attachmentId) {
+        borrowerDocumentService.deleteDocumentByAttachmentId(attachmentId);
     }
 }

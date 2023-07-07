@@ -67,13 +67,8 @@ public class AttachmentControllerImpl implements AttachmentController {
 
     @Override  //TODO переделать логику. Убрать из этого метода borrowerDocumentService и сделать метод универсальным для аттачментов
     public void deleteDocument(Long attachmentId) {
-        borrowerDocumentService.deleteDocumentByAttachmentId(attachmentId);
+        borrowerDocumentService.deleteDocumentByAttachmentId(attachmentId); //TODO Как только фронт переедет на deleteBorrowerDocument MB-285
         attachmentService.markAttachmentAsDeleted(attachmentId);
-    }
-
-    @Override
-    public MultipartFile download(Long attachmentId) {
-        return attachmentService.download(attachmentId);
     }
 
     @Override

@@ -17,10 +17,6 @@ import java.util.UUID;
 @RequestMapping("/public/attachment")
 public interface AttachmentController {
 
-    @ApiOperation("Получить файл по attachment_id")
-    @GetMapping("/{attachmentId}")
-    MultipartFile download(@PathVariable Long attachmentId);
-
     @ApiOperation("Получить файл по attachment_id для скачивания")
     @GetMapping("/{attachmentId}/file")
     ResponseEntity<InputStreamResource> downloadFile(@PathVariable Long attachmentId);
