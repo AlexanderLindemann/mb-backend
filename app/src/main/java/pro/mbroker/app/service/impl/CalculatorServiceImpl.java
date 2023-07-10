@@ -47,13 +47,9 @@ public class CalculatorServiceImpl implements CalculatorService {
         List<CreditProgram> creditPrograms = filterCreditPrograms(request);
         Map<UUID, BankLoanProgramDto> bankLoanProgramDtoMap = new HashMap<>();
         for (CreditProgram creditProgram : creditPrograms) {
-            Double baseRate = creditProgram.getBaseRate();
-            if (Objects.nonNull(request.getSalaryBanks()) && request.getSalaryBanks().contains(creditProgram.getBank().getId())) {
-                baseRate = baseRate - creditProgram.getSalaryClientInterestRate();
-            }
             bankLoanProgramDtoMap.computeIfAbsent(creditProgram.getBank().getId(),
                     bankLoanProgram ->
-                            createBankLoanProgramDto(creditProgram)).getLoanProgramCalculationDto().add(createLoanProgramCalculationDto(request, creditProgram, baseRate));
+                            createBankLoanProgramDto(creditProgram)).getLoanProgramCalculationDto().add(createLoanProgramCalculationDto(request, creditProgram));
         }
         List<BankLoanProgramDto> bankLoanProgramDtos = new ArrayList<>(bankLoanProgramDtoMap.values());
         sortLoanProgramCalculation(bankLoanProgramDtos);
@@ -126,7 +122,11 @@ public class CalculatorServiceImpl implements CalculatorService {
                         .getMonthlyPayment()));
     }
 
-    private LoanProgramCalculationDto createLoanProgramCalculationDto(CalculatorRequest request, CreditProgram creditProgram, Double baseRate) {
+    private LoanProgramCalculationDto createLoanProgramCalculationDto(CalculatorRequest request, CreditProgram creditProgram) {
+        Double baseRate = creditProgram.getBaseRate();
+        if (Objects.nonNull(request.getSalaryBanks()) && request.getSalaryBanks().contains(creditProgram.getBank().getId())) {
+            baseRate = baseRate - creditProgram.getSalaryClientInterestRate();
+        }
         BigDecimal mortgageSum = getMortgageSum(request.getRealEstatePrice(), request.getDownPayment());
         BigDecimal calculateMonthlyPayment = calculateMonthlyPayment(mortgageSum, baseRate, request.getCreditTerm() * MONTHS_IN_YEAR);
         BigDecimal downPayment = request.getDownPayment() != null ? request.getDownPayment() : BigDecimal.ZERO;

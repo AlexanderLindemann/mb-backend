@@ -8,12 +8,11 @@ import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Transactional;
 import pro.mbroker.api.dto.PropertyMortgageDTO;
-import pro.mbroker.api.dto.request.CalculatorRequest;
-import pro.mbroker.api.enums.CreditPurposeType;
-import pro.mbroker.api.enums.RealEstateType;
+import pro.mbroker.app.TestData;
 import pro.mbroker.app.service.impl.CalculatorServiceImpl;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -26,6 +25,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class CalculatorServiceTest {
     @Autowired
     private CalculatorServiceImpl calculatorService;
+    @Autowired
+    private TestData testData;
 
 
     @Test
@@ -57,20 +58,21 @@ public class CalculatorServiceTest {
     @Test
     public void testGetCreditOffer() {
 
-        CalculatorRequest calculatorRequest = new CalculatorRequest();
-        calculatorRequest.setRealEstateId(UUID.fromString("2b8850b2-d930-11ed-afa1-0242ac120002"));
-        calculatorRequest.setCreditTerm(5);
-        calculatorRequest.setCreditPurposeType(CreditPurposeType.PURCHASE_UNDER_CONSTRUCTION);
-        calculatorRequest.setDownPayment(BigDecimal.valueOf(10000000));
-        calculatorRequest.setRealEstatePrice(BigDecimal.valueOf(20000000));
-        calculatorRequest.setRealEstateType(RealEstateType.APARTMENT);
-        calculatorRequest.setIsMaternalCapital(true);
-
-        PropertyMortgageDTO creditOffer = calculatorService.getCreditOffer(calculatorRequest);
+        PropertyMortgageDTO creditOffer = calculatorService.getCreditOffer(testData.getCalculatorRequest());
         assertEquals(creditOffer.getBankLoanProgramDto().get(0).getLoanProgramCalculationDto().get(0).getMonthlyPayment(), new BigDecimal("237899.30"));
         assertEquals(creditOffer.getBankLoanProgramDto().get(0).getLoanProgramCalculationDto().get(0).getOverpayment(), new BigDecimal("4273958.00"));
         assertEquals(creditOffer.getBankLoanProgramDto().get(0).getLoanProgramCalculationDto().get(1).getMonthlyPayment(), new BigDecimal("264938.90"));
         assertEquals(creditOffer.getBankLoanProgramDto().get(0).getLoanProgramCalculationDto().get(1).getOverpayment(), new BigDecimal("5896334.00"));
+    }
+
+    @Test
+    public void testGetCreditOfferWithSalaryBankClient() {
+
+        PropertyMortgageDTO creditOffer = calculatorService.getCreditOffer(testData.getCalculatorRequest().setSalaryBanks(List.of(UUID.fromString("0c371042-d848-11ed-afa1-0242ac120002"))));
+        assertEquals(creditOffer.getBankLoanProgramDto().get(0).getLoanProgramCalculationDto().get(0).getMonthlyPayment(), new BigDecimal("227530.70"));
+        assertEquals(creditOffer.getBankLoanProgramDto().get(0).getLoanProgramCalculationDto().get(0).getOverpayment(), new BigDecimal("3651842.00"));
+        assertEquals(creditOffer.getBankLoanProgramDto().get(0).getLoanProgramCalculationDto().get(1).getMonthlyPayment(), new BigDecimal("248525.80"));
+        assertEquals(creditOffer.getBankLoanProgramDto().get(0).getLoanProgramCalculationDto().get(1).getOverpayment(), new BigDecimal("4911548.00"));
     }
 
 }
