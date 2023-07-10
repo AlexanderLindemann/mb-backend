@@ -65,3 +65,6 @@ databaseChangeLog:
   - include:
       file: 20230704_1400-modify-creditProgram-detail-table.xml
       relativeToChangelogFile: true
+  - include:
+      file: 20230707_1400-add-salary-client-interest-rate.xml
+      relativeToChangelogFile: true

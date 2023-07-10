@@ -47,9 +47,13 @@ public class CalculatorServiceImpl implements CalculatorService {
         List<CreditProgram> creditPrograms = filterCreditPrograms(request);
         Map<UUID, BankLoanProgramDto> bankLoanProgramDtoMap = new HashMap<>();
         for (CreditProgram creditProgram : creditPrograms) {
+            Double baseRate = creditProgram.getBaseRate();
+            if (Objects.nonNull(request.getSalaryBanks()) && request.getSalaryBanks().contains(creditProgram.getBank().getId())) {
+                baseRate = baseRate - creditProgram.getSalaryClientInterestRate();
+            }
             bankLoanProgramDtoMap.computeIfAbsent(creditProgram.getBank().getId(),
                     bankLoanProgram ->
-                            createBankLoanProgramDto(creditProgram)).getLoanProgramCalculationDto().add(createLoanProgramCalculationDto(request, creditProgram));
+                            createBankLoanProgramDto(creditProgram)).getLoanProgramCalculationDto().add(createLoanProgramCalculationDto(request, creditProgram, baseRate));
         }
         List<BankLoanProgramDto> bankLoanProgramDtos = new ArrayList<>(bankLoanProgramDtoMap.values());
         sortLoanProgramCalculation(bankLoanProgramDtos);
@@ -69,7 +73,11 @@ public class CalculatorServiceImpl implements CalculatorService {
                 .orElseThrow(() -> new ItemNotFoundException(CreditProgram.class, creditProgramId));
         if (isProgramEligible(request, creditProgram)) {
             BigDecimal mortgageSum = getMortgageSum(request.getRealEstatePrice(), request.getDownPayment());
-            BigDecimal calculateMonthlyPayment = calculateMonthlyPayment(mortgageSum, creditProgram.getBaseRate(), request.getCreditTerm() * MONTHS_IN_YEAR);
+            Double baseRate = creditProgram.getBaseRate();
+            if (request.getSalaryBanks().contains(creditProgram.getBank().getId())) {
+                baseRate = -creditProgram.getSalaryClientInterestRate();
+            }
+            BigDecimal calculateMonthlyPayment = calculateMonthlyPayment(mortgageSum, baseRate, request.getCreditTerm() * MONTHS_IN_YEAR);
             BigDecimal downPayment = request.getDownPayment() != null ? request.getDownPayment() : BigDecimal.ZERO;
             return new LoanProgramCalculationDto()
                     .setCreditProgramId(creditProgram.getId())
@@ -118,14 +126,14 @@ public class CalculatorServiceImpl implements CalculatorService {
                         .getMonthlyPayment()));
     }
 
-    private LoanProgramCalculationDto createLoanProgramCalculationDto(CalculatorRequest request, CreditProgram creditProgram) {
+    private LoanProgramCalculationDto createLoanProgramCalculationDto(CalculatorRequest request, CreditProgram creditProgram, Double baseRate) {
         BigDecimal mortgageSum = getMortgageSum(request.getRealEstatePrice(), request.getDownPayment());
-        BigDecimal calculateMonthlyPayment = calculateMonthlyPayment(mortgageSum, creditProgram.getBaseRate(), request.getCreditTerm() * MONTHS_IN_YEAR);
+        BigDecimal calculateMonthlyPayment = calculateMonthlyPayment(mortgageSum, baseRate, request.getCreditTerm() * MONTHS_IN_YEAR);
         BigDecimal downPayment = request.getDownPayment() != null ? request.getDownPayment() : BigDecimal.ZERO;
         return new LoanProgramCalculationDto()
                 .setCreditProgramId(creditProgram.getId())
                 .setCreditProgramName(creditProgram.getProgramName())
-                .setCalculatedRate(creditProgram.getBaseRate())
+                .setCalculatedRate(baseRate)
                 .setMonthlyPayment(calculateMonthlyPayment)
                 .setOverpayment(calculateOverpayment(calculateMonthlyPayment, request.getCreditTerm() * MONTHS_IN_YEAR, request.getRealEstatePrice(), downPayment));
     }

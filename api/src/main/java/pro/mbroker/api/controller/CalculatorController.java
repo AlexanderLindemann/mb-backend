@@ -10,6 +10,7 @@ import pro.mbroker.api.enums.RealEstateType;
 
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.UUID;
 
 @Api(value = "API Калькулятора", tags = "API Калькулятора")
@@ -26,7 +27,8 @@ public interface CalculatorController {
                                        @RequestParam(required = false) BigDecimal downPayment,
                                        @RequestParam(required = false) Integer maxMonthlyPayment,
                                        @RequestParam(required = false) Integer creditTerm,
-                                       @RequestParam(required = false) Boolean isMaternalCapital);
+                                       @RequestParam(required = false) Boolean isMaternalCapital,
+                                       @RequestParam(required = false) List<UUID> salaryBanks);
 
     @ApiOperation("Получить предложение банка")
     @GetMapping("/{creditProgramId}")

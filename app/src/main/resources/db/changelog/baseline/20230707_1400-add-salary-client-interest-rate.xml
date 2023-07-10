@@ -1,0 +1,112 @@
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+
+    <changeSet id="add-salary-client-interest-rate" author="a.lindemann">
+        <addColumn tableName="credit_program">
+            <column name="salary_client_interest_rate" type="numeric(5,4)">
+                <constraints nullable="true"/>
+            </column>
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="create-tariff-table" author="a.lindemann">
+        <createTable tableName="tariff_plan">
+            <column name="id" type="uuid">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="name" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="bank_id" type="uuid">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="TIMESTAMP WITHOUT TIME ZONE" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="created_by" type="integer" defaultValueNumeric="0">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_by" type="integer"/>
+            <column name="is_active" type="BOOLEAN" defaultValueBoolean="true">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addForeignKeyConstraint constraintName="fk_tariff_plan_bank_id"
+                                 baseTableName="tariff_plan" baseColumnNames="bank_id"
+                                 referencedTableName="bank" referencedColumnNames="id"/>
+    </changeSet>
+
+    <changeSet id="add-mortgage_calculator_salary_bank-table" author="a.lindemann">
+        <createTable tableName="mortgage_calculator_salary_bank">
+            <column name="id" type="uuid">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="bank_id" type="uuid">
+                <constraints nullable="false"/>
+            </column>
+            <column name="mortgage_calculation_id" type="uuid">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="timestamp" defaultValueComputed="current_timestamp">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="timestamp"/>
+            <column name="created_by" type="int" defaultValue="0">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_by" type="int"/>
+            <column name="is_active" type="boolean" defaultValue="true">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addForeignKeyConstraint constraintName="fk_bank_id" baseTableName="mortgage_calculator_salary_bank"
+                                 baseColumnNames="bank_id" referencedTableName="bank" referencedColumnNames="id"/>
+
+        <addForeignKeyConstraint constraintName="fk_mortgage_calculation_id"
+                                 baseTableName="mortgage_calculator_salary_bank"
+                                 baseColumnNames="mortgage_calculation_id" referencedTableName="mortgage_calculation"
+                                 referencedColumnNames="id"/>
+    </changeSet>
+    <changeSet id="create-tariff_plan_credit_program-table" author="a.lindemann">
+        <createTable tableName="tariff_plan_credit_program">
+            <column name="id" type="uuid">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="tariff_plan_id" type="uuid">
+                <constraints nullable="false"/>
+            </column>
+            <column name="credit_program_id" type="uuid">
+                <constraints nullable="false"/>
+            </column>
+            <column name="percentage" type="decimal(6,4)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="timestamp" defaultValueComputed="current_timestamp">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="timestamp"/>
+            <column name="created_by" type="int" defaultValue="0">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_by" type="int"/>
+            <column name="is_active" type="boolean" defaultValue="true">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addForeignKeyConstraint constraintName="fk_tariff_plan_id" baseTableName="tariff_plan_credit_program"
+                                 baseColumnNames="tariff_plan_id" referencedTableName="tariff_plan"
+                                 referencedColumnNames="id"/>
+
+        <addForeignKeyConstraint constraintName="fk_credit_program_id" baseTableName="tariff_plan_credit_program"
+                                 baseColumnNames="credit_program_id" referencedTableName="credit_program"
+                                 referencedColumnNames="id"/>
+    </changeSet>
+
+
+</databaseChangeLog>

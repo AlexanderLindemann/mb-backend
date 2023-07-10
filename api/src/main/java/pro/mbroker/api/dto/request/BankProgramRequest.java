@@ -49,16 +49,20 @@ public class BankProgramRequest {
     @DecimalMax(value = "100.00", inclusive = true, message = "Base rate cannot be greater than 100.00")
     private Double baseRate;
 
+    @DecimalMin(value = "0.0000", inclusive = true, message = "Rate cannot be negative")
+    @DecimalMax(value = "100.0000", inclusive = true, message = "Rate cannot be greater than 100.00")
+    private Double salaryClientInterestRate;
+
     //Установка начала времени действия программы на 00:00
     public void resetEarliestTime() {
-        if(this.programStartDate != null) {
+        if (this.programStartDate != null) {
             this.programStartDate = this.programStartDate.withHour(0).withMinute(0).withSecond(0).withNano(0);
         }
     }
 
     //Установка времени окончания действия программы на 23:59
     public void resetLatestTime() {
-        if(this.programEndDate != null) {
+        if (this.programEndDate != null) {
             this.programEndDate = this.programEndDate.withHour(23).withMinute(59).withSecond(59).withNano(999999999);
         }
     }
