@@ -5,10 +5,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.math.BigDecimal;
+import java.util.List;
 
 @Entity
 @Getter
@@ -33,4 +32,11 @@ public class MortgageCalculation extends BaseEntity {
     @Column(name = "is_maternal_capital", nullable = false)
     private Boolean isMaternalCapital;
 
+    @ManyToMany
+    @JoinTable(
+            name = "mortgage_calculator_salary_bank",
+            joinColumns = @JoinColumn(name = "mortgage_calculation_id"),
+            inverseJoinColumns = @JoinColumn(name = "bank_id")
+    )
+    private List<Bank> salaryBanks;
 }

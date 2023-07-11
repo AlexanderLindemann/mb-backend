@@ -8,6 +8,7 @@ import pro.mbroker.api.enums.RealEstateType;
 
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.UUID;
 
 @Getter
@@ -30,4 +31,6 @@ public class CalculatorRequest {
     private Integer creditTerm;
 
     private Boolean isMaternalCapital;
+
+    private List<UUID> salaryBanks;
 }

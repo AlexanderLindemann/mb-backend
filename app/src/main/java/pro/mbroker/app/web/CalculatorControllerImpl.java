@@ -13,6 +13,7 @@ import pro.mbroker.api.enums.RealEstateType;
 import pro.mbroker.app.service.CalculatorService;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.UUID;
 
 @Slf4j
@@ -32,7 +33,8 @@ public class CalculatorControllerImpl implements CalculatorController {
                                               BigDecimal downPayment,
                                               Integer maxMonthlyPayment,
                                               Integer creditTerm,
-                                              Boolean isMaternalCapital) {
+                                              Boolean isMaternalCapital,
+                                              List<UUID> salaryBanks) {
         return calculatorService.getCreditOffer(new CalculatorRequest()
                 .setRealEstateId(realEstateId)
                 .setCreditPurposeType(creditPurposeType)
@@ -41,7 +43,8 @@ public class CalculatorControllerImpl implements CalculatorController {
                 .setDownPayment(downPayment)
                 .setMaxMonthlyPayment(maxMonthlyPayment)
                 .setCreditTerm(creditTerm)
-                .setIsMaternalCapital(isMaternalCapital));
+                .setIsMaternalCapital(isMaternalCapital)
+                .setSalaryBanks(salaryBanks));
     }
 
     @Override
