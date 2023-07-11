@@ -31,4 +31,8 @@ public interface BorrowerProfileController {
     void deleteBorrowerProfileById(
             @NotNull @PathVariable(value = "borrowerProfileId") UUID borrowerProfileId
     );
+
+    @ApiOperation("удалить загруженный документ клиента по id документа")
+    @PutMapping(value = "/{attachmentId}/delete_document")
+    void deleteBorrowerDocument(@PathVariable Long attachmentId);
 }
