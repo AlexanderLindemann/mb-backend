@@ -247,7 +247,20 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
             dto.setBankApplications(entry.getValue());
             result.add(dto);
         }
+        sortBankWithBankApplicationDto(result);
         return result;
+    }
+
+    private static void sortBankWithBankApplicationDto(List<BankWithBankApplicationDto> result) {
+        result.forEach(bankWithBankApplicationDto ->
+                bankWithBankApplicationDto.getBankApplications()
+                        .sort(Comparator.comparing(BankApplicationResponse::getMonthlyPayment))
+        );
+        result.sort(Comparator.comparing(bankWithBankApplicationDto ->
+                bankWithBankApplicationDto.getBankApplications().stream()
+                        .min(Comparator.comparing(BankApplicationResponse::getMonthlyPayment))
+                        .orElseThrow(NoSuchElementException::new)
+                        .getMonthlyPayment()));
     }
 
 

@@ -7,3 +7,4 @@ project/project/
 .gradle/buildOutputCleanup/cache.properties
 .lock
 /build/
+app/build/generated/
