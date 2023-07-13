@@ -32,7 +32,7 @@ public interface BorrowerProfileController {
             @NotNull @PathVariable(value = "borrowerProfileId") UUID borrowerProfileId
     );
 
-    @ApiOperation("удалить загруженный документ клиента по id документа")
-    @PutMapping(value = "/{attachmentId}/delete_document")
-    void deleteBorrowerDocument(@PathVariable Long attachmentId);
+    @ApiOperation("Пометить загруженный документ клиента, как не активный по id документа")
+    @PutMapping(value = "/{attachmentId}/mark_document_as_inactive")
+    void deleteBorrowerDocument(@ApiParam(value = "Идентификатор документа") @PathVariable Long attachmentId);
 }
