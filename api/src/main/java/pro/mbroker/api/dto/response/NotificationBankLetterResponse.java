@@ -23,6 +23,8 @@ public class NotificationBankLetterResponse implements Serializable {
     private UUID id;
     @JsonIgnore
     private UUID borrowerId;
+    @JsonIgnore
+    private UUID partnerApplicationId;
     private Integer applicationNumber;
     private List<AttachmentInfo> attachmentInfo;
     private String partnerName;
@@ -45,6 +47,7 @@ public class NotificationBankLetterResponse implements Serializable {
     private String creditPurposeTypeName;
 
     public NotificationBankLetterResponse(UUID id,
+                                          UUID partnerApplicationId,
                                           Integer applicationNumber,
                                           UUID borrowerId,
                                           String partnerName,
@@ -60,6 +63,7 @@ public class NotificationBankLetterResponse implements Serializable {
                                           String firstName,
                                           String middleName) {
         this.id = id;
+        this.partnerApplicationId = partnerApplicationId;
         this.applicationNumber = applicationNumber;
         this.borrowerId = borrowerId;
         this.partnerName = partnerName;

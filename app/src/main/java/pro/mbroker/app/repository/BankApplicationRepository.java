@@ -15,8 +15,8 @@ import java.util.UUID;
 
 public interface BankApplicationRepository extends JpaRepository<BankApplication, UUID>, JpaSpecificationExecutor<BankApplication> {
 
-    @Query("SELECT new pro.mbroker.api.dto.response.NotificationBankLetterResponse(ba.id, ba.applicationNumber, bp.id, " +
-            "p.name, re.residentialComplexName, re.address, pa.realEstateType, " +
+    @Query("SELECT new pro.mbroker.api.dto.response.NotificationBankLetterResponse(ba.id, pa.id, " +
+            "ba.applicationNumber, bp.id, p.name, re.residentialComplexName, re.address, pa.realEstateType, " +
             "pa.creditPurposeType, cp.programName, mc.realEstatePrice, " +
             "mc.downPayment, mc.monthCreditTerm, bp.lastName, bp.firstName,  bp.middleName) " +
             "FROM BankApplication ba " +
