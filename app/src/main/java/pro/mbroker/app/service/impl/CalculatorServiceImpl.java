@@ -125,7 +125,8 @@ public class CalculatorServiceImpl implements CalculatorService {
     private LoanProgramCalculationDto createLoanProgramCalculationDto(CalculatorRequest request, CreditProgram creditProgram) {
         Double baseRate = creditProgram.getBaseRate();
         if (Objects.nonNull(request.getSalaryBanks()) && request.getSalaryBanks().contains(creditProgram.getBank().getId())) {
-            baseRate = baseRate - creditProgram.getSalaryClientInterestRate();
+            Double salaryClientInterestRate = Optional.ofNullable(creditProgram.getSalaryClientInterestRate()).orElse(0.0);
+            baseRate = baseRate - salaryClientInterestRate;
         }
         BigDecimal mortgageSum = getMortgageSum(request.getRealEstatePrice(), request.getDownPayment());
         BigDecimal calculateMonthlyPayment = calculateMonthlyPayment(mortgageSum, baseRate, request.getCreditTerm() * MONTHS_IN_YEAR);
