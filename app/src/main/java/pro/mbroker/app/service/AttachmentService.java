@@ -4,9 +4,12 @@ import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.multipart.MultipartFile;
 import pro.mbroker.api.dto.request.BorrowerDocumentRequest;
+import pro.mbroker.api.dto.response.AttachmentInfo;
 import pro.mbroker.app.entity.Attachment;
 import pro.mbroker.app.entity.BorrowerDocument;
 import pro.mbroker.app.exception.ItemNotFoundException;
+
+import java.util.List;
 
 public interface AttachmentService {
 
@@ -62,4 +65,12 @@ public interface AttachmentService {
      * @param attachmentId айди вложения
      */
     void markAttachmentAsDeleted(Long attachmentId);
+
+    /**
+     * Метод возвращает информацию о вложении в байткоде
+     *
+     * @param attachmentsIds идентификатор вложений
+     * @return список преобразованных вложений
+     */
+    List<AttachmentInfo> getConvertedFiles(List<Long> attachmentsIds);
 }

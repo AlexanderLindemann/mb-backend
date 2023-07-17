@@ -29,8 +29,6 @@ public class NotificationServiceImpl implements NotificationService {
 
     private static final byte FIRST_ELEMENT = 0;
 
-    private final AttachmentService attachmentService;
-    private final AttachmentRepository attachmentRepository;
     private final BankApplicationService bankApplicationService;
     private final BankApplicationRepository bankApplicationRepository;
     private final BorrowerDocumentRepository borrowerDocumentRepository;
@@ -52,10 +50,6 @@ public class NotificationServiceImpl implements NotificationService {
                 .collect(Collectors.toList());
         log.info("Список id документов успешно сформирован {}", attachmentIds);
 
-        log.info("Начинаю процесс получения списка документов для заемщика");
-        var attachmentInfoList = convertMultipartFileToByteArray(attachmentIds);
-        log.info("Список документов успешно сформирован");
-
         log.info("Начинаю процесс получения email адресов для отправки");
         var emails = bankApplicationRepository.getEmailsByBankApplicationId(bankApplicationId);
         log.info("Закончен процесс получения email адресов для отправки. Всего адресов {} список: {}",
@@ -64,36 +58,12 @@ public class NotificationServiceImpl implements NotificationService {
 
         var notificationBankLetterResponse = customerInfoForBankLetter.getContent()
                 .get(FIRST_ELEMENT);
-        notificationBankLetterResponse.setAttachmentInfo(attachmentInfoList);
+        notificationBankLetterResponse.setAttachmentIds(attachmentIds);
         notificationBankLetterResponse.setEmails(emails);
         notificationBankLetterResponse.setCreditPurposeTypeName(
                 notificationBankLetterResponse.getCreditPurposeType().getName());
 
-
         return notificationBankLetterResponse;
 
-    }
-
-    private List<AttachmentInfo> convertMultipartFileToByteArray(List<Long> attachmentIds) {
-        List<AttachmentInfo> attachmentList = new ArrayList<>();
-        log.info("Начинаю операцию по преобразованию файлов из БД");
-        attachmentIds.forEach(id -> {
-            try {
-                Attachment ourAttachment = attachmentRepository.findAttachmentById(id)
-                        .orElseThrow(() -> new ItemNotFoundException(Attachment.class, id));
-                var attachment = attachmentService.download(id);
-                attachmentList.add(new AttachmentInfo(
-                        attachment.getBytes(),
-                        ourAttachment.getName(),
-                        ourAttachment.getMimeType()
-                ));
-                log.info("Файл успешно преобразован и добавлен в список для отправки");
-            } catch (IOException e) {
-                log.error("Произошла ошибка при преобразовании файла к массиву байтов");
-                throw new RuntimeException("Ошибки при преобразовании файла", e.getCause());
-            }
-        });
-        log.info("Завершена операция по преобразованию файлов из БД");
-        return attachmentList;
     }
 }
