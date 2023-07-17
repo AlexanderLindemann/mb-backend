@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import pro.mbroker.api.dto.request.BorrowerDocumentRequest;
+import pro.mbroker.api.dto.response.AttachmentInfo;
 import pro.mbroker.app.entity.Attachment;
 import pro.mbroker.app.entity.Bank;
 import pro.mbroker.app.entity.BorrowerDocument;
@@ -27,6 +28,8 @@ import pro.smartdeal.ng.attachment.api.pojo.AttachmentMeta;
 import java.io.IOException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 @Service
@@ -112,6 +115,30 @@ public class AttachmentServiceImpl implements AttachmentService {
                 .orElseThrow(() -> new ItemNotFoundException(Attachment.class, attachmentId));
         attachment.setActive(false);
         attachmentRepository.save(attachment);
+    }
+
+    @Override
+    public List<AttachmentInfo> getConvertedFiles(List<Long> attachmentsIds) {
+        List<AttachmentInfo> attachmentList = new ArrayList<>();
+        log.info("Начинаю операцию по преобразованию файлов из БД");
+        attachmentsIds.forEach(id -> {
+            try {
+                Attachment ourAttachment = attachmentRepository.findAttachmentById(id)
+                        .orElseThrow(() -> new ItemNotFoundException(Attachment.class, id));
+                var attachment = attachmentService.download(id);
+                attachmentList.add(new AttachmentInfo(
+                        attachment.getBytes(),
+                        ourAttachment.getName(),
+                        ourAttachment.getMimeType()
+                ));
+                log.info("Файл успешно преобразован и добавлен в список для отправки");
+            } catch (IOException e) {
+                log.error("Произошла ошибка при преобразовании файла к массиву байтов");
+                throw new RuntimeException("Ошибки при преобразовании файла", e.getCause());
+            }
+        });
+        log.info("Завершена операция по преобразованию файлов из БД");
+        return attachmentList;
     }
 
     private MultipartFile getFileFromAttachmentService(Long attachmentId) {

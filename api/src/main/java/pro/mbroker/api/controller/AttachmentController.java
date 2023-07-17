@@ -7,9 +7,11 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import pro.mbroker.api.dto.response.AttachmentInfo;
 import pro.mbroker.api.dto.response.BorrowerDocumentResponse;
 import pro.mbroker.api.enums.DocumentType;
 
+import java.util.List;
 import java.util.UUID;
 
 @Api(value = "API Загрузки файлов", tags = "API Загрузки файлов")
@@ -35,4 +37,8 @@ public interface AttachmentController {
     @ApiOperation("удалить загруженный документ клиента")
     @PutMapping(value = "/{attachmentId}/delete_document")
     void deleteDocument(@PathVariable Long attachmentId);
+
+    @ApiOperation("Получить вложения в байткоде")
+    @GetMapping()
+    List<AttachmentInfo> getConvertedFiles(@RequestBody List<Long> attachmentsIds);
 }

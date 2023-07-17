@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 import pro.mbroker.api.controller.AttachmentController;
 import pro.mbroker.api.dto.request.BorrowerDocumentRequest;
+import pro.mbroker.api.dto.response.AttachmentInfo;
 import pro.mbroker.api.dto.response.BorrowerDocumentResponse;
 import pro.mbroker.api.enums.DocumentType;
 import pro.mbroker.app.entity.BorrowerDocument;
@@ -24,6 +25,7 @@ import pro.mbroker.app.util.Converter;
 import pro.smartdeal.ng.attachment.api.AttachmentControllerService;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
@@ -69,6 +71,11 @@ public class AttachmentControllerImpl implements AttachmentController {
     public void deleteDocument(Long attachmentId) {
         borrowerDocumentService.deleteDocumentByAttachmentId(attachmentId); //TODO Как только фронт переедет на deleteBorrowerDocument MB-285
         attachmentService.markAttachmentAsDeleted(attachmentId);
+    }
+
+    @Override
+    public List<AttachmentInfo> getConvertedFiles(List<Long> attachmentsIds) {
+        return attachmentService.getConvertedFiles(attachmentsIds);
     }
 
     @Override

@@ -26,7 +26,7 @@ public class NotificationBankLetterResponse implements Serializable {
     @JsonIgnore
     private UUID partnerApplicationId;
     private Integer applicationNumber;
-    private List<AttachmentInfo> attachmentInfo;
+    private List<Long> attachmentIds;
     private String partnerName;
     private String residentialComplexName;
     private String address;
