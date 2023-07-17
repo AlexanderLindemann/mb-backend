@@ -39,6 +39,6 @@ public interface AttachmentController {
     void deleteDocument(@PathVariable Long attachmentId);
 
     @ApiOperation("Получить вложения в байткоде")
-    @GetMapping("get_files_by_ids")
+    @PostMapping("get_files_by_ids")
     List<AttachmentInfo> getConvertedFiles(@RequestBody List<Long> attachmentsIds);
 }
