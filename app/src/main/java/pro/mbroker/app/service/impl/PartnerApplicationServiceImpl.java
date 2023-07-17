@@ -9,6 +9,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pro.mbroker.api.dto.BankWithBankApplicationDto;
+import pro.mbroker.api.dto.MortgageCalculationDto;
 import pro.mbroker.api.dto.request.BankApplicationRequest;
 import pro.mbroker.api.dto.request.BankApplicationUpdateRequest;
 import pro.mbroker.api.dto.request.BorrowerProfileRequest;
@@ -65,8 +66,9 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
     private static final List<DocumentType> REQUIRED_DOCUMENT_TYPES =
             Arrays.asList(DocumentType.BORROWER_PASSPORT, DocumentType.BORROWER_SNILS);
 
-    private static final List<BankApplicationStatus> UNCHANGEABLE_STATUSES = Arrays.asList(
+    private static final Set<BankApplicationStatus> UNCHANGEABLE_STATUSES = Set.of(
             BankApplicationStatus.SENT_TO_BANK,
+            BankApplicationStatus.SENDING_TO_BANK,
             BankApplicationStatus.APPLICATION_APPROVED,
             BankApplicationStatus.CREDIT_APPROVED,
             BankApplicationStatus.REFINEMENT,
@@ -74,7 +76,6 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
             BankApplicationStatus.SENDING_ERROR,
             BankApplicationStatus.EXPIRED
     );
-
 
     @Override
     @Transactional(readOnly = true)
@@ -104,7 +105,10 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
         BorrowerProfile borrowerProfile = borrowerProfileRepository.findById(newMainBorrowerId)
                 .orElseThrow(() -> new ItemNotFoundException(BorrowerProfile.class, newMainBorrowerId));
         partnerApplication.getBankApplications()
-                .forEach(bankApplication -> bankApplication.setMainBorrower(borrowerProfile));
+                .forEach(bankApplication -> {
+                    if (!UNCHANGEABLE_STATUSES.contains(bankApplication.getBankApplicationStatus()))
+                        bankApplication.setMainBorrower(borrowerProfile);
+                });
         return partnerApplicationRepository.save(partnerApplication);
     }
 
@@ -128,8 +132,50 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
         List<BankApplication> updatedBorrowerApplications = buildBankApplications(request.getBankApplications(), existingPartnerApplication);
         existingPartnerApplication.setBankApplications(updatedBorrowerApplications);
         updateMainBorrower(existingPartnerApplication, request.getMainBorrower());
+        if (isBorrowerProfileChanged(request, existingPartnerApplication)) {
+            deleteBorrowerDocuments(existingPartnerApplication);
+        }
         return statusChanger(existingPartnerApplication);
     }
+
+    private boolean isBorrowerProfileChanged(PartnerApplicationRequest request, PartnerApplication existingApplication) {
+        if (!Objects.equals(request.getCreditPurposeType(), existingApplication.getCreditPurposeType())) {
+            return true;
+        }
+        if (!Objects.equals(request.getRealEstateType(), existingApplication.getRealEstateType())) {
+            return true;
+        }
+        UUID existingRealEstateId = existingApplication.getRealEstate() != null ? existingApplication.getRealEstate().getId() : null;
+        if (!Objects.equals(request.getRealEstateId(), existingRealEstateId)) {
+            return true;
+        }
+        MortgageCalculationDto requestMortgageCalculation = request.getMortgageCalculation();
+        MortgageCalculation existingMortgageCalculation = existingApplication.getMortgageCalculation();
+        if (!Objects.equals(requestMortgageCalculation.getRealEstatePrice(), existingMortgageCalculation.getRealEstatePrice())) {
+            return true;
+        }
+        if (!Objects.equals(requestMortgageCalculation.getDownPayment(), existingMortgageCalculation.getDownPayment())) {
+            return true;
+        }
+        if (!Objects.equals(requestMortgageCalculation.getIsMaternalCapital(), existingMortgageCalculation.getIsMaternalCapital())) {
+            return true;
+        }
+        if (!Objects.equals(requestMortgageCalculation.getCreditTerm(), existingMortgageCalculation.getMonthCreditTerm() / 12)) {
+            return true;
+        }
+        return false;
+    }
+
+
+    private void deleteBorrowerDocuments(PartnerApplication application) {
+        application.getBorrowerProfiles().forEach(borrowerProfile -> {
+            List<BorrowerDocument> documents = borrowerProfile.getBorrowerDocument();
+            documents.stream()
+                    .filter(document -> document.getDocumentType().equals(DocumentType.APPLICATION_FORM))
+                    .forEach(document -> document.setActive(false));
+        });
+    }
+
 
     @Override
     @Transactional

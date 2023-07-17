@@ -103,6 +103,7 @@ public class CalculatorServiceImpl implements CalculatorService {
         Bank bank = creditProgram.getBank();
         Attachment attachment = bank.getAttachment();
         BankLoanProgramDto bankLoanProgramDtoBuilder = new BankLoanProgramDto()
+                .setBankId(bank.getId())
                 .setBankName(bank.getName());
         if (Objects.nonNull(attachment)) {
             bankLoanProgramDtoBuilder.setLogo(Converter.generateBase64FromFile(attachmentService.download(attachment.getId())));
@@ -124,8 +125,8 @@ public class CalculatorServiceImpl implements CalculatorService {
 
     private LoanProgramCalculationDto createLoanProgramCalculationDto(CalculatorRequest request, CreditProgram creditProgram) {
         Double baseRate = creditProgram.getBaseRate();
+        Double salaryClientInterestRate = Optional.ofNullable(creditProgram.getSalaryClientInterestRate()).orElse(0.0);
         if (Objects.nonNull(request.getSalaryBanks()) && request.getSalaryBanks().contains(creditProgram.getBank().getId())) {
-            Double salaryClientInterestRate = Optional.ofNullable(creditProgram.getSalaryClientInterestRate()).orElse(0.0);
             baseRate = baseRate - salaryClientInterestRate;
         }
         BigDecimal mortgageSum = getMortgageSum(request.getRealEstatePrice(), request.getDownPayment());
@@ -135,6 +136,8 @@ public class CalculatorServiceImpl implements CalculatorService {
                 .setCreditProgramId(creditProgram.getId())
                 .setCreditProgramName(creditProgram.getProgramName())
                 .setCalculatedRate(baseRate)
+                .setBaseRate(creditProgram.getBaseRate())
+                .setSalaryBankRate(salaryClientInterestRate)
                 .setMonthlyPayment(calculateMonthlyPayment)
                 .setOverpayment(calculateOverpayment(calculateMonthlyPayment, request.getCreditTerm() * MONTHS_IN_YEAR, request.getRealEstatePrice(), downPayment));
     }

@@ -17,9 +17,13 @@ public class LoanProgramCalculationDto {
 
     private String creditProgramName;
 
-    @DecimalMin(value = "0.00", inclusive = true, message = "Base rate cannot be negative")
-    @DecimalMax(value = "100.00", inclusive = true, message = "Base rate cannot be greater than 100.00")
+    @DecimalMin(value = "0.00", inclusive = true, message = "Calculated rate cannot be negative")
+    @DecimalMax(value = "100.00", inclusive = true, message = "Calculated rate cannot be greater than 100.00")
     private Double calculatedRate;
+
+    private Double baseRate;
+
+    private Double salaryBankRate;
 
     private BigDecimal monthlyPayment;
 
