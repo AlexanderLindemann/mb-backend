@@ -13,6 +13,7 @@ import pro.mbroker.app.repository.BankApplicationRepository;
 import pro.mbroker.app.repository.BorrowerProfileRepository;
 import pro.mbroker.app.service.BankApplicationService;
 
+import java.util.Set;
 import java.util.UUID;
 
 @Service
@@ -22,6 +23,17 @@ public class BankApplicationServiceImpl implements BankApplicationService {
     private final BankApplicationRepository bankApplicationRepository;
     private final BankApplicationMapper bankApplicationMapper;
     private final BorrowerProfileRepository borrowerProfileRepository;
+
+    private static final Set<BankApplicationStatus> UNCHANGEABLE_STATUSES = Set.of(
+            BankApplicationStatus.SENT_TO_BANK,
+            BankApplicationStatus.SENDING_TO_BANK,
+            BankApplicationStatus.APPLICATION_APPROVED,
+            BankApplicationStatus.CREDIT_APPROVED,
+            BankApplicationStatus.REFINEMENT,
+            BankApplicationStatus.REJECTED,
+            BankApplicationStatus.SENDING_ERROR,
+            BankApplicationStatus.EXPIRED
+    );
 
     @Override
     public BankApplication getBankApplicationById(UUID id) {
@@ -34,7 +46,9 @@ public class BankApplicationServiceImpl implements BankApplicationService {
         BankApplication bankApplication = getBankApplicationById(bankApplicationId);
         BorrowerProfile borrowerProfile = borrowerProfileRepository.findById(newMainBorrowerId)
                 .orElseThrow(() -> new ItemNotFoundException(BorrowerProfile.class, newMainBorrowerId));
-        bankApplication.setMainBorrower(borrowerProfile);
+        if (!UNCHANGEABLE_STATUSES.contains(bankApplication.getBankApplicationStatus())) {
+            bankApplication.setMainBorrower(borrowerProfile);
+        }
         return bankApplicationRepository.save(bankApplication);
     }
 
