@@ -7,6 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 import pro.mbroker.api.dto.BankLoanProgramDto;
 import pro.mbroker.api.dto.LoanProgramCalculationDto;
 import pro.mbroker.api.dto.PropertyMortgageDTO;
+import pro.mbroker.api.dto.SalaryClientProgramCalculationDto;
 import pro.mbroker.api.dto.request.CalculatorRequest;
 import pro.mbroker.api.dto.response.EnumDescription;
 import pro.mbroker.api.dto.response.EnumItemDescription;
@@ -52,6 +53,7 @@ public class CalculatorServiceImpl implements CalculatorService {
                             createBankLoanProgramDto(creditProgram)).getLoanProgramCalculationDto().add(createLoanProgramCalculationDto(request, creditProgram));
         }
         List<BankLoanProgramDto> bankLoanProgramDtos = new ArrayList<>(bankLoanProgramDtoMap.values());
+        updateBankSalaryFlag(bankLoanProgramDtos);
         sortLoanProgramCalculation(bankLoanProgramDtos);
         return new PropertyMortgageDTO()
                 .setRealEstatePrice(request.getRealEstatePrice())
@@ -78,7 +80,6 @@ public class CalculatorServiceImpl implements CalculatorService {
             return new LoanProgramCalculationDto()
                     .setCreditProgramId(creditProgram.getId())
                     .setCreditProgramName(creditProgram.getProgramName())
-                    .setCalculatedRate(creditProgram.getBaseRate())
                     .setMonthlyPayment(calculateMonthlyPayment)
                     .setOverpayment(calculateOverpayment(calculateMonthlyPayment, request.getCreditTerm() * MONTHS_IN_YEAR, request.getRealEstatePrice(), downPayment));
         } else {
@@ -111,6 +112,17 @@ public class CalculatorServiceImpl implements CalculatorService {
         return bankLoanProgramDtoBuilder;
     }
 
+    private void updateBankSalaryFlag(List<BankLoanProgramDto> bankLoanProgramDtos) {
+        bankLoanProgramDtos.forEach(bankLoanProgramDto -> {
+            boolean hasSalaryBankRate = bankLoanProgramDto.getLoanProgramCalculationDto().stream()
+                    .anyMatch(loanProgramCalculationDto ->
+                            loanProgramCalculationDto.getSalaryClientCalculation() != null);
+            if (hasSalaryBankRate) {
+                bankLoanProgramDto.setSalaryBank(true);
+            }
+        });
+    }
+
     private void sortLoanProgramCalculation(List<BankLoanProgramDto> bankLoanProgramDtos) {
         bankLoanProgramDtos.forEach(bankLoanProgramDto ->
                 bankLoanProgramDto.getLoanProgramCalculationDto()
@@ -124,23 +136,29 @@ public class CalculatorServiceImpl implements CalculatorService {
     }
 
     private LoanProgramCalculationDto createLoanProgramCalculationDto(CalculatorRequest request, CreditProgram creditProgram) {
-        Double baseRate = creditProgram.getBaseRate();
-        Double salaryClientInterestRate = Optional.ofNullable(creditProgram.getSalaryClientInterestRate()).orElse(0.0);
-        if (Objects.nonNull(request.getSalaryBanks()) && request.getSalaryBanks().contains(creditProgram.getBank().getId())) {
-            baseRate = baseRate - salaryClientInterestRate;
-        }
         BigDecimal mortgageSum = getMortgageSum(request.getRealEstatePrice(), request.getDownPayment());
-        BigDecimal calculateMonthlyPayment = calculateMonthlyPayment(mortgageSum, baseRate, request.getCreditTerm() * MONTHS_IN_YEAR);
-        BigDecimal downPayment = request.getDownPayment() != null ? request.getDownPayment() : BigDecimal.ZERO;
-        return new LoanProgramCalculationDto()
+        BigDecimal downPayment = Optional.ofNullable(request.getDownPayment()).orElse(BigDecimal.ZERO);
+        int creditTermMonths = request.getCreditTerm() * MONTHS_IN_YEAR;
+        BigDecimal calculateMonthlyPayment = calculateMonthlyPayment(mortgageSum, creditProgram.getBaseRate(), creditTermMonths);
+        LoanProgramCalculationDto loanProgramCalculationDto = new LoanProgramCalculationDto()
                 .setCreditProgramId(creditProgram.getId())
                 .setCreditProgramName(creditProgram.getProgramName())
-                .setCalculatedRate(baseRate)
                 .setBaseRate(creditProgram.getBaseRate())
-                .setSalaryBankRate(salaryClientInterestRate)
                 .setMonthlyPayment(calculateMonthlyPayment)
-                .setOverpayment(calculateOverpayment(calculateMonthlyPayment, request.getCreditTerm() * MONTHS_IN_YEAR, request.getRealEstatePrice(), downPayment));
+                .setOverpayment(calculateOverpayment(calculateMonthlyPayment, creditTermMonths, request.getRealEstatePrice(), downPayment));
+        if (creditProgram.getSalaryClientInterestRate() != null) {
+            double modifiedRate = creditProgram.getBaseRate() + creditProgram.getSalaryClientInterestRate();
+            BigDecimal salaryClientMonthlyPayment = calculateMonthlyPayment(mortgageSum, modifiedRate, creditTermMonths);
+            SalaryClientProgramCalculationDto salaryClientProgramCalculation = new SalaryClientProgramCalculationDto()
+                    .setCalculatedRate(modifiedRate)
+                    .setMonthlyPayment(salaryClientMonthlyPayment)
+                    .setOverpayment(calculateOverpayment(salaryClientMonthlyPayment, creditTermMonths, request.getRealEstatePrice(), downPayment))
+                    .setSalaryBankRate(creditProgram.getSalaryClientInterestRate());
+            loanProgramCalculationDto.setSalaryClientCalculation(salaryClientProgramCalculation);
+        }
+        return loanProgramCalculationDto;
     }
+
 
     private List<CreditProgram> filterCreditPrograms(CalculatorRequest request) {
         List<CreditProgram> creditPrograms = realEstateRepository

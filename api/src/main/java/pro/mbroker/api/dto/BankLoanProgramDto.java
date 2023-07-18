@@ -18,7 +18,8 @@ public class BankLoanProgramDto {
 
     private String logo;
 
-    private List<LoanProgramCalculationDto> loanProgramCalculationDto = new ArrayList<>();
+    private boolean isSalaryBank;
 
+    private List<LoanProgramCalculationDto> loanProgramCalculationDto = new ArrayList<>();
 
 }
