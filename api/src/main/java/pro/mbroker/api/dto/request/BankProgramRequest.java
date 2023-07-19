@@ -49,7 +49,7 @@ public class BankProgramRequest {
     @DecimalMax(value = "100.00", inclusive = true, message = "Base rate cannot be greater than 100.00")
     private Double baseRate;
 
-    @DecimalMin(value = "0.0000", inclusive = true, message = "Rate cannot be negative")
+    @DecimalMin(value = "-100.0000", inclusive = true, message = "Rate cannot be less -100.00")
     @DecimalMax(value = "100.0000", inclusive = true, message = "Rate cannot be greater than 100.00")
     private Double salaryClientInterestRate;
 

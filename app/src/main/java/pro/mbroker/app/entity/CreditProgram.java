@@ -52,7 +52,7 @@ public class CreditProgram extends BaseEntity {
     @JoinColumn(name = "bank_id")
     private Bank bank;
 
-    @DecimalMin(value = "0.0000", inclusive = true, message = "Rate cannot be negative")
+    @DecimalMin(value = "-100.0000", inclusive = true, message = "Rate cannot be less -100.00")
     @DecimalMax(value = "100.0000", inclusive = true, message = "Rate cannot be greater than 100.00")
     private Double salaryClientInterestRate;
 

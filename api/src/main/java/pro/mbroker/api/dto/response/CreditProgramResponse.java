@@ -31,6 +31,8 @@ public class CreditProgramResponse {
 
     private Double baseRate;
 
+    private Double salaryClientInterestRate;
+
     private BankResponse bank;
 
     private LocalDateTime updatedAt;
