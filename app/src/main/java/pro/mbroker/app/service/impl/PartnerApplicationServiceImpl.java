@@ -126,15 +126,15 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
     @Transactional
     public PartnerApplication updatePartnerApplication(UUID partnerApplicationId, PartnerApplicationRequest request) {
         PartnerApplication existingPartnerApplication = getPartnerApplicationByIdWithPermission(partnerApplicationId);
+        if (isBorrowerProfileChanged(request, existingPartnerApplication)) {
+            deleteBorrowerDocuments(existingPartnerApplication);
+        }
         partnerApplicationMapper.updatePartnerApplicationFromRequest(request, existingPartnerApplication);
         mortgageCalculationMapper.updateMortgageCalculationFromRequest(request.getMortgageCalculation(), existingPartnerApplication.getMortgageCalculation());
         existingPartnerApplication.setRealEstate(realEstateService.findById(request.getRealEstateId()));
         List<BankApplication> updatedBorrowerApplications = buildBankApplications(request.getBankApplications(), existingPartnerApplication);
         existingPartnerApplication.setBankApplications(updatedBorrowerApplications);
         updateMainBorrower(existingPartnerApplication, request.getMainBorrower());
-        if (isBorrowerProfileChanged(request, existingPartnerApplication)) {
-            deleteBorrowerDocuments(existingPartnerApplication);
-        }
         return statusChanger(existingPartnerApplication);
     }
 
