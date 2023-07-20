@@ -69,18 +69,16 @@ public class CalculatorServiceImpl implements CalculatorService {
     public LoanProgramCalculationDto getCreditOfferByCreditProgramId(UUID creditProgramId, CalculatorRequest request) {
         CreditProgram creditProgram = creditProgramRepository.findById(creditProgramId)
                 .orElseThrow(() -> new ItemNotFoundException(CreditProgram.class, creditProgramId));
+        Double baseRate = creditProgram.getBaseRate();
         if (isProgramEligible(request, creditProgram)) {
             BigDecimal mortgageSum = getMortgageSum(request.getRealEstatePrice(), request.getDownPayment());
-            Double baseRate = creditProgram.getBaseRate();
-            if (request.getSalaryBanks().contains(creditProgram.getBank().getId())) {
-                baseRate = -creditProgram.getSalaryClientInterestRate();
-            }
             BigDecimal calculateMonthlyPayment = calculateMonthlyPayment(mortgageSum, baseRate, request.getCreditTerm() * MONTHS_IN_YEAR);
             BigDecimal downPayment = request.getDownPayment() != null ? request.getDownPayment() : BigDecimal.ZERO;
             return new LoanProgramCalculationDto()
                     .setCreditProgramId(creditProgram.getId())
                     .setCreditProgramName(creditProgram.getProgramName())
                     .setMonthlyPayment(calculateMonthlyPayment)
+                    .setBaseRate(baseRate)
                     .setOverpayment(calculateOverpayment(calculateMonthlyPayment, request.getCreditTerm() * MONTHS_IN_YEAR, request.getRealEstatePrice(), downPayment));
         } else {
             throw new IllegalArgumentException("Credit program is not eligible for the request");
@@ -113,14 +111,11 @@ public class CalculatorServiceImpl implements CalculatorService {
     }
 
     private void updateBankSalaryFlag(List<BankLoanProgramDto> bankLoanProgramDtos) {
-        bankLoanProgramDtos.forEach(bankLoanProgramDto -> {
-            boolean hasSalaryBankRate = bankLoanProgramDto.getLoanProgramCalculationDto().stream()
-                    .anyMatch(loanProgramCalculationDto ->
-                            loanProgramCalculationDto.getSalaryClientCalculation() != null);
-            if (hasSalaryBankRate) {
-                bankLoanProgramDto.setSalaryBank(true);
-            }
-        });
+        bankLoanProgramDtos.forEach(bankLoanProgramDto ->
+                bankLoanProgramDto.setSalaryBank(bankLoanProgramDto.getLoanProgramCalculationDto()
+                        .stream()
+                        .anyMatch(loanProgramCalculationDto ->
+                                loanProgramCalculationDto.getSalaryClientCalculation() != null)));
     }
 
     private void sortLoanProgramCalculation(List<BankLoanProgramDto> bankLoanProgramDtos) {

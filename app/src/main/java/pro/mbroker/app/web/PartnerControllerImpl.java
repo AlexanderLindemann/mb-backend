@@ -11,6 +11,7 @@ import pro.mbroker.api.dto.response.CreditProgramResponse;
 import pro.mbroker.api.dto.response.PartnerResponse;
 import pro.mbroker.api.dto.response.RealEstateResponse;
 import pro.mbroker.app.entity.Partner;
+import pro.mbroker.app.entity.RealEstate;
 import pro.mbroker.app.mapper.PartnerMapper;
 import pro.mbroker.app.mapper.ProgramMapper;
 import pro.mbroker.app.mapper.RealEstateMapper;
@@ -82,16 +83,18 @@ public class PartnerControllerImpl implements PartnerController {
     }
 
     private PartnerResponse buildPartnerResponse(Partner partner) {
+        List<RealEstate> activeRealEstates = partner.getRealEstates().stream()
+                .filter(RealEstate::isActive)
+                .collect(Collectors.toList());
         List<CreditProgramResponse> creditProgramResponses = partner.getCreditPrograms().stream()
                 .map(creditProgram -> programMapper.toProgramResponseMapper(creditProgram)
                         .setCreditProgramDetail(creditProgramConverter.convertCreditDetailToEnumFormat(creditProgram.getCreditProgramDetail())))
                 .collect(Collectors.toList());
-        List<RealEstateResponse> realEstateResponses = realEstateMapper.toRealEstateAddressResponseList(partner.getRealEstates());
+        List<RealEstateResponse> realEstateResponses = realEstateMapper.toRealEstateAddressResponseList(activeRealEstates);
         realEstateResponses.sort(Comparator.comparing(RealEstateResponse::getResidentialComplexName));
         return partnerMapper.toPartnerResponseMapper(partner)
                 .setBankCreditProgram(creditProgramResponses)
                 .setRealEstates(realEstateResponses);
     }
-
 
 }
