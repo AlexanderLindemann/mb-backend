@@ -127,8 +127,11 @@ public class PartnerServiceImpl implements PartnerService {
                 realEstates.add(realEstate);
             }
         });
-
-        realEstates.removeIf(realEstate -> currentRealEstateIds.contains(realEstate.getId()));
+        realEstates.forEach(realEstate -> {
+            if (currentRealEstateIds.contains(realEstate.getId())) {
+                realEstate.setActive(false);
+            }
+        });
     }
 
     private void modifyCreditPrograms(List<UUID> requestPrograms, Partner partner) {
