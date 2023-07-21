@@ -68,3 +68,6 @@ databaseChangeLog:
   - include:
       file: 20230707_1400-add-salary-client-interest-rate.xml
       relativeToChangelogFile: true
+  - include:
+      file: 20230721_2200-modify_mortgage_calculator_salary_bank_table.xml
+      relativeToChangelogFile: true

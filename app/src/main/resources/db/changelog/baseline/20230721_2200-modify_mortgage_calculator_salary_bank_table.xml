@@ -1,0 +1,20 @@
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+
+    <changeSet id="modify-mortgage_calculator_salary_bank-table" author="a.lindemann">
+        <dropColumn tableName="mortgage_calculator_salary_bank" columnName="created_at" />
+        <dropColumn tableName="mortgage_calculator_salary_bank" columnName="updated_at" />
+        <dropColumn tableName="mortgage_calculator_salary_bank" columnName="created_by" />
+        <dropColumn tableName="mortgage_calculator_salary_bank" columnName="updated_by" />
+        <dropColumn tableName="mortgage_calculator_salary_bank" columnName="is_active" />
+
+        <dropPrimaryKey tableName="mortgage_calculator_salary_bank" constraintName="mortgage_calculator_salary_bank_pkey"/>
+        <dropColumn tableName="mortgage_calculator_salary_bank" columnName="id" />
+
+        <addPrimaryKey tableName="mortgage_calculator_salary_bank" columnNames="bank_id, mortgage_calculation_id" constraintName="mortgage_calculator_salary_bank_pkey" />
+    </changeSet>
+
+</databaseChangeLog>
+

@@ -26,6 +26,7 @@ import pro.mbroker.app.mapper.BankApplicationMapper;
 import pro.mbroker.app.mapper.BorrowerProfileMapper;
 import pro.mbroker.app.mapper.MortgageCalculationMapper;
 import pro.mbroker.app.mapper.PartnerApplicationMapper;
+import pro.mbroker.app.repository.BankRepository;
 import pro.mbroker.app.repository.BorrowerProfileRepository;
 import pro.mbroker.app.repository.PartnerApplicationRepository;
 import pro.mbroker.app.repository.specification.PartnerApplicationSpecification;
@@ -58,6 +59,7 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
     private final CreditProgramService creditProgramService;
     private final PartnerApplicationRepository partnerApplicationRepository;
     private final BorrowerProfileRepository borrowerProfileRepository;
+    private final BankRepository bankRepository;
     private final PartnerApplicationMapper partnerApplicationMapper;
     private final BorrowerProfileMapper borrowerProfileMapper;
     private final BankApplicationMapper bankApplicationMapper;
@@ -131,6 +133,8 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
         }
         partnerApplicationMapper.updatePartnerApplicationFromRequest(request, existingPartnerApplication);
         mortgageCalculationMapper.updateMortgageCalculationFromRequest(request.getMortgageCalculation(), existingPartnerApplication.getMortgageCalculation());
+        List<Bank> banks = bankRepository.findAllById(request.getMortgageCalculation().getSalaryBanks());
+        existingPartnerApplication.getMortgageCalculation().setSalaryBanks(banks);
         existingPartnerApplication.setRealEstate(realEstateService.findById(request.getRealEstateId()));
         List<BankApplication> updatedBorrowerApplications = buildBankApplications(request.getBankApplications(), existingPartnerApplication);
         existingPartnerApplication.setBankApplications(updatedBorrowerApplications);
