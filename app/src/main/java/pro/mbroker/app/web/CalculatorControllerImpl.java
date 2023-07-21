@@ -31,7 +31,7 @@ public class CalculatorControllerImpl implements CalculatorController {
                                               RealEstateType realEstateType,
                                               BigDecimal realEstatePrice,
                                               BigDecimal downPayment,
-                                              Integer maxMonthlyPayment,
+                                              BigDecimal maxMonthlyPayment,
                                               Integer creditTerm,
                                               Boolean isMaternalCapital,
                                               List<UUID> salaryBanks) {
@@ -57,7 +57,7 @@ public class CalculatorControllerImpl implements CalculatorController {
                                                                      RealEstateType realEstateType,
                                                                      BigDecimal realEstatePrice,
                                                                      BigDecimal downPayment,
-                                                                     Integer maxMonthlyPayment,
+                                                                     BigDecimal maxMonthlyPayment,
                                                                      Integer creditTerm,
                                                                      Boolean isMaternalCapital) {
         return calculatorService.getCreditOfferByCreditProgramId(creditProgramId, new CalculatorRequest()

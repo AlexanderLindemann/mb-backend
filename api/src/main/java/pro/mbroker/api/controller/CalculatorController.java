@@ -25,7 +25,7 @@ public interface CalculatorController {
                                        @RequestParam RealEstateType realEstateType,
                                        @RequestParam(required = false) BigDecimal realEstatePrice,
                                        @RequestParam(required = false) BigDecimal downPayment,
-                                       @RequestParam(required = false) Integer maxMonthlyPayment,
+                                       @RequestParam(required = false) BigDecimal maxMonthlyPayment,
                                        @RequestParam(required = false) Integer creditTerm,
                                        @RequestParam(required = false) Boolean isMaternalCapital,
                                        @RequestParam(required = false) List<UUID> salaryBanks);
@@ -38,7 +38,7 @@ public interface CalculatorController {
                                                               @RequestParam RealEstateType realEstateType,
                                                               @RequestParam(required = false) BigDecimal realEstatePrice,
                                                               @RequestParam(required = false) BigDecimal downPayment,
-                                                              @RequestParam(required = false) Integer maxMonthlyPayment,
+                                                              @RequestParam(required = false) BigDecimal maxMonthlyPayment,
                                                               @RequestParam(required = false) Integer creditTerm,
                                                               @RequestParam(required = false) Boolean isMaternalCapital);
 }

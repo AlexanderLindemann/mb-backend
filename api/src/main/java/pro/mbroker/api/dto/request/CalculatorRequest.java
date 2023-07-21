@@ -26,7 +26,7 @@ public class CalculatorRequest {
 
     private BigDecimal downPayment;
 
-    private Integer maxMonthlyPayment;
+    private BigDecimal maxMonthlyPayment;
 
     private Integer creditTerm;
 

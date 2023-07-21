@@ -15,8 +15,10 @@ public enum RealEstateType implements EnumWithValue<String> {
     ROOM("ROOM", "Комната"),
     HOUSE_WITH_LAND("HOUSE_WITH_LAND", "Дом с землёй"),
     TOWNHOUSE("TOWNHOUSE", "Таунхаус"),
+    PARKING_PLACE("PARKING_PLACE", "Машиноместо"),
+    STORAGE_ROOM("STORAGE_ROOM", "Кладовка"),
     COMMERCIAL("COMMERCIAL", "Коммерческая недвижимость");
-      
+
     private final String value;
     private final String name;
 }
