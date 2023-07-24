@@ -133,8 +133,10 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
         }
         partnerApplicationMapper.updatePartnerApplicationFromRequest(request, existingPartnerApplication);
         mortgageCalculationMapper.updateMortgageCalculationFromRequest(request.getMortgageCalculation(), existingPartnerApplication.getMortgageCalculation());
-        List<Bank> banks = bankRepository.findAllById(request.getMortgageCalculation().getSalaryBanks());
-        existingPartnerApplication.getMortgageCalculation().setSalaryBanks(banks);
+        if (Objects.nonNull(request.getMortgageCalculation().getSalaryBanks())) {
+            List<Bank> banks = bankRepository.findAllById(request.getMortgageCalculation().getSalaryBanks());
+            existingPartnerApplication.getMortgageCalculation().setSalaryBanks(banks);
+        }
         existingPartnerApplication.setRealEstate(realEstateService.findById(request.getRealEstateId()));
         List<BankApplication> updatedBorrowerApplications = buildBankApplications(request.getBankApplications(), existingPartnerApplication);
         existingPartnerApplication.setBankApplications(updatedBorrowerApplications);
@@ -164,10 +166,7 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
         if (!Objects.equals(requestMortgageCalculation.getIsMaternalCapital(), existingMortgageCalculation.getIsMaternalCapital())) {
             return true;
         }
-        if (!Objects.equals(requestMortgageCalculation.getCreditTerm(), existingMortgageCalculation.getMonthCreditTerm() / 12)) {
-            return true;
-        }
-        return false;
+        return !Objects.equals(requestMortgageCalculation.getCreditTerm(), existingMortgageCalculation.getMonthCreditTerm() / 12);
     }
 
 

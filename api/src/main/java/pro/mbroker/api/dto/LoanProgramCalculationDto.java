@@ -4,8 +4,6 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
-import javax.validation.constraints.DecimalMax;
-import javax.validation.constraints.DecimalMin;
 import java.math.BigDecimal;
 import java.util.UUID;
 
@@ -22,6 +20,8 @@ public class LoanProgramCalculationDto {
     private BigDecimal monthlyPayment;
 
     private BigDecimal overpayment;
+
+    private int creditTerm;
 
     private SalaryClientProgramCalculationDto salaryClientCalculation;
 

@@ -94,6 +94,26 @@ public class CalculatorServiceImpl implements CalculatorService {
                 .orElse(BigDecimal.ZERO));
     }
 
+    @Override
+    public BigDecimal calculateMonthlyPayment(BigDecimal mortgageSum, double annualInterestRate, int loanTermInMonths) {
+        BigDecimal monthlyInterestRate = BigDecimal.valueOf(annualInterestRate).divide(BigDecimal.valueOf(1200), 8, RoundingMode.HALF_EVEN);
+        BigDecimal base = monthlyInterestRate.add(BigDecimal.ONE).pow(loanTermInMonths);
+        BigDecimal numerator = base.multiply(monthlyInterestRate);
+        BigDecimal denominator = base.subtract(BigDecimal.ONE);
+        BigDecimal monthlyPayment = mortgageSum.multiply(numerator.divide(denominator, 8, RoundingMode.HALF_EVEN));
+        return monthlyPayment.setScale(2, RoundingMode.HALF_EVEN);
+    }
+
+    @Override
+    public BigDecimal calculateOverpayment(BigDecimal monthlyPayment, int loanTermMonths, BigDecimal realEstatePrice, BigDecimal downPayment) {
+        if (monthlyPayment == null || realEstatePrice == null || downPayment == null) {
+            throw new IllegalArgumentException("Invalid input: all arguments must be non-null");
+        }
+        BigDecimal totalPayment = monthlyPayment.multiply(BigDecimal.valueOf(loanTermMonths));
+        BigDecimal overpayment = totalPayment.subtract(realEstatePrice).add(downPayment);
+        return overpayment.setScale(2, RoundingMode.HALF_EVEN);
+    }
+
     private BankLoanProgramDto createBankLoanProgramDto(CreditProgram creditProgram) {
         if (creditProgram == null || creditProgram.getBank() == null) {
             log.error("Credit program or its bank is null");
@@ -133,11 +153,12 @@ public class CalculatorServiceImpl implements CalculatorService {
     private LoanProgramCalculationDto createLoanProgramCalculationDto(CalculatorRequest request, CreditProgram creditProgram) {
         BigDecimal mortgageSum = getMortgageSum(request.getRealEstatePrice(), request.getDownPayment());
         BigDecimal downPayment = Optional.ofNullable(request.getDownPayment()).orElse(BigDecimal.ZERO);
-        int creditTermMonths = request.getCreditTerm() * MONTHS_IN_YEAR;
+        int creditTermMonths = getCreditTermMonths(creditProgram, request);
         BigDecimal calculateMonthlyPayment = calculateMonthlyPayment(mortgageSum, creditProgram.getBaseRate(), creditTermMonths);
         LoanProgramCalculationDto loanProgramCalculationDto = new LoanProgramCalculationDto()
                 .setCreditProgramId(creditProgram.getId())
                 .setCreditProgramName(creditProgram.getProgramName())
+                .setCreditTerm((int) Math.ceil(creditTermMonths / 12.0))
                 .setBaseRate(creditProgram.getBaseRate())
                 .setMonthlyPayment(calculateMonthlyPayment)
                 .setOverpayment(calculateOverpayment(calculateMonthlyPayment, creditTermMonths, request.getRealEstatePrice(), downPayment));
@@ -171,8 +192,7 @@ public class CalculatorServiceImpl implements CalculatorService {
         String realEstateType = creditProgram.getCreditProgramDetail().getRealEstateType();
         List<CreditPurposeType> creditPurposeTypes = Converter.convertStringListToEnumList(creditPurposeType, CreditPurposeType.class);
         List<RealEstateType> realEstateTypes = Converter.convertStringListToEnumList(realEstateType, RealEstateType.class);
-        int creditTermMonths = Optional.ofNullable(request.getCreditTerm())
-                .orElse(0) * MONTHS_IN_YEAR;
+        int creditTermMonths = getCreditTermMonths(creditProgram, request);
         return creditPurposeTypes.contains(request.getCreditPurposeType()) &&
                 realEstateTypes.contains(request.getRealEstateType()) &&
                 mortgageSum.compareTo(creditProgram.getCreditParameter().getMinMortgageSum()) >= 0 &&
@@ -185,25 +205,17 @@ public class CalculatorServiceImpl implements CalculatorService {
                 isMaternalCapital(request, creditProgram);
     }
 
-    @Override
-    public BigDecimal calculateMonthlyPayment(BigDecimal mortgageSum, double annualInterestRate, int loanTermInMonths) {
-        BigDecimal monthlyInterestRate = BigDecimal.valueOf(annualInterestRate).divide(BigDecimal.valueOf(1200), 8, RoundingMode.HALF_EVEN);
-        BigDecimal base = monthlyInterestRate.add(BigDecimal.ONE).pow(loanTermInMonths);
-        BigDecimal numerator = base.multiply(monthlyInterestRate);
-        BigDecimal denominator = base.subtract(BigDecimal.ONE);
-        BigDecimal monthlyPayment = mortgageSum.multiply(numerator.divide(denominator, 8, RoundingMode.HALF_EVEN));
-        return monthlyPayment.setScale(2, RoundingMode.HALF_EVEN);
-    }
-
-
-    @Override
-    public BigDecimal calculateOverpayment(BigDecimal monthlyPayment, int loanTermMonths, BigDecimal realEstatePrice, BigDecimal downPayment) {
-        if (monthlyPayment == null || realEstatePrice == null || downPayment == null) {
-            throw new IllegalArgumentException("Invalid input: all arguments must be non-null");
-        }
-        BigDecimal totalPayment = monthlyPayment.multiply(BigDecimal.valueOf(loanTermMonths));
-        BigDecimal overpayment = totalPayment.subtract(realEstatePrice).add(downPayment);
-        return overpayment.setScale(2, RoundingMode.HALF_EVEN);
+    private int getCreditTermMonths(CreditProgram creditProgram, CalculatorRequest request) {
+        return Optional.ofNullable(request.getMaxMonthlyPayment())
+                .map(maxMonthlyPayment -> {
+                    BigDecimal mortgageSum = getMortgageSum(request.getRealEstatePrice(), request.getDownPayment());
+                    double monthlyPayment = maxMonthlyPayment.doubleValue();
+                    double monthlyBaseRate = creditProgram.getBaseRate() / 100 / 12;
+                    int creditTermMonths = (int) Math.ceil(Math.log10(-monthlyPayment /
+                            (monthlyBaseRate * mortgageSum.doubleValue() - monthlyPayment)) / Math.log10(monthlyBaseRate + 1));
+                    return Math.min(creditTermMonths, 360);
+                })
+                .orElseGet(() -> request.getCreditTerm() * 12);
     }
 
 
@@ -224,7 +236,6 @@ public class CalculatorServiceImpl implements CalculatorService {
                 .orElseThrow(() -> new ItemNotFoundException(RealEstate.class, request.getRealEstateId()));
         List<RegionType> creditProgramIncludeRegionTypes = Converter.convertStringListToEnumList(creditProgram.getCreditProgramDetail().getInclude(), RegionType.class);
         List<RegionType> creditProgramExcludeRegionTypes = Converter.convertStringListToEnumList(creditProgram.getCreditProgramDetail().getExclude(), RegionType.class);
-
         List<EnumDescription> filteredRegion = directoryService.getFilteredRegion(creditProgramIncludeRegionTypes, creditProgramExcludeRegionTypes);
         return filteredRegion.stream()
                 .flatMap(enumDescription -> enumDescription.getValues().stream())
