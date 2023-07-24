@@ -15,6 +15,7 @@ import pro.mbroker.api.dto.request.BankApplicationUpdateRequest;
 import pro.mbroker.api.dto.request.BorrowerProfileRequest;
 import pro.mbroker.api.dto.request.PartnerApplicationRequest;
 import pro.mbroker.api.dto.response.BankApplicationResponse;
+import pro.mbroker.api.dto.response.BorrowerProfileResponse;
 import pro.mbroker.api.dto.response.PartnerApplicationResponse;
 import pro.mbroker.api.dto.response.RequiredDocumentResponse;
 import pro.mbroker.api.enums.*;
@@ -245,29 +246,60 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
     @Transactional
     public PartnerApplicationResponse buildPartnerApplicationResponse(PartnerApplication partnerApplication) {
         PartnerApplicationResponse response = partnerApplicationMapper.toPartnerApplicationResponse(partnerApplication);
-        List<BankApplication> activeBankApplications = partnerApplication.getBankApplications().stream()
-                .filter(BankApplication::isActive)
-                .collect(Collectors.toList());
-        Map<UUID, BorrowerProfile> borrowerProfileMap = partnerApplication.getBorrowerProfiles().stream()
-                .filter(BorrowerProfile::isActive)
-                .collect(Collectors.toMap(BorrowerProfile::getId, Function.identity()));
-        List<BankApplicationResponse> activeBankApplicationResponses = new ArrayList<>();
-        for (BankApplication bankApplication : activeBankApplications) {
-            BankApplicationResponse bankApplicationResponse = bankApplicationMapper.toBankApplicationResponse(bankApplication);
-            BigDecimal mortgageSum = calculatorService.getMortgageSum(bankApplication.getRealEstatePrice(), bankApplication.getDownPayment());
-            bankApplicationResponse.setMortgageSum(mortgageSum);
-            BorrowerProfile mainBorrower = bankApplication.getMainBorrower();
-            UUID mainBorrowerId = mainBorrower != null ? mainBorrower.getId() : null;
-            bankApplicationResponse.setCoBorrowers(borrowerProfileMap.values().stream()
-                    .filter(borrowerProfile -> mainBorrower == null || !borrowerProfile.getId().equals(mainBorrowerId))
-                    .map(borrowerProfileMapper::toBorrowerProfileResponse)
-                    .collect(Collectors.toList()));
-            activeBankApplicationResponses.add(bankApplicationResponse);
-        }
+        Map<UUID, BorrowerProfile> borrowerProfileMap = getActiveBorrowerProfilesMap(partnerApplication);
+        List<BankApplicationResponse> activeBankApplicationResponses = getActiveBankApplicationResponses(partnerApplication, borrowerProfileMap);
         List<BankWithBankApplicationDto> bankWithBankApplicationDtos = getGroupBankApplication(activeBankApplicationResponses);
         response.setBankWithBankApplicationDto(bankWithBankApplicationDtos);
         return response;
     }
+
+    private Map<UUID, BorrowerProfile> getActiveBorrowerProfilesMap(PartnerApplication partnerApplication) {
+        return partnerApplication.getBorrowerProfiles().stream()
+                .filter(BorrowerProfile::isActive)
+                .collect(Collectors.toMap(BorrowerProfile::getId, Function.identity()));
+    }
+
+    private List<BankApplicationResponse> getActiveBankApplicationResponses(PartnerApplication partnerApplication, Map<UUID, BorrowerProfile> borrowerProfileMap) {
+        return partnerApplication.getBankApplications().stream()
+                .filter(BankApplication::isActive)
+                .map(bankApplication -> getBankApplicationResponse(partnerApplication, bankApplication, borrowerProfileMap))
+                .collect(Collectors.toList());
+    }
+
+    private BankApplicationResponse getBankApplicationResponse(PartnerApplication partnerApplication, BankApplication bankApplication, Map<UUID, BorrowerProfile> borrowerProfileMap) {
+        BankApplicationResponse bankApplicationResponse = bankApplicationMapper.toBankApplicationResponse(bankApplication);
+        BigDecimal mortgageSum = calculatorService.getMortgageSum(bankApplication.getRealEstatePrice(), bankApplication.getDownPayment());
+        setSalaryApplicationPropertiesIfApplicable(partnerApplication, bankApplication, bankApplicationResponse, mortgageSum);
+        bankApplicationResponse.setMortgageSum(mortgageSum);
+        setCoBorrowers(bankApplication, bankApplicationResponse, borrowerProfileMap);
+        return bankApplicationResponse;
+    }
+
+    private void setSalaryApplicationPropertiesIfApplicable(PartnerApplication partnerApplication, BankApplication bankApplication, BankApplicationResponse bankApplicationResponse, BigDecimal mortgageSum) {
+        if (partnerApplication.getMortgageCalculation().getSalaryBanks().contains(bankApplication.getCreditProgram().getBank())) {
+            CreditProgram creditProgram = bankApplication.getCreditProgram();
+            Optional.ofNullable(creditProgram.getSalaryClientInterestRate())
+                    .ifPresent(salaryClientInterestRate -> {
+                        bankApplicationResponse.setSalaryApplication(true);
+                        double calculateBaseRate = creditProgram.getBaseRate() + salaryClientInterestRate;
+                        BigDecimal monthlyPayment = calculatorService.calculateMonthlyPayment(mortgageSum, calculateBaseRate, bankApplication.getMonthCreditTerm());
+                        bankApplicationResponse.setMonthlyPayment(monthlyPayment);
+                        bankApplicationResponse.setOverpayment(calculatorService.calculateOverpayment(monthlyPayment, bankApplication.getMonthCreditTerm(), bankApplication.getRealEstatePrice(), bankApplication.getDownPayment()));
+                        bankApplicationResponse.setBaseRate(calculateBaseRate);
+                    });
+        }
+    }
+
+    private void setCoBorrowers(BankApplication bankApplication, BankApplicationResponse bankApplicationResponse, Map<UUID, BorrowerProfile> borrowerProfileMap) {
+        BorrowerProfile mainBorrower = bankApplication.getMainBorrower();
+        UUID mainBorrowerId = mainBorrower != null ? mainBorrower.getId() : null;
+        List<BorrowerProfileResponse> coBorrowers = borrowerProfileMap.values().stream()
+                .filter(borrowerProfile -> mainBorrower == null || !borrowerProfile.getId().equals(mainBorrowerId))
+                .map(borrowerProfileMapper::toBorrowerProfileResponse)
+                .collect(Collectors.toList());
+        bankApplicationResponse.setCoBorrowers(coBorrowers);
+    }
+
 
     private List<BankWithBankApplicationDto> getGroupBankApplication(List<BankApplicationResponse> activeBankApplicationResponses) {
         Map<UUID, BankApplicationResponse> creditProgramMap = activeBankApplicationResponses.stream()

@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 @Mapper(uses = {BorrowerProfileMapper.class, CreditParameterMapper.class})
 public interface BankApplicationMapper {
 
-    @Mapping(source = "bankApplication.creditProgram.baseRate", target = "interestRate")
+    @Mapping(source = "bankApplication.creditProgram.baseRate", target = "baseRate")
     @Mapping(target = "mortgageSum", ignore = true)
     @Mapping(target = "coBorrowers", ignore = true)
     @Mapping(source = "creditProgram.id", target = "creditProgramId")
@@ -25,6 +25,7 @@ public interface BankApplicationMapper {
     @Mapping(source = "creditProgram.creditParameter", target = "creditParameter")
     @Mapping(source = "creditProgram.programName", target = "creditProgramName")
     @Mapping(source = "bankApplicationStatus", target = "status")
+    @Mapping(target = "salaryApplication", ignore = true)
     BankApplicationResponse toBankApplicationResponse(BankApplication bankApplication);
 
     List<BankApplicationResponse> toBorrowerApplicationDtoList(List<BankApplication> bankApplications);
