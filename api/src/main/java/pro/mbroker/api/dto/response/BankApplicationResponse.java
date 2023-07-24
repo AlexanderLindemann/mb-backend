@@ -43,8 +43,10 @@ public class BankApplicationResponse {
 
     private BigDecimal overpayment;
 
-    private Double interestRate;
+    private Double baseRate;
 
     private String creditProgramName;
+
+    private boolean isSalaryApplication;
 
 }
