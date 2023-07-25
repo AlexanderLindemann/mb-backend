@@ -66,6 +66,4 @@ public class BankProgramRequest {
             this.programEndDate = this.programEndDate.withHour(23).withMinute(59).withSecond(59).withNano(999999999);
         }
     }
-
-
 }
