@@ -3,6 +3,7 @@ package pro.mbroker.api.dto.response;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import pro.mbroker.api.dto.SalaryClientProgramCalculationDto;
 import pro.mbroker.api.dto.request.CreditParameterResponse;
 import pro.mbroker.api.enums.BankApplicationStatus;
 
@@ -48,5 +49,7 @@ public class BankApplicationResponse {
     private String creditProgramName;
 
     private boolean isSalaryApplication;
+
+    private SalaryClientProgramCalculationDto salaryClientCalculation;
 
 }
