@@ -24,7 +24,7 @@ public class MortgageCalculation extends BaseEntity {
     private BigDecimal downPayment;
 
     @Column(name = "monthly_payment", nullable = false)
-    private BigDecimal monthlyPayment;
+    private BigDecimal maxMonthlyPayment;
 
     @Column(name = "credit_term", nullable = false)
     private Integer monthCreditTerm;

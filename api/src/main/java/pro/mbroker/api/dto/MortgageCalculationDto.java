@@ -17,7 +17,7 @@ public class MortgageCalculationDto {
 
     private BigDecimal downPayment;
 
-    private BigDecimal monthlyPayment;
+    private BigDecimal maxMonthlyPayment;
 
     private Integer creditTerm;
 

@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pro.mbroker.api.dto.BankWithBankApplicationDto;
 import pro.mbroker.api.dto.MortgageCalculationDto;
+import pro.mbroker.api.dto.SalaryClientProgramCalculationDto;
 import pro.mbroker.api.dto.request.BankApplicationRequest;
 import pro.mbroker.api.dto.request.BankApplicationUpdateRequest;
 import pro.mbroker.api.dto.request.BorrowerProfileRequest;
@@ -276,16 +277,20 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
     }
 
     private void setSalaryApplicationPropertiesIfApplicable(PartnerApplication partnerApplication, BankApplication bankApplication, BankApplicationResponse bankApplicationResponse, BigDecimal mortgageSum) {
-        if (partnerApplication.getMortgageCalculation().getSalaryBanks().contains(bankApplication.getCreditProgram().getBank())) {
+        if (Objects.nonNull(partnerApplication.getMortgageCalculation().getSalaryBanks()) &&
+                partnerApplication.getMortgageCalculation().getSalaryBanks()
+                        .contains(bankApplication.getCreditProgram().getBank())) {
             CreditProgram creditProgram = bankApplication.getCreditProgram();
             Optional.ofNullable(creditProgram.getSalaryClientInterestRate())
                     .ifPresent(salaryClientInterestRate -> {
                         bankApplicationResponse.setSalaryApplication(true);
                         double calculateBaseRate = creditProgram.getBaseRate() + salaryClientInterestRate;
                         BigDecimal monthlyPayment = calculatorService.calculateMonthlyPayment(mortgageSum, calculateBaseRate, bankApplication.getMonthCreditTerm());
-                        bankApplicationResponse.setMonthlyPayment(monthlyPayment);
-                        bankApplicationResponse.setOverpayment(calculatorService.calculateOverpayment(monthlyPayment, bankApplication.getMonthCreditTerm(), bankApplication.getRealEstatePrice(), bankApplication.getDownPayment()));
-                        bankApplicationResponse.setBaseRate(calculateBaseRate);
+                        bankApplicationResponse.setSalaryClientCalculation(new SalaryClientProgramCalculationDto()
+                                .setMonthlyPayment(monthlyPayment)
+                                .setSalaryBankRate(creditProgram.getSalaryClientInterestRate())
+                                .setOverpayment(calculatorService.calculateOverpayment(monthlyPayment, bankApplication.getMonthCreditTerm(), bankApplication.getRealEstatePrice(), bankApplication.getDownPayment()))
+                                .setCalculatedRate(calculateBaseRate));
                     });
         }
     }
