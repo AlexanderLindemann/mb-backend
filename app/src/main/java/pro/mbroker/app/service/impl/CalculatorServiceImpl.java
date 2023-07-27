@@ -114,6 +114,7 @@ public class CalculatorServiceImpl implements CalculatorService {
         return overpayment.setScale(2, RoundingMode.HALF_EVEN);
     }
 
+
     private BankLoanProgramDto createBankLoanProgramDto(CreditProgram creditProgram) {
         if (creditProgram == null || creditProgram.getBank() == null) {
             log.error("Credit program or its bank is null");
@@ -128,6 +129,22 @@ public class CalculatorServiceImpl implements CalculatorService {
             bankLoanProgramDtoBuilder.setLogo(Converter.generateBase64FromFile(attachmentService.download(attachment.getId())));
         }
         return bankLoanProgramDtoBuilder;
+    }
+    private int getCreditTermMonths(CreditProgram creditProgram, CalculatorRequest request) {
+        return Optional.ofNullable(request.getMaxMonthlyPayment())
+                .map(maxMonthlyPayment -> {
+                    BigDecimal mortgageSum = getMortgageSum(request.getRealEstatePrice(), request.getDownPayment());
+                    double monthlyPayment = maxMonthlyPayment.doubleValue();
+                    double monthlyBaseRate = creditProgram.getBaseRate() / 100 / 12;
+                    double creditTermDouble = Math.log10(-monthlyPayment /
+                            (monthlyBaseRate * mortgageSum.doubleValue() - monthlyPayment)) / Math.log10(monthlyBaseRate + 1);
+                    if (Double.isNaN(creditTermDouble)) {
+                        return 360;
+                    }
+                    int creditTermMonths = (int) Math.ceil(creditTermDouble);
+                    return Math.min(creditTermMonths, 360);
+                })
+                .orElseGet(() -> request.getCreditTerm() * 12);
     }
 
     private void updateBankSalaryFlag(List<BankLoanProgramDto> bankLoanProgramDtos) {
@@ -203,19 +220,6 @@ public class CalculatorServiceImpl implements CalculatorService {
                 downPaymentPercentage <= (creditProgram.getCreditParameter().getMaxDownPayment()) &&
                 isRegionEligible(request, creditProgram) &&
                 isMaternalCapital(request, creditProgram);
-    }
-
-    private int getCreditTermMonths(CreditProgram creditProgram, CalculatorRequest request) {
-        return Optional.ofNullable(request.getMaxMonthlyPayment())
-                .map(maxMonthlyPayment -> {
-                    BigDecimal mortgageSum = getMortgageSum(request.getRealEstatePrice(), request.getDownPayment());
-                    double monthlyPayment = maxMonthlyPayment.doubleValue();
-                    double monthlyBaseRate = creditProgram.getBaseRate() / 100 / 12;
-                    int creditTermMonths = (int) Math.ceil(Math.log10(-monthlyPayment /
-                            (monthlyBaseRate * mortgageSum.doubleValue() - monthlyPayment)) / Math.log10(monthlyBaseRate + 1));
-                    return Math.min(creditTermMonths, 360);
-                })
-                .orElseGet(() -> request.getCreditTerm() * 12);
     }
 
 
