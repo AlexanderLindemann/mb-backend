@@ -162,7 +162,7 @@ public class CalculatorServiceImpl implements CalculatorService {
         );
         bankLoanProgramDtos.sort(Comparator.comparing(bankLoanProgramDto ->
                 bankLoanProgramDto.getLoanProgramCalculationDto().stream()
-                        .min(Comparator.comparing(LoanProgramCalculationDto::getMonthlyPayment))
+                        .min(Comparator.comparing(LoanProgramCalculationDto::getOverpayment))
                         .orElseThrow(NoSuchElementException::new)
                         .getMonthlyPayment()));
     }
