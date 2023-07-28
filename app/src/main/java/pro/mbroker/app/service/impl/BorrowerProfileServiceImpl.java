@@ -67,9 +67,13 @@ public class BorrowerProfileServiceImpl implements BorrowerProfileService {
                 .stream()
                 .filter(borrowerProfile -> !borrowerProfile.getId().equals(mainBorrower.getId()) && borrowerProfile.isActive())
                 .collect(Collectors.toMap(BorrowerProfile::getId, borrowerProfileMapper::toBorrowerProfileResponse));
+
+        List<BorrowerProfileResponse> sortedCoBorrowerProfiles = new ArrayList<>(coBorrowerProfiles.values());
+        sortedCoBorrowerProfiles.sort(Comparator.comparing(BorrowerProfileResponse::getCreatedAt).reversed());
+
         return new BorrowerResponse()
                 .setMainBorrower(borrowerProfileMapper.toBorrowerProfileResponse(mainBorrower))
-                .setCoBorrower(new ArrayList<>(coBorrowerProfiles.values()));
+                .setCoBorrower(sortedCoBorrowerProfiles);
     }
 
     @Override
