@@ -2,12 +2,15 @@ package pro.mbroker.api.controller;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pro.mbroker.api.dto.request.BankApplicationRequest;
+import pro.mbroker.api.dto.request.NotificationStatusRequest;
 import pro.mbroker.api.dto.response.BankApplicationResponse;
 import pro.mbroker.api.enums.BankApplicationStatus;
 
 import javax.validation.constraints.NotNull;
+import java.util.List;
 import java.util.UUID;
 
 @Api(value = "API Банковской Заявки", tags = "API Банковской Заявки")
@@ -35,4 +38,8 @@ public interface BankApplicationController {
     BankApplicationResponse changeStatus(
             @PathVariable UUID bankApplicationId,
             @NotNull @RequestParam("status") BankApplicationStatus status);
+
+    @ApiOperation("обновить статус заявок по ApplicationNumber")
+    @PutMapping("/update-statuses")
+    ResponseEntity<String> updateStatuses(@RequestBody NotificationStatusRequest bankApplications);
 }

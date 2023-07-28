@@ -7,6 +7,7 @@ import lombok.Data;
 @AllArgsConstructor
 public class AttachmentInfo {
 
+    private Long attachmentId;
     private byte[] file;
     private String originalFileName;
     private String contentType;

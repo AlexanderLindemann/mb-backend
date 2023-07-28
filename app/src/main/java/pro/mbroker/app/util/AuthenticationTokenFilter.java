@@ -23,6 +23,12 @@ public class AuthenticationTokenFilter extends OncePerRequestFilter {
     private final TokenExtractor tokenExtractor;
 
     @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {   //TODO когда авторизация будет в gateway
+        String path = request.getServletPath();                                               // эта штука будет не актуально. Сейчас убрал проверку,
+        return "/public/v1/bank_application/update-statuses".equals(path);                    // потому что у нас notification каждый час дергает метод и там не будет токена
+    }
+
+    @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String authHeader = request.getHeader("Authorization");
 

@@ -2,9 +2,11 @@ package pro.mbroker.app.web;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import pro.mbroker.api.controller.BankApplicationController;
 import pro.mbroker.api.dto.request.BankApplicationRequest;
+import pro.mbroker.api.dto.request.NotificationStatusRequest;
 import pro.mbroker.api.dto.response.BankApplicationResponse;
 import pro.mbroker.api.enums.BankApplicationStatus;
 import pro.mbroker.app.entity.BankApplication;
@@ -14,6 +16,7 @@ import pro.mbroker.app.service.BorrowerProfileService;
 import pro.mbroker.app.service.CalculatorService;
 
 import javax.validation.constraints.NotNull;
+import java.util.List;
 import java.util.UUID;
 
 @Slf4j
@@ -41,6 +44,20 @@ public class BankApplicationControllerImpl implements BankApplicationController 
     public BankApplicationResponse changeStatus(UUID bankApplicationId, BankApplicationStatus status) {
         BankApplication bankApplication = bankApplicationService.changeStatus(bankApplicationId, status);
         return toResponse(bankApplication);
+    }
+
+    @Override
+    public ResponseEntity<String> updateStatuses(NotificationStatusRequest notificationStatusRequest) {
+        List<BankApplication> bankApplicationByApplicationId = bankApplicationService
+                .getBankApplicationByApplicationId(notificationStatusRequest.getApplications().keySet());
+
+        bankApplicationByApplicationId.forEach(bankApplication -> {
+            BankApplicationStatus newStatus = notificationStatusRequest.getApplications()
+                    .get(bankApplication.getApplicationNumber());
+            bankApplication.setBankApplicationStatus(newStatus);
+        });
+        bankApplicationService.saveAll(bankApplicationByApplicationId);
+        return ResponseEntity.ok().build();
     }
 
     @Override

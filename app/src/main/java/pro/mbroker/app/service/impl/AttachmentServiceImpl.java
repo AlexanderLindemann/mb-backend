@@ -127,6 +127,7 @@ public class AttachmentServiceImpl implements AttachmentService {
                         .orElseThrow(() -> new ItemNotFoundException(Attachment.class, id));
                 var attachment = attachmentService.download(id);
                 attachmentList.add(new AttachmentInfo(
+                        id,
                         attachment.getBytes(),
                         ourAttachment.getName(),
                         ourAttachment.getMimeType()
