@@ -16,6 +16,7 @@ import pro.mbroker.api.dto.response.AttachmentResponse;
 import pro.mbroker.app.entity.Attachment;
 import pro.mbroker.app.entity.Bank;
 import pro.mbroker.app.entity.BankContact;
+import pro.mbroker.app.entity.CreditProgram;
 import pro.mbroker.app.exception.ItemNotFoundException;
 import pro.mbroker.app.mapper.AttachmentMapper;
 import pro.mbroker.app.repository.BankContactRepository;
@@ -153,6 +154,7 @@ public class BankServiceImpl implements BankService {
         Bank bank = bankRepository.findOne(specification)
                 .orElseThrow(() -> new ItemNotFoundException(Bank.class, bankId));
         bank.setContacts(bank.getContacts().stream().filter(BankContact::isActive).collect(Collectors.toList()));
+        bank.setCreditPrograms(bank.getCreditPrograms().stream().filter(CreditProgram::isActive).collect(Collectors.toList()));
         return bank;
     }
 
