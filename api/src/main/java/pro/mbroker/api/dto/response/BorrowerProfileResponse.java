@@ -6,6 +6,7 @@ import lombok.ToString;
 import pro.mbroker.api.dto.request.BorrowerDocumentRequest;
 import pro.mbroker.api.enums.BorrowerProfileStatus;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -29,5 +30,7 @@ public class BorrowerProfileResponse {
     private BorrowerProfileStatus status;
 
     private List<BorrowerDocumentRequest> documents;
+
+    private LocalDateTime createdAt;
 
 }
