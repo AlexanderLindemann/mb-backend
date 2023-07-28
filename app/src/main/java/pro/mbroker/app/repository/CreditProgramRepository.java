@@ -15,7 +15,7 @@ public interface CreditProgramRepository extends JpaRepository<CreditProgram, UU
 
     List<CreditProgram> findAllByIdIn(List<UUID> bankIds);
 
-    @Query("SELECT cp FROM CreditProgram cp JOIN FETCH cp.bank WHERE cp.isActive = true")
+    @Query("SELECT cp FROM CreditProgram cp JOIN FETCH cp.bank b WHERE cp.isActive = true AND b.isActive = true")
     List<CreditProgram> findAllWithBankBy(Pageable pageable);
 
     @Query("SELECT cp FROM CreditProgram cp JOIN FETCH cp.bank WHERE cp.id IN :creditProgramIds")

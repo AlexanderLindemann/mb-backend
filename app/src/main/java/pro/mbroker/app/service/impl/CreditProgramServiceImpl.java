@@ -87,8 +87,7 @@ public class CreditProgramServiceImpl implements CreditProgramService {
     @Override
     @Transactional(readOnly = true)
     public List<CreditProgram> getAllCreditProgram(Pageable pageable) {
-        List<CreditProgram> allWithBankBy = creditProgramRepository.findAllWithBankBy(pageable);
-        return allWithBankBy;
+        return creditProgramRepository.findAllWithBankBy(pageable);
     }
 
     @Override
