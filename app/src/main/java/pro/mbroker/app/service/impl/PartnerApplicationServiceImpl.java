@@ -96,8 +96,13 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
             Integer createdBy = TokenExtractor.extractSdId(currentUserService.getCurrentUserToken());
             result = partnerApplicationRepository.findAllByCreatedByAndIsActiveTrue(start, end, createdBy, pageable);
         }
-        result.forEach(partnerApplication ->
-                partnerApplication.getBorrowerProfiles().sort(Comparator.comparing(BorrowerProfile::getCreatedAt)));
+        result.forEach(partnerApplication -> {
+            List<BorrowerProfile> sortedBorrowerProfiles = partnerApplication.getBorrowerProfiles()
+                    .stream()
+                    .sorted(Comparator.comparing(BorrowerProfile::getCreatedAt))
+                    .collect(Collectors.toList());
+            partnerApplication.setBorrowerProfiles(sortedBorrowerProfiles);
+        });
         return result;
     }
 
