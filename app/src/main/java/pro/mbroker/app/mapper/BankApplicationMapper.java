@@ -72,9 +72,11 @@ public interface BankApplicationMapper {
     @AfterMapping
     default void calculateCreditTermInYears(@MappingTarget BankApplicationResponse response, BankApplication bankApplication) {
         if (bankApplication.getMonthCreditTerm() != null) {
-            response.setCreditTerm(bankApplication.getMonthCreditTerm() / 12);
+            double years = (double) bankApplication.getMonthCreditTerm() / 12;
+            response.setCreditTerm((int) Math.ceil(years));
         }
     }
+
 
     default BankApplication updateBankApplicationFromRequest(BankApplication existing, BankApplicationRequest request) {
         if (existing == null) {
