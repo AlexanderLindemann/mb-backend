@@ -99,7 +99,7 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
         result.forEach(partnerApplication -> {
             List<BorrowerProfile> sortedBorrowerProfiles = partnerApplication.getBorrowerProfiles()
                     .stream()
-                    .sorted(Comparator.comparing(BorrowerProfile::getCreatedAt))
+                    .sorted(Comparator.comparing(BorrowerProfile::getCreatedAt).reversed())
                     .collect(Collectors.toList());
             partnerApplication.setBorrowerProfiles(sortedBorrowerProfiles);
         });
