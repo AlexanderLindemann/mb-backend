@@ -362,6 +362,11 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
         if (!authorities.contains(new SimpleGrantedAuthority(Permission.Code.MB_ADMIN_ACCESS))) {
             checkPermission(authorities, partnerApplication);
         }
+        List<BorrowerProfile> sortedBorrowerProfiles = partnerApplication.getBorrowerProfiles()
+                .stream()
+                .sorted(Comparator.comparing(BorrowerProfile::getCreatedAt))
+                .collect(Collectors.toList());
+        partnerApplication.setBorrowerProfiles(sortedBorrowerProfiles);
         return partnerApplication;
     }
 
