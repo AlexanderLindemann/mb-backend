@@ -139,15 +139,19 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
         }
         partnerApplicationMapper.updatePartnerApplicationFromRequest(request, existingPartnerApplication);
         mortgageCalculationMapper.updateMortgageCalculationFromRequest(request.getMortgageCalculation(), existingPartnerApplication.getMortgageCalculation());
-        if (Objects.nonNull(request.getMortgageCalculation().getSalaryBanks())) {
-            List<Bank> banks = bankRepository.findAllById(request.getMortgageCalculation().getSalaryBanks());
-            existingPartnerApplication.getMortgageCalculation().setSalaryBanks(banks);
-        }
+        setSalaryBank(request, existingPartnerApplication);
         existingPartnerApplication.setRealEstate(realEstateService.findById(request.getRealEstateId()));
         List<BankApplication> updatedBorrowerApplications = buildBankApplications(request.getBankApplications(), existingPartnerApplication);
         existingPartnerApplication.setBankApplications(updatedBorrowerApplications);
         updateMainBorrower(existingPartnerApplication, request.getMainBorrower());
         return statusChanger(existingPartnerApplication);
+    }
+
+    private void setSalaryBank(PartnerApplicationRequest request, PartnerApplication existingPartnerApplication) {
+        if (Objects.nonNull(request.getMortgageCalculation().getSalaryBanks())) {
+            List<Bank> banks = bankRepository.findAllById(request.getMortgageCalculation().getSalaryBanks());
+            existingPartnerApplication.getMortgageCalculation().setSalaryBanks(banks);
+        }
     }
 
     private boolean isBorrowerProfileChanged(PartnerApplicationRequest request, PartnerApplication existingApplication) {
@@ -556,10 +560,12 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
     private PartnerApplication getPartnerApplication(PartnerApplicationRequest request) {
         RealEstate realEstate = realEstateService.findById(request.getRealEstateId());
         Partner partner = realEstate.getPartner();
-        return partnerApplicationMapper.toPartnerApplication(request)
+        PartnerApplication partnerApplication = partnerApplicationMapper.toPartnerApplication(request)
                 .setPartner(partner)
                 .setRealEstate(realEstate)
                 .setMortgageCalculation(mortgageCalculationMapper.toMortgageCalculation(request.getMortgageCalculation()));
+        setSalaryBank(request, partnerApplication);
+        return partnerApplication;
     }
 
     private PartnerApplication getPartnerApplicationById(UUID partnerApplicationId) {
