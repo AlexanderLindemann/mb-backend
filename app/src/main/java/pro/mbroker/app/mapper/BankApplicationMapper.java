@@ -37,7 +37,7 @@ public interface BankApplicationMapper {
     @Mapping(target = "bankApplicationStatus", ignore = true)
     @Mapping(source = "dto.monthlyPayment", target = "monthlyPayment")
     @Mapping(source = "dto.downPayment", target = "downPayment")
-    @Mapping(source = "dto.creditTerm", target = "monthCreditTerm")
+    @Mapping(source = "dto.creditTerm", target = "monthCreditTerm", qualifiedByName = "calculateMonths")
     @Mapping(source = "dto.overpayment", target = "overpayment")
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
@@ -54,7 +54,7 @@ public interface BankApplicationMapper {
     @Mapping(target = "bankApplicationStatus", ignore = true)
     @Mapping(source = "dto.monthlyPayment", target = "monthlyPayment")
     @Mapping(source = "dto.downPayment", target = "downPayment")
-    @Mapping(source = "dto.creditTerm", target = "monthCreditTerm")
+    @Mapping(source = "dto.creditTerm", target = "monthCreditTerm", qualifiedByName = "calculateMonths")
     @Mapping(source = "dto.overpayment", target = "overpayment")
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
@@ -68,6 +68,11 @@ public interface BankApplicationMapper {
     @Named("toBankApplicationList")
     @Mapping(target = "id", ignore = true)
     List<BankApplication> toBankApplicationList(List<BankApplicationRequest> dtos);
+
+    @Named("calculateMonths")
+    default int calculateMonths(Integer creditTerm) {
+        return creditTerm != null ? creditTerm * 12 : null;
+    }
 
     @AfterMapping
     default void calculateCreditTermInYears(@MappingTarget BankApplicationResponse response, BankApplication bankApplication) {
