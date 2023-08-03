@@ -15,4 +15,6 @@ public interface BankApplicationService {
     BankApplication changeMainBorrowerByBankApplicationId(UUID bankApplicationId, UUID newMainBorrowerId);
 
     BankApplication changeStatus(UUID bankApplicationId, BankApplicationStatus status);
+
+    BankApplication getBankApplicationByBorrowerId(UUID borrowerId);
 }

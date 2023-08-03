@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+
+    <changeSet id="add_link_to_bank_application" author="a.verbitsky">
+        <addColumn tableName="borrower_documents">
+            <column name="bank_application_id" type="uuid">
+                <constraints nullable="true"/>
+            </column>
+        </addColumn>
+        <addForeignKeyConstraint constraintName="fk_borrower_documents_bank_application"
+                                 baseTableName="borrower_documents"
+                                 baseColumnNames="bank_application_id"
+                                 referencedTableName="bank_application"
+                                 referencedColumnNames="id"/>
+    </changeSet>
+
+</databaseChangeLog>

@@ -1,5 +1,6 @@
 package pro.mbroker.app.repository;
 
+import org.checkerframework.checker.nullness.Opt;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -41,5 +42,7 @@ public interface BankApplicationRepository extends JpaRepository<BankApplication
     List<String> getEmailsByBankApplicationId(@Param("bankApplicationId") UUID bankApplicationId);
 
     Optional<BankApplication> findByApplicationNumber(Integer applicationNumber);
+
+    Optional<BankApplication> findByMainBorrowerId(UUID borrowerId);
 
 }

@@ -12,12 +12,9 @@ import java.util.UUID;
 public interface BorrowerDocumentRepository extends JpaRepository<BorrowerDocument, UUID> {
     Optional<BorrowerDocument> findByAttachmentId(Long attachmentId);
 
-    @Query(value = "SELECT a.id " +
+    @Query(value = "SELECT bd.attachment.id " +
             "FROM BorrowerDocument bd " +
-            "JOIN bd.attachment a " +
-            "JOIN bd.borrowerProfile bp " +
-            "JOIN bp.partnerApplication pa " +
-            "WHERE pa.id = :partnerApplicationId AND a.isActive = true")
-    List<Long> getaAttachmentIds(@Param("partnerApplicationId") UUID partnerApplicationId);
+            "WHERE bd.bankApplication.id = :bankApplicationId AND bd.isActive = true")
+    List<Long> getaAttachmentIds(@Param("bankApplicationId") UUID bankApplicationId);
 }
 
