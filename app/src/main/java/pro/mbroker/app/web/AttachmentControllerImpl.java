@@ -17,7 +17,9 @@ import pro.mbroker.api.enums.DocumentType;
 import pro.mbroker.app.entity.BankApplication;
 import pro.mbroker.app.entity.BorrowerDocument;
 import pro.mbroker.app.entity.BorrowerProfile;
+import pro.mbroker.app.entity.PartnerApplication;
 import pro.mbroker.app.mapper.BorrowerDocumentMapper;
+import pro.mbroker.app.repository.BorrowerDocumentRepository;
 import pro.mbroker.app.service.*;
 import pro.mbroker.app.util.Converter;
 import pro.smartdeal.ng.attachment.api.AttachmentControllerService;
@@ -40,6 +42,7 @@ public class AttachmentControllerImpl implements AttachmentController {
     private final BorrowerDocumentService borrowerDocumentService;
     private final BorrowerDocumentMapper borrowerDocumentMapper;
     private final BankApplicationService bankApplicationService;
+    private final BorrowerDocumentRepository borrowerDocumentRepository;
 
     @Override
     public Long upload(MultipartFile file) {
@@ -52,21 +55,25 @@ public class AttachmentControllerImpl implements AttachmentController {
                                                    DocumentType documentType,
                                                    UUID bankId,
                                                    UUID bankApplicationId) {
+        BorrowerProfile borrowerProfile = borrowerProfileService.getBorrowerProfile(borrowerProfileId);
+        List<BankApplication> bankApplications = bankApplicationService.getBankApplicationByBorrowerId(borrowerProfileId);
+
+
         BorrowerDocumentRequest borrowerDocumentRequest = new BorrowerDocumentRequest()
                 .setBorrowerProfileId(borrowerProfileId)
                 .setDocumentType(documentType);
         if (Objects.nonNull(bankId)) {
             borrowerDocumentRequest.setBankId(bankId);
         }
-
-        BankApplication bankApplicationForSave = bankApplicationService.getBankApplicationByBorrowerId(borrowerProfileId)
-                .stream().filter(bankApplication -> bankApplication.getId().equals(bankApplicationId))
-                .collect(Collectors.toList())
-                .get(0);
-
         BorrowerDocument borrowerDocument = attachmentService.uploadDocument(file, borrowerDocumentRequest);
-        borrowerDocument.setBankApplication(bankApplicationForSave);
-        BorrowerProfile borrowerProfile = borrowerProfileService.getBorrowerProfile(borrowerProfileId);
+
+        for (BankApplication bankApplication : bankApplications) {
+            borrowerDocument.setBankApplication(bankApplication);
+            borrowerDocument.setBorrowerProfile(borrowerProfile);
+            borrowerDocumentRepository.save(borrowerDocument);
+        }
+
+
         partnerApplicationService.statusChanger(borrowerProfile.getPartnerApplication());
         Map<UUID, BorrowerProfile> borrowerProfileMap = borrowerProfile.getPartnerApplication().getBorrowerProfiles()
                 .stream().collect(Collectors.toMap(BorrowerProfile::getId, Function.identity()));

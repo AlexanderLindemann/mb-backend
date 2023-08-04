@@ -33,7 +33,7 @@ public interface AttachmentController {
                                             @RequestParam UUID borrowerProfileId,
                                             @RequestParam DocumentType documentType,
                                             @RequestParam UUID bankId,
-                                            @RequestParam UUID bankApplicationId);
+                                            @RequestParam(required = false) UUID bankApplicationId);
 
     @ApiOperation("удалить загруженный документ клиента")
     @PutMapping(value = "/{attachmentId}/delete_document")
