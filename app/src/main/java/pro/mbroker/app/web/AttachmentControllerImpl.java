@@ -65,9 +65,11 @@ public class AttachmentControllerImpl implements AttachmentController {
         if (Objects.nonNull(bankId)) {
             borrowerDocumentRequest.setBankId(bankId);
         }
-        BorrowerDocument borrowerDocument = attachmentService.uploadDocument(file, borrowerDocumentRequest);
+
+        BorrowerDocument borrowerDocument = null;
 
         for (BankApplication bankApplication : bankApplications) {
+            borrowerDocument = attachmentService.uploadDocument(file, borrowerDocumentRequest);
             borrowerDocument.setBankApplication(bankApplication);
             borrowerDocument.setBorrowerProfile(borrowerProfile);
             borrowerDocumentRepository.save(borrowerDocument);
@@ -77,7 +79,7 @@ public class AttachmentControllerImpl implements AttachmentController {
         partnerApplicationService.statusChanger(borrowerProfile.getPartnerApplication());
         Map<UUID, BorrowerProfile> borrowerProfileMap = borrowerProfile.getPartnerApplication().getBorrowerProfiles()
                 .stream().collect(Collectors.toMap(BorrowerProfile::getId, Function.identity()));
-        return borrowerDocumentMapper.toBorrowerDocumentResponse(borrowerDocument)
+        return borrowerDocument == null ? null : borrowerDocumentMapper.toBorrowerDocumentResponse(borrowerDocument)
                 .setStatus(borrowerProfileMap.get(borrowerProfile.getId()).getBorrowerProfileStatus());
     }
 
