@@ -14,6 +14,7 @@ import pro.mbroker.app.repository.BankApplicationRepository;
 import pro.mbroker.app.repository.BorrowerProfileRepository;
 import pro.mbroker.app.service.BankApplicationService;
 
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -66,9 +67,7 @@ public class BankApplicationServiceImpl implements BankApplicationService {
     }
 
     @Transactional(readOnly = true)
-    public BankApplication getBankApplicationByBorrowerId(UUID borrowerId) {
-        return bankApplicationRepository.findByMainBorrowerId(borrowerId)
-                .orElseThrow(() -> new ItemNotFoundException(BankApplication.class,
-                        "bankApplication with borrowerId не найдено"));
+    public List<BankApplication> getBankApplicationByBorrowerId(UUID borrowerId) {
+        return bankApplicationRepository.findByMainBorrowerId(borrowerId);
     }
 }

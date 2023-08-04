@@ -57,10 +57,12 @@ public class AttachmentControllerImpl implements AttachmentController {
         if (Objects.nonNull(bankId)) {
             borrowerDocumentRequest.setBankId(bankId);
         }
-        BankApplication bankApplication = bankApplicationService.getBankApplicationByBorrowerId(borrowerProfileId);
+        List<BankApplication> bankApplication = bankApplicationService.getBankApplicationByBorrowerId(borrowerProfileId);
+
+        //TODO тут нужно получить bankApplicationId с фронта
 
         BorrowerDocument borrowerDocument = attachmentService.uploadDocument(file, borrowerDocumentRequest);
-        borrowerDocument.setBankApplication(bankApplication);
+        borrowerDocument.setBankApplication(bankApplication.get(0));
         BorrowerProfile borrowerProfile = borrowerProfileService.getBorrowerProfile(borrowerProfileId);
         partnerApplicationService.statusChanger(borrowerProfile.getPartnerApplication());
         Map<UUID, BorrowerProfile> borrowerProfileMap = borrowerProfile.getPartnerApplication().getBorrowerProfiles()
