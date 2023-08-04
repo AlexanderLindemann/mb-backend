@@ -58,6 +58,11 @@ public class AttachmentControllerImpl implements AttachmentController {
         BorrowerProfile borrowerProfile = borrowerProfileService.getBorrowerProfile(borrowerProfileId);
         List<BankApplication> bankApplications = bankApplicationService.getBankApplicationByBorrowerId(borrowerProfileId);
 
+        if (bankApplicationId != null) {
+            bankApplications = bankApplications.stream()
+                    .filter(bankApplication -> bankApplication.getId().equals(bankApplicationId))
+                    .collect(Collectors.toList());
+        }
 
         BorrowerDocumentRequest borrowerDocumentRequest = new BorrowerDocumentRequest()
                 .setBorrowerProfileId(borrowerProfileId)
