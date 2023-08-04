@@ -46,7 +46,7 @@ public class NotificationServiceImpl implements NotificationService {
                 customerInfoForBankLetter.getContent().get(FIRST_ELEMENT).getBorrowerId());
         var attachmentIds = customerInfoForBankLetter
                 .stream()
-                .flatMap(el -> borrowerDocumentRepository.getaAttachmentIds(el.getPartnerApplicationId()).stream())
+                .flatMap(el -> borrowerDocumentRepository.getaAttachmentIds(bankApplicationId).stream())
                 .collect(Collectors.toList());
         log.info("Список id документов успешно сформирован {}", attachmentIds);
 
