@@ -32,4 +32,8 @@ public class BorrowerDocument extends BaseEntity {
     @JoinColumn(name = "bank_id", referencedColumnName = "id")
     private Bank bank;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "bank_application_id", referencedColumnName = "id")
+    private BankApplication bankApplication;
+
 }

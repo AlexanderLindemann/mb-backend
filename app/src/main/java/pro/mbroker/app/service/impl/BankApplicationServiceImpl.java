@@ -3,6 +3,7 @@ package pro.mbroker.app.service.impl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import pro.mbroker.api.dto.request.BankApplicationRequest;
 import pro.mbroker.api.enums.BankApplicationStatus;
 import pro.mbroker.app.entity.BankApplication;
@@ -62,5 +63,12 @@ public class BankApplicationServiceImpl implements BankApplicationService {
     @Override
     public BankApplication updateBankApplication(BankApplicationRequest request) {
         return bankApplicationMapper.updateBankApplicationFromRequest(getBankApplicationById(request.getId()), request);
+    }
+
+    @Transactional(readOnly = true)
+    public BankApplication getBankApplicationByBorrowerId(UUID borrowerId) {
+        return bankApplicationRepository.findByMainBorrowerId(borrowerId)
+                .orElseThrow(() -> new ItemNotFoundException(BankApplication.class,
+                        "bankApplication with borrowerId не найдено"));
     }
 }

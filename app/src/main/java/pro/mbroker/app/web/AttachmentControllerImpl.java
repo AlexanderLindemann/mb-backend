@@ -14,13 +14,11 @@ import pro.mbroker.api.dto.request.BorrowerDocumentRequest;
 import pro.mbroker.api.dto.response.AttachmentInfo;
 import pro.mbroker.api.dto.response.BorrowerDocumentResponse;
 import pro.mbroker.api.enums.DocumentType;
+import pro.mbroker.app.entity.BankApplication;
 import pro.mbroker.app.entity.BorrowerDocument;
 import pro.mbroker.app.entity.BorrowerProfile;
 import pro.mbroker.app.mapper.BorrowerDocumentMapper;
-import pro.mbroker.app.service.AttachmentService;
-import pro.mbroker.app.service.BorrowerDocumentService;
-import pro.mbroker.app.service.BorrowerProfileService;
-import pro.mbroker.app.service.PartnerApplicationService;
+import pro.mbroker.app.service.*;
 import pro.mbroker.app.util.Converter;
 import pro.smartdeal.ng.attachment.api.AttachmentControllerService;
 
@@ -41,6 +39,7 @@ public class AttachmentControllerImpl implements AttachmentController {
     private final PartnerApplicationService partnerApplicationService;
     private final BorrowerDocumentService borrowerDocumentService;
     private final BorrowerDocumentMapper borrowerDocumentMapper;
+    private final BankApplicationService bankApplicationService;
 
     @Override
     public Long upload(MultipartFile file) {
@@ -58,7 +57,10 @@ public class AttachmentControllerImpl implements AttachmentController {
         if (Objects.nonNull(bankId)) {
             borrowerDocumentRequest.setBankId(bankId);
         }
+        BankApplication bankApplication = bankApplicationService.getBankApplicationByBorrowerId(borrowerProfileId);
+
         BorrowerDocument borrowerDocument = attachmentService.uploadDocument(file, borrowerDocumentRequest);
+        borrowerDocument.setBankApplication(bankApplication);
         BorrowerProfile borrowerProfile = borrowerProfileService.getBorrowerProfile(borrowerProfileId);
         partnerApplicationService.statusChanger(borrowerProfile.getPartnerApplication());
         Map<UUID, BorrowerProfile> borrowerProfileMap = borrowerProfile.getPartnerApplication().getBorrowerProfiles()
