@@ -32,7 +32,8 @@ public interface AttachmentController {
     BorrowerDocumentResponse uploadDocument(@RequestPart("file") MultipartFile file,
                                             @RequestParam UUID borrowerProfileId,
                                             @RequestParam DocumentType documentType,
-                                            @RequestParam UUID bankId);
+                                            @RequestParam UUID bankId,
+                                            @RequestParam UUID bankApplicationId);
 
     @ApiOperation("удалить загруженный документ клиента")
     @PutMapping(value = "/{attachmentId}/delete_document")
