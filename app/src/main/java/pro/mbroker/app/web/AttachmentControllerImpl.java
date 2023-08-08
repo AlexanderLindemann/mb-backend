@@ -34,7 +34,6 @@ public class AttachmentControllerImpl implements AttachmentController {
     private final PartnerApplicationService partnerApplicationService;
     private final BorrowerDocumentService borrowerDocumentService;
     private final BorrowerDocumentMapper borrowerDocumentMapper;
-    private final BankApplicationService bankApplicationService;
     private final BorrowerDocumentRepository borrowerDocumentRepository;
 
     @Override
@@ -49,23 +48,19 @@ public class AttachmentControllerImpl implements AttachmentController {
                                                    UUID bankId,
                                                    UUID bankApplicationId) {
         BorrowerProfile borrowerProfile = borrowerProfileService.getBorrowerProfile(borrowerProfileId);
-        List<BankApplication> bankApplications = bankApplicationService.getBankApplicationByBorrowerId(borrowerProfileId);
-
+        List<BankApplication> bankApplications = borrowerProfileService.getBorrowerProfile(borrowerProfileId).getPartnerApplication().getBankApplications();
         if (bankApplicationId != null) {
             bankApplications = bankApplications.stream()
                     .filter(bankApplication -> bankApplication.getId().equals(bankApplicationId))
                     .collect(Collectors.toList());
         }
-
         BorrowerDocumentRequest borrowerDocumentRequest = new BorrowerDocumentRequest()
                 .setBorrowerProfileId(borrowerProfileId)
                 .setDocumentType(documentType);
         if (Objects.nonNull(bankId)) {
             borrowerDocumentRequest.setBankId(bankId);
         }
-
         BorrowerDocument borrowerDocument = null;
-
         if (isSpecialDocumentType(documentType)) {
             borrowerDocument = attachmentService.uploadDocument(file, borrowerDocumentRequest);
             borrowerDocument.setBorrowerProfile(borrowerProfile);
@@ -79,7 +74,6 @@ public class AttachmentControllerImpl implements AttachmentController {
                 borrowerDocumentRepository.save(borrowerDocument);
             }
         }
-
         partnerApplicationService.statusChanger(borrowerProfile.getPartnerApplication());
         Map<UUID, BorrowerProfile> borrowerProfileMap = borrowerProfile.getPartnerApplication().getBorrowerProfiles()
                 .stream().collect(Collectors.toMap(BorrowerProfile::getId, Function.identity()));
