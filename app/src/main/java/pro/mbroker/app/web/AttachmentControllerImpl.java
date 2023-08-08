@@ -3,9 +3,6 @@ package pro.mbroker.app.web;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.InputStreamResource;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
@@ -17,14 +14,10 @@ import pro.mbroker.api.enums.DocumentType;
 import pro.mbroker.app.entity.BankApplication;
 import pro.mbroker.app.entity.BorrowerDocument;
 import pro.mbroker.app.entity.BorrowerProfile;
-import pro.mbroker.app.entity.PartnerApplication;
 import pro.mbroker.app.mapper.BorrowerDocumentMapper;
 import pro.mbroker.app.repository.BorrowerDocumentRepository;
 import pro.mbroker.app.service.*;
-import pro.mbroker.app.util.Converter;
-import pro.smartdeal.ng.attachment.api.AttachmentControllerService;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -73,13 +66,19 @@ public class AttachmentControllerImpl implements AttachmentController {
 
         BorrowerDocument borrowerDocument = null;
 
-        for (BankApplication bankApplication : bankApplications) {
+        if (isSpecialDocumentType(documentType)) {
             borrowerDocument = attachmentService.uploadDocument(file, borrowerDocumentRequest);
-            borrowerDocument.setBankApplication(bankApplication);
             borrowerDocument.setBorrowerProfile(borrowerProfile);
+            borrowerDocument.setBankApplication(null);
             borrowerDocumentRepository.save(borrowerDocument);
+        } else {
+            for (BankApplication bankApplication : bankApplications) {
+                borrowerDocument = attachmentService.uploadDocument(file, borrowerDocumentRequest);
+                borrowerDocument.setBankApplication(bankApplication);
+                borrowerDocument.setBorrowerProfile(borrowerProfile);
+                borrowerDocumentRepository.save(borrowerDocument);
+            }
         }
-
 
         partnerApplicationService.statusChanger(borrowerProfile.getPartnerApplication());
         Map<UUID, BorrowerProfile> borrowerProfileMap = borrowerProfile.getPartnerApplication().getBorrowerProfiles()
@@ -88,7 +87,8 @@ public class AttachmentControllerImpl implements AttachmentController {
                 .setStatus(borrowerProfileMap.get(borrowerProfile.getId()).getBorrowerProfileStatus());
     }
 
-    @Override  //TODO переделать логику. Убрать из этого метода borrowerDocumentService и сделать метод универсальным для аттачментов
+    @Override
+    //TODO переделать логику. Убрать из этого метода borrowerDocumentService и сделать метод универсальным для аттачментов
     public void deleteDocument(Long attachmentId) {
         borrowerDocumentService.deleteDocumentByAttachmentId(attachmentId); //TODO Как только фронт переедет на deleteBorrowerDocument MB-285
         attachmentService.markAttachmentAsDeleted(attachmentId);
@@ -102,6 +102,13 @@ public class AttachmentControllerImpl implements AttachmentController {
     @Override
     public ResponseEntity<InputStreamResource> downloadFile(Long attachmentId) {
         return attachmentService.downloadFile(attachmentId);
+    }
+
+    private boolean isSpecialDocumentType(DocumentType documentType) {
+        return documentType == DocumentType.BORROWER_SNILS ||
+                documentType == DocumentType.CERTIFIED_COPY_TK ||
+                documentType == DocumentType.BORROWER_PASSPORT ||
+                documentType == DocumentType.INCOME_CERTIFICATE;
     }
 
 }
