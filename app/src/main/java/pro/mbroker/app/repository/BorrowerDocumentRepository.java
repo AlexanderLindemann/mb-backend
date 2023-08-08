@@ -7,6 +7,7 @@ import pro.mbroker.app.entity.BorrowerDocument;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 public interface BorrowerDocumentRepository extends JpaRepository<BorrowerDocument, UUID> {
@@ -14,13 +15,12 @@ public interface BorrowerDocumentRepository extends JpaRepository<BorrowerDocume
 
     @Query(value = "SELECT bd.attachment.id " +
             "FROM BorrowerDocument bd " +
-            "WHERE bd.bankApplication.id = :bankApplicationId AND bd.isActive = true")
-    List<Long> getAttachmentIds(@Param("bankApplicationId") UUID bankApplicationId);
+            "WHERE bd.isActive = true AND (" +
+            "(bd.bankApplication.id = :bankApplicationId) OR " +
+            "(bd.borrowerProfile.id IN :borrowerProfileIds AND bd.bank.id IS NULL))")
+    Set<Long> getAttachments(@Param("bankApplicationId") UUID bankApplicationId,
+                             @Param("borrowerProfileIds") List<UUID> borrowerProfileIds);
 
-    @Query(value = "SELECT bd.attachment.id " +
-            "FROM BorrowerDocument bd " +
-            "WHERE bd.borrowerProfile.id = :borrowerProfileId AND bd.bank.id IS NULL AND bd.isActive = true")
-    List<Long> getAttachmentsWithoutBankId(@Param("borrowerProfileId") UUID borrowerProfileId);
 
 }
 
