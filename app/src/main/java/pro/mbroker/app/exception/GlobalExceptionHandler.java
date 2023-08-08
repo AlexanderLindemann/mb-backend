@@ -57,5 +57,11 @@ public class GlobalExceptionHandler {
         ControllerError apiError = new ControllerError(ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         return new ResponseEntity<>(apiError, apiError.getStatus());
     }
+    @ExceptionHandler(DataNotFoundException.class)
+    public ResponseEntity<Object> handleDataNotFoundException(DataNotFoundException ex) {
+        ControllerError apiError = new ControllerError(ex.getMessage(), HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(apiError, apiError.getStatus());
+    }
+
 
 }
