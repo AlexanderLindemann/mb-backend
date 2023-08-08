@@ -4,21 +4,13 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
-import pro.mbroker.api.dto.response.AttachmentInfo;
 import pro.mbroker.api.dto.response.NotificationBankLetterResponse;
 import pro.mbroker.api.enums.BankApplicationStatus;
-import pro.mbroker.app.entity.Attachment;
-import pro.mbroker.app.exception.ItemNotFoundException;
-import pro.mbroker.app.repository.AttachmentRepository;
 import pro.mbroker.app.repository.BankApplicationRepository;
 import pro.mbroker.app.repository.BorrowerDocumentRepository;
-import pro.mbroker.app.service.AttachmentService;
 import pro.mbroker.app.service.BankApplicationService;
 import pro.mbroker.app.service.NotificationService;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -41,7 +33,6 @@ public class NotificationServiceImpl implements NotificationService {
                 .getCustomerInfoForBankLetter(bankApplicationId, PageRequest.of(0, 1));
         log.info("Закончен процесс получения информации для формирования письма. Получено: {}",
                 customerInfoForBankLetter.getContent());
-
         log.info("Начинаю процесс получения списка id документов для заемщика {}",
                 customerInfoForBankLetter.getContent().get(FIRST_ELEMENT).getBorrowerId());
         var attachmentIds = customerInfoForBankLetter
