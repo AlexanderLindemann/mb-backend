@@ -15,6 +15,12 @@ public interface BorrowerDocumentRepository extends JpaRepository<BorrowerDocume
     @Query(value = "SELECT bd.attachment.id " +
             "FROM BorrowerDocument bd " +
             "WHERE bd.bankApplication.id = :bankApplicationId AND bd.isActive = true")
-    List<Long> getaAttachmentIds(@Param("bankApplicationId") UUID bankApplicationId);
+    List<Long> getAttachmentIds(@Param("bankApplicationId") UUID bankApplicationId);
+
+    @Query(value = "SELECT bd.attachment.id " +
+            "FROM BorrowerDocument bd " +
+            "WHERE bd.borrowerProfile.id = :borrowerProfileId AND bd.bank.id IS NULL AND bd.isActive = true")
+    List<Long> getAttachmentsWithoutBankId(@Param("borrowerProfileId") UUID borrowerProfileId);
+
 }
 

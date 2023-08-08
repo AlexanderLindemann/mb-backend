@@ -10,6 +10,7 @@ import pro.mbroker.api.enums.RealEstateType;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 @Getter
@@ -26,7 +27,7 @@ public class NotificationBankLetterResponse implements Serializable {
     @JsonIgnore
     private UUID partnerApplicationId;
     private Integer applicationNumber;
-    private List<Long> attachmentIds;
+    private Set<Long> attachmentIds;
     private String partnerName;
     private String residentialComplexName;
     private String address;
