@@ -111,6 +111,8 @@ public class BankServiceImpl implements BankService {
     public void deleteBankById(UUID bankId) {
         Bank bank = getBank(bankId);
         bank.setActive(false);
+        bank.getCreditPrograms()
+                .forEach(creditProgram -> creditProgram.setActive(false));
         bankRepository.save(bank);
     }
 
