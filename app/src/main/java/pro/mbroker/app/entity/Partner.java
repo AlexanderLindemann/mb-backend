@@ -9,7 +9,6 @@ import pro.mbroker.api.enums.PartnerType;
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 @Entity
 @Getter
@@ -18,9 +17,6 @@ import java.util.UUID;
 @AllArgsConstructor
 @Table(name = "partner")
 public class Partner extends BaseEntity {
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private UUID id;
     //ID организации из смарта
     @Column(name = "smart_deal_organization_id", nullable = false)
     private Integer smartDealOrganizationId;
