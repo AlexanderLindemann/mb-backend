@@ -10,6 +10,7 @@ import pro.mbroker.api.enums.CreditPurposeType;
 import pro.mbroker.api.enums.PartnerApplicationStatus;
 import pro.mbroker.api.enums.RealEstateType;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -32,4 +33,8 @@ public class PartnerApplicationResponse {
     private List<BankWithBankApplicationDto> bankWithBankApplicationDto;
 
     private List<BorrowerProfileRequest> borrowerProfiles;
+
+    private LocalDateTime createdAt;
+
+    private LocalDateTime updatedAt;
 }
