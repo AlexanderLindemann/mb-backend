@@ -6,7 +6,6 @@ import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.springframework.stereotype.Component;
 import pro.mbroker.app.entity.*;
-import pro.mbroker.app.repository.PartnerApplicationRepository;
 import pro.smartdeal.ng.common.security.service.CurrentUserService;
 
 import java.util.Collection;
@@ -17,40 +16,10 @@ import java.util.Collection;
 public class BaseEntityAuditAspect {
     @NonNull
     private final CurrentUserService currentUserService;
-    private final PartnerApplicationRepository partnerApplicationRepository;
 
     @Before("execution(* pro.mbroker.app.repository.*.save(..)) && args(baseEntity, ..)")
     public void beforeSave(BaseEntity baseEntity) {
         setAuditFields(baseEntity);
-        if (baseEntity instanceof BorrowerDocument) {
-            BorrowerDocument borrowerDocument = (BorrowerDocument) baseEntity;
-            PartnerApplication partnerApplication = borrowerDocument.getBankApplication().getPartnerApplication();
-            if (partnerApplication != null && partnerApplication.isActive()) {
-                setAuditFields(partnerApplication);
-            }
-            return;
-        }
-        if (baseEntity instanceof MortgageCalculation) {
-            PartnerApplication partnerApplication = partnerApplicationRepository.findByMortgageCalculation((MortgageCalculation) baseEntity);
-            if (partnerApplication != null && partnerApplication.isActive()) {
-                setAuditFields(partnerApplication);
-            }
-            return;
-        }
-        if (baseEntity instanceof BorrowerProfile) {
-            PartnerApplication partnerApplication = ((BorrowerProfile) baseEntity).getPartnerApplication();
-            if (partnerApplication != null && partnerApplication.isActive()) {
-                setAuditFields(partnerApplication);
-            }
-            return;
-        }
-        if (baseEntity instanceof BankApplication) {
-            PartnerApplication partnerApplication = ((BankApplication) baseEntity).getPartnerApplication();
-            if (partnerApplication != null && partnerApplication.isActive()) {
-                setAuditFields(partnerApplication);
-            }
-            return;
-        }
         if (baseEntity instanceof PartnerApplication) {
             PartnerApplication partnerApplication = (PartnerApplication) baseEntity;
             if (partnerApplication.getBankApplications() != null) {
