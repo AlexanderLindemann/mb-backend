@@ -11,7 +11,10 @@ import org.springframework.transaction.annotation.Transactional;
 import pro.mbroker.api.dto.BankWithBankApplicationDto;
 import pro.mbroker.api.dto.MortgageCalculationDto;
 import pro.mbroker.api.dto.SalaryClientProgramCalculationDto;
-import pro.mbroker.api.dto.request.*;
+import pro.mbroker.api.dto.request.BankApplicationRequest;
+import pro.mbroker.api.dto.request.BankApplicationUpdateRequest;
+import pro.mbroker.api.dto.request.BorrowerProfileRequest;
+import pro.mbroker.api.dto.request.PartnerApplicationRequest;
 import pro.mbroker.api.dto.response.BankApplicationResponse;
 import pro.mbroker.api.dto.response.BorrowerProfileResponse;
 import pro.mbroker.api.dto.response.PartnerApplicationResponse;
@@ -259,6 +262,18 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
         List<BankApplicationResponse> activeBankApplicationResponses = getActiveBankApplicationResponses(partnerApplication, borrowerProfileMap);
         List<BankWithBankApplicationDto> bankWithBankApplicationDtos = getGroupBankApplication(activeBankApplicationResponses);
         response.setBankWithBankApplicationDto(bankWithBankApplicationDtos);
+        Long result = null;
+        Collection<? extends GrantedAuthority> authorities = SecurityContextHolder.getContext().getAuthentication().getAuthorities();
+        if (authorities.contains(new SimpleGrantedAuthority(Permission.Code.MB_ADMIN_ACCESS))) {
+            result = partnerApplicationRepository.countByIsActiveTrue();
+        } else if (authorities.contains(new SimpleGrantedAuthority(Permission.Code.MB_REQUEST_READ_ORGANIZATION))) {
+            UUID partnerId = partnerService.getCurrentPartner().getId();
+            result = partnerApplicationRepository.countByPartnerIdAndIsActiveTrue(partnerId);
+        } else if (authorities.contains(new SimpleGrantedAuthority(Permission.Code.MB_REQUEST_READ_OWN))) {
+            Integer createdBy = TokenExtractor.extractSdId(currentUserService.getCurrentUserToken());
+            result = partnerApplicationRepository.countByIsActiveTrueAndCreatedBy(createdBy);
+        }
+        response.setApplicationCount(result);
         return response;
     }
 
