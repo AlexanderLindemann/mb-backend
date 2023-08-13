@@ -37,4 +37,6 @@ public class PartnerApplicationResponse {
     private LocalDateTime createdAt;
 
     private LocalDateTime updatedAt;
+
+    private Long applicationCount;
 }

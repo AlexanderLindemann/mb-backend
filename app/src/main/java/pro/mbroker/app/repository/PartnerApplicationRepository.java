@@ -19,6 +19,16 @@ public interface PartnerApplicationRepository extends JpaRepository<PartnerAppli
     @EntityGraph(attributePaths = {"bankApplications.creditProgram", "bankApplications.creditProgram.bank"})
     List<PartnerApplication> findAllByPartner(Partner partner, Pageable pageable);
 
+    @Query("SELECT COUNT(pa) FROM PartnerApplication pa WHERE pa.isActive = true")
+    Long countByIsActiveTrue();
+
+    @Query("SELECT COUNT(pa) FROM PartnerApplication pa WHERE pa.partner.id = :partnerId AND pa.isActive = true")
+    Long countByPartnerIdAndIsActiveTrue(@Param("partnerId") UUID partnerId);
+
+    @Query("SELECT COUNT(pa) FROM PartnerApplication pa WHERE pa.isActive = true AND pa.createdBy = :createdBy")
+    Long countByIsActiveTrueAndCreatedBy(@Param("createdBy") Integer createdBy);
+
+
     @Query("SELECT pa FROM PartnerApplication pa " +
             "JOIN FETCH pa.bankApplications ba " +
             "JOIN FETCH ba.creditProgram cp " +
