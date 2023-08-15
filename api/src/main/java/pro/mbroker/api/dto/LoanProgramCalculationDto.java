@@ -11,6 +11,9 @@ import java.util.UUID;
 @Setter
 @ToString
 public class LoanProgramCalculationDto {
+
+    private UUID bankId;
+
     private UUID creditProgramId;
 
     private String creditProgramName;

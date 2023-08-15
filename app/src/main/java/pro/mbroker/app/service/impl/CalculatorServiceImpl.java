@@ -47,19 +47,20 @@ public class CalculatorServiceImpl implements CalculatorService {
     public PropertyMortgageDTO getCreditOffer(CalculatorRequest request) {
         List<CreditProgram> creditPrograms = filterCreditPrograms(request);
         Map<UUID, BankLoanProgramDto> bankLoanProgramDtoMap = new HashMap<>();
+        List<LoanProgramCalculationDto> loanProgramCalculationDto = new ArrayList<>();
         for (CreditProgram creditProgram : creditPrograms) {
             bankLoanProgramDtoMap.computeIfAbsent(creditProgram.getBank().getId(),
                     bankLoanProgram ->
-                            createBankLoanProgramDto(creditProgram)).getLoanProgramCalculationDto().add(createLoanProgramCalculationDto(request, creditProgram));
+                            createBankLoanProgramDto(creditProgram));
+            loanProgramCalculationDto.add(createLoanProgramCalculationDto(request, creditProgram));
         }
         List<BankLoanProgramDto> bankLoanProgramDtos = new ArrayList<>(bankLoanProgramDtoMap.values());
-        updateBankSalaryFlag(bankLoanProgramDtos);
-        sortLoanProgramCalculation(bankLoanProgramDtos);
         return new PropertyMortgageDTO()
                 .setRealEstatePrice(request.getRealEstatePrice())
                 .setMonthCreditTerm(Optional.ofNullable(request.getCreditTerm())
                         .orElse(0) * MONTHS_IN_YEAR)
                 .setDownPayment(request.getDownPayment())
+                .setLoanProgramCalculationDto(sortLoanProgramsByOverpayment(loanProgramCalculationDto))
                 .setBankLoanProgramDto(bankLoanProgramDtos);
     }
 
@@ -114,6 +115,11 @@ public class CalculatorServiceImpl implements CalculatorService {
         return overpayment.setScale(2, RoundingMode.HALF_EVEN);
     }
 
+    public List<LoanProgramCalculationDto> sortLoanProgramsByOverpayment(List<LoanProgramCalculationDto> loanProgramCalculationDtos) {
+        loanProgramCalculationDtos.sort(Comparator.comparing(LoanProgramCalculationDto::getOverpayment));
+        return loanProgramCalculationDtos;
+    }
+
 
     private BankLoanProgramDto createBankLoanProgramDto(CreditProgram creditProgram) {
         if (creditProgram == null || creditProgram.getBank() == null) {
@@ -147,32 +153,13 @@ public class CalculatorServiceImpl implements CalculatorService {
                 .orElseGet(() -> request.getCreditTerm() * 12);
     }
 
-    private void updateBankSalaryFlag(List<BankLoanProgramDto> bankLoanProgramDtos) {
-        bankLoanProgramDtos.forEach(bankLoanProgramDto ->
-                bankLoanProgramDto.setSalaryBank(bankLoanProgramDto.getLoanProgramCalculationDto()
-                        .stream()
-                        .anyMatch(loanProgramCalculationDto ->
-                                loanProgramCalculationDto.getSalaryClientCalculation() != null)));
-    }
-
-    private void sortLoanProgramCalculation(List<BankLoanProgramDto> bankLoanProgramDtos) {
-        bankLoanProgramDtos.forEach(bankLoanProgramDto ->
-                bankLoanProgramDto.getLoanProgramCalculationDto()
-                        .sort(Comparator.comparing(LoanProgramCalculationDto::getMonthlyPayment))
-        );
-        bankLoanProgramDtos.sort(Comparator.comparing(bankLoanProgramDto ->
-                bankLoanProgramDto.getLoanProgramCalculationDto().stream()
-                        .min(Comparator.comparing(LoanProgramCalculationDto::getOverpayment))
-                        .orElseThrow(NoSuchElementException::new)
-                        .getMonthlyPayment()));
-    }
-
     private LoanProgramCalculationDto createLoanProgramCalculationDto(CalculatorRequest request, CreditProgram creditProgram) {
         BigDecimal mortgageSum = getMortgageSum(request.getRealEstatePrice(), request.getDownPayment());
         BigDecimal downPayment = Optional.ofNullable(request.getDownPayment()).orElse(BigDecimal.ZERO);
         int creditTermMonths = getCreditTermMonths(creditProgram, request);
         BigDecimal calculateMonthlyPayment = calculateMonthlyPayment(mortgageSum, creditProgram.getBaseRate(), creditTermMonths);
         LoanProgramCalculationDto loanProgramCalculationDto = new LoanProgramCalculationDto()
+                .setBankId(creditProgram.getBank().getId())
                 .setCreditProgramId(creditProgram.getId())
                 .setCreditProgramName(creditProgram.getProgramName())
                 .setCreditTerm((int) Math.ceil(creditTermMonths / 12.0))
