@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
-import org.springframework.data.domain.PageImpl;
 import pro.mbroker.api.controller.PartnerApplicationController;
 import pro.mbroker.api.dto.request.BankApplicationUpdateRequest;
 import pro.mbroker.api.dto.request.PartnerApplicationRequest;
@@ -15,7 +14,6 @@ import pro.mbroker.api.enums.BankApplicationStatus;
 import pro.mbroker.api.enums.RegionType;
 import pro.mbroker.app.entity.PartnerApplication;
 import pro.mbroker.app.service.PartnerApplicationService;
-
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -32,13 +30,13 @@ public class PartnerApplicationControllerImpl implements PartnerApplicationContr
     @PreAuthorize("hasAuthority(T(pro.smartdeal.common.security.Permission$Code).MB_ADMIN_ACCESS) or" +
             " hasAuthority(T(pro.smartdeal.common.security.Permission$Code).MB_REQUEST_READ_OWN) or" +
             " hasAnyAuthority(T(pro.smartdeal.common.security.Permission$Code).MB_REQUEST_READ_ORGANIZATION)")
-    public Page<PartnerApplicationResponse> getAllPartnerApplication(int page, int size, String sortBy, String sortOrder, LocalDateTime startDate, LocalDateTime endDate) {
+    public List<PartnerApplicationResponse> getAllPartnerApplication(int page, int size, String sortBy, String sortOrder, LocalDateTime startDate, LocalDateTime endDate) {
         Page<PartnerApplication> partnerApplications = partnerApplicationService.getAllPartnerApplication(page, size, sortBy, sortOrder, startDate, endDate);
         List<PartnerApplicationResponse> responseList = partnerApplications.getContent()
                 .stream()
                 .map(partnerApplicationService::buildPartnerApplicationResponse)
                 .collect(Collectors.toList());
-        return new PageImpl<>(responseList, partnerApplications.getPageable(), partnerApplications.getTotalElements());
+        return responseList;
     }
 
     @Override
