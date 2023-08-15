@@ -45,7 +45,7 @@ public interface PartnerApplicationRepository extends JpaRepository<PartnerAppli
     Long countByIsActiveTrueAndCreatedBy(@Param("createBy") Integer createdBy);
 
 
-    @Query("SELECT pa FROM PartnerApplication pa " +
+    @Query("SELECT DISTINCT pa FROM PartnerApplication pa " +
             "JOIN pa.bankApplications ba " +
             "JOIN ba.creditProgram cp " +
             "JOIN cp.bank WHERE pa.partner.id = :partnerId AND pa.isActive = true " +
@@ -56,7 +56,7 @@ public interface PartnerApplicationRepository extends JpaRepository<PartnerAppli
                                                         @Param("partnerId") UUID partnerId,
                                                         Pageable pageable);
 
-    @Query("SELECT pa FROM PartnerApplication pa " +
+    @Query("SELECT DISTINCT pa FROM PartnerApplication pa " +
             "JOIN pa.bankApplications ba " +
             "JOIN ba.creditProgram cp " +
             "JOIN cp.bank WHERE pa.isActive = true " +
