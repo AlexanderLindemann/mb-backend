@@ -3,7 +3,6 @@ package pro.mbroker.api.controller;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
-import org.springframework.data.domain.Page;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 import pro.mbroker.api.dto.request.BankApplicationUpdateRequest;
@@ -26,7 +25,7 @@ public interface PartnerApplicationController {
 
     @ApiOperation("получить все заявки действующего партнера")
     @GetMapping()
-    Page<PartnerApplicationResponse> getAllPartnerApplication(@RequestParam(defaultValue = "0") int page,
+    List<PartnerApplicationResponse> getAllPartnerApplication(@RequestParam(defaultValue = "0") int page,
                                                               @RequestParam(defaultValue = "10") int size,
                                                               @RequestParam(defaultValue = "updatedAt") String sortBy,
                                                               @RequestParam(defaultValue = "asc") String sortOrder,
