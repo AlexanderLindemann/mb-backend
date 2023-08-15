@@ -2,7 +2,9 @@ package pro.mbroker.app.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -83,29 +85,37 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
 
     @Override
     @Transactional(readOnly = true)
-    public List<PartnerApplication> getAllPartnerApplication(int page, int size, String sortBy, String sortOrder, LocalDateTime startDate, LocalDateTime endDate) {
+    public Page<PartnerApplication> getAllPartnerApplication(int page, int size, String sortBy, String sortOrder, LocalDateTime startDate, LocalDateTime endDate) {
         Optional<LocalDateTime> start = Optional.ofNullable(startDate);
         Optional<LocalDateTime> end = Optional.ofNullable(endDate);
         log.info("Getting all partner applications with pagination: page={}, size={}, sortBy={}, sortOrder={}", page, size, sortBy, sortOrder);
         Pageable pageable = Pagination.createPageable(page, size, sortBy, sortOrder);
-        List<PartnerApplication> result = new ArrayList<>();
-        Collection<? extends GrantedAuthority> authorities = SecurityContextHolder.getContext().getAuthentication().getAuthorities();
-        if (authorities.contains(new SimpleGrantedAuthority(Permission.Code.MB_ADMIN_ACCESS))) {
-            result = partnerApplicationRepository.findAllByIsActiveTrue(start, end, pageable);
-        } else if (authorities.contains(new SimpleGrantedAuthority(Permission.Code.MB_REQUEST_READ_ORGANIZATION))) {
-            UUID partnerId = partnerService.getCurrentPartner().getId();
-            result = partnerApplicationRepository.findAllIsActiveByPartnerId(start, end, partnerId, pageable);
-        } else if (authorities.contains(new SimpleGrantedAuthority(Permission.Code.MB_REQUEST_READ_OWN))) {
-            Integer createdBy = TokenExtractor.extractSdId(currentUserService.getCurrentUserToken());
-            result = partnerApplicationRepository.findAllByCreatedByAndIsActiveTrue(start, end, createdBy, pageable);
+        Page<PartnerApplication> result = Page.empty(pageable);
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        try {
+            if (auth.getAuthorities().contains(new SimpleGrantedAuthority(Permission.Code.MB_ADMIN_ACCESS.toString()))) {
+                result = partnerApplicationRepository.findAllByIsActiveTrue(start, end, pageable);
+            } else if (auth.getAuthorities().contains(new SimpleGrantedAuthority(Permission.Code.MB_REQUEST_READ_ORGANIZATION.toString()))) {
+                UUID partnerId = partnerService.getCurrentPartner().getId();
+                result = partnerApplicationRepository.findAllIsActiveByPartnerId(start, end, partnerId, pageable);
+            } else if (auth.getAuthorities().contains(new SimpleGrantedAuthority(Permission.Code.MB_REQUEST_READ_OWN.toString()))) {
+                Integer createdBy = TokenExtractor.extractSdId(currentUserService.getCurrentUserToken());
+                result = partnerApplicationRepository.findAllByCreatedByAndIsActiveTrue(start, end, createdBy, pageable);
+            } else {
+                log.warn("User does not have any valid permission to fetch partner applications");
+            }
+            result.getContent().forEach(partnerApplication -> {
+                List<BorrowerProfile> sortedBorrowerProfiles = partnerApplication.getBorrowerProfiles()
+                        .stream()
+                        .sorted(Comparator.comparing(BorrowerProfile::getCreatedAt))
+                        .collect(Collectors.toList());
+                partnerApplication.setBorrowerProfiles(sortedBorrowerProfiles);
+            });
+
+        } catch (Exception e) {
+            log.error("Error while fetching partner applications", e);
         }
-        result.forEach(partnerApplication -> {
-            List<BorrowerProfile> sortedBorrowerProfiles = partnerApplication.getBorrowerProfiles()
-                    .stream()
-                    .sorted(Comparator.comparing(BorrowerProfile::getCreatedAt))
-                    .collect(Collectors.toList());
-            partnerApplication.setBorrowerProfiles(sortedBorrowerProfiles);
-        });
+
         return result;
     }
 
