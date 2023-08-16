@@ -32,10 +32,8 @@ public interface PartnerApplicationRepository extends JpaRepository<PartnerAppli
             "JOIN pa.bankApplications ba " +
             "JOIN ba.creditProgram cp " +
             "JOIN cp.bank b " +
-            "WHERE pa.partner.id = :partnerId AND pa.isActive = true " +
-            "AND (COALESCE(:startDate, null) IS NULL OR pa.createdAt >= :startDate) " +
-            "AND (COALESCE(:endDate, null) IS NULL OR pa.createdAt <= :endDate)")
-    Long countByPartnerIdAndIsActiveTrue(@Param("partnerId") UUID partnerId);
+            "WHERE pa.partner.id = :partnerId AND pa.isActive = true")
+            Long countByPartnerIdAndIsActiveTrue(@Param("partnerId") UUID partnerId);
 
     @Query("SELECT count(DISTINCT pa) FROM PartnerApplication pa " +
             "JOIN pa.bankApplications ba " +
