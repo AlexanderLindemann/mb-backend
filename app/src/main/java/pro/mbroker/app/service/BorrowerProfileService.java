@@ -1,5 +1,6 @@
 package pro.mbroker.app.service;
 
+import pro.mbroker.api.dto.request.BorrowerProfileUpdateRequest;
 import pro.mbroker.api.dto.request.BorrowerRequest;
 import pro.mbroker.api.dto.response.BorrowerResponse;
 import pro.mbroker.app.entity.BorrowerProfile;
@@ -19,5 +20,9 @@ public interface BorrowerProfileService {
     void deleteBorrowerProfileById(UUID borrowerProfileId);
 
     BorrowerResponse getBorrowersByBankApplicationId(UUID bankApplicationId);
+
+    void updateBorrowerProfileField(UUID borrowerProfileId, BorrowerProfileUpdateRequest updateRequest);
+
+    BorrowerProfile getBorrowerProfileWithEmployer(UUID borrowerProfileId);
 
 }
