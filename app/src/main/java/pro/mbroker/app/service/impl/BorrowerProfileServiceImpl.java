@@ -4,21 +4,29 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import pro.mbroker.api.dto.BorrowerRealEstateDto;
+import pro.mbroker.api.dto.BorrowerVehicleDto;
+import pro.mbroker.api.dto.EmployerDto;
 import pro.mbroker.api.dto.request.BorrowerProfileRequest;
+import pro.mbroker.api.dto.request.BorrowerProfileUpdateRequest;
 import pro.mbroker.api.dto.request.BorrowerRequest;
 import pro.mbroker.api.dto.response.BorrowerProfileResponse;
 import pro.mbroker.api.dto.response.BorrowerResponse;
-import pro.mbroker.app.entity.BankApplication;
-import pro.mbroker.app.entity.BorrowerProfile;
-import pro.mbroker.app.entity.PartnerApplication;
+import pro.mbroker.app.entity.*;
 import pro.mbroker.app.exception.ItemConflictException;
 import pro.mbroker.app.exception.ItemNotFoundException;
+import pro.mbroker.app.exception.ProfileUpdateException;
+import pro.mbroker.app.mapper.BorrowerEmployerMapper;
 import pro.mbroker.app.mapper.BorrowerProfileMapper;
+import pro.mbroker.app.mapper.BorrowerRealEstateMapper;
+import pro.mbroker.app.mapper.BorrowerVehicleMapper;
 import pro.mbroker.app.repository.BorrowerProfileRepository;
 import pro.mbroker.app.service.BankApplicationService;
+import pro.mbroker.app.service.BankService;
 import pro.mbroker.app.service.BorrowerProfileService;
 import pro.mbroker.app.service.PartnerApplicationService;
 
+import java.lang.reflect.Field;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -28,7 +36,11 @@ import java.util.stream.Collectors;
 public class BorrowerProfileServiceImpl implements BorrowerProfileService {
     private final BorrowerProfileRepository borrowerProfileRepository;
     private final BankApplicationService bankApplicationService;
+    private final BankService bankService;
     private final BorrowerProfileMapper borrowerProfileMapper;
+    private final BorrowerEmployerMapper borrowerEmployerMapper;
+    private final BorrowerRealEstateMapper borrowerRealEstateMapper;
+    private final BorrowerVehicleMapper borrowerVehicleMapper;
     private final PartnerApplicationService partnerApplicationService;
 
     @Override
@@ -92,9 +104,55 @@ public class BorrowerProfileServiceImpl implements BorrowerProfileService {
     }
 
     @Override
+    @Transactional
+    public void updateBorrowerProfileField(UUID borrowerProfileId, BorrowerProfileUpdateRequest updateRequest) {
+        BorrowerProfile borrowerProfile = getBorrowerProfileWithEmployer(borrowerProfileId);
+        for (Field field : BorrowerProfileUpdateRequest.class.getDeclaredFields()) {
+            field.setAccessible(true);
+            try {
+                Object value = field.get(updateRequest);
+                if (value != null) {
+                    Field borrowerProfileField = BorrowerProfile.class.getDeclaredField(field.getName());
+                    borrowerProfileField.setAccessible(true);
+                    if (field.getName().equals("employer") && value instanceof EmployerDto) {
+                        BorrowerEmployer employer = borrowerProfile.getEmployer();
+                        BorrowerEmployer convertedEmployer = convertToBorrowerEmployer((EmployerDto) value, employer);
+                        Objects.requireNonNull(convertedEmployer).setBorrowerProfile(borrowerProfile);
+                        borrowerProfile.setEmployer(convertedEmployer);
+                    }
+                    if (field.getName().equals("realEstate") && value instanceof BorrowerRealEstateDto) {
+                        BorrowerRealEstate realEstate = borrowerProfile.getRealEstate();
+                        BorrowerRealEstate convertedToBorrowerRealEstate = convertToBorrowerRealEstate((BorrowerRealEstateDto) value, realEstate);
+                        Objects.requireNonNull(convertedToBorrowerRealEstate).setBorrowerProfile(borrowerProfile);
+                        borrowerProfile.setRealEstate(convertedToBorrowerRealEstate);
+                    }
+                    if (field.getName().equals("vehicle") && value instanceof BorrowerVehicleDto) {
+                        BorrowerVehicle vehicle = borrowerProfile.getVehicle();
+                        BorrowerVehicle convertToBorrowerVehicle = convertToBorrowerVehicle((BorrowerVehicleDto) value, vehicle);
+                        Objects.requireNonNull(convertToBorrowerVehicle).setBorrowerProfile(borrowerProfile);
+                        borrowerProfile.setVehicle(convertToBorrowerVehicle);
+                    } else {
+                        borrowerProfileField.set(borrowerProfile, value);
+                    }
+                }
+            } catch (NoSuchFieldException | IllegalAccessException e) {
+                throw new ProfileUpdateException(field.getName(), "Ошибка при обновлении профиля заемщика");
+            }
+        }
+        borrowerProfileRepository.save(borrowerProfile);
+    }
+
+    @Override
     @Transactional(readOnly = true)
     public BorrowerProfile getBorrowerProfile(UUID borrowerProfileId) {
         return borrowerProfileRepository.findById(borrowerProfileId)
+                .orElseThrow(() -> new ItemNotFoundException(BorrowerProfile.class, borrowerProfileId));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public BorrowerProfile getBorrowerProfileWithEmployer(UUID borrowerProfileId) {
+        return borrowerProfileRepository.findByIdWithRealEstateVehicleAndEmployer(borrowerProfileId)
                 .orElseThrow(() -> new ItemNotFoundException(BorrowerProfile.class, borrowerProfileId));
     }
 
@@ -154,6 +212,38 @@ public class BorrowerProfileServiceImpl implements BorrowerProfileService {
 
         return borrowerProfile;
     }
+    private BorrowerVehicle convertToBorrowerVehicle(BorrowerVehicleDto dto, BorrowerVehicle vehicle) {
+        if (Objects.isNull(dto)) {
+            return null;
+        }
+        BorrowerVehicle entity = (Objects.nonNull(vehicle)) ? vehicle : new BorrowerVehicle();
+        borrowerVehicleMapper.updateBorrowerVehicleFromDto(dto, entity);
+        return entity;
+    }
 
+    private BorrowerRealEstate convertToBorrowerRealEstate(BorrowerRealEstateDto dto, BorrowerRealEstate realEstate) {
+        if (Objects.isNull(dto)) {
+            return null;
+        }
+        BorrowerRealEstate entity = (Objects.nonNull(realEstate)) ? realEstate : new BorrowerRealEstate();
+        borrowerRealEstateMapper.updateBorrowerRealEstateFromDto(dto, entity);
+        return entity;
+    }
+
+    private BorrowerEmployer convertToBorrowerEmployer(EmployerDto dto, BorrowerEmployer employer) {
+        if (Objects.isNull(dto)) {
+            return null;
+        }
+        BorrowerEmployer entity = (Objects.nonNull(employer)) ? employer : new BorrowerEmployer();
+        borrowerEmployerMapper.updateBorrowerEmployerFromDto(dto, entity);
+        if (Objects.nonNull(dto.getSalaryBank())) {
+            for (UUID id : dto.getSalaryBank()) {
+                Bank bank = bankService.getBankById(id);
+                bank.getEmployers().add(entity);
+                entity.getSalaryBanks().add(bank);
+            }
+        }
+        return entity;
+    }
 
 }

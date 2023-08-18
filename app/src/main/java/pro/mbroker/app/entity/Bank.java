@@ -7,6 +7,7 @@ import lombok.Setter;
 
 import javax.persistence.*;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Getter
@@ -31,4 +32,12 @@ public class Bank extends BaseEntity {
 
     @OneToMany(mappedBy = "bank", cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH})
     private List<CreditProgram> creditPrograms;
+
+    @ManyToMany
+    @JoinTable(
+            name = "employer_bank_relation",
+            joinColumns = @JoinColumn(name = "bank_id"),
+            inverseJoinColumns = @JoinColumn(name = "employer_id")
+    )
+    private Set<BorrowerEmployer> employers;
 }

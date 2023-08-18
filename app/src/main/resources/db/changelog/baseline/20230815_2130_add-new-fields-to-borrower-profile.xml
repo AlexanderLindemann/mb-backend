@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <changeSet id="20230815_2130_add-new-table_employer" author="a.lindemann">
+        <createTable tableName="borrower_employer">
+            <column name="id" type="uuid">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="name" type="VARCHAR(255)"/>
+            <column name="inn" type="INT"/>
+            <column name="branch" type="VARCHAR(255)"/>
+            <column name="number_of_employees" type="VARCHAR(255)"/>
+            <column name="organization_age" type="VARCHAR(255)"/>
+            <column name="phone" type="VARCHAR(255)"/>
+            <column name="site" type="VARCHAR(255)"/>
+            <column name="work_experience" type="VARCHAR(255)"/>
+            <column name="position" type="VARCHAR(255)"/>
+            <column name="address" type="VARCHAR(255)"/>
+            <column name="created_at" type="TIMESTAMP WITHOUT TIME ZONE" defaultValueComputed="CURRENT_TIMESTAMP"/>
+            <column name="updated_at" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="created_by" type="integer" defaultValueNumeric="0"/>
+            <column name="updated_by" type="integer"/>
+            <column name="is_active" type="BOOLEAN" defaultValueBoolean="true"/>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="add_real_estate_and_vehicle" author="your_name">
+        <createTable tableName="borrower_real_estate">
+            <column name="id" type="uuid">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="type" type="varchar(255)"/>
+            <column name="basis_of_ownership" type="varchar(255)"/>
+            <column name="share" type="int"/>
+            <column name="area" type="float"/>
+            <column name="price" type="int"/>
+            <column name="address" type="varchar(255)"/>
+            <column name="is_collateral" type="boolean" defaultValue="false"/>
+            <column name="created_at" type="TIMESTAMP WITHOUT TIME ZONE" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="created_by" type="integer" defaultValueNumeric="0">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_by" type="integer"/>
+            <column name="is_active" type="BOOLEAN" defaultValueBoolean="true">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <createTable tableName="borrower_vehicle">
+            <column name="id" type="uuid">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="model" type="varchar(255)"/>
+            <column name="basis_of_ownership" type="varchar(255)"/>
+            <column name="year_of_manufacture" type="int"/>
+            <column name="price" type="int"/>
+            <column name="is_collateral" type="boolean" defaultValue="false"/>
+            <column name="created_at" type="TIMESTAMP WITHOUT TIME ZONE" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="created_by" type="integer" defaultValueNumeric="0">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_by" type="integer"/>
+            <column name="is_active" type="BOOLEAN" defaultValueBoolean="true">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="20230815_2130_add-new-fields-to-borrower-profile" author="a.lindemann">
+        <addColumn tableName="borrower_profile">
+            <column name="prev_full_name" type="VARCHAR(255)"/>
+            <column name="birthdate" type="DATE"/>
+            <column name="age" type="INT"/>
+            <column name="gender" type="VARCHAR(50)"/>
+            <column name="marital_status" type="VARCHAR(50)"/>
+            <column name="children" type="INT"/>
+            <column name="marriage_contract" type="BOOLEAN"/>
+            <column name="education" type="VARCHAR(100)"/>
+            <column name="passport_number" type="VARCHAR(10)"/>
+            <column name="passport_issued_date" type="DATE"/>
+            <column name="passport_issued_by_code" type="VARCHAR(6)"/>
+            <column name="passport_issued_by_name" type="VARCHAR(255)"/>
+            <column name="registration_address" type="VARCHAR(255)"/>
+            <column name="residence_address" type="VARCHAR(255)"/>
+            <column name="registration_type" type="VARCHAR(50)"/>
+            <column name="snils" type="VARCHAR(11)"/>
+            <column name="residence_rf" type="BOOLEAN"/>
+            <column name="employment_status" type="VARCHAR(50)"/>
+            <column name="total_work_experience" type="VARCHAR(50)"/>
+            <column name="main_income" type="INT"/>
+            <column name="additional_income" type="INT"/>
+            <column name="pension" type="INT"/>
+            <column name="proof_of_income" type="VARCHAR(255)"/>
+        </addColumn>
+        <addColumn tableName="borrower_profile">
+            <column name="borrower_real_estate_id" type="uuid">
+                <constraints foreignKeyName="fk_borrower_real_estate" references="borrower_real_estate(id)"/>
+            </column>
+        </addColumn>
+        <addColumn tableName="borrower_profile">
+            <column name="borrower_vehicle_id" type="uuid">
+                <constraints foreignKeyName="fk_borrower_vehicle" references="borrower_vehicle(id)"/>
+            </column>
+        </addColumn>
+        <addColumn tableName="borrower_profile">
+            <column name="borrower_employer_id" type="uuid">
+                <constraints foreignKeyName="fk_borrower_employer" references="borrower_employer(id)"/>
+            </column>
+        </addColumn>
+    </changeSet>
+    <changeSet id="uniqueIdForThisChangeSet" author="a.lindemann">
+        <createTable tableName="employer_bank_relation">
+            <column name="bank_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="employer_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addForeignKeyConstraint constraintName="fk_bank_id" baseTableName="employer_bank_relation"
+                                 baseColumnNames="bank_id" referencedTableName="bank" referencedColumnNames="id"/>
+
+        <addForeignKeyConstraint constraintName="fk_employer_id" baseTableName="employer_bank_relation"
+                                 baseColumnNames="employer_id" referencedTableName="borrower_employer"
+                                 referencedColumnNames="id"/>
+    </changeSet>
+
+</databaseChangeLog>

@@ -62,6 +62,12 @@ public class GlobalExceptionHandler {
         ControllerError apiError = new ControllerError(ex.getMessage(), HttpStatus.NOT_FOUND);
         return new ResponseEntity<>(apiError, apiError.getStatus());
     }
+    @ExceptionHandler(ProfileUpdateException.class)
+    public ResponseEntity<Object> handleProfileUpdateException(ProfileUpdateException ex) {
+        String errorMessage = String.format("Ошибка при обновлении поля '%s' профиля заемщика: %s", ex.getFieldName(), ex.getMessage());
+        ControllerError apiError = new ControllerError(errorMessage, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(apiError, apiError.getStatus());
+    }
 
 
 }

@@ -5,6 +5,7 @@ import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import pro.mbroker.api.dto.request.BorrowerDocumentRequest;
 import pro.mbroker.api.dto.request.BorrowerProfileRequest;
+import pro.mbroker.api.dto.response.BorrowerProfileFullResponse;
 import pro.mbroker.api.dto.response.BorrowerProfileResponse;
 import pro.mbroker.app.entity.BorrowerDocument;
 import pro.mbroker.app.entity.BorrowerProfile;
@@ -14,7 +15,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-@Mapper
+@Mapper(uses = {BorrowerEmployerMapper.class, BankMapper.class})
 public interface BorrowerProfileMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
@@ -29,6 +30,32 @@ public interface BorrowerProfileMapper {
     @Mapping(source = "request.lastName", target = "lastName")
     @Mapping(source = "request.middleName", target = "middleName")
     @Mapping(source = "request.phoneNumber", target = "phoneNumber")
+    @Mapping(target = "employer", ignore = true)
+    @Mapping(target = "realEstate", ignore = true)
+    @Mapping(target = "vehicle", ignore = true)
+    @Mapping(target = "prevFullName", constant = "null")
+    @Mapping(target = "birthdate", constant = "null")
+    @Mapping(target = "age", expression = "java(null)")
+    @Mapping(target = "gender", expression = "java(null)")
+    @Mapping(target = "maritalStatus", expression = "java(null)")
+    @Mapping(target = "children", expression = "java(null)")
+    @Mapping(target = "marriageContract", expression = "java(null)")
+    @Mapping(target = "education", expression = "java(null)")
+    @Mapping(target = "passportNumber", constant = "null")
+    @Mapping(target = "passportIssuedDate", constant = "null")
+    @Mapping(target = "passportIssuedByCode", constant = "null")
+    @Mapping(target = "passportIssuedByName", constant = "null")
+    @Mapping(target = "registrationAddress", constant = "null")
+    @Mapping(target = "residenceAddress", constant = "null")
+    @Mapping(target = "registrationType", expression = "java(null)")
+    @Mapping(target = "snils", constant = "null")
+    @Mapping(target = "residenceRF", expression = "java(null)")
+    @Mapping(target = "employmentStatus", expression = "java(null)")
+    @Mapping(target = "totalWorkExperience", expression = "java(null)")
+    @Mapping(target = "mainIncome", expression = "java(null)")
+    @Mapping(target = "additionalIncome", expression = "java(null)")
+    @Mapping(target = "pension", expression = "java(null)")
+    @Mapping(target = "proofOfIncome", expression = "java(null)")
     BorrowerProfile toBorrowerProfile(BorrowerProfileRequest request);
 
     @Mapping(source = "borrowerProfileStatus", target = "status")
@@ -49,21 +76,6 @@ public interface BorrowerProfileMapper {
     @Mapping(target = "createdBy", ignore = true)
     @Mapping(target = "updatedBy", ignore = true)
     @Mapping(target = "active", ignore = true)
-    @Mapping(target = "borrowerProfileStatus", ignore = true)
-    @Mapping(target = "partnerApplication", ignore = true)
-    @Mapping(target = "borrowerDocument", ignore = true)
-    @Mapping(source = "request.firstName", target = "firstName")
-    @Mapping(source = "request.lastName", target = "lastName")
-    @Mapping(source = "request.middleName", target = "middleName")
-    @Mapping(source = "request.phoneNumber", target = "phoneNumber")
-    BorrowerProfile toBorrowerProfile(BorrowerProfileResponse request);
-
-    @Mapping(target = "id", ignore = true)
-    @Mapping(target = "createdAt", ignore = true)
-    @Mapping(target = "updatedAt", ignore = true)
-    @Mapping(target = "createdBy", ignore = true)
-    @Mapping(target = "updatedBy", ignore = true)
-    @Mapping(target = "active", ignore = true)
     @Mapping(target = "partnerApplication", ignore = true)
     @Mapping(target = "borrowerProfileStatus", ignore = true)
     @Mapping(target = "borrowerDocument", ignore = true)
@@ -71,8 +83,37 @@ public interface BorrowerProfileMapper {
     @Mapping(source = "request.lastName", target = "lastName")
     @Mapping(source = "request.middleName", target = "middleName")
     @Mapping(source = "request.phoneNumber", target = "phoneNumber")
+    @Mapping(target = "employer", ignore = true)
+    @Mapping(target = "realEstate", ignore = true)
+    @Mapping(target = "vehicle", ignore = true)
+    @Mapping(target = "prevFullName", constant = "null")
+    @Mapping(target = "birthdate", constant = "null")
+    @Mapping(target = "age", expression = "java(null)")
+    @Mapping(target = "gender", expression = "java(null)")
+    @Mapping(target = "maritalStatus", expression = "java(null)")
+    @Mapping(target = "children", expression = "java(null)")
+    @Mapping(target = "marriageContract", expression = "java(null)")
+    @Mapping(target = "education", expression = "java(null)")
+    @Mapping(target = "passportNumber", constant = "null")
+    @Mapping(target = "passportIssuedDate", constant = "null")
+    @Mapping(target = "passportIssuedByCode", constant = "null")
+    @Mapping(target = "passportIssuedByName", constant = "null")
+    @Mapping(target = "registrationAddress", constant = "null")
+    @Mapping(target = "residenceAddress", constant = "null")
+    @Mapping(target = "registrationType", expression = "java(null)")
+    @Mapping(target = "snils", constant = "null")
+    @Mapping(target = "residenceRF", expression = "java(null)")
+    @Mapping(target = "employmentStatus", expression = "java(null)")
+    @Mapping(target = "totalWorkExperience", expression = "java(null)")
+    @Mapping(target = "mainIncome", expression = "java(null)")
+    @Mapping(target = "additionalIncome", expression = "java(null)")
+    @Mapping(target = "pension", expression = "java(null)")
+    @Mapping(target = "proofOfIncome", expression = "java(null)")
     void updateBorrowerProfile(BorrowerProfileRequest request, @MappingTarget BorrowerProfile profile);
 
+    @Mapping(source = "borrowerProfileStatus", target = "status")
+    @Mapping(target = "documents", expression = "java(mapBorrowerDocuments(borrowerProfile.getBorrowerDocument()))")
+    BorrowerProfileFullResponse toBorrowerProfileFullResponse(BorrowerProfile borrowerProfile);
 
     default BorrowerDocumentRequest toBorrowerDocumentRequest(BorrowerDocument borrowerDocument) {
         BorrowerDocumentRequest request = new BorrowerDocumentRequest();

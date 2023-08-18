@@ -4,7 +4,9 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.springframework.web.bind.annotation.*;
+import pro.mbroker.api.dto.request.BorrowerProfileUpdateRequest;
 import pro.mbroker.api.dto.request.BorrowerRequest;
+import pro.mbroker.api.dto.response.BorrowerProfileFullResponse;
 import pro.mbroker.api.dto.response.BorrowerResponse;
 
 import javax.validation.constraints.NotNull;
@@ -35,4 +37,13 @@ public interface BorrowerProfileController {
     @ApiOperation("Пометить загруженный документ клиента, как не активный по id документа")
     @PutMapping(value = "/{attachmentId}/mark_document_as_inactive")
     void deleteBorrowerDocument(@ApiParam(value = "Идентификатор документа") @PathVariable Long attachmentId);
+
+    @ApiOperation("Добавить поле в профиль клиента")
+    @PutMapping("/{borrowerProfileId}/updateField")
+    void updateBorrowerProfileField(@ApiParam(value = "Идентификатор профиля") @PathVariable UUID borrowerProfileId, @RequestBody BorrowerProfileUpdateRequest updateRequest);
+
+    @ApiOperation("получить полный профиль клиента")
+    @GetMapping("/{borrowerProfileId}/full")
+    BorrowerProfileFullResponse getBorrower(@PathVariable UUID borrowerProfileId);
+
 }
