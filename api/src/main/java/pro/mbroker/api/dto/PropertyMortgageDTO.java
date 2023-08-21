@@ -5,6 +5,7 @@ import lombok.Setter;
 import lombok.ToString;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
@@ -18,5 +19,7 @@ public class PropertyMortgageDTO {
     private Integer monthCreditTerm;
 
     private List<BankLoanProgramDto> bankLoanProgramDto;
+
+    private List<LoanProgramCalculationDto> loanProgramCalculationDto = new ArrayList<>();
 
 }
