@@ -25,8 +25,6 @@ public class BorrowerProfileUpdateRequest {
 
     private String email;
 
-    private BorrowerProfileStatus status;
-
     private String prevFullName;
 
     private LocalDate birthdate;
