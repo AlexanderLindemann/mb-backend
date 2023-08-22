@@ -30,13 +30,10 @@ public class PartnerApplicationControllerImpl implements PartnerApplicationContr
     @PreAuthorize("hasAuthority(T(pro.smartdeal.common.security.Permission$Code).MB_ADMIN_ACCESS) or" +
             " hasAuthority(T(pro.smartdeal.common.security.Permission$Code).MB_REQUEST_READ_OWN) or" +
             " hasAnyAuthority(T(pro.smartdeal.common.security.Permission$Code).MB_REQUEST_READ_ORGANIZATION)")
-    public List<PartnerApplicationResponse> getAllPartnerApplication(int page, int size, String sortBy, String sortOrder, LocalDateTime startDate, LocalDateTime endDate) {
+    public Page<PartnerApplicationResponse> getAllPartnerApplication(int page, int size, String sortBy, String sortOrder, LocalDateTime startDate, LocalDateTime endDate) {
         Page<PartnerApplication> partnerApplications = partnerApplicationService.getAllPartnerApplication(page, size, sortBy, sortOrder, startDate, endDate);
-        List<PartnerApplicationResponse> responseList = partnerApplications.getContent()
-                .stream()
-                .map(partnerApplicationService::buildPartnerApplicationResponse)
-                .collect(Collectors.toList());
-        return responseList;
+        Page<PartnerApplicationResponse> responsePage = partnerApplications.map(partnerApplicationService::buildPartnerApplicationResponse);
+        return responsePage;
     }
 
     @Override

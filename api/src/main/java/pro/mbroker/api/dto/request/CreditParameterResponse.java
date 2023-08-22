@@ -18,9 +18,9 @@ public class CreditParameterResponse {
 
     private Integer maxCreditTerm;
 
-    private Integer minDownPayment;
+    private BigDecimal minDownPayment;
 
-    private Integer maxDownPayment;
+    private BigDecimal maxDownPayment;
 
     private Boolean isMaternalCapital;
 }

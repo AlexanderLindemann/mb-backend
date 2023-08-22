@@ -32,10 +32,10 @@ public class CreditParameter {
     private Integer maxCreditTerm;
 
     @Column(name = "min_down_payment", nullable = false, columnDefinition = "int default 20")
-    private Integer minDownPayment;
+    private BigDecimal minDownPayment;
 
     @Column(name = "max_down_payment", nullable = false, columnDefinition = "int default 100")
-    private Integer maxDownPayment;
+    private BigDecimal maxDownPayment;
 
     @Column(name = "is_maternal_capital", nullable = false, columnDefinition = "boolean default false")
     private Boolean isMaternalCapital;
