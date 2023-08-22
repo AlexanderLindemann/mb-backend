@@ -3,9 +3,17 @@
                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
 
-    <changeSet id="20230821_1830-modify_credit_parameter_columns" author="a.lindemann">
-        <modifyDataType tableName="credit_parameter" columnName="min_down_payment" newDataType="decimal(5,2)"/>
-        <modifyDataType tableName="credit_parameter" columnName="max_down_payment" newDataType="decimal(5,2)"/>
+    <changeSet id="20230821_1840-update_credit_parameter_values" author="a.lindemann">
+        <sql>
+            UPDATE credit_parameter
+            SET min_down_payment = ROUND(min_down_payment, 2),
+                max_down_payment = ROUND(max_down_payment, 2);
+        </sql>
+
+        <modifyDataType tableName="credit_parameter" columnName="min_down_payment" newDataType="decimal(10,2)"/>
+        <modifyDataType tableName="credit_parameter" columnName="max_down_payment" newDataType="decimal(10,2)"/>
     </changeSet>
+
+
 
 </databaseChangeLog>
