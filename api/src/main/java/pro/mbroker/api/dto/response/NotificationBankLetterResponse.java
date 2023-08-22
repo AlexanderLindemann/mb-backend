@@ -6,6 +6,7 @@ import lombok.Setter;
 import lombok.ToString;
 import pro.mbroker.api.enums.CreditPurposeType;
 import pro.mbroker.api.enums.RealEstateType;
+import pro.mbroker.api.enums.RegionType;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -24,17 +25,15 @@ public class NotificationBankLetterResponse implements Serializable {
     private UUID id;
     @JsonIgnore
     private UUID borrowerId;
-    @JsonIgnore
     private UUID partnerApplicationId;
     private Integer applicationNumber;
     private Set<Long> attachmentIds;
     private String partnerName;
+    private RegionType regionType;
     private String residentialComplexName;
     private String address;
-    @JsonIgnore
     private RealEstateType realEstateType;
     private String realEstateTypeName;
-    @JsonIgnore
     private CreditPurposeType creditPurposeType;
     private String programName;
     private BigDecimal realEstatePrice;
@@ -46,12 +45,15 @@ public class NotificationBankLetterResponse implements Serializable {
     private String middleName;
     private List<String> emails;
     private String creditPurposeTypeName;
+    private BorrowerResponse borrowerResponse;
+    private String bankName;
 
     public NotificationBankLetterResponse(UUID id,
                                           UUID partnerApplicationId,
                                           Integer applicationNumber,
                                           UUID borrowerId,
                                           String partnerName,
+                                          RegionType regionType,
                                           String residentialComplexName,
                                           String address,
                                           RealEstateType realEstateType,
@@ -62,14 +64,17 @@ public class NotificationBankLetterResponse implements Serializable {
                                           Integer monthCreditTerm,
                                           String lastName,
                                           String firstName,
-                                          String middleName) {
+                                          String middleName,
+                                          String bankName) {
         this.id = id;
         this.partnerApplicationId = partnerApplicationId;
         this.applicationNumber = applicationNumber;
         this.borrowerId = borrowerId;
         this.partnerName = partnerName;
+        this.regionType = regionType;
         this.residentialComplexName = residentialComplexName;
         this.address = address;
+        this.realEstateType = realEstateType;
         this.realEstateTypeName = realEstateType.getName();
         this.creditPurposeType = creditPurposeType;
         this.programName = programName;
@@ -80,6 +85,7 @@ public class NotificationBankLetterResponse implements Serializable {
         this.lastName = lastName;
         this.firstName = firstName;
         this.middleName = middleName;
+        this.bankName = bankName;
     }
 
     public String convertCreditPurposeTypeToString(List<CreditPurposeType> creditPurposeTypes) {

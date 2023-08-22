@@ -14,6 +14,7 @@ import pro.mbroker.app.repository.BankApplicationRepository;
 import pro.mbroker.app.repository.BorrowerProfileRepository;
 import pro.mbroker.app.service.BankApplicationService;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -60,6 +61,18 @@ public class BankApplicationServiceImpl implements BankApplicationService {
                 .setBankApplicationStatus(status);
         return bankApplicationRepository.save(bankApplication);
     }
+
+    @Override
+    public List<BankApplication> getBankApplicationByApplicationId(Collection<Integer> applicationNumbers) {
+        return bankApplicationRepository.findAllByApplicationNumberIn(applicationNumbers);
+    }
+
+    @Transactional
+    @Override
+    public void saveAll(Collection<BankApplication> bankApplications) {
+        bankApplicationRepository.saveAll(bankApplications);
+    }
+
 
     @Override
     public BankApplication updateBankApplication(BankApplicationRequest request) {

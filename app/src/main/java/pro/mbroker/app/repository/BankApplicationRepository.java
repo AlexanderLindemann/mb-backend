@@ -9,24 +9,26 @@ import org.springframework.data.repository.query.Param;
 import pro.mbroker.api.dto.response.NotificationBankLetterResponse;
 import pro.mbroker.app.entity.BankApplication;
 
+import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 public interface BankApplicationRepository extends JpaRepository<BankApplication, UUID>, JpaSpecificationExecutor<BankApplication> {
 
     @Query("SELECT new pro.mbroker.api.dto.response.NotificationBankLetterResponse(ba.id, pa.id, " +
-            "ba.applicationNumber, bp.id, p.name, re.residentialComplexName, re.address, pa.realEstateType, " +
-            "pa.creditPurposeType, cp.programName, mc.realEstatePrice, " +
-            "mc.downPayment, ba.monthCreditTerm, bp.lastName, bp.firstName,  bp.middleName) " +
+            "ba.applicationNumber, bp.id, p.name, re.region, re.residentialComplexName, re.address, pa.realEstateType, " +
+            "pa.creditPurposeType, cp.programName, mc.realEstatePrice,  " +
+            "mc.downPayment, mc.monthCreditTerm, bp.lastName, bp.firstName,  bp.middleName, b.name) " +
             "FROM BankApplication ba " +
             "JOIN ba.partnerApplication pa " +
             "JOIN ba.creditProgram cp " +
+            "JOIN cp.creditProgramDetail cpd " +
             "JOIN ba.mainBorrower bp " +
             "JOIN pa.realEstate re " +
             "JOIN pa.mortgageCalculation mc " +
             "JOIN re.partner p " +
             "JOIN bp.borrowerDocument bd " +
+            "JOIN bd.bank b " +
             "WHERE ba.id = :bankApplicationId")
     Page<NotificationBankLetterResponse> getCustomerInfoForBankLetter(
             @Param("bankApplicationId") UUID bankApplicationId, Pageable pageable);
@@ -40,7 +42,7 @@ public interface BankApplicationRepository extends JpaRepository<BankApplication
             "WHERE ba.id = :bankApplicationId AND bc.isActive = true")
     List<String> getEmailsByBankApplicationId(@Param("bankApplicationId") UUID bankApplicationId);
 
-    Optional<BankApplication> findByApplicationNumber(Integer applicationNumber);
+    List<BankApplication> findAllByApplicationNumberIn(Collection<Integer> applicationNumbers);
 
     List<BankApplication> findByMainBorrowerId(UUID borrowerId);
 

@@ -29,9 +29,9 @@ public class NotificationServiceImpl implements NotificationService {
     private static final byte FIRST_ELEMENT = 0;
 
     private final BankApplicationService bankApplicationService;
+    private final BorrowerProfileService borrowerProfileService;
     private final BankApplicationRepository bankApplicationRepository;
     private final BorrowerDocumentRepository borrowerDocumentRepository;
-    private final BorrowerProfileService borrowerProfileService;
 
     @Override
     public NotificationBankLetterResponse getCustomerInfoForBankLetter(UUID bankApplicationId) {
@@ -61,6 +61,7 @@ public class NotificationServiceImpl implements NotificationService {
         log.info("Fetching email addresses for sending");
         response.setEmails(bankApplicationRepository.getEmailsByBankApplicationId(bankApplicationId));
         response.setCreditPurposeTypeName(response.getCreditPurposeType().getName());
+        response.setBorrowerResponse(borrowers);
     }
 
     private List<UUID> extractAllBorrowerIds(BorrowerResponse borrowers) {

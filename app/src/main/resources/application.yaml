@@ -1,11 +1,16 @@
 server:
   port: 8080
 spring:
+  jpa:
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
   application:
     name: mbroker
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:5432/mortgage_broker
+    url: jdbc:postgresql://sd-dev:20101/mortgage_broker
     username: mortgage_broker
     password: mortgage_broker
   security:
@@ -42,3 +47,12 @@ management:
   endpoint:
     health:
       show-details: always
+
+logging:
+  level:
+    org:
+      hibernate:
+        type:
+          descriptor:
+            sql:
+              BasicBinder: TRACE
