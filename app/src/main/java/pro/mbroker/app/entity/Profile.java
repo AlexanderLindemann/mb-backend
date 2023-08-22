@@ -14,7 +14,7 @@ import java.util.Set;
 @Getter
 @Setter
 @ToString(of = "id")
-public class Profile {
+public class Profile {  //TODO если не используем, то удалить.
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
