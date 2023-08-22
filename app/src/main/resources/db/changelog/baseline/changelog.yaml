@@ -77,3 +77,6 @@ databaseChangeLog:
   - include:
       file: 20230815_2130_add-new-fields-to-borrower-profile.xml
       relativeToChangelogFile: true
+  - include:
+      file: 20230821_1830-modify_credit_parameter_columns.xml
+      relativeToChangelogFile: true
