@@ -203,8 +203,8 @@ public class CalculatorServiceImpl implements CalculatorService {
                 mortgageSum.compareTo(creditProgram.getCreditParameter().getMaxMortgageSum()) <= 0 &&
                 creditProgram.getCreditParameter().getMinCreditTerm() <= creditTermMonths &&
                 creditProgram.getCreditParameter().getMaxCreditTerm() >= creditTermMonths &&
-                downPaymentPercentage >= (creditProgram.getCreditParameter().getMinDownPayment()) &&
-                downPaymentPercentage <= (creditProgram.getCreditParameter().getMaxDownPayment()) &&
+                downPaymentPercentage >= creditProgram.getCreditParameter().getMinDownPayment().intValue() &&
+                downPaymentPercentage <= creditProgram.getCreditParameter().getMaxDownPayment().intValue() &&
                 isRegionEligible(request, creditProgram) &&
                 isMaternalCapital(request, creditProgram);
     }

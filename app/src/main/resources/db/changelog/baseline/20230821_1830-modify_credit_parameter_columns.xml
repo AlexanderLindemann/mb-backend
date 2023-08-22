@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <changeSet id="20230821_1830-modify_credit_parameter_columns" author="a.lindemann">
+        <modifyDataType tableName="credit_parameter" columnName="min_down_payment" newDataType="decimal(5,2)"/>
+        <modifyDataType tableName="credit_parameter" columnName="max_down_payment" newDataType="decimal(5,2)"/>
+    </changeSet>
+
+</databaseChangeLog>
