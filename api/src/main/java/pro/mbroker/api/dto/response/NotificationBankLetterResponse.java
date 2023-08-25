@@ -46,6 +46,7 @@ public class NotificationBankLetterResponse implements Serializable {
     private List<String> emails;
     private String creditPurposeTypeName;
     private BorrowerResponse borrowerResponse;
+    private UUID bankId;
     private String bankName;
 
     public NotificationBankLetterResponse(UUID id,
@@ -65,6 +66,7 @@ public class NotificationBankLetterResponse implements Serializable {
                                           String lastName,
                                           String firstName,
                                           String middleName,
+                                          UUID bankId,
                                           String bankName) {
         this.id = id;
         this.partnerApplicationId = partnerApplicationId;
@@ -85,6 +87,7 @@ public class NotificationBankLetterResponse implements Serializable {
         this.lastName = lastName;
         this.firstName = firstName;
         this.middleName = middleName;
+        this.bankId = bankId;
         this.bankName = bankName;
     }
 
