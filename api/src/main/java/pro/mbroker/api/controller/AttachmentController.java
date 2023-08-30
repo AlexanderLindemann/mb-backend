@@ -32,7 +32,7 @@ public interface AttachmentController {
     BorrowerDocumentResponse uploadDocument(@RequestPart("file") MultipartFile file,
                                             @RequestParam UUID borrowerProfileId,
                                             @RequestParam DocumentType documentType,
-                                            @RequestParam UUID bankId,
+                                            @RequestParam(required = false) UUID bankId,
                                             @RequestParam(required = false) UUID bankApplicationId);
 
     @ApiOperation("удалить загруженный документ клиента")
