@@ -132,9 +132,11 @@ public class AttachmentServiceImpl implements AttachmentService {
                         ourAttachment.getName(),
                         ourAttachment.getMimeType()
                 ));
-                log.info("Файл успешно преобразован и добавлен в список для отправки");
+                log.info("Файл успешно преобразован и добавлен в список для отправки c id {} и именем {}",
+                        id, ourAttachment.getName());
             } catch (IOException e) {
-                log.error("Произошла ошибка при преобразовании файла к массиву байтов");
+                log.error("Произошла ошибка при преобразовании файла к массиву байтов по причине {}",
+                        e.getMessage());
                 throw new RuntimeException("Ошибки при преобразовании файла", e.getCause());
             }
         });
