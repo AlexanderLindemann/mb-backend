@@ -48,8 +48,6 @@ public class BankApplicationResponse {
 
     private String creditProgramName;
 
-    private boolean isSalaryApplication;
-
     private SalaryClientProgramCalculationDto salaryClientCalculation;
 
 }

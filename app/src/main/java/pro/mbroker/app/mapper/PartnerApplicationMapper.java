@@ -13,7 +13,6 @@ import java.util.List;
 public interface PartnerApplicationMapper {
 
     @Mapping(target = "bankWithBankApplicationDto", ignore = true)
-    @Mapping(target = "applicationCount", ignore = true)
     @Mapping(source = "partnerApplicationStatus", target = "status")
     PartnerApplicationResponse toPartnerApplicationResponse(PartnerApplication partnerApplication);
 

@@ -272,18 +272,8 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
         List<BankApplicationResponse> activeBankApplicationResponses = getActiveBankApplicationResponses(partnerApplication, borrowerProfileMap);
         List<BankWithBankApplicationDto> bankWithBankApplicationDtos = getGroupBankApplication(activeBankApplicationResponses);
         response.setBankWithBankApplicationDto(bankWithBankApplicationDtos);
-        Long result = null;
-        Collection<? extends GrantedAuthority> authorities = SecurityContextHolder.getContext().getAuthentication().getAuthorities();
-        if (authorities.contains(new SimpleGrantedAuthority(Permission.Code.MB_ADMIN_ACCESS))) {
-            result = partnerApplicationRepository.countByIsActiveTrue();
-        } else if (authorities.contains(new SimpleGrantedAuthority(Permission.Code.MB_REQUEST_READ_ORGANIZATION))) {
-            UUID partnerId = partnerService.getCurrentPartner().getId();
-            result = partnerApplicationRepository.countByPartnerIdAndIsActiveTrue(partnerId);
-        } else if (authorities.contains(new SimpleGrantedAuthority(Permission.Code.MB_REQUEST_READ_OWN))) {
-            Integer createdBy = TokenExtractor.extractSdId(currentUserService.getCurrentUserToken());
-            result = partnerApplicationRepository.countByIsActiveTrueAndCreatedBy(createdBy);
-        }
-        response.setApplicationCount(result);
+        response.setBorrowerProfiles(new ArrayList<>(borrowerProfileMap.values()).stream()
+                .map(borrowerProfileMapper::toBorrowerProfileResponse).collect(Collectors.toList()));
         return response;
     }
 
@@ -316,7 +306,6 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
             CreditProgram creditProgram = bankApplication.getCreditProgram();
             Optional.ofNullable(creditProgram.getSalaryClientInterestRate())
                     .ifPresent(salaryClientInterestRate -> {
-                        bankApplicationResponse.setSalaryApplication(true);
                         double calculateBaseRate = creditProgram.getBaseRate() + salaryClientInterestRate;
                         BigDecimal monthlyPayment = calculatorService.calculateMonthlyPayment(mortgageSum, calculateBaseRate, bankApplication.getMonthCreditTerm());
                         bankApplicationResponse.setSalaryClientCalculation(new SalaryClientProgramCalculationDto()
