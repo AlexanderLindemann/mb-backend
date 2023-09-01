@@ -5,7 +5,6 @@ import lombok.Setter;
 import lombok.ToString;
 import pro.mbroker.api.dto.BankWithBankApplicationDto;
 import pro.mbroker.api.dto.MortgageCalculationDto;
-import pro.mbroker.api.dto.request.BorrowerProfileRequest;
 import pro.mbroker.api.enums.CreditPurposeType;
 import pro.mbroker.api.enums.PartnerApplicationStatus;
 import pro.mbroker.api.enums.RealEstateType;
@@ -32,11 +31,9 @@ public class PartnerApplicationResponse {
 
     private List<BankWithBankApplicationDto> bankWithBankApplicationDto;
 
-    private List<BorrowerProfileRequest> borrowerProfiles;
+    private List<BorrowerProfileResponse> borrowerProfiles;
 
     private LocalDateTime createdAt;
 
     private LocalDateTime updatedAt;
-
-    private Long applicationCount;
 }

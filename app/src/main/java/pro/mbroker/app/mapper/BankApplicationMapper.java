@@ -25,7 +25,6 @@ public interface BankApplicationMapper {
     @Mapping(source = "creditProgram.creditParameter", target = "creditParameter")
     @Mapping(source = "creditProgram.programName", target = "creditProgramName")
     @Mapping(source = "bankApplicationStatus", target = "status")
-    @Mapping(target = "salaryApplication", ignore = true)
     @Mapping(target = "salaryClientCalculation", ignore = true)
     BankApplicationResponse toBankApplicationResponse(BankApplication bankApplication);
 
