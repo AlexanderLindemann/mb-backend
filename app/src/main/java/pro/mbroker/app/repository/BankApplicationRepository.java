@@ -18,7 +18,7 @@ public interface BankApplicationRepository extends JpaRepository<BankApplication
     @Query("SELECT new pro.mbroker.api.dto.response.NotificationBankLetterResponse(ba.id, pa.id, " +
             "ba.applicationNumber, bp.id, p.name, re.region, re.residentialComplexName, re.address, pa.realEstateType, " +
             "pa.creditPurposeType, cp.programName, mc.realEstatePrice,  " +
-            "mc.downPayment, mc.monthCreditTerm, bp.lastName, bp.firstName,  bp.middleName, b.id, b.name) " +
+            "mc.downPayment, ba.monthCreditTerm, bp.lastName, bp.firstName,  bp.middleName, b.id, b.name) " +
             "FROM BankApplication ba " +
             "JOIN ba.partnerApplication pa " +
             "JOIN ba.creditProgram cp " +
