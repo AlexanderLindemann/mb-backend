@@ -3,7 +3,6 @@ package pro.mbroker.app.service.impl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import pro.mbroker.api.dto.BorrowerRealEstateDto;
 import pro.mbroker.api.dto.BorrowerVehicleDto;
@@ -107,7 +106,7 @@ public class BorrowerProfileServiceImpl implements BorrowerProfileService {
     @Override
     @Transactional
     public void updateBorrowerProfileField(UUID borrowerProfileId, BorrowerProfileUpdateRequest updateRequest) {
-        BorrowerProfile borrowerProfile = getBorrowerProfileWithEmployer(borrowerProfileId);
+        BorrowerProfile borrowerProfile = findByIdWithRealEstateVehicleAndEmployer(borrowerProfileId);
         for (Field field : BorrowerProfileUpdateRequest.class.getDeclaredFields()) {
             field.setAccessible(true);
             try {
@@ -152,7 +151,7 @@ public class BorrowerProfileServiceImpl implements BorrowerProfileService {
 
     @Override
     @Transactional(readOnly = true)
-    public BorrowerProfile getBorrowerProfileWithEmployer(UUID borrowerProfileId) {
+    public BorrowerProfile findByIdWithRealEstateVehicleAndEmployer(UUID borrowerProfileId) {
         return borrowerProfileRepository.findByIdWithRealEstateVehicleAndEmployer(borrowerProfileId)
                 .orElseThrow(() -> new ItemNotFoundException(BorrowerProfile.class, borrowerProfileId));
     }
@@ -213,6 +212,7 @@ public class BorrowerProfileServiceImpl implements BorrowerProfileService {
 
         return borrowerProfile;
     }
+
     private BorrowerVehicle convertToBorrowerVehicle(BorrowerVehicleDto dto, BorrowerVehicle vehicle) {
         if (Objects.isNull(dto)) {
             return null;
