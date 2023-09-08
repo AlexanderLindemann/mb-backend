@@ -23,6 +23,6 @@ public interface BorrowerProfileService {
 
     void updateBorrowerProfileField(UUID borrowerProfileId, BorrowerProfileUpdateRequest updateRequest);
 
-    BorrowerProfile getBorrowerProfileWithEmployer(UUID borrowerProfileId);
+    BorrowerProfile findByIdWithRealEstateVehicleAndEmployer(UUID borrowerProfileId);
 
 }
