@@ -2,7 +2,6 @@ package pro.mbroker.app.web;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 import pro.mbroker.api.controller.PartnerRealEstateController;
 import pro.mbroker.api.dto.request.RealEstateRequest;
@@ -32,7 +31,6 @@ public class PartnerRealEstateControllerImpl implements PartnerRealEstateControl
     private final RealEstateMapper realEstateMapper;
 
     @Override
-    @PreAuthorize("hasAuthority(T(pro.smartdeal.common.security.Permission$Code).MB_ADMIN_ACCESS)")
     public PartnerResponse addRealEstate(UUID partnerId, RealEstateRequest request) {
         partnerRealEstateService.addRealEstate(partnerId, request);
         Partner partner = partnerService.getPartner(partnerId);
@@ -40,14 +38,11 @@ public class PartnerRealEstateControllerImpl implements PartnerRealEstateControl
     }
 
     @Override
-    @PreAuthorize("hasAuthority(T(pro.smartdeal.common.security.Permission$Code).MB_ADMIN_ACCESS)")
     public void deleteRealEstate(UUID realEstateId) {
         partnerRealEstateService.deleteRealEstate(realEstateId);
     }
 
     @Override
-    @PreAuthorize("hasAuthority(T(pro.smartdeal.common.security.Permission$Code).MB_ADMIN_ACCESS) or" +
-            " hasAnyAuthority(T(pro.smartdeal.common.security.Permission$Code).MB_REQUEST_READ_ORGANIZATION)")
     public PartnerResponse updateRealEstate(RealEstateRequest request) {
         RealEstate realEstate = partnerRealEstateService.updateRealEstate(request.getId(), request);
         Partner partner = partnerService.getPartner(realEstate.getPartner().getId());

@@ -10,7 +10,6 @@ import pro.mbroker.api.dto.response.BankApplicationResponse;
 import pro.mbroker.api.enums.BankApplicationStatus;
 
 import javax.validation.constraints.NotNull;
-import java.util.List;
 import java.util.UUID;
 
 @Api(value = "API Банковской Заявки", tags = "API Банковской Заявки")

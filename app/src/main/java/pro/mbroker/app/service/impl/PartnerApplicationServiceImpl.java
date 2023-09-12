@@ -4,19 +4,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pro.mbroker.api.dto.BankWithBankApplicationDto;
 import pro.mbroker.api.dto.MortgageCalculationDto;
 import pro.mbroker.api.dto.SalaryClientProgramCalculationDto;
-import pro.mbroker.api.dto.request.BankApplicationRequest;
-import pro.mbroker.api.dto.request.BankApplicationUpdateRequest;
-import pro.mbroker.api.dto.request.BorrowerProfileRequest;
-import pro.mbroker.api.dto.request.PartnerApplicationRequest;
+import pro.mbroker.api.dto.request.*;
 import pro.mbroker.api.dto.response.BankApplicationResponse;
 import pro.mbroker.api.dto.response.BorrowerProfileResponse;
 import pro.mbroker.api.dto.response.PartnerApplicationResponse;
@@ -51,6 +44,7 @@ import java.util.stream.Stream;
 @Service
 @Slf4j
 @RequiredArgsConstructor
+@SuppressWarnings("PMD")
 public class PartnerApplicationServiceImpl implements PartnerApplicationService {
 
     private static final String CREATED_AT = "createdAt";
@@ -85,20 +79,28 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
 
     @Override
     @Transactional(readOnly = true)
-    public Page<PartnerApplication> getAllPartnerApplication(int page, int size, String sortBy, String sortOrder, LocalDateTime startDate, LocalDateTime endDate) {
+    public Page<PartnerApplication> getAllPartnerApplication(
+            int page,
+            int size,
+            String sortBy,
+            String sortOrder,
+            LocalDateTime startDate,
+            LocalDateTime endDate,
+            Permission permission
+            ) {
         Optional<LocalDateTime> start = Optional.ofNullable(startDate);
         Optional<LocalDateTime> end = Optional.ofNullable(endDate);
         log.info("Getting all partner applications with pagination: page={}, size={}, sortBy={}, sortOrder={}", page, size, sortBy, sortOrder);
         Pageable pageable = Pagination.createPageable(page, size, sortBy, sortOrder);
         Page<PartnerApplication> result = Page.empty(pageable);
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String code = permission.toString();
         try {
-            if (auth.getAuthorities().contains(new SimpleGrantedAuthority(Permission.Code.MB_ADMIN_ACCESS.toString()))) {
+            if (code.equals(Permission.Code.MB_ADMIN_ACCESS)) {
                 result = partnerApplicationRepository.findAllByIsActiveTrue(start, end, pageable);
-            } else if (auth.getAuthorities().contains(new SimpleGrantedAuthority(Permission.Code.MB_REQUEST_READ_ORGANIZATION.toString()))) {
+            } else if (code.equals(Permission.Code.MB_REQUEST_READ_ORGANIZATION)) {
                 UUID partnerId = partnerService.getCurrentPartner().getId();
                 result = partnerApplicationRepository.findAllIsActiveByPartnerId(start, end, partnerId, pageable);
-            } else if (auth.getAuthorities().contains(new SimpleGrantedAuthority(Permission.Code.MB_REQUEST_READ_OWN.toString()))) {
+            } else if (code.equals(Permission.Code.MB_REQUEST_READ_OWN)) {
                 Integer createdBy = TokenExtractor.extractSdId(currentUserService.getCurrentUserToken());
                 result = partnerApplicationRepository.findAllByCreatedByAndIsActiveTrue(start, end, createdBy, pageable);
             } else {
@@ -145,16 +147,24 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
 
     @Override
     @Transactional
-    public PartnerApplication updatePartnerApplication(UUID partnerApplicationId, PartnerApplicationRequest request) {
-        PartnerApplication existingPartnerApplication = getPartnerApplicationByIdWithPermission(partnerApplicationId);
+    public PartnerApplication updatePartnerApplication(UUID partnerApplicationId,
+                                                       PartnerApplicationRequest request,
+                                                       Permission permission) {
+        PartnerApplication existingPartnerApplication = getPartnerApplicationByIdWithPermission(
+                partnerApplicationId,
+                permission);
         if (isBorrowerProfileChanged(request, existingPartnerApplication)) {
             deleteBorrowerDocuments(existingPartnerApplication);
         }
         partnerApplicationMapper.updatePartnerApplicationFromRequest(request, existingPartnerApplication);
-        mortgageCalculationMapper.updateMortgageCalculationFromRequest(request.getMortgageCalculation(), existingPartnerApplication.getMortgageCalculation());
+        mortgageCalculationMapper.updateMortgageCalculationFromRequest(
+                request.getMortgageCalculation(),
+                existingPartnerApplication.getMortgageCalculation());
         setSalaryBank(request, existingPartnerApplication);
         existingPartnerApplication.setRealEstate(realEstateService.findById(request.getRealEstateId()));
-        List<BankApplication> updatedBorrowerApplications = buildBankApplications(request.getBankApplications(), existingPartnerApplication);
+        List<BankApplication> updatedBorrowerApplications = buildBankApplications(
+                request.getBankApplications(),
+                existingPartnerApplication);
         existingPartnerApplication.setBankApplications(updatedBorrowerApplications);
         updateMainBorrower(existingPartnerApplication, request.getMainBorrower());
         return statusChanger(existingPartnerApplication);
@@ -374,11 +384,10 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
 
     @Override
     @Transactional(readOnly = true)
-    public PartnerApplication getPartnerApplicationByIdWithPermission(UUID partnerApplicationId) {
+    public PartnerApplication getPartnerApplicationByIdWithPermission(UUID partnerApplicationId, Permission permission) {
         PartnerApplication partnerApplication = getPartnerApplication(partnerApplicationId);
-        Collection<? extends GrantedAuthority> authorities = SecurityContextHolder.getContext().getAuthentication().getAuthorities();
-        if (!authorities.contains(new SimpleGrantedAuthority(Permission.Code.MB_ADMIN_ACCESS))) {
-            checkPermission(authorities, partnerApplication);
+        if (!permission.toString().equals(Permission.Code.MB_ADMIN_ACCESS)) {
+            checkPermission(permission, partnerApplication);
         }
         List<BorrowerProfile> sortedBorrowerProfiles = partnerApplication.getBorrowerProfiles()
                 .stream()
@@ -396,27 +405,18 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
     }
 
     @Override
-    public List<PartnerApplicationResponse> search(String firstName,
-                                                   String middleName,
-                                                   String lastName,
-                                                   String phoneNumber,
-                                                   String residentialComplexName,
-                                                   RegionType region,
-                                                   String bankName,
-                                                   BankApplicationStatus applicationStatus,
-                                                   String sortBy,
-                                                   String sortDirection) {
+    public List<PartnerApplicationResponse> search(PartnerFilter filter, String sortBy, String sortDirection) {
 
         List<PartnerApplication> bankApplications = partnerApplicationRepository
                 .findAll(PartnerApplicationSpecification
-                        .combineSearch(firstName,
-                                middleName,
-                                lastName,
-                                phoneNumber,
-                                residentialComplexName,
-                                region,
-                                bankName,
-                                applicationStatus)
+                        .combineSearch(filter.getFirstName(),
+                                filter.getMiddleName(),
+                                filter.getLastName(),
+                                filter.getPhoneNumber(),
+                                filter.getResidentialComplexName(),
+                                filter.getRegion(),
+                                filter.getBankName(),
+                                filter.getApplicationStatus())
                 );
 
         sortBankApplicationList(sortBy, sortDirection, bankApplications);
@@ -557,15 +557,16 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
     }
 
 
-    private void checkPermission(Collection<? extends GrantedAuthority> authorities, PartnerApplication partnerApplication) {
+    private void checkPermission(Permission permission, PartnerApplication partnerApplication) {
         String currentUserToken = currentUserService.getCurrentUserToken();
         Integer organizationId = TokenExtractor.extractSdCurrentOrganizationId(currentUserToken);
         Integer sdId = TokenExtractor.extractSdId(currentUserToken);
-        if (authorities.contains(new SimpleGrantedAuthority(Permission.Code.MB_REQUEST_READ_ORGANIZATION)) &&
+        String code = permission.toString();
+        if (code.equals(Permission.Code.MB_REQUEST_READ_ORGANIZATION) &&
                 !partnerApplication.getPartner().getSmartDealOrganizationId().equals(organizationId)) {
             throw new AccessDeniedException("organization_id: " + organizationId, PartnerApplication.class);
         }
-        if (authorities.contains(new SimpleGrantedAuthority(Permission.Code.MB_REQUEST_READ_OWN)) &&
+        if (code.equals(Permission.Code.MB_REQUEST_READ_OWN) &&
                 !partnerApplication.getCreatedBy().equals(sdId)) {
             throw new AccessDeniedException("sd_id: " + sdId, PartnerApplication.class);
         }

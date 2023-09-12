@@ -17,7 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @TestPropertySource(locations = "classpath:application-test.yaml")
-public abstract class AbstractServiceTest {
+public class AbstractServiceTest {
 
     @MockBean
     protected CurrentUserService currentUserService;

@@ -16,6 +16,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "borrower_profile")
+@SuppressWarnings("PMD")
 public class BorrowerProfile extends BaseEntity {
 
     @Column(name = "first_name")

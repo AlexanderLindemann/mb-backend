@@ -7,8 +7,10 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import pro.smartdeal.common.security.Permission;
 
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
 @Api(value = "API Отчета", tags = "API Отчета")
@@ -23,6 +25,7 @@ public interface ReportController {
                    @RequestParam(defaultValue = "updatedAt") String sortBy,
                    @RequestParam(defaultValue = "asc") String sortOrder,
                    @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
-                   @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate);
+                   @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate,
+                   @NotNull @RequestParam("permissionCode") Permission permissionCode);
 
 }

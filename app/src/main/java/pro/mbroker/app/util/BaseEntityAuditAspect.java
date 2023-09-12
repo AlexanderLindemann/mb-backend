@@ -13,6 +13,7 @@ import java.util.Collection;
 @Aspect
 @Component
 @RequiredArgsConstructor
+@SuppressWarnings("PMD")
 public class BaseEntityAuditAspect {
     @NonNull
     private final CurrentUserService currentUserService;

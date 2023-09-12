@@ -31,6 +31,7 @@ import java.util.stream.Collectors;
 @Service
 @Slf4j
 @RequiredArgsConstructor
+@SuppressWarnings("PMD")
 public class PartnerServiceImpl implements PartnerService {
     private final CreditProgramService creditProgramService;
     private final CurrentUserService currentUserService;

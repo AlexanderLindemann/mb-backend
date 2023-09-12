@@ -2,7 +2,6 @@ package pro.mbroker.app.web;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 import pro.mbroker.api.controller.BankController;
@@ -29,14 +28,12 @@ public class BankControllerImpl implements BankController {
     private final CreditProgramController creditProgramController;
 
     @Override
-    @PreAuthorize("hasAuthority(T(pro.smartdeal.common.security.Permission$Code).MB_ADMIN_ACCESS)")
     public BankResponse createBank(BankRequest bankRequest) {
         Bank bank = bankService.createBank(bankRequest);
         return bankMapper.toBankResponseMapper(bank);
     }
 
     @Override
-    @PreAuthorize("hasAuthority(T(pro.smartdeal.common.security.Permission$Code).MB_ADMIN_ACCESS)")
     public BankResponse updateLogo(UUID bankId, MultipartFile logo) {
         Bank bank = bankService.updateLogo(bankId, logo);
         return bankMapper.toBankResponseMapper(bank);
@@ -70,7 +67,6 @@ public class BankControllerImpl implements BankController {
 
 
     @Override
-    @PreAuthorize("hasAuthority(T(pro.smartdeal.common.security.Permission$Code).MB_ADMIN_ACCESS)")
     public BankResponse updateBank(UUID bankId, BankRequest bankRequest) {
         Bank bank = bankService.updateBank(bankId, bankRequest);
         List<BankContact> activeContacts = bank.getContacts().stream()
@@ -81,9 +77,7 @@ public class BankControllerImpl implements BankController {
     }
 
     @Override
-    @PreAuthorize("hasAuthority(T(pro.smartdeal.common.security.Permission$Code).MB_ADMIN_ACCESS)")
     public void deleteBankById(UUID bankId) {
         bankService.deleteBankById(bankId);
     }
-
 }

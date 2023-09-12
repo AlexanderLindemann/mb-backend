@@ -5,7 +5,7 @@ spring:
     name: mbroker
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://sd-dev:20101/mortgage_broker
+    url: jdbc:postgresql://sd-dev:20102/mortgage_broker
     username: mortgage_broker
     password: mortgage_broker
   security:

@@ -8,6 +8,7 @@ import pro.mbroker.app.entity.*;
 import javax.persistence.criteria.Join;
 import javax.persistence.criteria.Predicate;
 
+@SuppressWarnings("PMD")
 public class PartnerApplicationSpecification {
     public static Specification<PartnerApplication> isActive() {
         return ((root, query, criteriaBuilder) -> criteriaBuilder.isTrue(root.get("isActive")));
