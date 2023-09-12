@@ -25,6 +25,7 @@ import java.util.function.Function;
 @Service
 @Slf4j
 @RequiredArgsConstructor
+@SuppressWarnings("PMD")
 public class DocxFieldHandlerImpl implements DocxFieldHandler {
 
     public Map<String, String> replaceFieldValue(MultipartFile file, BankApplication bankApplication, BorrowerProfile borrowerProfile) {

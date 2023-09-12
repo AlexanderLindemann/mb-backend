@@ -22,6 +22,7 @@ import java.util.UUID;
 @Service
 @Slf4j
 @RequiredArgsConstructor
+@SuppressWarnings("PMD")
 public class BankApplicationServiceImpl implements BankApplicationService {
     private final BankApplicationRepository bankApplicationRepository;
     private final BankApplicationMapper bankApplicationMapper;
@@ -72,7 +73,6 @@ public class BankApplicationServiceImpl implements BankApplicationService {
     public void saveAll(Collection<BankApplication> bankApplications) {
         bankApplicationRepository.saveAll(bankApplications);
     }
-
 
     @Override
     public BankApplication updateBankApplication(BankApplicationRequest request) {

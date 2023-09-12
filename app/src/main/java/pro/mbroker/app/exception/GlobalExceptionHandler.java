@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
 @ControllerAdvice
+@SuppressWarnings("PMD")
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(ItemNotFoundException.class)

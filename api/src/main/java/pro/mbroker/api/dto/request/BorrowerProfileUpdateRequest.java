@@ -13,6 +13,7 @@ import java.time.LocalDate;
 @Getter
 @Setter
 @ToString
+@SuppressWarnings("PMD")//TODO TooManyFields MB-467
 public class BorrowerProfileUpdateRequest {
 
     private String firstName;
@@ -76,5 +77,4 @@ public class BorrowerProfileUpdateRequest {
     private BorrowerRealEstateDto realEstate;
 
     private BorrowerVehicleDto vehicle;
-
 }

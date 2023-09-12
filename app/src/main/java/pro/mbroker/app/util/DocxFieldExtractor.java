@@ -15,6 +15,7 @@ import java.util.regex.Pattern;
 
 @Slf4j
 @NoArgsConstructor
+@SuppressWarnings("PMD")
 public final class DocxFieldExtractor extends TraversalUtil.CallbackImpl {
     private final Pattern FIELD_PATTERN = Pattern.compile("«(.*?)»");
     @Getter

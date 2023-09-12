@@ -17,6 +17,7 @@ import java.util.UUID;
 @Getter
 @Setter
 @ToString
+@SuppressWarnings("PMD")//TODO TooManyFields MB-467
 public class BorrowerProfileFullResponse {
 
     private UUID id;

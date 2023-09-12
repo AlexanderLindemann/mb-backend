@@ -7,6 +7,7 @@ import pro.mbroker.api.controller.ReportController;
 import pro.mbroker.api.dto.response.PartnerApplicationResponse;
 import pro.mbroker.app.service.PartnerApplicationService;
 import pro.mbroker.app.service.ReportService;
+import pro.smartdeal.common.security.Permission;
 
 import javax.servlet.http.HttpServletResponse;
 import java.time.LocalDateTime;
@@ -21,8 +22,23 @@ public class ReportControllerImpl implements ReportController {
     private final ReportService reportService;
 
     @Override
-    public void getReport(HttpServletResponse response, int page, int size, String sortBy, String sortOrder, LocalDateTime startDate, LocalDateTime endDate) {
-        List<PartnerApplicationResponse> partnerApplicationResponses = partnerApplicationService.getAllPartnerApplication(page, size, sortBy, sortOrder, startDate, endDate)
+    public void getReport(HttpServletResponse response,
+                          int page,
+                          int size,
+                          String sortBy,
+                          String sortOrder,
+                          LocalDateTime startDate,
+                          LocalDateTime endDate,
+                          Permission permission) {
+        List<PartnerApplicationResponse> partnerApplicationResponses =
+                partnerApplicationService.getAllPartnerApplication(
+                                page,
+                                size,
+                                sortBy,
+                                sortOrder,
+                                startDate,
+                                endDate,
+                                permission)
                 .stream()
                 .map(partnerApplicationService::buildPartnerApplicationResponse)
                 .collect(Collectors.toList());

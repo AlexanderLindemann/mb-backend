@@ -8,10 +8,12 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 import pro.mbroker.api.dto.request.BankApplicationUpdateRequest;
 import pro.mbroker.api.dto.request.PartnerApplicationRequest;
+import pro.mbroker.api.dto.request.PartnerFilter;
 import pro.mbroker.api.dto.response.PartnerApplicationResponse;
 import pro.mbroker.api.dto.response.RequiredDocumentResponse;
 import pro.mbroker.api.enums.BankApplicationStatus;
 import pro.mbroker.api.enums.RegionType;
+import pro.smartdeal.common.security.Permission;
 
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
@@ -31,23 +33,28 @@ public interface PartnerApplicationController {
                                                               @RequestParam(defaultValue = "updatedAt") String sortBy,
                                                               @RequestParam(defaultValue = "asc") String sortOrder,
                                                               @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
-                                                              @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate);
+                                                              @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate,
+                                                              @NotNull @RequestParam("permissionCode") Permission permission);
 
 
     @GetMapping("/{partnerApplicationId}")
     @ApiOperation("получить заявку по id")
-    PartnerApplicationResponse getPartnerApplicationById(@PathVariable UUID partnerApplicationId);
+    PartnerApplicationResponse getPartnerApplicationById(@PathVariable UUID partnerApplicationId,
+                                                         @RequestParam Permission permission);
 
     @ApiOperation("Создать заявку")
     @PostMapping()
-    PartnerApplicationResponse createPartnerApplication(@ApiParam(value = "Параметры кредитной заявки") @RequestBody PartnerApplicationRequest request);
+    PartnerApplicationResponse createPartnerApplication(
+            @ApiParam(value = "Параметры кредитной заявки")
+            @RequestBody PartnerApplicationRequest request);
 
 
     @ApiOperation("обновить заявку")
     @PutMapping("/{partnerApplicationId}")
     PartnerApplicationResponse updatePartnerApplication(
             @PathVariable UUID partnerApplicationId,
-            @RequestBody PartnerApplicationRequest request);
+            @RequestBody PartnerApplicationRequest request,
+            @RequestParam Permission permission);
 
     @ApiOperation("удалить заявку по id")
     @DeleteMapping("/{partnerApplicationId}")
@@ -56,18 +63,9 @@ public interface PartnerApplicationController {
     );
 
     @GetMapping("search")
-    List<PartnerApplicationResponse> filter(
-            @RequestParam(required = false) String firstName,
-            @RequestParam(required = false) String middleName,
-            @RequestParam(required = false) String lastName,
-            @RequestParam(required = false) String phoneNumber,
-            @RequestParam(required = false) String residentialComplexName,
-            @RequestParam(required = false) RegionType region,
-            @RequestParam(required = false) String bankName,
-            @RequestParam(required = false) BankApplicationStatus applicationStatus,
-            @RequestParam(required = false) String sortBy,
-            @RequestParam(required = false) String sortDirection
-    );
+    List<PartnerApplicationResponse> filter(@RequestParam PartnerFilter filter,
+                                            @RequestParam(required = false) String sortBy,
+                                            @RequestParam(required = false) String sortDirection);
 
     @ApiOperation("включить программу банка")
     @PutMapping("/enable_bank_application/{partnerApplicationId}")
