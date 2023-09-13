@@ -22,7 +22,6 @@ import pro.mbroker.app.repository.specification.PartnerSpecification;
 import pro.mbroker.app.service.CreditProgramService;
 import pro.mbroker.app.service.PartnerService;
 import pro.mbroker.app.util.Pagination;
-import pro.mbroker.app.util.TokenExtractor;
 import pro.smartdeal.ng.common.security.service.CurrentUserService;
 
 import java.util.*;
@@ -80,8 +79,7 @@ public class PartnerServiceImpl implements PartnerService {
     @Override
     @Transactional(readOnly = true)
     public Partner getCurrentPartner() {
-        int organizationId = TokenExtractor
-                .extractSdCurrentOrganizationId(currentUserService.getCurrentUserToken());
+        int organizationId = 2222;
         Specification<Partner> specification = PartnerSpecification.partnerByOrganizationIdAndIsActive(organizationId);
         return partnerRepository.findOne(specification)
                 .orElseThrow(() -> new ItemNotFoundException(Partner.class, "organization_Id:" + organizationId));
