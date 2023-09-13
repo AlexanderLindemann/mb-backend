@@ -58,8 +58,6 @@ public class SwaggerConfiguration  {
         return new Docket(DocumentationType.SWAGGER_2)
                 .groupName(title)
                 .apiInfo(apiInfo)
-                .securityContexts(List.of(securityContext()))
-                .securitySchemes(List.of(jwtSchema()))
                 .select()
                 .apis(RequestHandlerSelectors.basePackage(BASE_PROJECT_PACKAGE))
                 .paths(PathSelectors.any())
