@@ -4,15 +4,18 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.xwpf.usermodel.*;
 import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 import pro.mbroker.app.entity.BankApplication;
 import pro.mbroker.app.entity.BorrowerProfile;
-import pro.mbroker.app.service.*;
+import pro.mbroker.app.service.BankApplicationService;
+import pro.mbroker.app.service.BorrowerProfileService;
+import pro.mbroker.app.service.DocxFieldHandler;
+import pro.mbroker.app.service.FormService;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -33,11 +36,20 @@ public class FormServiceImpl implements FormService {
 
     @Override
     @Transactional(readOnly = true)
-    public ResponseEntity<ByteArrayResource> generateFormFile(UUID bankApplicationId, UUID borrowerProfileId, MultipartFile file) {
+    public ResponseEntity<ByteArrayResource> generateFormFile(UUID bankApplicationId, UUID borrowerProfileId) {
+
         BankApplication bankApplication = bankApplicationService.getBankApplicationById(bankApplicationId);
         BorrowerProfile borrowerProfile = borrowerProfileService.findByIdWithRealEstateVehicleAndEmployer(borrowerProfileId);
+        ClassPathResource classPathResource = new ClassPathResource("form.docx");
+
+        byte[] file;
+        try (InputStream inputStream = classPathResource.getInputStream()) {
+            file = inputStream.readAllBytes();
+        } catch (IOException e) {
+            throw new RuntimeException("Error reading form.docx", e);
+        }
         Map<String, String> replacements = docxFieldHandler.replaceFieldValue(file, bankApplication, borrowerProfile);
-        try (InputStream inputStream = new ByteArrayInputStream(file.getBytes())) {
+        try (InputStream inputStream = new ByteArrayInputStream(file)) {
             XWPFDocument document = new XWPFDocument(inputStream);
             replaceTextInDocx(document, replacements);
             ByteArrayOutputStream docxOutputStream = new ByteArrayOutputStream();
