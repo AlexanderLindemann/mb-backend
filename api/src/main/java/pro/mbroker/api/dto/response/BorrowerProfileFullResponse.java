@@ -17,6 +17,7 @@ import java.util.UUID;
 @Getter
 @Setter
 @ToString
+@SuppressWarnings("PMD")
 public class BorrowerProfileFullResponse {
 
     private UUID id;

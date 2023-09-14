@@ -561,7 +561,6 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
         String currentUserToken = currentUserService.getCurrentUserToken();
         Integer organizationId = 2222;
         Integer sdId = 2222;
-        String code = permission.toString();
         if (authorities.contains(new SimpleGrantedAuthority(Permission.Code.MB_REQUEST_READ_ORGANIZATION)) &&
                 !partnerApplication.getPartner().getSmartDealOrganizationId().equals(organizationId)) {
             throw new AccessDeniedException("organization_id: " + organizationId, PartnerApplication.class);
