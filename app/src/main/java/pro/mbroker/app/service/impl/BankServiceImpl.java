@@ -31,7 +31,6 @@ import java.util.stream.Collectors;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-@SuppressWarnings("PMD")
 public class BankServiceImpl implements BankService {
 
     private static final int ORDER_STEP = 10;

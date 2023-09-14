@@ -12,14 +12,6 @@
     <rule ref="category/java/bestpractices.xml">
         <exclude name="ConstantsInInterface"/>
         <exclude name="GuardLogStatement"/>
-        <exclude name="JUnitAssertionsShouldIncludeMessage"/>
-        <exclude name="JUnitTestContainsTooManyAsserts"/>
-        <exclude name="JUnit4TestShouldUseAfterAnnotation" />
-        <exclude name="JUnit4TestShouldUseBeforeAnnotation" />
-        <exclude name="UseVarargs" />
-        <exclude name="AccessorMethodGeneration" />
-        <exclude name="JUnitTestsShouldIncludeAssert"/>
-        <exclude name="UseAssertTrueInsteadOfAssertEquals"/>
     </rule>
 
     <!-- https://pmd.github.io/latest/pmd_rules_java_codestyle.html -->
@@ -30,7 +22,6 @@
         <exclude name="AvoidCatchingGenericException"/>
         <exclude name="UseUtilityClass"/>
         <exclude name="AvoidThrowingRawExceptionTypes"/>
-        <exclude name="JUnitTestContainsTooManyAsserts"/>
     </rule>
     <rule ref="category/java/design.xml/ExcessiveImports">
         <properties>
@@ -58,25 +49,14 @@
         <exclude name="AvoidDuplicateLiterals"/>
         <exclude name="BeanMembersShouldSerialize"/>
         <exclude name="MissingSerialVersionUID"/>
-        <exclude name="JUnitTestContainsTooManyAsserts"/>
     </rule>
 
     <rule ref="category/java/multithreading.xml">
         <exclude name="UseConcurrentHashMap"/>
-        <exclude name="JUnitTestContainsTooManyAsserts"/>
     </rule>
 
-    <rule ref="category/java/performance.xml">
-    <exclude name="JUnitTestContainsTooManyAsserts"/>
-    </rule>
+    <rule ref="category/java/performance.xml"/>
 
-    <rule ref="category/java/security.xml">
-        <exclude name="JUnitTestContainsTooManyAsserts"/>
-    </rule>
-    <rule ref="category/java/design.xml/SignatureDeclareThrowsException" >
-        <properties>
-            <property name="IgnoreJUnitCompletely" value="true" />
-        </properties>
-    </rule>
+    <rule ref="category/java/security.xml"/>
 
 </ruleset>

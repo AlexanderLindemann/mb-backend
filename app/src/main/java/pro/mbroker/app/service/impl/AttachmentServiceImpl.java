@@ -35,7 +35,6 @@ import java.util.Objects;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-@SuppressWarnings("PMD")
 public class AttachmentServiceImpl implements AttachmentService {
     private final AttachmentControllerService attachmentService;
     private final BankRepository bankRepository;
