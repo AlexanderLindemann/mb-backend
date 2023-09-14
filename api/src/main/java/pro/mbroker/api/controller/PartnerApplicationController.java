@@ -21,6 +21,7 @@ import java.util.UUID;
 @Api(value = "API Заявок Застройщика", tags = "API Заявок Застройщика")
 @RestController
 @RequestMapping("/public/partner_application")
+@SuppressWarnings("PMD")
 public interface PartnerApplicationController {
 
 

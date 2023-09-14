@@ -19,6 +19,7 @@ import java.util.List;
 @Configuration
 @EnableSwagger2
 @RequiredArgsConstructor
+@SuppressWarnings("PMD")
 public class SwaggerConfiguration  {
 
     private static final String BASE_PROJECT_PACKAGE = "pro.mbroker.app.web";

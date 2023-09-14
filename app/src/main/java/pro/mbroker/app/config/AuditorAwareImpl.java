@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 import java.util.Optional;
 
 @Component
+@SuppressWarnings("PMD")
 public class AuditorAwareImpl implements AuditorAware<Integer> {
 
     @Override

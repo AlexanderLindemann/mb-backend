@@ -13,6 +13,7 @@ import java.time.LocalDate;
 @Getter
 @Setter
 @ToString
+@SuppressWarnings("PMD")
 public class BorrowerProfileUpdateRequest {
 
     private String firstName;
