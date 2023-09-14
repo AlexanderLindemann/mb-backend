@@ -14,7 +14,6 @@ import pro.mbroker.api.enums.PartnerApplicationStatus;
 import pro.mbroker.api.enums.RealEstateType;
 import pro.mbroker.app.TestData;
 import pro.mbroker.app.entity.PartnerApplication;
-import pro.smartdeal.common.security.Permission;
 
 import java.util.UUID;
 
@@ -52,10 +51,7 @@ public class PartnerApplicationServiceTest extends AbstractServiceTest {
         partnerApplication1.getMainBorrower()
                 .setId(UUID.fromString("1348b508-f476-11ed-a05b-0242ac120003"));
         PartnerApplication partnerApplication =
-                partnerApplicationService.updatePartnerApplication(
-                        UUID.fromString("5ff4b32c-f967-4cb1-8705-7470a321fe34"),
-                        partnerApplication1,
-                        Permission.MB_ADMIN_ACCESS);
+                partnerApplicationService.updatePartnerApplication(UUID.fromString("5ff4b32c-f967-4cb1-8705-7470a321fe34"), partnerApplication1);
         assertEquals(partnerApplication.getPartner().getId(), UUID.fromString("5fec2326-d92e-11ed-afa1-0242ac120002"));
         assertEquals(partnerApplication.getCreditPurposeType(), CreditPurposeType.PURCHASE_UNDER_CONSTRUCTION);
         assertEquals(partnerApplication.getPartnerApplicationStatus(), PartnerApplicationStatus.UPLOADING_DOCS);

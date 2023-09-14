@@ -17,7 +17,6 @@ import java.util.UUID;
 @Getter
 @Setter
 @ToString
-@SuppressWarnings("PMD")//TODO TooManyFields MB-467
 public class NotificationBankLetterResponse implements Serializable {
 
     private static final long serialVersionUID = -6639215001970950771L;
@@ -50,7 +49,7 @@ public class NotificationBankLetterResponse implements Serializable {
     private UUID bankId;
     private String bankName;
 
-    public NotificationBankLetterResponse(UUID id, //todo fix ExcessiveParameterList
+    public NotificationBankLetterResponse(UUID id,
                                           UUID partnerApplicationId,
                                           Integer applicationNumber,
                                           UUID borrowerId,

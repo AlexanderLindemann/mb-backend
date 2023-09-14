@@ -1,6 +1,5 @@
 package pro.mbroker.app.exception;
 
-@SuppressWarnings("PMD")
 public class ProfileUpdateException extends RestException {
     private String fieldName;
 

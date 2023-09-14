@@ -51,6 +51,7 @@ public class TestData {
         return new MortgageCalculationDto()
                 .setCreditTerm(20)
                 .setDownPayment(BigDecimal.valueOf(1000000))
+                .setMonthlyPayment(BigDecimal.valueOf(100000))
                 .setRealEstatePrice(BigDecimal.valueOf(50000000))
                 .setIsMaternalCapital(true);
     }

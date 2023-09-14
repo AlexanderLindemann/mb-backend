@@ -39,6 +39,7 @@ public class PartnerApplicationControllerTest extends AbstractControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("Authorization", "Bearer " + tokenWithOrganizationPermission))
                 .andExpect(status().isOk());
+        System.out.println();
     }
 
     @Test
@@ -47,6 +48,7 @@ public class PartnerApplicationControllerTest extends AbstractControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("Authorization", "Bearer " + tokenWithOrganizationPermission))
                 .andExpect(status().isOk());
+        System.out.println();
     }
 
     @Test
@@ -55,6 +57,7 @@ public class PartnerApplicationControllerTest extends AbstractControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("Authorization", "Bearer " + tokenWithReadOwnPermission))
                 .andExpect(status().isOk());
+        System.out.println();
     }
 
     @Test
@@ -63,6 +66,7 @@ public class PartnerApplicationControllerTest extends AbstractControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("Authorization", "Bearer " + tokenWithReadOwnPermission))
                 .andExpect(status().isForbidden());
+        System.out.println();
     }
 
 }

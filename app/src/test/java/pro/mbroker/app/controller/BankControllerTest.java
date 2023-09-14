@@ -12,6 +12,10 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.util.NestedServletException;
 import pro.mbroker.api.controller.BankController;
 import pro.mbroker.app.TestData;
+import pro.mbroker.app.util.AuthenticationTokenFilter;
+import pro.mbroker.app.util.TokenExtractor;
+
+import javax.servlet.Filter;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -20,18 +24,21 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
-@SuppressWarnings("PMD")
 public class BankControllerTest extends AbstractControllerTest {
     @Autowired
     private BankController bankController;
-
+    @Autowired
+    private TokenExtractor tokenExtractor;
     @Autowired
     private TestData testData;
 
     @BeforeEach
     public void setUp() {
+        Filter authenticationTokenFilter = new AuthenticationTokenFilter(tokenExtractor);
+
         mockMvc = MockMvcBuilders.standaloneSetup(bankController)
-                 .build();
+                .addFilter(authenticationTokenFilter)
+                .build();
 
         Mockito.when(currentUserService.getCurrentUserToken()).thenReturn(tokenWithAdminPermission);
     }

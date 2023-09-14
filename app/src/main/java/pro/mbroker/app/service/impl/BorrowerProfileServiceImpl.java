@@ -33,7 +33,6 @@ import java.util.stream.Collectors;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-@SuppressWarnings("PMD")
 public class BorrowerProfileServiceImpl implements BorrowerProfileService {
     private final BorrowerProfileRepository borrowerProfileRepository;
     private final BankApplicationService bankApplicationService;

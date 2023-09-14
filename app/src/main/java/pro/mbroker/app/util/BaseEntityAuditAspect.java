@@ -11,7 +11,6 @@ import java.util.Collection;
 @Aspect
 @Component
 @RequiredArgsConstructor
-@SuppressWarnings("PMD")
 public class BaseEntityAuditAspect {
 
     @Before("execution(* pro.mbroker.app.repository.*.save(..)) && args(baseEntity, ..)")

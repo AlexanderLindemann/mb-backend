@@ -15,7 +15,6 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Mapper(uses = {BorrowerProfileMapper.class, CreditParameterMapper.class})
-@SuppressWarnings("PMD")
 public interface BankApplicationMapper {
 
     @Mapping(source = "bankApplication.creditProgram.baseRate", target = "baseRate")
@@ -81,6 +80,7 @@ public interface BankApplicationMapper {
             response.setCreditTerm((int) Math.ceil(years));
         }
     }
+
 
     default BankApplication updateBankApplicationFromRequest(BankApplication existing, BankApplicationRequest request) {
         if (existing == null) {

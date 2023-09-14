@@ -8,7 +8,6 @@ import org.springframework.stereotype.Component;
 @Component
 @Slf4j
 @NoArgsConstructor
-@SuppressWarnings("PMD")
 public final class TokenExtractor {
 
     public static int extractSdCurrentOrganizationId(String token) {
@@ -22,8 +21,7 @@ public final class TokenExtractor {
         JSONObject data = getJsonPayloadFromTokenByValue(token, "data", JSONObject.class);
         int sdIdAsInt = Integer.parseInt((String) data.get("sd_id"));
         log.info("Извлечен sd_id: {}", sdIdAsInt);
-      //  return sdIdAsInt;
-        return 4242; //todo удалить после того как придумаем как получить id из токена если авторизация уехала в гетвей MB-468
+        return sdIdAsInt;
     }
 
     public List<String> getPermissions(String token) {

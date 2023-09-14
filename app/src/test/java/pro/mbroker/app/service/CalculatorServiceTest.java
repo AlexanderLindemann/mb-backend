@@ -65,7 +65,6 @@ public class CalculatorServiceTest {
 //    }
 
     @Test
-    @SuppressWarnings("PMD")
     public void testGetCreditOfferWithSalaryBankClient() {
         PropertyMortgageDTO creditOffer = calculatorService.getCreditOffer(testData.getCalculatorRequest().setSalaryBanks(List.of(UUID.fromString("0c371042-d848-11ed-afa1-0242ac120002"))));
 //        List<LoanProgramCalculationDto> loanProgramCalculationDto = creditOffer.getBankLoanProgramDto().get(0).getLoanProgramCalculationDto();
