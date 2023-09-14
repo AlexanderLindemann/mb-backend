@@ -562,6 +562,7 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
         Integer organizationId = 2222;
         Integer sdId = 2222;
         String code = permission.toString();
+        String code = permission.toString();
         if (code.equals(Permission.Code.MB_REQUEST_READ_ORGANIZATION) &&
                 !partnerApplication.getPartner().getSmartDealOrganizationId().equals(organizationId)) {
             throw new AccessDeniedException("organization_id: " + organizationId, PartnerApplication.class);
