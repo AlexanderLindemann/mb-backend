@@ -14,6 +14,7 @@ import pro.mbroker.api.enums.RealEstateType;
 import pro.mbroker.app.entity.BankApplication;
 import pro.mbroker.app.entity.BorrowerEmployer;
 import pro.mbroker.app.entity.BorrowerProfile;
+import pro.mbroker.app.entity.PartnerApplication;
 import pro.mbroker.app.service.DocxFieldHandler;
 import pro.mbroker.app.util.Converter;
 import pro.mbroker.app.util.DocxFieldExtractor;
@@ -29,22 +30,36 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class DocxFieldHandlerImpl implements DocxFieldHandler {
 
-    public Map<String, String> replaceFieldValue(byte[] file, BankApplication bankApplication, BorrowerProfile borrowerProfile) {
+    public Map<String, String> replaceFieldValue(byte[] file, PartnerApplication partnerApplication, BorrowerProfile borrowerProfile) {
         Set<String> fields = extractFieldsFromDocx(file);
+        BorrowerProfile mainBorrower;
+        BankApplication bankApplication;
+        OptionalInt maxMonthCreditTerm;
+        if (Objects.nonNull(partnerApplication.getBankApplications())) {
+            maxMonthCreditTerm = partnerApplication.getBankApplications().stream()
+                    .mapToInt(BankApplication::getMonthCreditTerm)
+                    .max();
+            bankApplication = partnerApplication.getBankApplications().get(0);
+            mainBorrower = partnerApplication.getBankApplications().get(0).getMainBorrower();
+        } else {
+            mainBorrower = null;
+            bankApplication = null;
+            maxMonthCreditTerm = null;
+        }
         Map<String, Function<Void, String>> fieldMapping = new HashMap<>() {
             {
                 put("borrowerPassportNumber", (v) -> borrowerProfile.getPassportNumber());
-                put("borrowerType", (v) -> bankApplication.getMainBorrower().getId().equals(borrowerProfile.getId()) ? "Заемщик" : "Созаемщик");
-                put("borrowerEducation", (v) -> (Objects.nonNull(borrowerProfile.getEducation())) ? borrowerProfile.getEducation().getName() : null);
-                put("borrowerTotalWorkExperience", (v) -> (Objects.nonNull(borrowerProfile.getTotalWorkExperience())) ? borrowerProfile.getTotalWorkExperience().getName() : null);
-                put("borrowerMarriageContract", (v) -> (Objects.nonNull(borrowerProfile.getMarriageContract()) ? (borrowerProfile.getMarriageContract() ? "да" : "нет") : null));
-                put("borrowerEmploymentStatus", (v) -> (Objects.nonNull(borrowerProfile.getEmploymentStatus())) ? borrowerProfile.getEmploymentStatus().getName() : null);
-                put("borrowerChildren", (v) -> (Objects.nonNull(borrowerProfile.getChildren())) ? borrowerProfile.getChildren().toString() : null);
-                put("borrowerMaritalStatus", (v) -> (Objects.nonNull(borrowerProfile.getMaritalStatus())) ? borrowerProfile.getMaritalStatus().getName() : null);
-                put("borrowerCompanyName", (v) -> Optional.ofNullable(borrowerProfile.getEmployer()).map(BorrowerEmployer::getName).orElse(null));
-                put("borrowerCompanyInn", (v) -> Optional.ofNullable(borrowerProfile.getEmployer()).map(BorrowerEmployer::getInn).map(Object::toString).orElse(null));
-                put("borrowerCompanyBranch", (v) -> Optional.ofNullable(borrowerProfile.getEmployer()).map(BorrowerEmployer::getBranch).map(Branch::getName).orElse(null));
-                put("borrowerCompanyEmployeeCount", (v) -> Optional.ofNullable(borrowerProfile.getEmployer()).map(BorrowerEmployer::getNumberOfEmployees).map(NumberOfEmployees::getName).orElse(null));
+                put("borrowerType", (v) -> (Objects.nonNull(mainBorrower)) ? mainBorrower.getId().equals(borrowerProfile.getId()) ? "Заемщик" : "Созаемщик" : "-");
+                put("borrowerEducation", (v) -> (Objects.nonNull(borrowerProfile.getEducation())) ? borrowerProfile.getEducation().getName() : "-");
+                put("borrowerTotalWorkExperience", (v) -> (Objects.nonNull(borrowerProfile.getTotalWorkExperience())) ? borrowerProfile.getTotalWorkExperience().getName() : "-");
+                put("borrowerMarriageContract", (v) -> (Objects.nonNull(borrowerProfile.getMarriageContract()) ? borrowerProfile.getMarriageContract().getName() : "-"));
+                put("borrowerEmploymentStatus", (v) -> (Objects.nonNull(borrowerProfile.getEmploymentStatus())) ? borrowerProfile.getEmploymentStatus().getName() : "-");
+                put("borrowerChildren", (v) -> (Objects.nonNull(borrowerProfile.getChildren())) ? borrowerProfile.getChildren().toString() : "-");
+                put("borrowerMaritalStatus", (v) -> (Objects.nonNull(borrowerProfile.getMaritalStatus())) ? borrowerProfile.getMaritalStatus().getName() : "-");
+                put("borrowerCompanyName", (v) -> Optional.ofNullable(borrowerProfile.getEmployer()).map(BorrowerEmployer::getName).orElse("-"));
+                put("borrowerCompanyInn", (v) -> Optional.ofNullable(borrowerProfile.getEmployer()).map(BorrowerEmployer::getInn).map(Object::toString).orElse("-"));
+                put("borrowerCompanyBranch", (v) -> Optional.ofNullable(borrowerProfile.getEmployer()).map(BorrowerEmployer::getBranch).map(Branch::getName).orElse("-"));
+                put("borrowerCompanyEmployeeCount", (v) -> Optional.ofNullable(borrowerProfile.getEmployer()).map(BorrowerEmployer::getNumberOfEmployees).map(NumberOfEmployees::getName).orElse("-"));
                 put("creditAmount", (v) -> bankApplication.getRealEstatePrice().subtract(bankApplication.getDownPayment()).toString());
                 put("realEstateType", (v) -> Optional.ofNullable(bankApplication.getCreditProgram().getCreditProgramDetail().getRealEstateType())
                         .map(types -> Converter.convertStringListToEnumList(types, RealEstateType.class))
@@ -61,40 +76,40 @@ public class DocxFieldHandlerImpl implements DocxFieldHandler {
                 put("realEstateRegion", (v) -> bankApplication.getPartnerApplication().getRealEstate().getRegion().getName());
                 put("borrowerRegistrationAddress", (v) -> borrowerProfile.getRegistrationAddress());
                 put("borrowerResidenceAddress", (v) -> borrowerProfile.getResidenceAddress());
-                put("borrowerPassportIssuedDate", (v) -> (Objects.nonNull(borrowerProfile.getPassportIssuedDate())) ? borrowerProfile.getPassportIssuedDate().toString() : null);
+                put("borrowerPassportIssuedDate", (v) -> (Objects.nonNull(borrowerProfile.getPassportIssuedDate())) ? borrowerProfile.getPassportIssuedDate().toString() : "-");
                 put("borrowerPassportIssuedByName", (v) -> borrowerProfile.getPassportIssuedByName());
                 put("borrowerEmail", (v) -> borrowerProfile.getEmail());
-                put("borrowerGender", (v) -> (Objects.nonNull(borrowerProfile.getGender())) ? borrowerProfile.getGender().getName() : null);
+                put("borrowerGender", (v) -> (Objects.nonNull(borrowerProfile.getGender())) ? borrowerProfile.getGender().getName() : "-");
                 put("borrowerLastName", (v) -> borrowerProfile.getLastName());
                 put("borrowerFirstName", (v) -> borrowerProfile.getFirstName());
                 put("borrowerMiddleName", (v) -> borrowerProfile.getMiddleName());
                 put("borrowerFIO", (v) -> borrowerProfile.getLastName() + " " + borrowerProfile.getFirstName() + " " + borrowerProfile.getMiddleName());
-                put("creditTermInYears", (v) -> (Objects.nonNull(bankApplication.getMonthCreditTerm())) ? bankApplication.getMonthCreditTerm().toString() : null);
-                put("realEstatePrice", (v) -> (Objects.nonNull(bankApplication.getRealEstatePrice())) ? bankApplication.getRealEstatePrice().toString() : null);
+                put("creditTermInYears", (v) -> (Objects.nonNull(maxMonthCreditTerm) ? maxMonthCreditTerm.toString() : "-"));
+                put("realEstatePrice", (v) -> (Objects.nonNull(bankApplication.getRealEstatePrice())) ? bankApplication.getRealEstatePrice().toString() : "-");
                 put("borrowerPassportIssuedByCode", (v) -> borrowerProfile.getPassportIssuedByCode());
                 put("borrowerSNILS", (v) -> borrowerProfile.getSnils());
-                put("downPayment", (v) -> (Objects.nonNull(bankApplication.getDownPayment())) ? bankApplication.getDownPayment().toString() : null);
-                put("borrowerBirthdate", (v) -> (Objects.nonNull(borrowerProfile.getBirthdate())) ? borrowerProfile.getBirthdate().toString() : null);
+                put("downPayment", (v) -> (Objects.nonNull(bankApplication.getDownPayment())) ? bankApplication.getDownPayment().toString() : "-");
+                put("borrowerBirthdate", (v) -> (Objects.nonNull(borrowerProfile.getBirthdate())) ? borrowerProfile.getBirthdate().toString() : "-");
                 put("borrowerPrevFullName", (v) -> borrowerProfile.getPrevFullName());
                 put("borrowerPhone", (v) -> borrowerProfile.getPhoneNumber());
-                put("borrowerCompanyExistence", (v) -> Objects.nonNull(borrowerProfile.getEmployer()) ? borrowerProfile.getEmployer().getWorkExperience().getName() : null);
-                put("borrowerCompanyPhoneNumber", (v) -> Objects.nonNull(borrowerProfile.getEmployer()) ? borrowerProfile.getEmployer().getPhone() : null);
-                put("borrowerCompanySite", (v) -> Objects.nonNull(borrowerProfile.getEmployer()) ? borrowerProfile.getEmployer().getSite() : null);
-                put("borrowerCompanyAddress", (v) -> Objects.nonNull(borrowerProfile.getEmployer()) ? borrowerProfile.getEmployer().getAddress() : null);
-                put("borrowerCompanyPosition", (v) -> Objects.nonNull(borrowerProfile.getEmployer()) ? borrowerProfile.getEmployer().getPosition() : null);
-                put("borrowerCompanyWorkExperience", (v) -> Objects.nonNull(borrowerProfile.getEmployer()) ? borrowerProfile.getEmployer().getWorkExperience().getName() : null);
-                put("borrowerVehicleModel", (v) -> Objects.nonNull(borrowerProfile.getVehicle()) ? borrowerProfile.getVehicle().getModel() : null);
-                put("borrowerVehicleYearOfManufacture", (v) -> Objects.nonNull(borrowerProfile.getVehicle()) ? borrowerProfile.getVehicle().getYearOfManufacture().toString() : null);
-                put("borrowerVehicleBasisOfOwnership", (v) -> Objects.nonNull(borrowerProfile.getVehicle()) ? borrowerProfile.getVehicle().getBasisOfOwnership().getName() : null);
-                put("borrowerVehiclePrice", (v) -> Objects.nonNull(borrowerProfile.getVehicle()) ? borrowerProfile.getVehicle().getPrice().toString() : null);
-                put("borrowerVehicleIsCollateral", (v) -> Objects.nonNull(borrowerProfile.getVehicle()) ? (borrowerProfile.getVehicle().getIsCollateral() ? "да" : "нет") : null);
-                put("borrowerRealEstateType", (v) -> Objects.nonNull(borrowerProfile.getRealEstate()) ? borrowerProfile.getRealEstate().getType().getName() : null);
-                put("borrowerRealEstateBasisOfOwnership", (v) -> Objects.nonNull(borrowerProfile.getRealEstate()) ? borrowerProfile.getRealEstate().getBasisOfOwnership().getName() : null);
-                put("borrowerRealEstateArea", (v) -> Objects.nonNull(borrowerProfile.getRealEstate()) ? borrowerProfile.getRealEstate().getArea().toString() : null);
-                put("borrowerRealEstatePrice", (v) -> Objects.nonNull(borrowerProfile.getRealEstate()) ? borrowerProfile.getRealEstate().getPrice().toString() : null);
-                put("borrowerRealEstateShare", (v) -> Objects.nonNull(borrowerProfile.getRealEstate()) ? borrowerProfile.getRealEstate().getShare().toString() : null);
-                put("borrowerRealEstateAddress", (v) -> Objects.nonNull(borrowerProfile.getRealEstate()) ? borrowerProfile.getRealEstate().getAddress() : null);
-                put("borrowerRealEstateIsCollateral", (v) -> Objects.nonNull(borrowerProfile.getRealEstate()) ? borrowerProfile.getRealEstate().getIsCollateral() ? "да" : "нет" : null);
+                put("borrowerCompanyExistence", (v) -> Objects.nonNull(borrowerProfile.getEmployer()) ? borrowerProfile.getEmployer().getWorkExperience().getName() : "-");
+                put("borrowerCompanyPhoneNumber", (v) -> Objects.nonNull(borrowerProfile.getEmployer()) ? borrowerProfile.getEmployer().getPhone() : "-");
+                put("borrowerCompanySite", (v) -> Objects.nonNull(borrowerProfile.getEmployer()) ? borrowerProfile.getEmployer().getSite() : "-");
+                put("borrowerCompanyAddress", (v) -> Objects.nonNull(borrowerProfile.getEmployer()) ? borrowerProfile.getEmployer().getAddress() : "-");
+                put("borrowerCompanyPosition", (v) -> Objects.nonNull(borrowerProfile.getEmployer()) ? borrowerProfile.getEmployer().getPosition() : "-");
+                put("borrowerCompanyWorkExperience", (v) -> Objects.nonNull(borrowerProfile.getEmployer()) ? borrowerProfile.getEmployer().getWorkExperience().getName() : "-");
+                put("borrowerVehicleModel", (v) -> Objects.nonNull(borrowerProfile.getVehicle()) ? borrowerProfile.getVehicle().getModel() : "-");
+                put("borrowerVehicleYearOfManufacture", (v) -> Objects.nonNull(borrowerProfile.getVehicle()) ? borrowerProfile.getVehicle().getYearOfManufacture().toString() : "-");
+                put("borrowerVehicleBasisOfOwnership", (v) -> Objects.nonNull(borrowerProfile.getVehicle()) ? borrowerProfile.getVehicle().getBasisOfOwnership().getName() : "-");
+                put("borrowerVehiclePrice", (v) -> Objects.nonNull(borrowerProfile.getVehicle()) ? borrowerProfile.getVehicle().getPrice().toString() : "-");
+                put("borrowerVehicleIsCollateral", (v) -> Objects.nonNull(borrowerProfile.getVehicle()) ? (borrowerProfile.getVehicle().getIsCollateral() ? "да" : "нет") : "-");
+                put("borrowerRealEstateType", (v) -> Objects.nonNull(borrowerProfile.getRealEstate()) ? borrowerProfile.getRealEstate().getType().getName() : "-");
+                put("borrowerRealEstateBasisOfOwnership", (v) -> Objects.nonNull(borrowerProfile.getRealEstate()) ? borrowerProfile.getRealEstate().getBasisOfOwnership().getName() : "-");
+                put("borrowerRealEstateArea", (v) -> Objects.nonNull(borrowerProfile.getRealEstate()) ? borrowerProfile.getRealEstate().getArea().toString() : "-");
+                put("borrowerRealEstatePrice", (v) -> Objects.nonNull(borrowerProfile.getRealEstate()) ? borrowerProfile.getRealEstate().getPrice().toString() : "-");
+                put("borrowerRealEstateShare", (v) -> Objects.nonNull(borrowerProfile.getRealEstate()) ? borrowerProfile.getRealEstate().getShare().toString() : "-");
+                put("borrowerRealEstateAddress", (v) -> Objects.nonNull(borrowerProfile.getRealEstate()) ? borrowerProfile.getRealEstate().getAddress() : "-");
+                put("borrowerRealEstateIsCollateral", (v) -> Objects.nonNull(borrowerProfile.getRealEstate()) ? borrowerProfile.getRealEstate().getIsCollateral() ? "да" : "нет" : "-");
                 put("borrowerIncomeVerification", (v) -> borrowerProfile.getPassportNumber());
                 put("contractDate", (v) -> LocalDate.now().toString());
             }

@@ -50,7 +50,7 @@ public class BorrowerProfileFullResponse {
 
     private Integer children;
 
-    private Boolean marriageContract;
+    private MarriageContract marriageContract;
 
     private Education education;
 

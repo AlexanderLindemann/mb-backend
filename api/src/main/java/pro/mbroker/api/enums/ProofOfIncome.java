@@ -9,7 +9,7 @@ import pro.smartdeal.common.enums.EnumWithValue;
 @RequiredArgsConstructor
 @DictionaryEnum(code = "ProofOfIncome", name = "Вид подтверждения дохода")
 public enum ProofOfIncome implements EnumWithValue<String> {
-    _2NDFL("2NDFL", "2-НДФЛ"),
+    TWO_NDFL("TWO_NDFL", "2-НДФЛ"),
     BANK_REFERENCE("BANK_REFERENCE", "Справка банка"),
     FULL_PACKAGE("FULL_PACKAGE", "Полный пакет (бизнес)"),
     NO_CONFIRMATION("NO_CONFIRMATION", "Без подтверждения");

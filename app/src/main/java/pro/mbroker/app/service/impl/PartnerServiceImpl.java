@@ -22,7 +22,6 @@ import pro.mbroker.app.repository.specification.PartnerSpecification;
 import pro.mbroker.app.service.CreditProgramService;
 import pro.mbroker.app.service.PartnerService;
 import pro.mbroker.app.util.Pagination;
-import pro.smartdeal.ng.common.security.service.CurrentUserService;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -32,7 +31,6 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class PartnerServiceImpl implements PartnerService {
     private final CreditProgramService creditProgramService;
-    private final CurrentUserService currentUserService;
     private final PartnerRepository partnerRepository;
     private final PartnerApplicationRepository partnerApplicationRepository;
     private final CreditProgramRepository creditProgramRepository;

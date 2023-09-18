@@ -2,7 +2,12 @@ package pro.mbroker.app.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.poi.xwpf.usermodel.*;
+import org.apache.poi.xwpf.usermodel.XWPFDocument;
+import org.apache.poi.xwpf.usermodel.XWPFParagraph;
+import org.apache.poi.xwpf.usermodel.XWPFRun;
+import org.apache.poi.xwpf.usermodel.XWPFTable;
+import org.apache.poi.xwpf.usermodel.XWPFTableCell;
+import org.apache.poi.xwpf.usermodel.XWPFTableRow;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpHeaders;
@@ -10,18 +15,23 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import pro.mbroker.app.entity.BankApplication;
 import pro.mbroker.app.entity.BorrowerProfile;
+import pro.mbroker.app.entity.PartnerApplication;
 import pro.mbroker.app.service.BankApplicationService;
 import pro.mbroker.app.service.BorrowerProfileService;
 import pro.mbroker.app.service.DocxFieldHandler;
 import pro.mbroker.app.service.FormService;
+import pro.mbroker.app.service.PartnerApplicationService;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 @Slf4j
 @Service
@@ -29,16 +39,16 @@ import java.util.*;
 public class FormServiceImpl implements FormService {
 
 
-    private final BankApplicationService bankApplicationService;
     private final BorrowerProfileService borrowerProfileService;
+    private final PartnerApplicationService partnerApplicationService;
     private final DocxFieldHandler docxFieldHandler;
 
 
     @Override
     @Transactional(readOnly = true)
-    public ResponseEntity<ByteArrayResource> generateFormFile(UUID bankApplicationId, UUID borrowerProfileId) {
+    public ResponseEntity<ByteArrayResource> generateFormFile(UUID partnerApplicationId, UUID borrowerProfileId) {
 
-        BankApplication bankApplication = bankApplicationService.getBankApplicationById(bankApplicationId);
+        PartnerApplication partnerApplication = partnerApplicationService.getPartnerApplication(partnerApplicationId);
         BorrowerProfile borrowerProfile = borrowerProfileService.findByIdWithRealEstateVehicleAndEmployer(borrowerProfileId);
         ClassPathResource classPathResource = new ClassPathResource("form.docx");
 
@@ -48,7 +58,7 @@ public class FormServiceImpl implements FormService {
         } catch (IOException e) {
             throw new RuntimeException("Error reading form.docx", e);
         }
-        Map<String, String> replacements = docxFieldHandler.replaceFieldValue(file, bankApplication, borrowerProfile);
+        Map<String, String> replacements = docxFieldHandler.replaceFieldValue(file, partnerApplication, borrowerProfile);
         try (InputStream inputStream = new ByteArrayInputStream(file)) {
             XWPFDocument document = new XWPFDocument(inputStream);
             replaceTextInDocx(document, replacements);

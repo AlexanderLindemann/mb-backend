@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <changeSet id="add_column_borrower_profile" author="a.lindemann">
+        <modifyDataType tableName="borrower_profile" columnName="marriage_contract" newDataType="VARCHAR(10)"/>
+        <addColumn tableName="borrower_profile">
+            <column name="residency_outside_ru" type="VARCHAR(255)"/>
+            <column name="long_term_stay_outside_ru" type="VARCHAR(255)"/>
+            <column name="is_public_official" type="BOOLEAN"/>
+            <column name="TIN" type="integer"/>
+            <column name="family_relation" type="VARCHAR(255)"/>
+            <column name="related_public_official" type="VARCHAR(255)"/>
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="update_marriage_contract_values" author="a.lindemann">
+        <update tableName="borrower_profile">
+            <column name="marriage_contract" value="NO"/>
+        </update>
+    </changeSet>
+
+    <changeSet id="add-columns-to-borrower_employer" author="a.lindemann">
+        <addColumn tableName="borrower_employer">
+            <column name="bank_details" type="VARCHAR(255)"/>
+        </addColumn>
+        <addColumn tableName="borrower_employer">
+            <column name="manager" type="VARCHAR(255)"/>
+        </addColumn>
+        <addColumn tableName="borrower_employer">
+            <column name="is_current_employer" type="BOOLEAN"/>
+        </addColumn>
+    </changeSet>
+
+
+</databaseChangeLog>

@@ -57,6 +57,15 @@ public class BorrowerEmployer extends BaseEntity {
     @Column(name = "address")
     private String address;
 
+    @Column(name = "bank_details")
+    private String bankDetails;
+
+    @Column(name = "manager")
+    private String manager;
+
+    @Column(name = "is_current_employer")
+    private Boolean isCurrentEmployer;
+
     @OneToOne(mappedBy = "employer", cascade = CascadeType.ALL)
     private BorrowerProfile borrowerProfile;
 }
