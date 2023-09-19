@@ -119,14 +119,12 @@ public class BorrowerProfileServiceImpl implements BorrowerProfileService {
                         BorrowerEmployer convertedEmployer = convertToBorrowerEmployer((EmployerDto) value, employer);
                         Objects.requireNonNull(convertedEmployer).setBorrowerProfile(borrowerProfile);
                         borrowerProfile.setEmployer(convertedEmployer);
-                    }
-                    if (field.getName().equals("realEstate") && value instanceof BorrowerRealEstateDto) {
+                    } else if (field.getName().equals("realEstate") && value instanceof BorrowerRealEstateDto) {
                         BorrowerRealEstate realEstate = borrowerProfile.getRealEstate();
                         BorrowerRealEstate convertedToBorrowerRealEstate = convertToBorrowerRealEstate((BorrowerRealEstateDto) value, realEstate);
                         Objects.requireNonNull(convertedToBorrowerRealEstate).setBorrowerProfile(borrowerProfile);
                         borrowerProfile.setRealEstate(convertedToBorrowerRealEstate);
-                    }
-                    if (field.getName().equals("vehicle") && value instanceof BorrowerVehicleDto) {
+                    } else if (field.getName().equals("vehicle") && value instanceof BorrowerVehicleDto) {
                         BorrowerVehicle vehicle = borrowerProfile.getVehicle();
                         BorrowerVehicle convertToBorrowerVehicle = convertToBorrowerVehicle((BorrowerVehicleDto) value, vehicle);
                         Objects.requireNonNull(convertToBorrowerVehicle).setBorrowerProfile(borrowerProfile);
