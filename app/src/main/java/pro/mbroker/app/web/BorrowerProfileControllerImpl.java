@@ -2,6 +2,8 @@ package pro.mbroker.app.web;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import pro.mbroker.api.controller.BorrowerProfileController;
 import pro.mbroker.api.dto.request.BorrowerProfileUpdateRequest;
@@ -12,6 +14,7 @@ import pro.mbroker.app.entity.BorrowerProfile;
 import pro.mbroker.app.mapper.BorrowerProfileMapper;
 import pro.mbroker.app.service.BorrowerDocumentService;
 import pro.mbroker.app.service.BorrowerProfileService;
+import pro.mbroker.app.service.FormService;
 
 import java.util.UUID;
 
@@ -23,6 +26,7 @@ public class BorrowerProfileControllerImpl implements BorrowerProfileController 
     private final BorrowerProfileService borrowerProfileService;
     private final BorrowerDocumentService borrowerDocumentService;
     private final BorrowerProfileMapper borrowerProfileMapper;
+    private final FormService formService;
 
 
     @Override
@@ -59,5 +63,10 @@ public class BorrowerProfileControllerImpl implements BorrowerProfileController 
     public BorrowerProfileFullResponse getBorrower(UUID borrowerProfileId) {
         BorrowerProfile borrowerProfile = borrowerProfileService.findByIdWithRealEstateVehicleAndEmployer(borrowerProfileId);
         return borrowerProfileMapper.toBorrowerProfileFullResponse(borrowerProfile);
+    }
+
+    @Override
+    public ResponseEntity<ByteArrayResource> generateFormFile(UUID partnerApplicationId, UUID borrowerProfileId) {
+        return formService.generateFormFile(partnerApplicationId, borrowerProfileId);
     }
 }

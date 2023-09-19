@@ -56,6 +56,12 @@ public interface BorrowerProfileMapper {
     @Mapping(target = "additionalIncome", ignore = true)
     @Mapping(target = "pension", ignore = true)
     @Mapping(target = "proofOfIncome", ignore = true)
+    @Mapping(target = "residencyOutsideRU", ignore = true)
+    @Mapping(target = "longTermStayOutsideRU", ignore = true)
+    @Mapping(target = "isPublicOfficial", ignore = true)
+    @Mapping(target = "TIN", ignore = true)
+    @Mapping(target = "familyRelation", ignore = true)
+    @Mapping(target = "relatedPublicOfficial", ignore = true)
     BorrowerProfile toBorrowerProfile(BorrowerProfileRequest request);
 
 
@@ -110,6 +116,12 @@ public interface BorrowerProfileMapper {
     @Mapping(target = "additionalIncome", expression = "java(null)")
     @Mapping(target = "pension", expression = "java(null)")
     @Mapping(target = "proofOfIncome", expression = "java(null)")
+    @Mapping(target = "residencyOutsideRU", ignore = true)
+    @Mapping(target = "longTermStayOutsideRU", ignore = true)
+    @Mapping(target = "isPublicOfficial", ignore = true)
+    @Mapping(target = "TIN", ignore = true)
+    @Mapping(target = "familyRelation", ignore = true)
+    @Mapping(target = "relatedPublicOfficial", ignore = true)
     void updateBorrowerProfile(BorrowerProfileRequest request, @MappingTarget BorrowerProfile profile);
 
     @Mapping(source = "borrowerProfileStatus", target = "status")

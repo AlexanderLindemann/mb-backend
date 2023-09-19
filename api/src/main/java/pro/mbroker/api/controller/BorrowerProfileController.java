@@ -3,6 +3,8 @@ package pro.mbroker.api.controller;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pro.mbroker.api.dto.request.BorrowerProfileUpdateRequest;
 import pro.mbroker.api.dto.request.BorrowerRequest;
@@ -45,5 +47,10 @@ public interface BorrowerProfileController {
     @ApiOperation("получить полный профиль клиента")
     @GetMapping("/{borrowerProfileId}/full")
     BorrowerProfileFullResponse getBorrower(@PathVariable UUID borrowerProfileId);
+
+    @ApiOperation("сгенерировать анкету")
+    @PostMapping("/generate-borrower-form")
+    ResponseEntity<ByteArrayResource> generateFormFile(@RequestParam UUID partnerApplicationId, @RequestParam UUID borrowerProfileId);
+
 
 }

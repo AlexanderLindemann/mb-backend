@@ -57,8 +57,9 @@ public class BorrowerProfile extends BaseEntity {
     @Column(name = "children")
     private Integer children;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "marriage_contract")
-    private Boolean marriageContract;
+    private MarriageContract marriageContract;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "education")
@@ -66,6 +67,18 @@ public class BorrowerProfile extends BaseEntity {
 
     @Column(name = "passport_number")
     private String passportNumber;
+
+    @Column(name = "residency_outside_ru")
+    private String residencyOutsideRU;
+
+    @Column(name = "long_term_stay_outside_ru")
+    private String longTermStayOutsideRU;
+
+    @Column(name = "is_public_official")
+    private Boolean isPublicOfficial;
+
+    @Column(name = "TIN")
+    private Integer TIN;
 
     @Column(name = "passport_issued_date")
     private LocalDate passportIssuedDate;
@@ -86,11 +99,19 @@ public class BorrowerProfile extends BaseEntity {
     @Column(name = "registration_type")
     private RegistrationType registrationType;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "family_relation")
+    private FamilyRelation familyRelation;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "related_public_official")
+    private FamilyRelation relatedPublicOfficial;
+
     @Column(name = "snils")
     private String snils;
 
     @Column(name = "residence_rf")
-    private Boolean residenceRF;
+    private Boolean residenceRF = true;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "employment_status")
