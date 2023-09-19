@@ -9,7 +9,9 @@ import pro.smartdeal.common.enums.EnumWithValue;
 @RequiredArgsConstructor
 @DictionaryEnum(code = "BasisOfOwnership", name = "Основание права")
 public enum BasisOfOwnership implements EnumWithValue<String> {
-    ACQUISITION("ACQUISITION", "Приобретение"),
+    PURCHASE("PURCHASE", "Покупка"),
+    PRIVATIZATION("PRIVATIZATION", "Приватизация"),
+    GIVING("GIVING", "Дарение"),
     INHERITANCE("INHERITANCE", "Наследство");
 
     private final String value;
