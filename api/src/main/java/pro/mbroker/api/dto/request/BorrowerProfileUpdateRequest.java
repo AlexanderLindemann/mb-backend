@@ -38,7 +38,7 @@ public class BorrowerProfileUpdateRequest {
 
     private Integer children;
 
-    private Boolean marriageContract;
+    private MarriageContract marriageContract;
 
     private Education education;
 
