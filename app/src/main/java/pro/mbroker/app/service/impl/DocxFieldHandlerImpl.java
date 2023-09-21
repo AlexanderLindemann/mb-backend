@@ -21,7 +21,12 @@ import pro.mbroker.app.util.DocxFieldExtractor;
 
 import java.io.ByteArrayInputStream;
 import java.time.LocalDate;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.OptionalInt;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -84,7 +89,7 @@ public class DocxFieldHandlerImpl implements DocxFieldHandler {
                 put("borrowerFirstName", (v) -> borrowerProfile.getFirstName());
                 put("borrowerMiddleName", (v) -> borrowerProfile.getMiddleName());
                 put("borrowerFIO", (v) -> borrowerProfile.getLastName() + " " + borrowerProfile.getFirstName() + " " + borrowerProfile.getMiddleName());
-                put("creditTermInYears", (v) -> (Objects.nonNull(maxMonthCreditTerm) ? maxMonthCreditTerm.toString() : "-"));
+                put("creditTermInYears", (v) -> (Objects.nonNull(maxMonthCreditTerm) ? String.valueOf(maxMonthCreditTerm.getAsInt()) : "-"));
                 put("realEstatePrice", (v) -> (Objects.nonNull(bankApplication.getRealEstatePrice())) ? bankApplication.getRealEstatePrice().toString() : "-");
                 put("borrowerPassportIssuedByCode", (v) -> borrowerProfile.getPassportIssuedByCode());
                 put("borrowerSNILS", (v) -> borrowerProfile.getSnils());

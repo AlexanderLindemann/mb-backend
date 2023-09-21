@@ -2,6 +2,7 @@ package pro.mbroker.app.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.poi.util.Units;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.apache.poi.xwpf.usermodel.XWPFParagraph;
 import org.apache.poi.xwpf.usermodel.XWPFRun;
@@ -15,22 +16,23 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 import pro.mbroker.app.entity.BorrowerProfile;
 import pro.mbroker.app.entity.PartnerApplication;
-import pro.mbroker.app.service.BankApplicationService;
 import pro.mbroker.app.service.BorrowerProfileService;
 import pro.mbroker.app.service.DocxFieldHandler;
 import pro.mbroker.app.service.FormService;
-import pro.mbroker.app.service.PartnerApplicationService;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 
 @Slf4j
@@ -40,25 +42,30 @@ public class FormServiceImpl implements FormService {
 
 
     private final BorrowerProfileService borrowerProfileService;
-    private final PartnerApplicationService partnerApplicationService;
     private final DocxFieldHandler docxFieldHandler;
-
 
     @Override
     @Transactional(readOnly = true)
-    public ResponseEntity<ByteArrayResource> generateFormFile(UUID partnerApplicationId, UUID borrowerProfileId) {
-
-        PartnerApplication partnerApplication = partnerApplicationService.getPartnerApplication(partnerApplicationId);
+    public ResponseEntity<ByteArrayResource> generateFormFile(UUID borrowerProfileId) {
         BorrowerProfile borrowerProfile = borrowerProfileService.findByIdWithRealEstateVehicleAndEmployer(borrowerProfileId);
-        ClassPathResource classPathResource = new ClassPathResource("form.docx");
+        PartnerApplication partnerApplication = borrowerProfile.getPartnerApplication();
+        Map<String, String> replacements = docxFieldHandler.replaceFieldValue(getFileFromPath("form.docx"), partnerApplication, borrowerProfile);
+        return processFormWithReplacements(replacements, "form.docx");
+    }
 
-        byte[] file;
-        try (InputStream inputStream = classPathResource.getInputStream()) {
-            file = inputStream.readAllBytes();
-        } catch (IOException e) {
-            throw new RuntimeException("Error reading form.docx", e);
-        }
-        Map<String, String> replacements = docxFieldHandler.replaceFieldValue(file, partnerApplication, borrowerProfile);
+    @Override
+    public ResponseEntity<ByteArrayResource> signatureFormFile(UUID borrowerProfileId, MultipartFile signature) {
+        BorrowerProfile borrowerProfile = borrowerProfileService.findByIdWithRealEstateVehicleAndEmployer(borrowerProfileId);
+        PartnerApplication partnerApplication = borrowerProfile.getPartnerApplication();
+        byte[] imageBytes = getImageBytes(signature);
+        String encodedImage = Base64.getEncoder().encodeToString(imageBytes);
+        Map<String, String> replacements = docxFieldHandler.replaceFieldValue(getFileFromPath("form.docx"), partnerApplication, borrowerProfile);
+        replacements.put("borrowerSign", encodedImage);
+        return processFormWithReplacements(replacements, "form.docx");
+    }
+
+    private ResponseEntity<ByteArrayResource> processFormWithReplacements(Map<String, String> replacements, String filePath) {
+        byte[] file = getFileFromPath(filePath);
         try (InputStream inputStream = new ByteArrayInputStream(file)) {
             XWPFDocument document = new XWPFDocument(inputStream);
             replaceTextInDocx(document, replacements);
@@ -73,7 +80,27 @@ public class FormServiceImpl implements FormService {
                     .contentType(MediaType.APPLICATION_OCTET_STREAM)
                     .body(resource);
         } catch (IOException e) {
+            log.error("Error processing the form with replacements", e);
             throw new RuntimeException(e);
+        }
+    }
+
+    private byte[] getFileFromPath(String path) {
+        ClassPathResource classPathResource = new ClassPathResource(path);
+        try (InputStream inputStream = classPathResource.getInputStream()) {
+            return inputStream.readAllBytes();
+        } catch (IOException e) {
+            log.error("Error reading {}", path, e);
+            throw new RuntimeException("Error reading " + path, e);
+        }
+    }
+
+    private byte[] getImageBytes(MultipartFile imageFile) {
+        try (InputStream imageStream = imageFile.getInputStream()) {
+            return imageStream.readAllBytes();
+        } catch (IOException e) {
+            log.error("Error reading the image", e);
+            throw new RuntimeException("Error reading the image", e);
         }
     }
 
@@ -104,6 +131,13 @@ public class FormServiceImpl implements FormService {
         for (int i = paragraph.getRuns().size() - 1; i >= 0; i--) {
             paragraph.removeRun(i);
         }
+        if (originalText.contains("«borrowerSign»")) {
+            if (Objects.nonNull(replacements.get("borrowerSign"))) {
+                byte[] decodedImage = Base64.getDecoder().decode(replacements.get("borrowerSign"));
+                addImageToParagraph(paragraph, decodedImage, XWPFDocument.PICTURE_TYPE_PNG);
+                originalText = originalText.replace("«borrowerSign»", "");
+            }
+        }
         int lastPosition = 0;
         List<ReplacementPosition> replacementPositions = new ArrayList<>();
         for (Map.Entry<String, String> entry : replacements.entrySet()) {
@@ -132,6 +166,16 @@ public class FormServiceImpl implements FormService {
             runAfter.setText(originalText.substring(lastPosition));
         }
     }
+
+    private void addImageToParagraph(XWPFParagraph paragraph, byte[] imageBytes, int imageFormat) {
+        try {
+            XWPFRun run = paragraph.createRun();
+            run.addPicture(new ByteArrayInputStream(imageBytes), imageFormat, "signature.png", Units.toEMU(100), Units.toEMU(50));
+        } catch (Exception e) {
+            throw new RuntimeException("Could not add image to paragraph", e);
+        }
+    }
+
 
     public static class ReplacementPosition implements Comparable<ReplacementPosition> {
         int start;
