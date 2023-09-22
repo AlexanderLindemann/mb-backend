@@ -1,0 +1,32 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+
+    <changeSet id="add_column_form_borrower_profile" author="a.lindemann">
+
+        <addColumn tableName="borrower_profile">
+            <column name="generated_form_id" type="BIGINT">
+                <constraints nullable="true" />
+            </column>
+            <column name="signed_form_id" type="BIGINT">
+                <constraints nullable="true" />
+            </column>
+        </addColumn>
+
+        <addForeignKeyConstraint constraintName="fk_borrower_profile_generated_form"
+                                 baseTableName="borrower_profile"
+                                 baseColumnNames="generated_form_id"
+                                 referencedTableName="attachment"
+                                 referencedColumnNames="id"/>
+
+        <addForeignKeyConstraint constraintName="fk_borrower_profile_signed_form"
+                                 baseTableName="borrower_profile"
+                                 baseColumnNames="signed_form_id"
+                                 referencedTableName="attachment"
+                                 referencedColumnNames="id"/>
+
+    </changeSet>
+
+</databaseChangeLog>

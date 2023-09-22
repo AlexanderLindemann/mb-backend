@@ -17,11 +17,15 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import pro.mbroker.app.entity.Attachment;
 import pro.mbroker.app.entity.BorrowerProfile;
 import pro.mbroker.app.entity.PartnerApplication;
+import pro.mbroker.app.repository.BorrowerProfileRepository;
+import pro.mbroker.app.service.AttachmentService;
 import pro.mbroker.app.service.BorrowerProfileService;
 import pro.mbroker.app.service.DocxFieldHandler;
 import pro.mbroker.app.service.FormService;
+import pro.mbroker.app.util.CustomMultipartFile;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -40,8 +44,9 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class FormServiceImpl implements FormService {
 
-
+    private final AttachmentService attachmentService;
     private final BorrowerProfileService borrowerProfileService;
+    private final BorrowerProfileRepository borrowerProfileRepository;
     private final DocxFieldHandler docxFieldHandler;
 
     @Override
@@ -62,6 +67,34 @@ public class FormServiceImpl implements FormService {
         Map<String, String> replacements = docxFieldHandler.replaceFieldValue(getFileFromPath("form.docx"), partnerApplication, borrowerProfile);
         replacements.put("borrowerSign", encodedImage);
         return processFormWithReplacements(replacements, "form.docx");
+    }
+
+    @Override
+    @Transactional
+    public void updateGeneratedForm(UUID borrowerProfileId, byte[] form) {
+        BorrowerProfile borrowerProfile = borrowerProfileService.getBorrowerProfile(borrowerProfileId);
+        MultipartFile multipartFile = new CustomMultipartFile(
+                form,
+                borrowerProfile.getLastName() + "_" + borrowerProfile.getFirstName() + ".pdf",
+                "application/pdf"
+        );
+        Attachment upload = attachmentService.upload(multipartFile);
+        borrowerProfile.setGeneratedForm(upload);
+        borrowerProfileRepository.save(borrowerProfile);
+    }
+
+    @Override
+    @Transactional
+    public void updateSignatureForm(UUID borrowerProfileId, byte[] form) {
+        BorrowerProfile borrowerProfile = borrowerProfileService.getBorrowerProfile(borrowerProfileId);
+        MultipartFile multipartFile = new CustomMultipartFile(
+                form,
+                borrowerProfile.getLastName() + "_" + borrowerProfile.getFirstName() + ".pdf",
+                "application/pdf"
+        );
+        Attachment upload = attachmentService.upload(multipartFile);
+        borrowerProfile.setSignedForm(upload);
+        borrowerProfileRepository.save(borrowerProfile);
     }
 
     private ResponseEntity<ByteArrayResource> processFormWithReplacements(Map<String, String> replacements, String filePath) {

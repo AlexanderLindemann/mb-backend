@@ -7,7 +7,15 @@ import pro.mbroker.api.dto.BorrowerEmployerDto;
 import pro.mbroker.api.dto.BorrowerRealEstateDto;
 import pro.mbroker.api.dto.BorrowerVehicleDto;
 import pro.mbroker.api.dto.request.BorrowerDocumentRequest;
-import pro.mbroker.api.enums.*;
+import pro.mbroker.api.enums.BorrowerProfileStatus;
+import pro.mbroker.api.enums.Education;
+import pro.mbroker.api.enums.EmploymentStatus;
+import pro.mbroker.api.enums.Gender;
+import pro.mbroker.api.enums.MaritalStatus;
+import pro.mbroker.api.enums.MarriageContract;
+import pro.mbroker.api.enums.ProofOfIncome;
+import pro.mbroker.api.enums.RegistrationType;
+import pro.mbroker.api.enums.TotalWorkExperience;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -89,4 +97,8 @@ public class BorrowerProfileFullResponse {
     private BorrowerRealEstateDto realEstate;
 
     private BorrowerVehicleDto vehicle;
+
+    private AttachmentResponse generatedForm;
+
+    private AttachmentResponse signedForm;
 }

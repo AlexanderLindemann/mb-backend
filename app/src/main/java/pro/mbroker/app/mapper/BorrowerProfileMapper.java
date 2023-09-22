@@ -62,6 +62,8 @@ public interface BorrowerProfileMapper {
     @Mapping(target = "TIN", ignore = true)
     @Mapping(target = "familyRelation", ignore = true)
     @Mapping(target = "relatedPublicOfficial", ignore = true)
+    @Mapping(target = "generatedForm", ignore = true)
+    @Mapping(target = "signedForm", ignore = true)
     BorrowerProfile toBorrowerProfile(BorrowerProfileRequest request);
 
 
@@ -122,6 +124,8 @@ public interface BorrowerProfileMapper {
     @Mapping(target = "TIN", ignore = true)
     @Mapping(target = "familyRelation", ignore = true)
     @Mapping(target = "relatedPublicOfficial", ignore = true)
+    @Mapping(target = "generatedForm", ignore = true)
+    @Mapping(target = "signedForm", ignore = true)
     void updateBorrowerProfile(BorrowerProfileRequest request, @MappingTarget BorrowerProfile profile);
 
     @Mapping(source = "borrowerProfileStatus", target = "status")
