@@ -4,9 +4,28 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import pro.mbroker.api.enums.*;
+import pro.mbroker.api.enums.BorrowerProfileStatus;
+import pro.mbroker.api.enums.Education;
+import pro.mbroker.api.enums.EmploymentStatus;
+import pro.mbroker.api.enums.FamilyRelation;
+import pro.mbroker.api.enums.Gender;
+import pro.mbroker.api.enums.MaritalStatus;
+import pro.mbroker.api.enums.MarriageContract;
+import pro.mbroker.api.enums.ProofOfIncome;
+import pro.mbroker.api.enums.RegistrationType;
+import pro.mbroker.api.enums.TotalWorkExperience;
 
-import javax.persistence.*;
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
+import javax.persistence.Table;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -152,4 +171,13 @@ public class BorrowerProfile extends BaseEntity {
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "borrower_vehicle_id")
     private BorrowerVehicle vehicle;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "generated_form_id")
+    private Attachment generatedForm;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "signed_form_id")
+    private Attachment signedForm;
+
 }

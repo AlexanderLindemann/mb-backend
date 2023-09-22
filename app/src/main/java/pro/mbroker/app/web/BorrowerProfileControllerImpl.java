@@ -75,4 +75,14 @@ public class BorrowerProfileControllerImpl implements BorrowerProfileController 
     public ResponseEntity<ByteArrayResource> signatureFormFile(UUID borrowerProfileId, MultipartFile signature) {
         return formService.signatureFormFile(borrowerProfileId, signature);
     }
+
+    @Override
+    public void updateGeneratedForm(UUID borrowerProfileId, byte[] form) {
+         formService.updateGeneratedForm(borrowerProfileId, form);
+    }
+
+    @Override
+    public void updateSignatureForm(UUID borrowerProfileId, byte[] form) {
+        formService.updateSignatureForm(borrowerProfileId, form);
+    }
 }
