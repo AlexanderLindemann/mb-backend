@@ -8,15 +8,12 @@ import org.docx4j.openpackaging.packages.WordprocessingMLPackage;
 import org.docx4j.openpackaging.parts.WordprocessingML.MainDocumentPart;
 import org.springframework.stereotype.Service;
 import pro.mbroker.api.enums.Branch;
-import pro.mbroker.api.enums.CreditPurposeType;
 import pro.mbroker.api.enums.NumberOfEmployees;
-import pro.mbroker.api.enums.RealEstateType;
 import pro.mbroker.app.entity.BankApplication;
 import pro.mbroker.app.entity.BorrowerEmployer;
 import pro.mbroker.app.entity.BorrowerProfile;
 import pro.mbroker.app.entity.PartnerApplication;
 import pro.mbroker.app.service.DocxFieldHandler;
-import pro.mbroker.app.util.Converter;
 import pro.mbroker.app.util.DocxFieldExtractor;
 
 import java.io.ByteArrayInputStream;
@@ -28,7 +25,6 @@ import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.Set;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -66,18 +62,8 @@ public class DocxFieldHandlerImpl implements DocxFieldHandler {
                 put("borrowerCompanyBranch", (v) -> Optional.ofNullable(borrowerProfile.getEmployer()).map(BorrowerEmployer::getBranch).map(Branch::getName).orElse("-"));
                 put("borrowerCompanyEmployeeCount", (v) -> Optional.ofNullable(borrowerProfile.getEmployer()).map(BorrowerEmployer::getNumberOfEmployees).map(NumberOfEmployees::getName).orElse("-"));
                 put("creditAmount", (v) -> bankApplication.getRealEstatePrice().subtract(bankApplication.getDownPayment()).toString());
-                put("realEstateType", (v) -> Optional.ofNullable(bankApplication.getCreditProgram().getCreditProgramDetail().getRealEstateType())
-                        .map(types -> Converter.convertStringListToEnumList(types, RealEstateType.class))
-                        .map(list -> list.stream()
-                                .map(RealEstateType::getName)
-                                .collect(Collectors.joining("\n")))
-                        .orElse(""));
-                put("creditPurposeType", (v) -> Optional.ofNullable(bankApplication.getCreditProgram().getCreditProgramDetail().getCreditPurposeType())
-                        .map(types -> Converter.convertStringListToEnumList(types, CreditPurposeType.class))
-                        .map(list -> list.stream()
-                                .map(CreditPurposeType::getName)
-                                .collect(Collectors.joining("\n")))
-                        .orElse(""));
+                put("realEstateType", (v) -> Objects.nonNull(partnerApplication.getRealEstateType()) ? partnerApplication.getRealEstateType().getName() : "-");
+                put("creditPurposeType", (v) -> Objects.nonNull(partnerApplication.getCreditPurposeType()) ? partnerApplication.getCreditPurposeType().getName() : "-");
                 put("realEstateRegion", (v) -> bankApplication.getPartnerApplication().getRealEstate().getRegion().getName());
                 put("borrowerRegistrationAddress", (v) -> borrowerProfile.getRegistrationAddress());
                 put("borrowerResidenceAddress", (v) -> borrowerProfile.getResidenceAddress());

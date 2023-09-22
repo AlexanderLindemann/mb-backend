@@ -12,7 +12,10 @@ public interface BorrowerProfileRepository extends JpaRepository<BorrowerProfile
     @Query("SELECT b FROM BorrowerProfile b " +
             "LEFT JOIN FETCH b.realEstate " +
             "LEFT JOIN FETCH b.vehicle " +
-            "LEFT JOIN FETCH b.employer WHERE b.id = :id")
+            "LEFT JOIN FETCH b.employer e " +
+            "LEFT JOIN FETCH e.salaryBanks " +
+            "WHERE b.id = :id")
     Optional<BorrowerProfile> findByIdWithRealEstateVehicleAndEmployer(@Param("id") UUID id);
+
 
 }
