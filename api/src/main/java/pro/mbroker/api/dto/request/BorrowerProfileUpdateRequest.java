@@ -64,11 +64,11 @@ public class BorrowerProfileUpdateRequest {
 
     private TotalWorkExperience totalWorkExperience;
 
-    private int mainIncome;
+    private Integer mainIncome;
 
-    private int additionalIncome;
+    private Integer additionalIncome;
 
-    private int pension;
+    private Integer pension;
 
     private ProofOfIncome proofOfIncome;
 
