@@ -1,6 +1,5 @@
 package pro.mbroker.api.dto;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -18,7 +17,6 @@ import java.util.UUID;
 public class EmployerDto {
     private String name;
 
-    @JsonProperty("numericValue")
     private Long inn;
 
     private Branch branch;

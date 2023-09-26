@@ -77,6 +77,4 @@ public class BorrowerProfileUpdateRequest {
     private BorrowerRealEstateDto realEstate;
 
     private BorrowerVehicleDto vehicle;
-
-    private Integer inn;
 }
