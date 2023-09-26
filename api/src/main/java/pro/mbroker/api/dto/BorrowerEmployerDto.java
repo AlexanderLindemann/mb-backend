@@ -18,7 +18,7 @@ public class BorrowerEmployerDto {
 
     private String name;
 
-    private Integer inn;
+    private Long inn;
 
     private Branch branch;
 

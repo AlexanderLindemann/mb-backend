@@ -24,7 +24,7 @@ public class BorrowerEmployer extends BaseEntity {
     private String name;
 
     @Column(name = "inn", nullable = false)
-    private Integer inn;
+    private Long inn;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "branch", nullable = false)
