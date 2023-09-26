@@ -1,0 +1,11 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+
+    <changeSet id="change_inn_type" author="y.sedash">
+        <sql>ALTER TABLE borrower_employer ALTER COLUMN inn TYPE bigint;</sql>
+    </changeSet>
+
+</databaseChangeLog>
