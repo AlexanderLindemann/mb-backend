@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import pro.mbroker.api.dto.request.BorrowerProfileUpdateRequest;
 import pro.mbroker.api.dto.request.BorrowerRequest;
-import pro.mbroker.api.dto.response.BorrowerProfileFullResponse;
+import pro.mbroker.api.dto.response.BorrowerProfileDto;
 import pro.mbroker.api.dto.response.BorrowerResponse;
 
 import javax.validation.constraints.NotNull;
@@ -55,7 +55,7 @@ public interface BorrowerProfileController {
 
     @ApiOperation("получить полный профиль клиента")
     @GetMapping("/{borrowerProfileId}/full")
-    BorrowerProfileFullResponse getBorrower(@PathVariable UUID borrowerProfileId);
+    BorrowerProfileDto getBorrower(@PathVariable UUID borrowerProfileId);
 
     @ApiOperation("сгенерировать анкету")
     @PostMapping("/generate-borrower-form")

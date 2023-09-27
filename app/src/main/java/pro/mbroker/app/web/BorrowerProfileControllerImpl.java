@@ -9,7 +9,7 @@ import org.springframework.web.multipart.MultipartFile;
 import pro.mbroker.api.controller.BorrowerProfileController;
 import pro.mbroker.api.dto.request.BorrowerProfileUpdateRequest;
 import pro.mbroker.api.dto.request.BorrowerRequest;
-import pro.mbroker.api.dto.response.BorrowerProfileFullResponse;
+import pro.mbroker.api.dto.response.BorrowerProfileDto;
 import pro.mbroker.api.dto.response.BorrowerResponse;
 import pro.mbroker.app.entity.BorrowerProfile;
 import pro.mbroker.app.mapper.BorrowerProfileMapper;
@@ -61,9 +61,9 @@ public class BorrowerProfileControllerImpl implements BorrowerProfileController 
     }
 
     @Override
-    public BorrowerProfileFullResponse getBorrower(UUID borrowerProfileId) {
+    public BorrowerProfileDto getBorrower(UUID borrowerProfileId) {
         BorrowerProfile borrowerProfile = borrowerProfileService.findByIdWithRealEstateVehicleAndEmployer(borrowerProfileId);
-        return borrowerProfileMapper.toBorrowerProfileFullResponse(borrowerProfile);
+        return borrowerProfileMapper.toBorrowerProfileDto(borrowerProfile);
     }
 
     @Override
