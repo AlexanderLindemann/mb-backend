@@ -5,7 +5,7 @@ import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import pro.mbroker.api.dto.request.BorrowerDocumentRequest;
 import pro.mbroker.api.dto.request.BorrowerProfileRequest;
-import pro.mbroker.api.dto.response.BorrowerProfileFullResponse;
+import pro.mbroker.api.dto.response.BorrowerProfileDto;
 import pro.mbroker.api.dto.response.BorrowerProfileResponse;
 import pro.mbroker.app.entity.BorrowerDocument;
 import pro.mbroker.app.entity.BorrowerProfile;
@@ -65,12 +65,6 @@ public interface BorrowerProfileMapper {
     @Mapping(target = "generatedForm", ignore = true)
     @Mapping(target = "signedForm", ignore = true)
     BorrowerProfile toBorrowerProfile(BorrowerProfileRequest request);
-
-
-    @Mapping(source = "borrowerProfileStatus", target = "status")
-    BorrowerProfileRequest toBorrowerProfileDto(BorrowerProfile request);
-
-
     @Mapping(source = "request.firstName", target = "firstName")
     @Mapping(source = "request.lastName", target = "lastName")
     @Mapping(source = "request.middleName", target = "middleName")
@@ -130,7 +124,7 @@ public interface BorrowerProfileMapper {
 
     @Mapping(source = "borrowerProfileStatus", target = "status")
     @Mapping(target = "documents", expression = "java(mapBorrowerDocuments(borrowerProfile.getBorrowerDocument()))")
-    BorrowerProfileFullResponse toBorrowerProfileFullResponse(BorrowerProfile borrowerProfile);
+    BorrowerProfileDto toBorrowerProfileDto(BorrowerProfile borrowerProfile);
 
     default BorrowerDocumentRequest toBorrowerDocumentRequest(BorrowerDocument borrowerDocument) {
         BorrowerDocumentRequest request = new BorrowerDocumentRequest();
