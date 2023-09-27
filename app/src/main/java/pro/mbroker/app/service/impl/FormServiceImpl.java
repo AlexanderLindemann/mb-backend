@@ -48,14 +48,19 @@ public class FormServiceImpl implements FormService {
     private final BorrowerProfileService borrowerProfileService;
     private final BorrowerProfileRepository borrowerProfileRepository;
     private final DocxFieldHandler docxFieldHandler;
+    String filePath = "forms/SDMortgageForm_2023-09-27.docx";
 
     @Override
     @Transactional(readOnly = true)
     public ResponseEntity<ByteArrayResource> generateFormFile(UUID borrowerProfileId) {
         BorrowerProfile borrowerProfile = borrowerProfileService.findByIdWithRealEstateVehicleAndEmployer(borrowerProfileId);
         PartnerApplication partnerApplication = borrowerProfile.getPartnerApplication();
-        Map<String, String> replacements = docxFieldHandler.replaceFieldValue(getFileFromPath("form.docx"), partnerApplication, borrowerProfile);
-        return processFormWithReplacements(replacements, "form.docx");
+        Map<String, String> replacements = docxFieldHandler.replaceFieldValue(getFileFromPath(filePath), partnerApplication, borrowerProfile);
+
+        byte[] file = getFileFromPath(filePath);
+        updateGeneratedForm(borrowerProfileId, file);
+
+        return processFormWithReplacements(replacements, filePath);
     }
 
     @Override
@@ -64,9 +69,9 @@ public class FormServiceImpl implements FormService {
         PartnerApplication partnerApplication = borrowerProfile.getPartnerApplication();
         byte[] imageBytes = getImageBytes(signature);
         String encodedImage = Base64.getEncoder().encodeToString(imageBytes);
-        Map<String, String> replacements = docxFieldHandler.replaceFieldValue(getFileFromPath("form.docx"), partnerApplication, borrowerProfile);
+        Map<String, String> replacements = docxFieldHandler.replaceFieldValue(getFileFromPath(filePath), partnerApplication, borrowerProfile);
         replacements.put("borrowerSign", encodedImage);
-        return processFormWithReplacements(replacements, "form.docx");
+        return processFormWithReplacements(replacements, filePath);
     }
 
     @Override
