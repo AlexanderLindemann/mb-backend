@@ -117,7 +117,7 @@ public class BorrowerProfileServiceImpl implements BorrowerProfileService {
                     if (field.getName().equals("employer") && value instanceof EmployerDto) {
                         BorrowerEmployer employer = borrowerProfile.getEmployer();
                         BorrowerEmployer convertedEmployer = convertToBorrowerEmployer((EmployerDto) value, employer);
-                        Objects.requireNonNull(convertedEmployer).setBorrowerProfile(borrowerProfile);
+                      //  Objects.requireNonNull(convertedEmployer).setBorrowerProfile(borrowerProfile);
                         borrowerProfile.setEmployer(convertedEmployer);
                     } else if (field.getName().equals("realEstate") && value instanceof BorrowerRealEstateDto) {
                         BorrowerRealEstate realEstate = borrowerProfile.getRealEstate();
