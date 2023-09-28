@@ -1,4 +1,4 @@
-package pro.mbroker.api.dto.request;
+package pro.mbroker.api.dto.response;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -6,6 +6,8 @@ import lombok.ToString;
 import pro.mbroker.api.dto.BorrowerRealEstateDto;
 import pro.mbroker.api.dto.BorrowerVehicleDto;
 import pro.mbroker.api.dto.EmployerDto;
+import pro.mbroker.api.dto.request.BorrowerDocumentRequest;
+import pro.mbroker.api.enums.BorrowerProfileStatus;
 import pro.mbroker.api.enums.Education;
 import pro.mbroker.api.enums.EmploymentStatus;
 import pro.mbroker.api.enums.Gender;
@@ -16,12 +18,16 @@ import pro.mbroker.api.enums.RegistrationType;
 import pro.mbroker.api.enums.TotalWorkExperience;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.UUID;
 
 @Getter
 @Setter
 @ToString
-@SuppressWarnings("PMD")
-public class BorrowerProfileUpdateRequest {
+public class BorrowerProfileForUpdateResponse {
+
+    private UUID id;
 
     private String firstName;
 
@@ -32,6 +38,12 @@ public class BorrowerProfileUpdateRequest {
     private String phoneNumber;
 
     private String email;
+
+    private BorrowerProfileStatus status;
+
+    private List<BorrowerDocumentRequest> documents;
+
+    private LocalDateTime createdAt;
 
     private String prevFullName;
 
@@ -84,4 +96,9 @@ public class BorrowerProfileUpdateRequest {
     private BorrowerRealEstateDto realEstate;
 
     private BorrowerVehicleDto vehicle;
+
+    private AttachmentResponse generatedForm;
+
+    private AttachmentResponse signedForm;
+
 }

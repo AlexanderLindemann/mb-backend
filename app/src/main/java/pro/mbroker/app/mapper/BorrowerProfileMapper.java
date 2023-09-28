@@ -3,16 +3,22 @@ package pro.mbroker.app.mapper;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
+import pro.mbroker.api.dto.EmployerDto;
 import pro.mbroker.api.dto.request.BorrowerDocumentRequest;
 import pro.mbroker.api.dto.request.BorrowerProfileRequest;
 import pro.mbroker.api.dto.response.BorrowerProfileDto;
+import pro.mbroker.api.dto.response.BorrowerProfileForUpdateResponse;
 import pro.mbroker.api.dto.response.BorrowerProfileResponse;
+import pro.mbroker.app.entity.Bank;
 import pro.mbroker.app.entity.BorrowerDocument;
+import pro.mbroker.app.entity.BorrowerEmployer;
 import pro.mbroker.app.entity.BorrowerProfile;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Mapper(uses = {BorrowerEmployerMapper.class, BankMapper.class})
@@ -126,6 +132,12 @@ public interface BorrowerProfileMapper {
     @Mapping(target = "documents", expression = "java(mapBorrowerDocuments(borrowerProfile.getBorrowerDocument()))")
     BorrowerProfileDto toBorrowerProfileDto(BorrowerProfile borrowerProfile);
 
+    @Mapping(source = "borrowerProfileStatus", target = "status")
+    @Mapping(target = "documents", expression = "java(mapBorrowerDocuments(borrowerProfile.getBorrowerDocument()))")
+    @Mapping(target = "employer", expression = "java(toEmployerDto(borrowerProfile.getEmployer()))")
+    BorrowerProfileForUpdateResponse toBorrowerProfileForUpdate(BorrowerProfile borrowerProfile);
+
+
     default BorrowerDocumentRequest toBorrowerDocumentRequest(BorrowerDocument borrowerDocument) {
         BorrowerDocumentRequest request = new BorrowerDocumentRequest();
         request.setAttachmentId(borrowerDocument.getAttachment().getId());
@@ -147,5 +159,13 @@ public interface BorrowerProfileMapper {
                 .map(this::toBorrowerDocumentRequest)
                 .collect(Collectors.toList());
     }
+    @Mapping(target = "salaryBanks", expression =  "java(mapSalaryBanksToUuidList(borrowerEmployer.getSalaryBanks()))")
+    EmployerDto toEmployerDto(BorrowerEmployer borrowerEmployer);
 
+
+    default List<UUID> mapSalaryBanksToUuidList(Set<Bank> bankResponses) {
+        return bankResponses.stream()
+                .map(Bank::getId)
+                .collect(Collectors.toList());
+    }
 }

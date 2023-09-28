@@ -9,7 +9,7 @@ import org.springframework.web.multipart.MultipartFile;
 import pro.mbroker.api.controller.BorrowerProfileController;
 import pro.mbroker.api.dto.request.BorrowerProfileUpdateRequest;
 import pro.mbroker.api.dto.request.BorrowerRequest;
-import pro.mbroker.api.dto.response.BorrowerProfileDto;
+import pro.mbroker.api.dto.response.BorrowerProfileForUpdateResponse;
 import pro.mbroker.api.dto.response.BorrowerResponse;
 import pro.mbroker.app.entity.BorrowerProfile;
 import pro.mbroker.app.mapper.BorrowerProfileMapper;
@@ -61,9 +61,9 @@ public class BorrowerProfileControllerImpl implements BorrowerProfileController 
     }
 
     @Override
-    public BorrowerProfileDto getBorrower(UUID borrowerProfileId) {
+    public BorrowerProfileForUpdateResponse getBorrower(UUID borrowerProfileId) {
         BorrowerProfile borrowerProfile = borrowerProfileService.findByIdWithRealEstateVehicleAndEmployer(borrowerProfileId);
-        return borrowerProfileMapper.toBorrowerProfileDto(borrowerProfile);
+        return borrowerProfileMapper.toBorrowerProfileForUpdate(borrowerProfile);
     }
 
     @Override
@@ -74,11 +74,6 @@ public class BorrowerProfileControllerImpl implements BorrowerProfileController 
     @Override
     public ResponseEntity<ByteArrayResource> signatureFormFile(UUID borrowerProfileId, MultipartFile signature) {
         return formService.signatureFormFile(borrowerProfileId, signature);
-    }
-
-    @Override
-    public void updateGeneratedForm(UUID borrowerProfileId, byte[] form) {
-         formService.updateGeneratedForm(borrowerProfileId, form);
     }
 
     @Override

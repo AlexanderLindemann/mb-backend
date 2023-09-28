@@ -235,8 +235,8 @@ public class BorrowerProfileServiceImpl implements BorrowerProfileService {
         }
         BorrowerEmployer entity = (Objects.nonNull(employer)) ? employer : new BorrowerEmployer();
         borrowerEmployerMapper.updateBorrowerEmployerFromDto(dto, entity);
-        if (Objects.nonNull(dto.getSalaryBank())) {
-            for (UUID id : dto.getSalaryBank()) {
+        if (Objects.nonNull(dto.getSalaryBanks())) {
+            for (UUID id : dto.getSalaryBanks()) {
                 Bank bank = bankService.getBankById(id);
                 bank.getEmployers().add(entity);
                 entity.getSalaryBanks().add(bank);

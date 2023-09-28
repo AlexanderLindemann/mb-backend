@@ -25,7 +25,7 @@ public class EmployerDto {
 
     private OrganizationAge organizationAge;
 
-    private List<UUID> salaryBank;
+    private List<UUID> salaryBanks;
 
     private String phone;
 
