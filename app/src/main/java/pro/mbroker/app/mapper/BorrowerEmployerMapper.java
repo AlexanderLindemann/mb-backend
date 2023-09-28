@@ -26,25 +26,6 @@ public interface BorrowerEmployerMapper {
         Optional.ofNullable(dto.getWorkExperience()).ifPresent(employer::setWorkExperience);
         Optional.ofNullable(dto.getPosition()).ifPresent(employer::setPosition);
         Optional.ofNullable(dto.getAddress()).ifPresent(employer::setAddress);
-       /* Optional.ofNullable(dto.getSalaryBanks()).ifPresent(uuidList -> {
-            Set<Bank> banks = mapUuidListToSetOfBank(uuidList);
-            employer.setSalaryBanks(banks);
-        });*/
+
     }
-
-
-   /* default Set<Bank> mapUuidListToSetOfBank(List<UUID> uuidList) {
-        if (Objects.nonNull(uuidList)) {
-            for (UUID id : uuidList) {
-                Bank bank = bankService.getBankById(id);
-                bank.getEmployers().add(entity);
-                entity.getSalaryBanks().add(bank);
-            }
-        }
-        */
-
-
-
-
 }
-
