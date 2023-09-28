@@ -8,7 +8,7 @@ import pro.mbroker.app.entity.BorrowerEmployer;
 
 import java.util.Optional;
 
-@Mapper(nullValueCheckStrategy = NullValueCheckStrategy.ALWAYS)
+@Mapper(nullValueCheckStrategy = NullValueCheckStrategy.ALWAYS, uses = BankMapper.class)
 public interface BorrowerEmployerMapper {
 
     default void updateBorrowerEmployerFromDto(EmployerDto dto, @MappingTarget BorrowerEmployer employer) {
@@ -29,4 +29,3 @@ public interface BorrowerEmployerMapper {
 
     }
 }
-

@@ -117,7 +117,6 @@ public class BorrowerProfileServiceImpl implements BorrowerProfileService {
                     if (field.getName().equals("employer") && value instanceof EmployerDto) {
                         BorrowerEmployer employer = borrowerProfile.getEmployer();
                         BorrowerEmployer convertedEmployer = convertToBorrowerEmployer((EmployerDto) value, employer);
-                        Objects.requireNonNull(convertedEmployer).setBorrowerProfile(borrowerProfile);
                         borrowerProfile.setEmployer(convertedEmployer);
                     } else if (field.getName().equals("realEstate") && value instanceof BorrowerRealEstateDto) {
                         BorrowerRealEstate realEstate = borrowerProfile.getRealEstate();
@@ -236,13 +235,17 @@ public class BorrowerProfileServiceImpl implements BorrowerProfileService {
         BorrowerEmployer entity = (Objects.nonNull(employer)) ? employer : new BorrowerEmployer();
         borrowerEmployerMapper.updateBorrowerEmployerFromDto(dto, entity);
         if (Objects.nonNull(dto.getSalaryBanks())) {
+            Set<Bank> banks = new HashSet<>();
             for (UUID id : dto.getSalaryBanks()) {
                 Bank bank = bankService.getBankById(id);
+                banks.add(bank);
+            }
+            entity.setSalaryBanks(banks);
+            for(Bank bank : entity.getSalaryBanks()) {
                 bank.getEmployers().add(entity);
-                entity.getSalaryBanks().add(bank);
             }
         }
+
         return entity;
     }
-
 }
