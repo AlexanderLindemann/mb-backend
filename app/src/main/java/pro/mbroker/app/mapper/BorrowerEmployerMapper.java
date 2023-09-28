@@ -4,14 +4,9 @@ import org.mapstruct.Mapper;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValueCheckStrategy;
 import pro.mbroker.api.dto.EmployerDto;
-import pro.mbroker.app.entity.Bank;
 import pro.mbroker.app.entity.BorrowerEmployer;
 
-import java.util.List;
 import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Mapper(nullValueCheckStrategy = NullValueCheckStrategy.ALWAYS, uses = BankMapper.class)
 public interface BorrowerEmployerMapper {
@@ -31,22 +26,25 @@ public interface BorrowerEmployerMapper {
         Optional.ofNullable(dto.getWorkExperience()).ifPresent(employer::setWorkExperience);
         Optional.ofNullable(dto.getPosition()).ifPresent(employer::setPosition);
         Optional.ofNullable(dto.getAddress()).ifPresent(employer::setAddress);
-        Optional.ofNullable(dto.getSalaryBanks()).ifPresent(uuidList -> {
+       /* Optional.ofNullable(dto.getSalaryBanks()).ifPresent(uuidList -> {
             Set<Bank> banks = mapUuidListToSetOfBank(uuidList);
             employer.setSalaryBanks(banks);
-        });
+        });*/
     }
 
 
-    default Set<Bank> mapUuidListToSetOfBank(List<UUID> uuidList) {
-        return uuidList.stream()
-                .map(uuid -> {
-                    Bank bank = new Bank();
-                    bank.setId(uuid);
-                    return bank;
-                })
-                .collect(Collectors.toSet());
-    }
+   /* default Set<Bank> mapUuidListToSetOfBank(List<UUID> uuidList) {
+        if (Objects.nonNull(uuidList)) {
+            for (UUID id : uuidList) {
+                Bank bank = bankService.getBankById(id);
+                bank.getEmployers().add(entity);
+                entity.getSalaryBanks().add(bank);
+            }
+        }
+        */
+
+
+
 
 }
 
