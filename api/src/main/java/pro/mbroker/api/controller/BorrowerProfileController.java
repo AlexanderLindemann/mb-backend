@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import pro.mbroker.api.dto.request.BorrowerProfileUpdateRequest;
 import pro.mbroker.api.dto.request.BorrowerRequest;
-import pro.mbroker.api.dto.response.BorrowerProfileDto;
+import pro.mbroker.api.dto.response.BorrowerProfileForUpdateResponse;
 import pro.mbroker.api.dto.response.BorrowerResponse;
 
 import javax.validation.constraints.NotNull;
@@ -51,11 +51,12 @@ public interface BorrowerProfileController {
 
     @ApiOperation("Добавить поле в профиль клиента")
     @PutMapping("/{borrowerProfileId}/updateField")
-    void updateBorrowerProfileField(@ApiParam(value = "Идентификатор профиля") @PathVariable UUID borrowerProfileId, @RequestBody BorrowerProfileUpdateRequest updateRequest);
+    void updateBorrowerProfileField(@ApiParam(value = "Идентификатор профиля") @PathVariable UUID borrowerProfileId,
+                                    @RequestBody BorrowerProfileUpdateRequest updateRequest);
 
     @ApiOperation("получить полный профиль клиента")
     @GetMapping("/{borrowerProfileId}/full")
-    BorrowerProfileDto getBorrower(@PathVariable UUID borrowerProfileId);
+    BorrowerProfileForUpdateResponse getBorrower(@PathVariable UUID borrowerProfileId);
 
     @ApiOperation("сгенерировать анкету")
     @PostMapping("/generate-borrower-form")
@@ -65,11 +66,6 @@ public interface BorrowerProfileController {
     @PutMapping("/signature-borrower-form")
     ResponseEntity<ByteArrayResource> signatureFormFile(@RequestParam UUID borrowerProfileId,
                                                         @RequestParam("signature") MultipartFile signature);
-
-    @ApiOperation("Сохранить сгенерированную анкету")
-    @PutMapping("/{borrowerProfileId}/update-generated-form")
-    void updateGeneratedForm(@ApiParam(value = "Идентификатор профиля") @PathVariable UUID borrowerProfileId,
-                             @RequestBody byte[] form);
 
     @ApiOperation("Сохранить подписанную анкету")
     @PutMapping("/{borrowerProfileId}/signature-generated-form")
