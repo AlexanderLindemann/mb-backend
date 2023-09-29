@@ -55,10 +55,14 @@ public class FormServiceImpl implements FormService {
     public ResponseEntity<ByteArrayResource> generateFormFile(UUID borrowerProfileId) {
         BorrowerProfile borrowerProfile = borrowerProfileService.findByIdWithRealEstateVehicleAndEmployer(borrowerProfileId);
         PartnerApplication partnerApplication = borrowerProfile.getPartnerApplication();
-        Map<String, String> replacements = docxFieldHandler.replaceFieldValue(getFileFromPath(filePath), partnerApplication, borrowerProfile);
 
-        byte[] file = getFileFromPath(filePath);
-        updateGeneratedForm(borrowerProfileId, file);
+        Map<String, String> replacements = docxFieldHandler.replaceFieldValue(
+                getFileFromPath(filePath),
+                partnerApplication,
+                borrowerProfile);
+
+        byte[] updatedFile = getFileFromPath(filePath);
+        updateGeneratedForm(borrowerProfileId, updatedFile);
 
         return processFormWithReplacements(replacements, filePath);
     }
@@ -112,6 +116,7 @@ public class FormServiceImpl implements FormService {
             ByteArrayResource resource = new ByteArrayResource(docxOutputStream.toByteArray());
             HttpHeaders headers = new HttpHeaders();
             headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=example.docx");
+
             return ResponseEntity.ok()
                     .headers(headers)
                     .contentLength(resource.contentLength())

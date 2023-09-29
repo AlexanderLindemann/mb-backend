@@ -7,8 +7,13 @@ import org.docx4j.openpackaging.exceptions.Docx4JException;
 import org.docx4j.openpackaging.packages.WordprocessingMLPackage;
 import org.docx4j.openpackaging.parts.WordprocessingML.MainDocumentPart;
 import org.springframework.stereotype.Service;
+import pro.mbroker.api.enums.BasisOfOwnership;
 import pro.mbroker.api.enums.Branch;
+import pro.mbroker.api.enums.Education;
+import pro.mbroker.api.enums.Gender;
 import pro.mbroker.api.enums.NumberOfEmployees;
+import pro.mbroker.api.enums.RealEstateType;
+import pro.mbroker.api.enums.TotalWorkExperience;
 import pro.mbroker.app.entity.BankApplication;
 import pro.mbroker.app.entity.BorrowerEmployer;
 import pro.mbroker.app.entity.BorrowerProfile;
@@ -32,7 +37,7 @@ import java.util.function.Function;
 public class DocxFieldHandlerImpl implements DocxFieldHandler {
 
     public Map<String, String> replaceFieldValue(byte[] file, PartnerApplication partnerApplication, BorrowerProfile borrowerProfile) {
-        Set<String> fields = extractFieldsFromDocx(file);
+       // Set<String> fields = extractFieldsFromDocx(file);
         BorrowerProfile mainBorrower;
         BankApplication bankApplication;
         OptionalInt maxMonthCreditTerm;
@@ -50,78 +55,247 @@ public class DocxFieldHandlerImpl implements DocxFieldHandler {
         Map<String, Function<Void, String>> fieldMapping = new HashMap<>() {
             {
                 put("borrowerPassportNumber", (v) -> borrowerProfile.getPassportNumber());
-                put("borrowerType", (v) -> (Objects.nonNull(mainBorrower)) ? mainBorrower.getId().equals(borrowerProfile.getId()) ? "Заемщик" : "Созаемщик" : "-");
-                put("borrowerEducation", (v) -> (Objects.nonNull(borrowerProfile.getEducation())) ? borrowerProfile.getEducation().getName() : "-");
-                put("borrowerTotalWorkExperience", (v) -> (Objects.nonNull(borrowerProfile.getTotalWorkExperience())) ? borrowerProfile.getTotalWorkExperience().getName() : "-");
+                put("borrowerType", (v) -> (Objects.nonNull(mainBorrower))
+                        ? mainBorrower.getId().equals(borrowerProfile.getId())
+                        ? "Заемщик" : "Созаемщик" : "-");
+                put("borrowerEducation", (v) -> Optional.ofNullable(borrowerProfile)
+                        .map(BorrowerProfile::getEducation)
+                        .map(Education::getName)
+                        .orElse("-"));
+
+                put("borrowerTotalWorkExperience", (v) -> Optional.ofNullable(borrowerProfile)
+                        .map(BorrowerProfile::getTotalWorkExperience)
+                        .map(TotalWorkExperience::getName)
+                        .orElse("-"));
                 put("borrowerMarriageContract", (v) -> (Objects.nonNull(borrowerProfile.getMarriageContract()) ? borrowerProfile.getMarriageContract().getName() : "-"));
                 put("borrowerEmploymentStatus", (v) -> (Objects.nonNull(borrowerProfile.getEmploymentStatus())) ? borrowerProfile.getEmploymentStatus().getName() : "-");
                 put("borrowerChildren", (v) -> (Objects.nonNull(borrowerProfile.getChildren())) ? borrowerProfile.getChildren().toString() : "-");
                 put("borrowerMaritalStatus", (v) -> (Objects.nonNull(borrowerProfile.getMaritalStatus())) ? borrowerProfile.getMaritalStatus().getName() : "-");
-                put("borrowerCompanyName", (v) -> Optional.ofNullable(borrowerProfile.getEmployer()).map(BorrowerEmployer::getName).orElse("-"));
+                put("borrowerCompanyName", (v) -> Optional.ofNullable(borrowerProfile.getEmployer())
+                        .map(employer -> Optional.ofNullable(employer.getName()).orElse("-"))
+                        .orElse("-"));
                 put("borrowerCompanyInn", (v) -> Optional.ofNullable(borrowerProfile.getEmployer()).map(BorrowerEmployer::getInn).map(Object::toString).orElse("-"));
                 put("borrowerCompanyBranch", (v) -> Optional.ofNullable(borrowerProfile.getEmployer()).map(BorrowerEmployer::getBranch).map(Branch::getName).orElse("-"));
                 put("borrowerCompanyEmployeeCount", (v) -> Optional.ofNullable(borrowerProfile.getEmployer()).map(BorrowerEmployer::getNumberOfEmployees).map(NumberOfEmployees::getName).orElse("-"));
-                put("creditAmount", (v) -> bankApplication.getRealEstatePrice().subtract(bankApplication.getDownPayment()).toString());
-                put("realEstateType", (v) -> Objects.nonNull(partnerApplication.getRealEstateType()) ? partnerApplication.getRealEstateType().getName() : "-");
+                put("creditAmount", (v) -> {
+                    if (Objects.nonNull(bankApplication)
+                            && Objects.nonNull(bankApplication.getRealEstatePrice())
+                            && Objects.nonNull(bankApplication.getDownPayment())) {
+                        return bankApplication.getRealEstatePrice().subtract(bankApplication.getDownPayment()).toString();
+                    } else {
+                        return "-";
+                    }
+                });
+                put("realEstateType", (v) -> Optional.ofNullable(partnerApplication)
+                        .map(PartnerApplication::getRealEstateType)
+                        .map(RealEstateType::getName)
+                        .orElse("-"));
+
                 put("creditPurposeType", (v) -> Objects.nonNull(partnerApplication.getCreditPurposeType()) ? partnerApplication.getCreditPurposeType().getName() : "-");
-                put("realEstateRegion", (v) -> bankApplication.getPartnerApplication().getRealEstate().getRegion().getName());
-                put("borrowerRegistrationAddress", (v) -> borrowerProfile.getRegistrationAddress());
-                put("borrowerResidenceAddress", (v) -> borrowerProfile.getResidenceAddress());
-                put("borrowerPassportIssuedDate", (v) -> (Objects.nonNull(borrowerProfile.getPassportIssuedDate())) ? borrowerProfile.getPassportIssuedDate().toString() : "-");
-                put("borrowerPassportIssuedByName", (v) -> borrowerProfile.getPassportIssuedByName());
-                put("borrowerEmail", (v) -> borrowerProfile.getEmail());
-                put("borrowerGender", (v) -> (Objects.nonNull(borrowerProfile.getGender())) ? borrowerProfile.getGender().getName() : "-");
-                put("borrowerLastName", (v) -> borrowerProfile.getLastName());
-                put("borrowerFirstName", (v) -> borrowerProfile.getFirstName());
-                put("borrowerMiddleName", (v) -> borrowerProfile.getMiddleName());
-                put("borrowerFIO", (v) -> borrowerProfile.getLastName() + " " + borrowerProfile.getFirstName() + " " + borrowerProfile.getMiddleName());
-                put("creditTermInYears", (v) -> (Objects.nonNull(maxMonthCreditTerm) ? String.valueOf(maxMonthCreditTerm.getAsInt()) : "-"));
-                put("realEstatePrice", (v) -> (Objects.nonNull(bankApplication.getRealEstatePrice())) ? bankApplication.getRealEstatePrice().toString() : "-");
-                put("borrowerPassportIssuedByCode", (v) -> borrowerProfile.getPassportIssuedByCode());
-                put("borrowerSNILS", (v) -> borrowerProfile.getSnils());
-                put("downPayment", (v) -> (Objects.nonNull(bankApplication.getDownPayment())) ? bankApplication.getDownPayment().toString() : "-");
-                put("borrowerBirthdate", (v) -> (Objects.nonNull(borrowerProfile.getBirthdate())) ? borrowerProfile.getBirthdate().toString() : "-");
-                put("borrowerPrevFullName", (v) -> borrowerProfile.getPrevFullName());
-                put("borrowerPhone", (v) -> borrowerProfile.getPhoneNumber());
-                put("borrowerCompanyExistence", (v) -> Objects.nonNull(borrowerProfile.getEmployer()) ? borrowerProfile.getEmployer().getWorkExperience().getName() : "-");
-                put("borrowerCompanyPhoneNumber", (v) -> Objects.nonNull(borrowerProfile.getEmployer()) ? borrowerProfile.getEmployer().getPhone() : "-");
-                put("borrowerCompanySite", (v) -> Objects.nonNull(borrowerProfile.getEmployer()) ? borrowerProfile.getEmployer().getSite() : "-");
-                put("borrowerCompanyAddress", (v) -> Objects.nonNull(borrowerProfile.getEmployer()) ? borrowerProfile.getEmployer().getAddress() : "-");
-                put("borrowerCompanyPosition", (v) -> Objects.nonNull(borrowerProfile.getEmployer()) ? borrowerProfile.getEmployer().getPosition() : "-");
-                put("borrowerCompanyWorkExperience", (v) -> Objects.nonNull(borrowerProfile.getEmployer()) ? borrowerProfile.getEmployer().getWorkExperience().getName() : "-");
-                put("borrowerVehicleModel", (v) -> Objects.nonNull(borrowerProfile.getVehicle()) ? borrowerProfile.getVehicle().getModel() : "-");
-                put("borrowerVehicleYearOfManufacture", (v) -> Objects.nonNull(borrowerProfile.getVehicle()) ? borrowerProfile.getVehicle().getYearOfManufacture().toString() : "-");
-                put("borrowerVehicleBasisOfOwnership", (v) -> Objects.nonNull(borrowerProfile.getVehicle()) ? borrowerProfile.getVehicle().getBasisOfOwnership().getName() : "-");
-                put("borrowerVehiclePrice", (v) -> Objects.nonNull(borrowerProfile.getVehicle()) ? borrowerProfile.getVehicle().getPrice().toString() : "-");
-                put("borrowerVehicleIsCollateral", (v) -> Objects.nonNull(borrowerProfile.getVehicle()) ? (borrowerProfile.getVehicle().getIsCollateral() ? "да" : "нет") : "-");
-                put("borrowerRealEstateType", (v) -> Objects.nonNull(borrowerProfile.getRealEstate()) ? borrowerProfile.getRealEstate().getType().getName() : "-");
-                put("borrowerRealEstateBasisOfOwnership", (v) -> Objects.nonNull(borrowerProfile.getRealEstate()) ? borrowerProfile.getRealEstate().getBasisOfOwnership().getName() : "-");
-                put("borrowerRealEstateArea", (v) -> Objects.nonNull(borrowerProfile.getRealEstate()) ? borrowerProfile.getRealEstate().getArea().toString() : "-");
-                put("borrowerRealEstatePrice", (v) -> Objects.nonNull(borrowerProfile.getRealEstate()) ? borrowerProfile.getRealEstate().getPrice().toString() : "-");
-                put("borrowerRealEstateShare", (v) -> Objects.nonNull(borrowerProfile.getRealEstate()) ? borrowerProfile.getRealEstate().getShare().toString() : "-");
-                put("borrowerRealEstateAddress", (v) -> Objects.nonNull(borrowerProfile.getRealEstate()) ? borrowerProfile.getRealEstate().getAddress() : "-");
-                put("borrowerRealEstateIsCollateral", (v) -> Objects.nonNull(borrowerProfile.getRealEstate()) ? borrowerProfile.getRealEstate().getIsCollateral() ? "да" : "нет" : "-");
-                put("borrowerIncomeVerification", (v) -> borrowerProfile.getPassportNumber());
+                put("realEstateRegion", (v) -> {
+                    if (Objects.nonNull(bankApplication) &&
+                            Objects.nonNull(bankApplication.getPartnerApplication()) &&
+                            Objects.nonNull(bankApplication.getPartnerApplication().getRealEstate()) &&
+                            Objects.nonNull(bankApplication.getPartnerApplication().getRealEstate().getRegion())) {
+                        return bankApplication.getPartnerApplication().getRealEstate().getRegion().getName();
+                    } else {
+                        return "-";
+                    }
+                });
+                put("borrowerRegistrationAddress", (v) -> Optional.ofNullable(borrowerProfile)
+                        .map(BorrowerProfile::getRegistrationAddress)
+                        .orElse("-"));
+                put("borrowerResidenceAddress", (v) -> Optional.ofNullable(borrowerProfile)
+                        .map(BorrowerProfile::getResidenceAddress)
+                        .orElse("-"));
+                put("borrowerPassportIssuedDate", (v) -> Optional.ofNullable(borrowerProfile.getPassportIssuedDate())
+                        .map(LocalDate::toString)
+                        .orElse("-"));
+
+                put("borrowerPassportIssuedByName", (v) -> Optional.ofNullable(borrowerProfile.getPassportIssuedByName())
+                        .orElse("-"));
+
+                put("borrowerEmail", (v) -> Optional.ofNullable(borrowerProfile.getEmail())
+                        .orElse("-"));
+
+                put("borrowerGender", (v) -> Optional.ofNullable(borrowerProfile.getGender())
+                        .map(Gender::getName)
+                        .orElse("-"));
+                put("borrowerLastName", (v) -> Optional.ofNullable(borrowerProfile.getLastName())
+                        .orElse("-"));
+
+                put("borrowerFirstName", (v) -> Optional.ofNullable(borrowerProfile.getFirstName())
+                        .orElse("-"));
+
+                put("borrowerMiddleName", (v) -> Optional.ofNullable(borrowerProfile.getMiddleName())
+                        .orElse("-"));
+
+                put("borrowerFIO", (v) -> {
+                    StringBuilder fio = new StringBuilder();
+                    fio.append(Optional.ofNullable(borrowerProfile.getLastName()).orElse("")).append("  ")
+                            .append(Optional.ofNullable(borrowerProfile.getFirstName()).orElse("")).append("  ")
+                            .append(Optional.ofNullable(borrowerProfile.getMiddleName()).orElse(""));
+
+                    return fio.length() < 1 ? "-" : fio.toString();
+                });
+                put("creditTermInYears", (v) -> Optional.ofNullable(maxMonthCreditTerm)
+                        .map(value -> String.valueOf(value.getAsInt()))
+                        .orElse("-"));
+
+                put("realEstatePrice", (v) -> Optional.ofNullable(bankApplication)
+                        .map(app -> Optional.ofNullable(app.getRealEstatePrice())
+                                .map(Object::toString)
+                                .orElse("-"))
+                        .orElse("-"));
+
+                put("borrowerPassportIssuedByCode", (v) -> Optional.ofNullable(borrowerProfile)
+                        .map(BorrowerProfile::getPassportIssuedByCode)
+                        .orElse("-"));
+
+                put("borrowerSNILS", (v) -> Optional.ofNullable(borrowerProfile)
+                        .map(BorrowerProfile::getSnils)
+                        .orElse("-"));
+
+                put("downPayment", (v) -> Optional.ofNullable(bankApplication)
+                        .map(app -> Optional.ofNullable(app.getDownPayment())
+                                .map(Object::toString)
+                                .orElse("-"))
+                        .orElse("-"));
+                put("borrowerBirthdate", (v) -> Optional.ofNullable(borrowerProfile)
+                        .map(profile -> Optional.ofNullable(profile.getBirthdate())
+                                .map(Object::toString)
+                                .orElse("-"))
+                        .orElse("-"));
+
+                put("borrowerPrevFullName", (v) -> Optional.ofNullable(borrowerProfile)
+                        .map(BorrowerProfile::getPrevFullName)
+                        .orElse("-"));
+
+                put("borrowerPhone", (v) -> Optional.ofNullable(borrowerProfile)
+                        .map(BorrowerProfile::getPhoneNumber)
+                        .orElse("-"));
+
+                put("borrowerCompanyExistence", (v) -> Optional.ofNullable(borrowerProfile)
+                        .map(profile -> Optional.ofNullable(profile.getEmployer())
+                                .map(employer -> Optional.ofNullable(employer.getWorkExperience())
+                                        .map(TotalWorkExperience::getName)
+                                        .orElse("-"))
+                                .orElse("-"))
+                        .orElse("-"));
+
+                put("borrowerCompanyPhoneNumber", (v) -> Optional.ofNullable(borrowerProfile)
+                        .map(profile -> Optional.ofNullable(profile.getEmployer())
+                                .map(BorrowerEmployer::getPhone)
+                                .orElse("-"))
+                        .orElse("-"));
+
+                put("borrowerCompanySite", (v) -> Optional.ofNullable(borrowerProfile)
+                        .map(profile -> Optional.ofNullable(profile.getEmployer())
+                                .map(BorrowerEmployer::getSite)
+                                .orElse("-"))
+                        .orElse("-"));
+
+                put("borrowerCompanyAddress", (v) -> Optional.ofNullable(borrowerProfile)
+                        .map(profile -> Optional.ofNullable(profile.getEmployer())
+                                .map(BorrowerEmployer::getAddress)
+                                .orElse("-"))
+                        .orElse("-"));
+
+                put("borrowerCompanyPosition", (v) -> Optional.ofNullable(borrowerProfile)
+                        .map(profile -> Optional.ofNullable(profile.getEmployer())
+                                .map(BorrowerEmployer::getPosition)
+                                .orElse("-"))
+                        .orElse("-"));
+                put("borrowerCompanyWorkExperience", (v) -> Optional.ofNullable(borrowerProfile)
+                        .map(profile -> Optional.ofNullable(profile.getEmployer())
+                                .map(employer -> Optional.ofNullable(employer.getWorkExperience())
+                                        .map(TotalWorkExperience::getName)
+                                        .orElse("-"))
+                                .orElse("-"))
+                        .orElse("-"));
+
+                put("borrowerVehicleModel", (v) -> Optional.ofNullable(borrowerProfile)
+                        .map(profile -> Optional.ofNullable(profile.getVehicle())
+                                .map(vehicle -> Optional.ofNullable(vehicle.getModel())
+                                        .orElse("-"))
+                                .orElse("-"))
+                        .orElse("-"));
+
+                put("borrowerVehicleYearOfManufacture", (v) -> Optional.ofNullable(borrowerProfile)
+                        .map(profile -> Optional.ofNullable(profile.getVehicle())
+                                .map(vehicle -> Optional.ofNullable(vehicle.getYearOfManufacture())
+                                        .map(Object::toString)
+                                        .orElse("-"))
+                                .orElse("-"))
+                        .orElse("-"));
+
+                put("borrowerVehicleBasisOfOwnership", (v) -> Optional.ofNullable(borrowerProfile)
+                        .map(profile -> Optional.ofNullable(profile.getVehicle())
+                                .map(vehicle -> Optional.ofNullable(vehicle.getBasisOfOwnership())
+                                        .map(BasisOfOwnership::getName)
+                                        .orElse("-"))
+                                .orElse("-"))
+                        .orElse("-"));
+
+                put("borrowerVehiclePrice", (v) -> Optional.ofNullable(borrowerProfile)
+                        .map(profile -> Optional.ofNullable(profile.getVehicle())
+                                .map(vehicle -> Optional.ofNullable(vehicle.getPrice())
+                                        .map(Object::toString)
+                                        .orElse("-"))
+                                .orElse("-"))
+                        .orElse("-"));
+
+                put("borrowerVehicleIsCollateral", (v) -> Optional.ofNullable(borrowerProfile)
+                        .map(profile -> Optional.ofNullable(profile.getVehicle())
+                                .map(vehicle -> vehicle.getIsCollateral() ? "да" : "нет")
+                                .orElse("-"))
+                        .orElse("-"));
+
+                put("borrowerRealEstateType", (v) -> Optional.ofNullable(borrowerProfile)
+                        .map(profile -> Optional.ofNullable(profile.getRealEstate())
+                                .map(realEstate -> Optional.ofNullable(realEstate.getType())
+                                        .map(RealEstateType::getName)
+                                        .orElse("-"))
+                                .orElse("-"))
+                        .orElse("-"));
+                put("borrowerRealEstateBasisOfOwnership", (v) -> (Objects.nonNull(borrowerProfile)
+                        && Objects.nonNull(borrowerProfile.getRealEstate())
+                        && Objects.nonNull(borrowerProfile.getRealEstate().getBasisOfOwnership()))
+                        ? borrowerProfile.getRealEstate().getBasisOfOwnership().getName()
+                        : "-");
+                put("borrowerRealEstateShare", (v) -> (Objects.nonNull(borrowerProfile)
+                        && Objects.nonNull(borrowerProfile.getRealEstate())
+                        && Objects.nonNull(borrowerProfile.getRealEstate().getShare()))
+                        ? borrowerProfile.getRealEstate().getShare().toString()
+                        : "-");
+                put("borrowerRealEstateAddress", (v) -> Objects.nonNull(borrowerProfile)
+                        && Objects.nonNull(borrowerProfile.getRealEstate())
+                        ? borrowerProfile.getRealEstate().getAddress()
+                        : "-");
+                put("borrowerRealEstateIsCollateral", (v) -> Objects.nonNull(borrowerProfile)
+                        && Objects.nonNull(borrowerProfile.getRealEstate())
+                        ? (borrowerProfile.getRealEstate().getIsCollateral()
+                        ? "да" : "нет") : "-");
+                put("borrowerIncomeVerification", (v) -> Objects.nonNull(borrowerProfile)
+                        ? borrowerProfile.getPassportNumber()
+                        : "-");
                 put("contractDate", (v) -> LocalDate.now().toString());
             }
         };
         return
-                getReplaceFields(fields, fieldMapping);
+                getReplaceFields(fieldMapping);
     }
 
-    private static Map<String, String> getReplaceFields
-            (Set<String> fields, Map<String, Function<Void, String>> fieldMapping) {
+    private static Map<String, String> getReplaceFields(Map<String, Function<Void, String>> originalMap) {
         Map<String, String> replaceFields = new HashMap<>();
-        for (String field : fields) {
-            Function<Void, String> function = fieldMapping.get(field);
-            if (function != null) {
-                String value = function.apply(null);
-                if (value != null) {
-                    replaceFields.put(field, value);
-                }
-            }
+        for (Map.Entry<String, Function<Void, String>> entry : originalMap.entrySet()) {
+            String key = entry.getKey();
+            Function<Void, String> function = entry.getValue();
+
+            String value = function.apply(null);
+            replaceFields.put(key, value);
         }
-        return replaceFields;
+            return replaceFields;
     }
 
     public Set<String> extractFieldsFromDocx(byte[] file) {
