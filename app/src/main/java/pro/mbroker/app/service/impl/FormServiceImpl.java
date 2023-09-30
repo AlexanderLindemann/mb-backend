@@ -1,6 +1,7 @@
 package pro.mbroker.app.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.util.Units;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
@@ -14,6 +15,7 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -42,6 +44,7 @@ import java.util.UUID;
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@Component
 public class FormServiceImpl implements FormService {
 
     private final AttachmentService attachmentService;
@@ -51,7 +54,7 @@ public class FormServiceImpl implements FormService {
     String filePath = "forms/SDMortgageForm_2023-09-27.docx";
 
     @Override
-    @Transactional(readOnly = true)
+    @Transactional
     public ResponseEntity<ByteArrayResource> generateFormFile(UUID borrowerProfileId) {
         BorrowerProfile borrowerProfile = borrowerProfileService.findByIdWithRealEstateVehicleAndEmployer(borrowerProfileId);
         PartnerApplication partnerApplication = borrowerProfile.getPartnerApplication();
@@ -60,12 +63,12 @@ public class FormServiceImpl implements FormService {
                 getFileFromPath(filePath),
                 partnerApplication,
                 borrowerProfile);
+       ByteArrayResource byteAreaResource = matchReplacements(replacements, filePath);
+       updateGeneratedForm(borrowerProfileId, byteAreaResource.getByteArray());
 
-        byte[] updatedFile = getFileFromPath(filePath);
-        updateGeneratedForm(borrowerProfileId, updatedFile);
-
-        return processFormWithReplacements(replacements, filePath);
+        return processFormResponse(byteAreaResource);
     }
+
 
     @Override
     public ResponseEntity<ByteArrayResource> signatureFormFile(UUID borrowerProfileId, MultipartFile signature) {
@@ -73,14 +76,19 @@ public class FormServiceImpl implements FormService {
         PartnerApplication partnerApplication = borrowerProfile.getPartnerApplication();
         byte[] imageBytes = getImageBytes(signature);
         String encodedImage = Base64.getEncoder().encodeToString(imageBytes);
-        Map<String, String> replacements = docxFieldHandler.replaceFieldValue(getFileFromPath(filePath), partnerApplication, borrowerProfile);
+        Map<String, String> replacements = docxFieldHandler.replaceFieldValue(
+                getFileFromPath(filePath),
+                partnerApplication, borrowerProfile);
         replacements.put("borrowerSign", encodedImage);
-        return processFormWithReplacements(replacements, filePath);
+
+        ByteArrayResource byteAreaResource = matchReplacements(replacements, filePath);
+        return processFormResponse(byteAreaResource);
     }
 
+    @SneakyThrows
     @Override
     @Transactional
-    public void updateGeneratedForm(UUID borrowerProfileId, byte[] form) {
+    public ByteArrayResource updateGeneratedForm(UUID borrowerProfileId, byte[] form) {
         BorrowerProfile borrowerProfile = borrowerProfileService.getBorrowerProfile(borrowerProfileId);
         MultipartFile multipartFile = new CustomMultipartFile(
                 form,
@@ -90,6 +98,8 @@ public class FormServiceImpl implements FormService {
         Attachment upload = attachmentService.upload(multipartFile);
         borrowerProfile.setGeneratedForm(upload);
         borrowerProfileRepository.save(borrowerProfile);
+
+        return new ByteArrayResource(multipartFile.getBytes());
     }
 
     @Override
@@ -106,26 +116,32 @@ public class FormServiceImpl implements FormService {
         borrowerProfileRepository.save(borrowerProfile);
     }
 
-    private ResponseEntity<ByteArrayResource> processFormWithReplacements(Map<String, String> replacements, String filePath) {
+    private ResponseEntity<ByteArrayResource> processFormResponse(ByteArrayResource resource) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=example.docx");
+
+        return ResponseEntity.ok()
+                    .headers(headers)
+                    .contentLength(resource.contentLength())
+                    .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                    .body(resource);
+    }
+
+    private ByteArrayResource matchReplacements(Map<String, String> replacements, String filePath) {
         byte[] file = getFileFromPath(filePath);
+
         try (InputStream inputStream = new ByteArrayInputStream(file)) {
             XWPFDocument document = new XWPFDocument(inputStream);
             replaceTextInDocx(document, replacements);
             ByteArrayOutputStream docxOutputStream = new ByteArrayOutputStream();
             document.write(docxOutputStream);
-            ByteArrayResource resource = new ByteArrayResource(docxOutputStream.toByteArray());
-            HttpHeaders headers = new HttpHeaders();
-            headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=example.docx");
 
-            return ResponseEntity.ok()
-                    .headers(headers)
-                    .contentLength(resource.contentLength())
-                    .contentType(MediaType.APPLICATION_OCTET_STREAM)
-                    .body(resource);
+            return new ByteArrayResource(docxOutputStream.toByteArray());
         } catch (IOException e) {
             log.error("Error processing the form with replacements", e);
             throw new RuntimeException(e);
         }
+
     }
 
     private byte[] getFileFromPath(String path) {

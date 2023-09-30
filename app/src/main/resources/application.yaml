@@ -19,6 +19,9 @@ spring:
       max-file-size: 20MB
       max-request-size: 20MB
       enabled: true
+  logging:
+    level:
+      org.hibernate: DEBUG
 
 eureka:
   client:

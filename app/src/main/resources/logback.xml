@@ -24,11 +24,14 @@
         </encoder>
     </appender>
 
+    <logger name="org.springframework.transaction" level="DEBUG" />
+
+
 
     <!-- ***** Joining loggers to files ***** -->
     <root level="DEBUG">
         <appender-ref ref="STDOUT"/>
-        <appender-ref ref="FILE"/>
+      <!--  <appender-ref ref="FILE"/>-->
     </root>
 
 <!--    <logger level="TRACE" name="org.springframework.security"/>-->
