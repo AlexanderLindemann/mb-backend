@@ -66,7 +66,7 @@ public class BorrowerEmployer extends BaseEntity {
     @Column(name = "is_current_employer")
     private Boolean isCurrentEmployer;
 
-/*    @OneToOne(mappedBy = "employer", cascade = CascadeType.ALL)
-    private BorrowerProfile borrowerProfile;*/
+    @OneToOne(mappedBy = "employer", cascade = CascadeType.ALL)
+    private BorrowerProfile borrowerProfile;
 }
 

@@ -3,9 +3,9 @@ package pro.mbroker.api.dto.response;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import pro.mbroker.api.dto.BorrowerEmployerDto;
 import pro.mbroker.api.dto.BorrowerRealEstateDto;
 import pro.mbroker.api.dto.BorrowerVehicleDto;
+import pro.mbroker.api.dto.EmployerDto;
 import pro.mbroker.api.dto.request.BorrowerDocumentRequest;
 import pro.mbroker.api.enums.BorrowerProfileStatus;
 import pro.mbroker.api.enums.Education;
@@ -92,7 +92,7 @@ public class BorrowerProfileDto {
 
     private ProofOfIncome proofOfIncome;
 
-    private BorrowerEmployerDto employer;
+    private EmployerDto employer;
 
     private BorrowerRealEstateDto realEstate;
 

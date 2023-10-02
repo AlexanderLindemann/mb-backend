@@ -22,4 +22,6 @@ public interface BankService {
     AttachmentResponse getLogoBankById(UUID bankId);
 
     List<Bank> getAllBank(int page, int size, String sortBy, String sortOrder);
+
+    void deleteRelationsByBankIdAndEmployerId(UUID bankId, UUID employerId);
 }

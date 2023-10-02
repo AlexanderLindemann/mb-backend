@@ -117,6 +117,7 @@ public class BorrowerProfileServiceImpl implements BorrowerProfileService {
                     if (field.getName().equals("employer") && value instanceof EmployerDto) {
                         BorrowerEmployer employer = borrowerProfile.getEmployer();
                         BorrowerEmployer convertedEmployer = convertToBorrowerEmployer((EmployerDto) value, employer);
+                        Objects.requireNonNull(convertedEmployer).setBorrowerProfile(borrowerProfile);
                         borrowerProfile.setEmployer(convertedEmployer);
                     } else if (field.getName().equals("realEstate") && value instanceof BorrowerRealEstateDto) {
                         BorrowerRealEstate realEstate = borrowerProfile.getRealEstate();
@@ -136,6 +137,7 @@ public class BorrowerProfileServiceImpl implements BorrowerProfileService {
                 throw new ProfileUpdateException(field.getName(), "Ошибка при обновлении профиля заемщика");
             }
         }
+
         borrowerProfileRepository.save(borrowerProfile);
     }
 
@@ -228,24 +230,46 @@ public class BorrowerProfileServiceImpl implements BorrowerProfileService {
         return entity;
     }
 
-    private BorrowerEmployer convertToBorrowerEmployer(EmployerDto dto, BorrowerEmployer employer) {
+    @Transactional
+    public BorrowerEmployer convertToBorrowerEmployer(EmployerDto dto, BorrowerEmployer employer) {
         if (Objects.isNull(dto)) {
             return null;
         }
         BorrowerEmployer entity = (Objects.nonNull(employer)) ? employer : new BorrowerEmployer();
         borrowerEmployerMapper.updateBorrowerEmployerFromDto(dto, entity);
-        if (Objects.nonNull(dto.getSalaryBanks())) {
-            Set<Bank> banks = new HashSet<>();
+        deleteNotActualSalaryBanks(dto, employer);
+        entity.getSalaryBanks().clear();
+        if (dto.getSalaryBanks() != null) {
             for (UUID id : dto.getSalaryBanks()) {
-                Bank bank = bankService.getBankById(id);
-                banks.add(bank);
-            }
-            entity.setSalaryBanks(banks);
-            for(Bank bank : entity.getSalaryBanks()) {
+                Bank bank = bankService.getBankById(id);;
+                bank.setId(id);
                 bank.getEmployers().add(entity);
+                entity.getSalaryBanks().add(bank);
             }
         }
 
         return entity;
+    }
+
+    @Transactional
+    public void deleteNotActualSalaryBanks(EmployerDto dto, BorrowerEmployer employer) {
+        if (dto.getSalaryBanks() != null && employer.getSalaryBanks() != null) {
+            Set<Bank> existBanks = employer.getSalaryBanks();
+
+            Set<UUID> newSalaryBanksIds = new HashSet<>(dto.getSalaryBanks());
+
+            Set<Bank> notActual = new HashSet<>(existBanks);
+
+            for (Bank bank : existBanks) {
+                if (newSalaryBanksIds.contains(bank.getId())) {
+                    notActual.remove(bank);
+                }
+            }
+
+            existBanks.removeAll(notActual);
+            for (Bank bank : existBanks) {
+                bankService.deleteRelationsByBankIdAndEmployerId(bank.getId(), employer.getId());
+            }
+        }
     }
 }
