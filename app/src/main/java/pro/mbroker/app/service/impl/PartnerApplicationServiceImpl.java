@@ -21,8 +21,20 @@ import pro.mbroker.api.dto.response.BankApplicationResponse;
 import pro.mbroker.api.dto.response.BorrowerProfileResponse;
 import pro.mbroker.api.dto.response.PartnerApplicationResponse;
 import pro.mbroker.api.dto.response.RequiredDocumentResponse;
-import pro.mbroker.api.enums.*;
-import pro.mbroker.app.entity.*;
+import pro.mbroker.api.enums.BankApplicationStatus;
+import pro.mbroker.api.enums.BorrowerProfileStatus;
+import pro.mbroker.api.enums.DocumentType;
+import pro.mbroker.api.enums.PartnerApplicationStatus;
+import pro.mbroker.api.enums.RegionType;
+import pro.mbroker.app.entity.Bank;
+import pro.mbroker.app.entity.BankApplication;
+import pro.mbroker.app.entity.BorrowerDocument;
+import pro.mbroker.app.entity.BorrowerProfile;
+import pro.mbroker.app.entity.CreditProgram;
+import pro.mbroker.app.entity.MortgageCalculation;
+import pro.mbroker.app.entity.Partner;
+import pro.mbroker.app.entity.PartnerApplication;
+import pro.mbroker.app.entity.RealEstate;
 import pro.mbroker.app.exception.AccessDeniedException;
 import pro.mbroker.app.exception.ItemConflictException;
 import pro.mbroker.app.exception.ItemNotFoundException;
@@ -34,16 +46,30 @@ import pro.mbroker.app.repository.BankRepository;
 import pro.mbroker.app.repository.BorrowerProfileRepository;
 import pro.mbroker.app.repository.PartnerApplicationRepository;
 import pro.mbroker.app.repository.specification.PartnerApplicationSpecification;
-import pro.mbroker.app.service.*;
+import pro.mbroker.app.service.AttachmentService;
+import pro.mbroker.app.service.CalculatorService;
+import pro.mbroker.app.service.CreditProgramService;
+import pro.mbroker.app.service.PartnerApplicationService;
+import pro.mbroker.app.service.PartnerService;
+import pro.mbroker.app.service.RealEstateService;
 import pro.mbroker.app.util.Converter;
 import pro.mbroker.app.util.Pagination;
-import pro.mbroker.app.util.TokenExtractor;
 import pro.smartdeal.common.security.Permission;
 import pro.smartdeal.ng.common.security.service.CurrentUserService;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -151,12 +177,14 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
             deleteBorrowerDocuments(existingPartnerApplication);
         }
         partnerApplicationMapper.updatePartnerApplicationFromRequest(request, existingPartnerApplication);
-        mortgageCalculationMapper.updateMortgageCalculationFromRequest(request.getMortgageCalculation(), existingPartnerApplication.getMortgageCalculation());
+        mortgageCalculationMapper.updateMortgageCalculationFromRequest(request.getMortgageCalculation(),
+                existingPartnerApplication.getMortgageCalculation());
         setSalaryBank(request, existingPartnerApplication);
         existingPartnerApplication.setRealEstate(realEstateService.findById(request.getRealEstateId()));
         List<BankApplication> updatedBorrowerApplications = buildBankApplications(request.getBankApplications(), existingPartnerApplication);
         existingPartnerApplication.setBankApplications(updatedBorrowerApplications);
-        updateMainBorrower(existingPartnerApplication, request.getMainBorrower());
+
+       // updateMainBorrower(existingPartnerApplication, request.getMainBorrower());
         return statusChanger(existingPartnerApplication);
     }
 
