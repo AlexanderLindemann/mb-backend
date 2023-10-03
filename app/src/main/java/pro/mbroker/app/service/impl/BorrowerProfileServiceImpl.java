@@ -115,7 +115,9 @@ public class BorrowerProfileServiceImpl implements BorrowerProfileService {
                     Field borrowerProfileField = BorrowerProfile.class.getDeclaredField(field.getName());
                     borrowerProfileField.setAccessible(true);
                     if (field.getName().equals("employer") && value instanceof EmployerDto) {
-                        BorrowerEmployer employer = borrowerProfile.getEmployer();
+                        BorrowerEmployer employer = borrowerProfile.getEmployer() != null
+                                ? borrowerProfile.getEmployer()
+                                : new BorrowerEmployer();
                         BorrowerEmployer convertedEmployer = convertToBorrowerEmployer((EmployerDto) value, employer);
                         Objects.requireNonNull(convertedEmployer).setBorrowerProfile(borrowerProfile);
                         borrowerProfile.setEmployer(convertedEmployer);
@@ -238,8 +240,11 @@ public class BorrowerProfileServiceImpl implements BorrowerProfileService {
         BorrowerEmployer entity = (Objects.nonNull(employer)) ? employer : new BorrowerEmployer();
         borrowerEmployerMapper.updateBorrowerEmployerFromDto(dto, entity);
         deleteNotActualSalaryBanks(dto, employer);
-        entity.getSalaryBanks().clear();
+
         if (dto.getSalaryBanks() != null) {
+            if(entity.getSalaryBanks() != null ) {
+                entity.getSalaryBanks().clear();
+            }
             for (UUID id : dto.getSalaryBanks()) {
                 Bank bank = bankService.getBankById(id);;
                 bank.setId(id);
