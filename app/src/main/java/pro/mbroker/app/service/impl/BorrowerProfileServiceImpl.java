@@ -241,7 +241,7 @@ public class BorrowerProfileServiceImpl implements BorrowerProfileService {
         entity.getSalaryBanks().clear();
         if (dto.getSalaryBanks() != null) {
             for (UUID id : dto.getSalaryBanks()) {
-                Bank bank = bankService.getBankById(id);
+                Bank bank = bankService.getBankById(id);;
                 bank.setId(id);
                 bank.getEmployers().add(entity);
                 entity.getSalaryBanks().add(bank);

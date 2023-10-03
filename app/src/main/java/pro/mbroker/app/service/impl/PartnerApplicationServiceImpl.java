@@ -183,8 +183,6 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
         existingPartnerApplication.setRealEstate(realEstateService.findById(request.getRealEstateId()));
         List<BankApplication> updatedBorrowerApplications = buildBankApplications(request.getBankApplications(), existingPartnerApplication);
         existingPartnerApplication.setBankApplications(updatedBorrowerApplications);
-
-       // updateMainBorrower(existingPartnerApplication, request.getMainBorrower());
         return statusChanger(existingPartnerApplication);
     }
 
@@ -300,8 +298,13 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
         List<BankApplicationResponse> activeBankApplicationResponses = getActiveBankApplicationResponses(partnerApplication, borrowerProfileMap);
         List<BankWithBankApplicationDto> bankWithBankApplicationDtos = getGroupBankApplication(activeBankApplicationResponses);
         response.setBankWithBankApplicationDto(bankWithBankApplicationDtos);
-        response.setBorrowerProfiles(new ArrayList<>(borrowerProfileMap.values()).stream()
-                .map(borrowerProfileMapper::toBorrowerProfileResponse).collect(Collectors.toList()));
+        response.setBorrowerProfiles(
+                borrowerProfileMap.values()
+                        .stream()
+                        .map(borrowerProfileMapper::toBorrowerProfileResponse)
+                        .sorted(Comparator.comparing(BorrowerProfileResponse::getCreatedAt)) // Сортировка по дате создания
+                        .collect(Collectors.toList())
+        );
         return response;
     }
 
