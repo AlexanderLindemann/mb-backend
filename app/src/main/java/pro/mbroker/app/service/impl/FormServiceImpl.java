@@ -63,9 +63,7 @@ public class FormServiceImpl implements FormService {
                 getFileFromPath(filePath),
                 partnerApplication,
                 borrowerProfile);
-       ByteArrayResource byteAreaResource = matchReplacements(replacements, filePath);
-       updateGeneratedForm(borrowerProfileId, byteAreaResource.getByteArray());
-
+        ByteArrayResource byteAreaResource = matchReplacements(replacements, filePath);
         return processFormResponse(byteAreaResource);
     }
 
@@ -88,7 +86,7 @@ public class FormServiceImpl implements FormService {
     @SneakyThrows
     @Override
     @Transactional
-    public ByteArrayResource updateGeneratedForm(UUID borrowerProfileId, byte[] form) {
+    public void updateGeneratedForm(UUID borrowerProfileId, byte[] form) {
         BorrowerProfile borrowerProfile = borrowerProfileService.getBorrowerProfile(borrowerProfileId);
         MultipartFile multipartFile = new CustomMultipartFile(
                 form,
@@ -98,8 +96,6 @@ public class FormServiceImpl implements FormService {
         Attachment upload = attachmentService.upload(multipartFile);
         borrowerProfile.setGeneratedForm(upload);
         borrowerProfileRepository.save(borrowerProfile);
-
-        return new ByteArrayResource(multipartFile.getBytes());
     }
 
     @Override
@@ -121,10 +117,10 @@ public class FormServiceImpl implements FormService {
         headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=example.docx");
 
         return ResponseEntity.ok()
-                    .headers(headers)
-                    .contentLength(resource.contentLength())
-                    .contentType(MediaType.APPLICATION_OCTET_STREAM)
-                    .body(resource);
+                .headers(headers)
+                .contentLength(resource.contentLength())
+                .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                .body(resource);
     }
 
     private ByteArrayResource matchReplacements(Map<String, String> replacements, String filePath) {

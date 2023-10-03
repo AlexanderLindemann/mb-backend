@@ -67,6 +67,11 @@ public interface BorrowerProfileController {
     ResponseEntity<ByteArrayResource> signatureFormFile(@RequestParam UUID borrowerProfileId,
                                                         @RequestParam("signature") MultipartFile signature);
 
+    @ApiOperation("Сохранить сгенерированную анкету")
+    @PutMapping("/{borrowerProfileId}/update-generated-form")
+    void updateGeneratedForm(@ApiParam(value = "Идентификатор профиля") @PathVariable UUID borrowerProfileId,
+                             @RequestBody byte[] form);
+
     @ApiOperation("Сохранить подписанную анкету")
     @PutMapping("/{borrowerProfileId}/signature-generated-form")
     void updateSignatureForm(@ApiParam(value = "Идентификатор профиля") @PathVariable UUID borrowerProfileId,

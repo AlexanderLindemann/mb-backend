@@ -11,7 +11,7 @@ public interface FormService {
 
     ResponseEntity<ByteArrayResource> signatureFormFile(UUID borrowerProfileId, MultipartFile signature);
 
-    ByteArrayResource updateGeneratedForm(UUID borrowerProfileId, byte[] form);
+    void updateGeneratedForm(UUID borrowerProfileId, byte[] form);
 
     void updateSignatureForm(UUID borrowerProfileId, byte[] form);
 }

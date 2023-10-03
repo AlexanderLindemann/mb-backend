@@ -77,6 +77,11 @@ public class BorrowerProfileControllerImpl implements BorrowerProfileController 
     }
 
     @Override
+    public void updateGeneratedForm(UUID borrowerProfileId, byte[] form) {
+        formService.updateGeneratedForm(borrowerProfileId, form);
+    }
+
+    @Override
     public void updateSignatureForm(UUID borrowerProfileId, byte[] form) {
         formService.updateSignatureForm(borrowerProfileId, form);
     }
