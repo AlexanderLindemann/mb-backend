@@ -69,11 +69,10 @@ public class FormServiceImpl implements FormService {
 
 
     @Override
-    public ResponseEntity<ByteArrayResource> signatureFormFile(UUID borrowerProfileId, MultipartFile signature) {
+    public ResponseEntity<ByteArrayResource> signatureFormFile(UUID borrowerProfileId, byte[] signature) {
         BorrowerProfile borrowerProfile = borrowerProfileService.findByIdWithRealEstateVehicleAndEmployer(borrowerProfileId);
         PartnerApplication partnerApplication = borrowerProfile.getPartnerApplication();
-        byte[] imageBytes = getImageBytes(signature);
-        String encodedImage = Base64.getEncoder().encodeToString(imageBytes);
+        String encodedImage = Base64.getEncoder().encodeToString(signature);
         Map<String, String> replacements = docxFieldHandler.replaceFieldValue(
                 getFileFromPath(filePath),
                 partnerApplication, borrowerProfile);
@@ -147,15 +146,6 @@ public class FormServiceImpl implements FormService {
         } catch (IOException e) {
             log.error("Error reading {}", path, e);
             throw new RuntimeException("Error reading " + path, e);
-        }
-    }
-
-    private byte[] getImageBytes(MultipartFile imageFile) {
-        try (InputStream imageStream = imageFile.getInputStream()) {
-            return imageStream.readAllBytes();
-        } catch (IOException e) {
-            log.error("Error reading the image", e);
-            throw new RuntimeException("Error reading the image", e);
         }
     }
 

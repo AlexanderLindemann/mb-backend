@@ -13,9 +13,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
 import pro.mbroker.api.dto.request.BorrowerProfileUpdateRequest;
 import pro.mbroker.api.dto.request.BorrowerRequest;
 import pro.mbroker.api.dto.response.BorrowerProfileForUpdateResponse;
@@ -64,9 +62,9 @@ public interface BorrowerProfileController {
     ResponseEntity<ByteArrayResource> generateFormFile(@RequestParam UUID borrowerProfileId);
 
     @ApiOperation("подписать анкету")
-    @PostMapping("/signature-borrower-form")
+    @PutMapping("/signature-borrower-form")
     ResponseEntity<ByteArrayResource> signatureFormFile(@RequestParam UUID borrowerProfileId,
-                                                        @RequestPart("signature") MultipartFile signature);
+                                                        @RequestBody byte[] signature);
 
     @ApiOperation("Сохранить сгенерированную анкету")
     @PutMapping("/{borrowerProfileId}/update-generated-form")

@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
-import org.springframework.web.multipart.MultipartFile;
 import pro.mbroker.api.controller.BorrowerProfileController;
 import pro.mbroker.api.dto.request.BorrowerProfileUpdateRequest;
 import pro.mbroker.api.dto.request.BorrowerRequest;
@@ -72,7 +71,7 @@ public class BorrowerProfileControllerImpl implements BorrowerProfileController 
     }
 
     @Override
-    public ResponseEntity<ByteArrayResource> signatureFormFile(UUID borrowerProfileId, MultipartFile signature) {
+    public ResponseEntity<ByteArrayResource> signatureFormFile(UUID borrowerProfileId, byte[] signature) {
         return formService.signatureFormFile(borrowerProfileId, signature);
     }
 
