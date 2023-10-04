@@ -10,6 +10,7 @@ import pro.mbroker.api.enums.OrganizationAge;
 import pro.mbroker.api.enums.TotalWorkExperience;
 
 import javax.persistence.*;
+import java.util.HashSet;
 import java.util.Set;
 
 @Entity
@@ -38,8 +39,14 @@ public class BorrowerEmployer extends BaseEntity {
     @Column(name = "organization_age", nullable = false)
     private OrganizationAge organizationAge;
 
-    @ManyToMany(mappedBy = "employers")
-    private Set<Bank> salaryBanks;
+    @ManyToMany()
+    @JoinTable(
+            name = "employer_bank_relation",
+            joinColumns = @JoinColumn(name = "employer_id"),
+            inverseJoinColumns = @JoinColumn(name = "bank_id")
+    )
+    private Set<Bank> salaryBanks = new HashSet<>();
+
 
     @Column(name = "phone", nullable = false)
     private String phone;

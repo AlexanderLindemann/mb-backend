@@ -6,6 +6,7 @@ import pro.mbroker.api.dto.response.AttachmentResponse;
 import pro.mbroker.app.entity.Bank;
 
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 public interface BankService {
@@ -23,5 +24,5 @@ public interface BankService {
 
     List<Bank> getAllBank(int page, int size, String sortBy, String sortOrder);
 
-    void deleteRelationsByBankIdAndEmployerId(UUID bankId, UUID employerId);
+    List<Bank> getAllBankByIds(Set<UUID> bankIds);
 }

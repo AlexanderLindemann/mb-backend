@@ -25,8 +25,6 @@ import pro.mbroker.app.repository.specification.BankSpecification;
 import pro.mbroker.app.service.AttachmentService;
 import pro.mbroker.app.service.BankService;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -45,9 +43,6 @@ public class BankServiceImpl implements BankService {
     private final AttachmentMapper attachmentMapper;
     private final AttachmentService attachmentService;
     private final BankContactRepository bankContactRepository;
-
-    @PersistenceContext
-    private EntityManager entityManager;
 
     @Override
     @Transactional
@@ -114,6 +109,20 @@ public class BankServiceImpl implements BankService {
         }
         return banks;
     }
+
+    @Override
+    public List<Bank> getAllBankByIds(Set<UUID> bankIds) {
+        List<Bank> banks = bankRepository.findAllByIdInAndIsActiveTrue(bankIds);
+        Set<UUID> foundBankIds = banks.stream()
+                .map(Bank::getId)
+                .collect(Collectors.toSet());
+        bankIds.removeAll(foundBankIds);
+        if (!bankIds.isEmpty()) {
+            throw new ItemNotFoundException(Bank.class, " with the following IDs were not found or are not active: " + bankIds);
+        }
+        return banks;
+    }
+
 
     @Override
     @Transactional
@@ -185,15 +194,5 @@ public class BankServiceImpl implements BankService {
             Attachment attachment = attachmentService.getAttachmentById(attachmentId);
             bank.setAttachment(attachment);
         }
-    }
-
-    @Transactional
-    public void deleteRelationsByBankIdAndEmployerId(UUID bankId, UUID employerId) {
-        String sql = "DELETE FROM employer_bank_relation WHERE bank_id = :bankId AND employer_id = :employerId";
-        entityManager.createNativeQuery(sql)
-                .setParameter("bankId", bankId)
-                .setParameter("employerId", employerId)
-                .executeUpdate();
-    //todo тут происходит какая-то хрень. Транзакция не комитится
     }
 }

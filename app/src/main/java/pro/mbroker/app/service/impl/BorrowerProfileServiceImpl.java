@@ -12,7 +12,13 @@ import pro.mbroker.api.dto.request.BorrowerProfileUpdateRequest;
 import pro.mbroker.api.dto.request.BorrowerRequest;
 import pro.mbroker.api.dto.response.BorrowerProfileResponse;
 import pro.mbroker.api.dto.response.BorrowerResponse;
-import pro.mbroker.app.entity.*;
+import pro.mbroker.app.entity.Bank;
+import pro.mbroker.app.entity.BankApplication;
+import pro.mbroker.app.entity.BorrowerEmployer;
+import pro.mbroker.app.entity.BorrowerProfile;
+import pro.mbroker.app.entity.BorrowerRealEstate;
+import pro.mbroker.app.entity.BorrowerVehicle;
+import pro.mbroker.app.entity.PartnerApplication;
 import pro.mbroker.app.exception.ItemConflictException;
 import pro.mbroker.app.exception.ItemNotFoundException;
 import pro.mbroker.app.exception.ProfileUpdateException;
@@ -27,7 +33,15 @@ import pro.mbroker.app.service.BorrowerProfileService;
 import pro.mbroker.app.service.PartnerApplicationService;
 
 import java.lang.reflect.Field;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -232,49 +246,24 @@ public class BorrowerProfileServiceImpl implements BorrowerProfileService {
         return entity;
     }
 
-    @Transactional
-    public BorrowerEmployer convertToBorrowerEmployer(EmployerDto dto, BorrowerEmployer employer) {
+    private BorrowerEmployer convertToBorrowerEmployer(EmployerDto dto, BorrowerEmployer employer) {
         if (Objects.isNull(dto)) {
             return null;
         }
-        BorrowerEmployer entity = (Objects.nonNull(employer)) ? employer : new BorrowerEmployer();
+        BorrowerEmployer entity = Optional.ofNullable(employer).orElse(new BorrowerEmployer());
         borrowerEmployerMapper.updateBorrowerEmployerFromDto(dto, entity);
-        deleteNotActualSalaryBanks(dto, employer);
-
-        if (dto.getSalaryBanks() != null) {
-            if(entity.getSalaryBanks() != null ) {
-                entity.getSalaryBanks().clear();
-            }
-            for (UUID id : dto.getSalaryBanks()) {
-                Bank bank = bankService.getBankById(id);
-                bank.setId(id);
-                bank.getEmployers().add(entity);
-                entity.getSalaryBanks().add(bank);
-            }
+        if (dto.getSalaryBanks() == null) {
+            entity.getSalaryBanks().clear();
+            return entity;
         }
-
+        Set<UUID> dtoBankIds = new HashSet<>(dto.getSalaryBanks());
+        Set<Bank> updatedBanks = entity.getSalaryBanks().stream()
+                .filter(bank -> dtoBankIds.contains(bank.getId()))
+                .collect(Collectors.toSet());
+        dtoBankIds.removeAll(entity.getSalaryBanks().stream().map(Bank::getId).collect(Collectors.toSet()));
+        List<Bank> banksToAdd = bankService.getAllBankByIds(dtoBankIds);
+        updatedBanks.addAll(banksToAdd);
+        entity.setSalaryBanks(updatedBanks);
         return entity;
-    }
-
-    @Transactional
-    public void deleteNotActualSalaryBanks(EmployerDto dto, BorrowerEmployer employer) {
-        if (dto.getSalaryBanks() != null && employer.getSalaryBanks() != null) {
-            Set<Bank> existBanks = employer.getSalaryBanks();
-
-            Set<UUID> newSalaryBanksIds = new HashSet<>(dto.getSalaryBanks());
-
-            Set<Bank> notActual = new HashSet<>(existBanks);
-
-            for (Bank bank : existBanks) {
-                if (newSalaryBanksIds.contains(bank.getId())) {
-                    notActual.remove(bank);
-                }
-            }
-
-            existBanks.removeAll(notActual);
-            for (Bank bank : existBanks) {
-                bankService.deleteRelationsByBankIdAndEmployerId(bank.getId(), employer.getId());
-            }
-        }
     }
 }
