@@ -25,4 +25,5 @@ public interface BorrowerProfileService {
 
     BorrowerProfile findByIdWithRealEstateVehicleAndEmployer(UUID borrowerProfileId);
 
+    void deleteSignatureForm(Long id);
 }

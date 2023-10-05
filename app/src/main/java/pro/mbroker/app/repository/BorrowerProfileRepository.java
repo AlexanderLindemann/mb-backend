@@ -16,4 +16,6 @@ public interface BorrowerProfileRepository extends JpaRepository<BorrowerProfile
             "LEFT JOIN FETCH e.salaryBanks " +
             "WHERE b.id = :id")
     Optional<BorrowerProfile> findByIdWithRealEstateVehicleAndEmployer(@Param("id") UUID id);
+
+    Optional<BorrowerProfile> findBorrowerProfileBySignedFormId(Long id);
 }

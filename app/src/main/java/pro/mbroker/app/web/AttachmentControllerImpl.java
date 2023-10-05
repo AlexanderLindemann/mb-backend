@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 import pro.mbroker.api.controller.AttachmentController;
+import pro.mbroker.api.dto.request.AttachmentRequest;
 import pro.mbroker.api.dto.request.BorrowerDocumentRequest;
 import pro.mbroker.api.dto.response.AttachmentInfo;
 import pro.mbroker.api.dto.response.BorrowerDocumentResponse;
@@ -16,7 +17,10 @@ import pro.mbroker.app.entity.BorrowerDocument;
 import pro.mbroker.app.entity.BorrowerProfile;
 import pro.mbroker.app.mapper.BorrowerDocumentMapper;
 import pro.mbroker.app.repository.BorrowerDocumentRepository;
-import pro.mbroker.app.service.*;
+import pro.mbroker.app.service.AttachmentService;
+import pro.mbroker.app.service.BorrowerDocumentService;
+import pro.mbroker.app.service.BorrowerProfileService;
+import pro.mbroker.app.service.PartnerApplicationService;
 
 import java.util.List;
 import java.util.Map;
@@ -86,6 +90,21 @@ public class AttachmentControllerImpl implements AttachmentController {
     public void deleteDocument(Long attachmentId) {
         borrowerDocumentService.deleteDocumentByAttachmentId(attachmentId); //TODO Как только фронт переедет на deleteBorrowerDocument MB-285
         attachmentService.markAttachmentAsDeleted(attachmentId);
+    }
+
+    @Override
+    public void deleteAttachment(AttachmentRequest attachmentRequest) {
+        attachmentService.markAttachmentAsDeleted(attachmentRequest.getId());
+        switch (attachmentRequest.getAttachmentType()) {
+            case SIGNATURE_FORM:
+                borrowerProfileService.deleteSignatureForm(attachmentRequest.getId());
+                break;
+            case BORROWER_DOCUMENT:
+                borrowerDocumentService.deleteDocumentByAttachmentId(attachmentRequest.getId());
+                break;
+            case OTHER:
+                break;
+        }
     }
 
     @Override

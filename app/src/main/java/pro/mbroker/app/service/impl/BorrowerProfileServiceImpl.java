@@ -173,6 +173,16 @@ public class BorrowerProfileServiceImpl implements BorrowerProfileService {
 
     @Override
     @Transactional
+    public void deleteSignatureForm(Long id) {
+        borrowerProfileRepository.findBorrowerProfileBySignedFormId(id)
+                .ifPresent(borrower -> {
+                    borrower.setSignedForm(null);
+                    borrowerProfileRepository.save(borrower);
+                });
+    }
+
+    @Override
+    @Transactional
     public BorrowerResponse createOrUpdateGenericBorrowerProfile(BorrowerRequest request) {
         PartnerApplication partnerApplication = partnerApplicationService.getPartnerApplication(request.getId());
         List<BorrowerProfile> borrowerProfilesToSave = new ArrayList<>();
