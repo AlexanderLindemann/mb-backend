@@ -1,10 +1,19 @@
 package pro.mbroker.app.util;
 
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.springframework.stereotype.Component;
-import pro.mbroker.app.entity.*;
+import pro.mbroker.app.entity.Bank;
+import pro.mbroker.app.entity.BankApplication;
+import pro.mbroker.app.entity.BankContact;
+import pro.mbroker.app.entity.BaseEntity;
+import pro.mbroker.app.entity.BorrowerProfile;
+import pro.mbroker.app.entity.Partner;
+import pro.mbroker.app.entity.PartnerApplication;
+import pro.mbroker.app.entity.RealEstate;
+import pro.smartdeal.ng.common.security.service.CurrentUserService;
 
 import java.util.Collection;
 
@@ -12,6 +21,9 @@ import java.util.Collection;
 @Component
 @RequiredArgsConstructor
 public class BaseEntityAuditAspect {
+
+    @NonNull
+    private final CurrentUserService currentUserService;
 
     @Before("execution(* pro.mbroker.app.repository.*.save(..)) && args(baseEntity, ..)")
     public void beforeSave(BaseEntity baseEntity) {
@@ -57,7 +69,7 @@ public class BaseEntityAuditAspect {
     }
 
     private void setAuditFields(BaseEntity baseEntity) {
-        String currentUserToken = "currentUserToken";
+        String currentUserToken = currentUserService.getCurrentUserToken();
         int sdId = extractSdIdFromToken(currentUserToken);
         if (baseEntity.getCreatedBy() == null) {
             baseEntity.setCreatedBy(sdId);
@@ -67,7 +79,7 @@ public class BaseEntityAuditAspect {
     }
 
     private int extractSdIdFromToken(String token) {
-        return 2222;
+        return TokenExtractor.extractSdId(token);
     }
 }
 

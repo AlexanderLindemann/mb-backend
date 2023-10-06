@@ -73,7 +73,8 @@ public class PartnerRealEstateServiceImpl implements PartnerRealEstateService {
     @Transactional(readOnly = true)
     public List<RealEstate> getCurrentRealEstate(int page, int size, String sortBy, String sortOrder) {
         Pageable pageable = Pagination.createPageable(page, size, sortBy, sortOrder);
-        int organizationId = 2633;
+        int organizationId = TokenExtractor
+                .extractSdCurrentOrganizationId(currentUserService.getCurrentUserToken());
         Partner partnerId = partnerRepository.findBySmartDealOrganizationId(organizationId)
                 .orElseThrow(() -> new ItemNotFoundException(Partner.class, organizationId));
         Specification<RealEstate> specification = RealEstateSpecification.realEstateByPartnerIdAndIsActive(partnerId.getId());

@@ -14,6 +14,7 @@ import pro.mbroker.api.enums.Gender;
 import pro.mbroker.api.enums.NumberOfEmployees;
 import pro.mbroker.api.enums.RealEstateType;
 import pro.mbroker.api.enums.TotalWorkExperience;
+import pro.mbroker.app.entity.Bank;
 import pro.mbroker.app.entity.BankApplication;
 import pro.mbroker.app.entity.BorrowerEmployer;
 import pro.mbroker.app.entity.BorrowerProfile;
@@ -30,6 +31,7 @@ import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -37,7 +39,6 @@ import java.util.function.Function;
 public class DocxFieldHandlerImpl implements DocxFieldHandler {
 
     public Map<String, String> replaceFieldValue(byte[] file, PartnerApplication partnerApplication, BorrowerProfile borrowerProfile) {
-       // Set<String> fields = extractFieldsFromDocx(file);
         BorrowerProfile mainBorrower;
         BankApplication bankApplication;
         OptionalInt maxMonthCreditTerm;
@@ -86,12 +87,14 @@ public class DocxFieldHandlerImpl implements DocxFieldHandler {
                         return "-";
                     }
                 });
+
                 put("realEstateType", (v) -> Optional.ofNullable(partnerApplication)
                         .map(PartnerApplication::getRealEstateType)
                         .map(RealEstateType::getName)
                         .orElse("-"));
 
                 put("creditPurposeType", (v) -> Objects.nonNull(partnerApplication.getCreditPurposeType()) ? partnerApplication.getCreditPurposeType().getName() : "-");
+
                 put("realEstateRegion", (v) -> {
                     if (Objects.nonNull(bankApplication) &&
                             Objects.nonNull(bankApplication.getPartnerApplication()) &&
@@ -105,9 +108,11 @@ public class DocxFieldHandlerImpl implements DocxFieldHandler {
                 put("borrowerRegistrationAddress", (v) -> Optional.ofNullable(borrowerProfile)
                         .map(BorrowerProfile::getRegistrationAddress)
                         .orElse("-"));
+
                 put("borrowerResidenceAddress", (v) -> Optional.ofNullable(borrowerProfile)
                         .map(BorrowerProfile::getResidenceAddress)
                         .orElse("-"));
+
                 put("borrowerPassportIssuedDate", (v) -> Optional.ofNullable(borrowerProfile.getPassportIssuedDate())
                         .map(LocalDate::toString)
                         .orElse("-"));
@@ -206,6 +211,7 @@ public class DocxFieldHandlerImpl implements DocxFieldHandler {
                                 .map(BorrowerEmployer::getPosition)
                                 .orElse("-"))
                         .orElse("-"));
+
                 put("borrowerCompanyWorkExperience", (v) -> Optional.ofNullable(borrowerProfile)
                         .map(profile -> Optional.ofNullable(profile.getEmployer())
                                 .map(employer -> Optional.ofNullable(employer.getWorkExperience())
@@ -258,28 +264,158 @@ public class DocxFieldHandlerImpl implements DocxFieldHandler {
                                         .orElse("-"))
                                 .orElse("-"))
                         .orElse("-"));
+
                 put("borrowerRealEstateBasisOfOwnership", (v) -> (Objects.nonNull(borrowerProfile)
                         && Objects.nonNull(borrowerProfile.getRealEstate())
                         && Objects.nonNull(borrowerProfile.getRealEstate().getBasisOfOwnership()))
                         ? borrowerProfile.getRealEstate().getBasisOfOwnership().getName()
                         : "-");
+
                 put("borrowerRealEstateShare", (v) -> (Objects.nonNull(borrowerProfile)
                         && Objects.nonNull(borrowerProfile.getRealEstate())
                         && Objects.nonNull(borrowerProfile.getRealEstate().getShare()))
                         ? borrowerProfile.getRealEstate().getShare().toString()
                         : "-");
+
                 put("borrowerRealEstateAddress", (v) -> Objects.nonNull(borrowerProfile)
                         && Objects.nonNull(borrowerProfile.getRealEstate())
                         ? borrowerProfile.getRealEstate().getAddress()
                         : "-");
+
                 put("borrowerRealEstateIsCollateral", (v) -> Objects.nonNull(borrowerProfile)
                         && Objects.nonNull(borrowerProfile.getRealEstate())
                         ? (borrowerProfile.getRealEstate().getIsCollateral()
                         ? "да" : "нет") : "-");
+
                 put("borrowerIncomeVerification", (v) -> Objects.nonNull(borrowerProfile)
                         ? borrowerProfile.getPassportNumber()
                         : "-");
+
                 put("contractDate", (v) -> LocalDate.now().toString());
+
+                put("borrowerTIN", (v) -> Objects.nonNull(borrowerProfile.getEmployer())
+                        ? borrowerProfile.getTIN().toString()
+                        : "-");
+
+                put("borrowerResidencyOutsideRU", (v) -> Objects.nonNull(borrowerProfile)
+                        && Objects.nonNull(borrowerProfile.getResidencyOutsideRU())
+                        ? borrowerProfile.getResidencyOutsideRU()
+                        : "-");
+
+                put("borrowerLongTermStayOutsideRU", (v) -> Objects.nonNull(borrowerProfile)
+                        && Objects.nonNull(borrowerProfile.getLongTermStayOutsideRU())
+                        ? borrowerProfile.getLongTermStayOutsideRU()
+                        : "-");
+
+                put("realEstateResidentialComplexName", (v) -> Objects.nonNull(partnerApplication.getRealEstate())
+                        ? partnerApplication.getRealEstate().getResidentialComplexName()
+                        : "-");
+
+                put("borrowerCompanyManager", (v) -> Objects.nonNull(borrowerProfile.getEmployer())
+                        && Objects.nonNull(borrowerProfile.getEmployer().getManager())
+                        ? borrowerProfile.getEmployer().getManager()
+                        : "-");
+
+                put("borrowerCompanyBankDetails", (v) -> Objects.nonNull(borrowerProfile.getEmployer())
+                        && Objects.nonNull(borrowerProfile.getEmployer().getBankDetails())
+                        ? borrowerProfile.getEmployer().getBankDetails()
+                        : "-");
+
+                put("borrowerMainIncome", (v) -> Objects.nonNull(borrowerProfile)
+                        && Objects.nonNull(borrowerProfile.getMainIncome())
+                        ? borrowerProfile.getMainIncome().toString()
+                        : "-");
+
+                put("borrowerAdditionalIncome", (v) -> Objects.nonNull(borrowerProfile)
+                        && Objects.nonNull(borrowerProfile.getAdditionalIncome())
+                        ? borrowerProfile.getAdditionalIncome().toString()
+                        : "-");
+
+                put("borrowerPension", (v) -> Objects.nonNull(borrowerProfile)
+                        && Objects.nonNull(borrowerProfile.getPension())
+                        ? borrowerProfile.getPension().toString()
+                        : "-");
+
+                put("borrowerRealEstateArea", (v) -> Objects.nonNull(borrowerProfile)
+                        && Objects.nonNull(borrowerProfile.getRealEstate())
+                        && Objects.nonNull(borrowerProfile.getRealEstate().getArea())
+                        ? borrowerProfile.getRealEstate().getArea().toString()
+                        : "-");
+
+                put("borrowerRealEstatePrice", (v) -> Objects.nonNull(borrowerProfile)
+                        && Objects.nonNull(borrowerProfile.getRealEstate())
+                        && Objects.nonNull(borrowerProfile.getRealEstate().getPrice())
+                        ? borrowerProfile.getRealEstate().getPrice().toString()
+                        : "-");
+
+                put("creditProgramName", (v) -> Objects.nonNull(bankApplication)
+                        && Objects.nonNull(bankApplication.getCreditProgram())
+                        && Objects.nonNull(bankApplication.getCreditProgram().getProgramName())
+                        ? bankApplication.getCreditProgram().getProgramName()
+                        : "-");
+
+                put("borrowerCompanySalaryBank", (v) -> {
+                    if (Objects.nonNull(borrowerProfile.getEmployer()) && Objects.nonNull(borrowerProfile.getEmployer().getSalaryBanks())) {
+                        return borrowerProfile.getEmployer().getSalaryBanks().stream()
+                                .map(Bank::getName)
+                                .collect(Collectors.joining(", "));
+                    } else {
+                        return "-";
+                    }
+                });
+
+                //todo доработать поля, когда будет расширение БД
+                put("borrowerBirthPlace", (v) -> "-");
+                put("borrowerFamilyRelation", (v) -> "-");
+                put("borrowerTINForeign", (v) -> "-");
+                put("borrowerCitezenship", (v) -> "-");
+                put("borrowerTaxResidencyCountries", (v) -> "-");
+                put("borrowerIsPublicOfficial", (v) -> "-");
+                put("borrowerRelatedPublicOfficial", (v) -> "-");
+                put("paymentSource", (v) -> "-");
+                put("maternalCapitalAmount", (v) -> "-");
+                put("subsidiesAmount", (v) -> "-");
+                put("insurance", (v) -> "-");
+                put("borrowerCompany2Name", (v) -> "-");
+                put("borrowerCompany2Inn", (v) -> "-");
+                put("borrowerCompany2Branch»", (v) -> "-");
+                put("borrowerCompany2EmployeeCount", (v) -> "-");
+                put("borrowerCompany2Existence", (v) -> "-");
+                put("borrowerCompany2PhoneNumber", (v) -> "-");
+                put("borrowerCompany2Site", (v) -> "-");
+                put("borrowerCompany2Address", (v) -> "-");
+                put("borrowerCompany2Position", (v) -> "-");
+                put("borrowerCompany2WorkExperience", (v) -> "-");
+                put("borrowerCompany2SalaryBank", (v) -> "-");
+                put("borrowerCompany2Manager", (v) -> "-");
+                put("borrowerCompany2BankDetails", (v) -> "-");
+                put("borrowerPrevCompanyName", (v) -> "-");
+                put("borrowerPrevCompanyInn", (v) -> "-");
+                put("borrowerPrevCompanyBranch", (v) -> "-");
+                put("borrowerPrevCompanyEmployeeCount", (v) -> "-");
+                put("borrowerPrevCompanyExistence", (v) -> "-");
+                put("borrowerPrevCompanyPhoneNumber", (v) -> "-");
+                put("borrowerPrevCompanySite", (v) -> "-");
+                put("borrowerPrevCompanyAddress", (v) -> "-");
+                put("borrowerPrevCompanyPosition", (v) -> "-");
+                put("borrowerPrevCompanyWorkExperience", (v) -> "-");
+                put("borrowerPrevCompanySalaryBank", (v) -> "-");
+                put("borrowerPrevCompanyManager", (v) -> "-");
+                put("borrowerPrevCompanyBankDetails", (v) -> "-");
+                put("borrowerRealEstate2Type", (v) -> "-");
+                put("borrowerRealEstate2BasisOfOwnership", (v) -> "-");
+                put("borrowerRealEstate2Area", (v) -> "-");
+                put("borrowerRealEstate2Price", (v) -> "-");
+                put("borrowerRealEstate2Share", (v) -> "-");
+                put("borrowerRealEstate2Address", (v) -> "-");
+                put("borrowerRealEstate2IsCollateral", (v) -> "-");
+                put("borrowerVehicle2Model", (v) -> "-");
+                put("borrowerVehicle2YearOfManufacture", (v) -> "-");
+                put("borrowerVehicle2BasisOfOwnership", (v) -> "-");
+                put("borrowerVehicle2Price", (v) -> "-");
+                put("borrowerVehicle2IsCollateral", (v) -> "-");
+                put("borrowerCompany2Branch", (v) -> "-");
+
             }
         };
         return
@@ -295,7 +431,7 @@ public class DocxFieldHandlerImpl implements DocxFieldHandler {
             String value = function.apply(null);
             replaceFields.put(key, value);
         }
-            return replaceFields;
+        return replaceFields;
     }
 
     public Set<String> extractFieldsFromDocx(byte[] file) {

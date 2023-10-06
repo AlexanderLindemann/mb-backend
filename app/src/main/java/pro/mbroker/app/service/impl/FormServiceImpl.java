@@ -39,6 +39,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 
 @Slf4j
@@ -64,9 +65,9 @@ public class FormServiceImpl implements FormService {
                 partnerApplication,
                 borrowerProfile);
         ByteArrayResource byteAreaResource = matchReplacements(replacements, filePath);
+        removeSignatureForm(borrowerProfile);
         return processFormResponse(byteAreaResource);
     }
-
 
     @Override
     public ResponseEntity<ByteArrayResource> signatureFormFile(UUID borrowerProfileId, byte[] signature) {
@@ -109,6 +110,15 @@ public class FormServiceImpl implements FormService {
         Attachment upload = attachmentService.upload(multipartFile);
         borrowerProfile.setSignedForm(upload);
         borrowerProfileRepository.save(borrowerProfile);
+    }
+
+    private void removeSignatureForm(BorrowerProfile borrowerProfile) {
+        Optional.ofNullable(borrowerProfile.getSignedForm())
+                .map(Attachment::getId)
+                .ifPresent(attachment -> {
+                    attachmentService.markAttachmentAsDeleted(attachment);
+                    borrowerProfileService.deleteSignatureForm(attachment);
+                });
     }
 
     private ResponseEntity<ByteArrayResource> processFormResponse(ByteArrayResource resource) {
@@ -215,7 +225,7 @@ public class FormServiceImpl implements FormService {
     private void addImageToParagraph(XWPFParagraph paragraph, byte[] imageBytes, int imageFormat) {
         try {
             XWPFRun run = paragraph.createRun();
-            run.addPicture(new ByteArrayInputStream(imageBytes), imageFormat, "signature.png", Units.toEMU(100), Units.toEMU(50));
+            run.addPicture(new ByteArrayInputStream(imageBytes), imageFormat, "signature.png", Units.toEMU(60), Units.toEMU(15));
         } catch (Exception e) {
             throw new RuntimeException("Could not add image to paragraph", e);
         }

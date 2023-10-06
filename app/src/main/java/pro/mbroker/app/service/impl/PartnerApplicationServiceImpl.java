@@ -54,6 +54,7 @@ import pro.mbroker.app.service.PartnerService;
 import pro.mbroker.app.service.RealEstateService;
 import pro.mbroker.app.util.Converter;
 import pro.mbroker.app.util.Pagination;
+import pro.mbroker.app.util.TokenExtractor;
 import pro.smartdeal.common.security.Permission;
 import pro.smartdeal.ng.common.security.service.CurrentUserService;
 
@@ -125,7 +126,7 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
                 UUID partnerId = partnerService.getCurrentPartner().getId();
                 result = partnerApplicationRepository.findAllIsActiveByPartnerId(start, end, partnerId, pageable);
             } else if (auth.getAuthorities().contains(new SimpleGrantedAuthority(Permission.Code.MB_REQUEST_READ_OWN.toString()))) {
-                Integer createdBy = 2222;
+                Integer createdBy = TokenExtractor.extractSdId(currentUserService.getCurrentUserToken());
                 result = partnerApplicationRepository.findAllByCreatedByAndIsActiveTrue(start, end, createdBy, pageable);
             } else {
                 log.warn("User does not have any valid permission to fetch partner applications");
@@ -590,8 +591,9 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
 
     private void checkPermission(Collection<? extends GrantedAuthority> authorities, PartnerApplication partnerApplication) {
         String currentUserToken = currentUserService.getCurrentUserToken();
-        Integer organizationId = 2222;
-        Integer sdId = 2222;
+        Integer organizationId = TokenExtractor.extractSdCurrentOrganizationId(currentUserToken);
+        Integer sdId = TokenExtractor.extractSdId(currentUserToken);
+
         if (authorities.contains(new SimpleGrantedAuthority(Permission.Code.MB_REQUEST_READ_ORGANIZATION)) &&
                 !partnerApplication.getPartner().getSmartDealOrganizationId().equals(organizationId)) {
             throw new AccessDeniedException("organization_id: " + organizationId, PartnerApplication.class);
