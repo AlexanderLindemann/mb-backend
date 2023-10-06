@@ -56,6 +56,7 @@ public class BankApplicationServiceImpl implements BankApplicationService {
     }
 
     @Override
+    @Transactional
     public BankApplication changeStatus(UUID bankApplicationId, BankApplicationStatus status) {
         BankApplication bankApplication = getBankApplicationById(bankApplicationId)
                 .setBankApplicationStatus(status);

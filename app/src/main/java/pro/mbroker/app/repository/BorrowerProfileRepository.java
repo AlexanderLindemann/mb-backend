@@ -2,7 +2,10 @@ package pro.mbroker.app.repository;
 
 import feign.Param;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.transaction.annotation.Transactional;
+import pro.mbroker.api.enums.BorrowerProfileStatus;
 import pro.mbroker.app.entity.BorrowerProfile;
 
 import java.util.Optional;
@@ -18,4 +21,10 @@ public interface BorrowerProfileRepository extends JpaRepository<BorrowerProfile
     Optional<BorrowerProfile> findByIdWithRealEstateVehicleAndEmployer(@Param("id") UUID id);
 
     Optional<BorrowerProfile> findBorrowerProfileBySignedFormId(Long id);
+
+    @Modifying
+    @Transactional
+    @Query("UPDATE BorrowerProfile bp SET bp.borrowerProfileStatus = :status WHERE bp.id = :profileId")
+    int updateBorrowerProfileStatus(@Param("profileId") UUID profileId, @Param("status") BorrowerProfileStatus status);
+
 }

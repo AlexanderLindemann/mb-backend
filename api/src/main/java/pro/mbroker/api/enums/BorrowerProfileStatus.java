@@ -10,7 +10,8 @@ import pro.smartdeal.common.enums.EnumWithValue;
 @DictionaryEnum(code = "BorrowerProfileStatus", name = "Статус заявки профиля заемщика")
 public enum BorrowerProfileStatus implements EnumWithValue<String> {
     DATA_NO_ENTERED("DATA_NO_ENTERED", "Внесены не все данные"),
-    DATA_ENTERED("DATA_ENTERED", "Внесены все данные");
+    DATA_ENTERED("DATA_ENTERED", "Документы не подписаны"),
+    DOCS_SIGNED("DOCS_SIGNED", "Документы подписаны");
 
 
     private final String value;

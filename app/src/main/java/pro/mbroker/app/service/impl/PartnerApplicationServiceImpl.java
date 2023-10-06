@@ -275,9 +275,9 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
             });
             if (allDocumentsPresent) {
                 borrowerProfile.setBorrowerProfileStatus(BorrowerProfileStatus.DATA_ENTERED);
-            } else {
+            } /*else {
                 borrowerProfile.setBorrowerProfileStatus(BorrowerProfileStatus.DATA_NO_ENTERED);
-            }
+            }*/
         }
         checkBankApplicationStatus(partnerApplication);
     }
@@ -626,9 +626,9 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
         for (BankApplication bankApplication : bankApplications) {
             if (allProfilesHaveRequiredDocuments(bankApplication, partnerApplication)) {
                 bankApplication.setBankApplicationStatus(BankApplicationStatus.READY_TO_SENDING);
-            } else {
+            } /*else {
                 bankApplication.setBankApplicationStatus(BankApplicationStatus.DATA_NO_ENTERED);
-            }
+            }*/
         }
     }
 

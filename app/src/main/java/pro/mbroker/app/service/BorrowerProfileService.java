@@ -3,6 +3,7 @@ package pro.mbroker.app.service;
 import pro.mbroker.api.dto.request.BorrowerProfileUpdateRequest;
 import pro.mbroker.api.dto.request.BorrowerRequest;
 import pro.mbroker.api.dto.response.BorrowerResponse;
+import pro.mbroker.api.enums.BorrowerProfileStatus;
 import pro.mbroker.app.entity.BorrowerProfile;
 
 import java.util.UUID;
@@ -26,4 +27,6 @@ public interface BorrowerProfileService {
     BorrowerProfile findByIdWithRealEstateVehicleAndEmployer(UUID borrowerProfileId);
 
     void deleteSignatureForm(Long id);
+
+    void updateBorrowerStatus (UUID borrowerProfileId, BorrowerProfileStatus status);
 }

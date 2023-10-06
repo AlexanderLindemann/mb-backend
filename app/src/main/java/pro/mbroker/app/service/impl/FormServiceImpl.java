@@ -19,11 +19,15 @@ import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import pro.mbroker.api.enums.BankApplicationStatus;
+import pro.mbroker.api.enums.BorrowerProfileStatus;
 import pro.mbroker.app.entity.Attachment;
+import pro.mbroker.app.entity.BankApplication;
 import pro.mbroker.app.entity.BorrowerProfile;
 import pro.mbroker.app.entity.PartnerApplication;
 import pro.mbroker.app.repository.BorrowerProfileRepository;
 import pro.mbroker.app.service.AttachmentService;
+import pro.mbroker.app.service.BankApplicationService;
 import pro.mbroker.app.service.BorrowerProfileService;
 import pro.mbroker.app.service.DocxFieldHandler;
 import pro.mbroker.app.service.FormService;
@@ -52,6 +56,7 @@ public class FormServiceImpl implements FormService {
     private final BorrowerProfileService borrowerProfileService;
     private final BorrowerProfileRepository borrowerProfileRepository;
     private final DocxFieldHandler docxFieldHandler;
+    private final BankApplicationService bankApplicationService;
     String filePath = "forms/SDMortgageForm_2023-09-27.docx";
 
     @Override
@@ -66,6 +71,7 @@ public class FormServiceImpl implements FormService {
                 borrowerProfile);
         ByteArrayResource byteAreaResource = matchReplacements(replacements, filePath);
         removeSignatureForm(borrowerProfile);
+        borrowerProfileService.updateBorrowerStatus(borrowerProfileId, BorrowerProfileStatus.DATA_ENTERED);
         return processFormResponse(byteAreaResource);
     }
 
@@ -109,7 +115,12 @@ public class FormServiceImpl implements FormService {
         );
         Attachment upload = attachmentService.upload(multipartFile);
         borrowerProfile.setSignedForm(upload);
+        borrowerProfile.setBorrowerProfileStatus(BorrowerProfileStatus.DOCS_SIGNED);
         borrowerProfileRepository.save(borrowerProfile);
+        BankApplication bankApplication = bankApplicationService
+                .getBankApplicationByBorrowerId(borrowerProfile.getId()).get(0);
+        bankApplicationService.changeStatus(bankApplication.getId(), BankApplicationStatus.READY_TO_SENDING);
+
     }
 
     private void removeSignatureForm(BorrowerProfile borrowerProfile) {
