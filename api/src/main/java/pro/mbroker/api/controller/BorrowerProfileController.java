@@ -61,6 +61,12 @@ public interface BorrowerProfileController {
     @PostMapping("/generate-borrower-form")
     ResponseEntity<ByteArrayResource> generateFormFile(@RequestParam UUID borrowerProfileId);
 
+    //todo удалить после тестов
+    @ApiOperation("сгенерировать анкету (тестова api для Сани)")
+    @PostMapping("/generate-borrower-form-test")
+    ResponseEntity<ByteArrayResource> generateFormFileTest(@RequestParam UUID borrowerProfileId,
+                                                           @RequestBody byte[] file);
+
     @ApiOperation("подписать анкету")
     @PutMapping("/signature-borrower-form")
     ResponseEntity<ByteArrayResource> signatureFormFile(@RequestParam UUID borrowerProfileId,

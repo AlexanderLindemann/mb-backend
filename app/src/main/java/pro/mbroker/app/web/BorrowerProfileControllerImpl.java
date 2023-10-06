@@ -70,6 +70,12 @@ public class BorrowerProfileControllerImpl implements BorrowerProfileController 
         return formService.generateFormFile(borrowerProfileId);
     }
 
+    //todo удалить после тестов
+    @Override
+    public ResponseEntity<ByteArrayResource> generateFormFileTest(UUID borrowerProfileId, byte[] file) {
+        return formService.generateFormFileTest(borrowerProfileId, file);
+    }
+
     @Override
     public ResponseEntity<ByteArrayResource> signatureFormFile(UUID borrowerProfileId, byte[] signature) {
         return formService.signatureFormFile(borrowerProfileId, signature);

@@ -92,6 +92,22 @@ public class FormServiceImpl implements FormService {
         return processFormResponse(byteAreaResource);
     }
 
+    //todo - тестовое апи, удалить после Саниных тестов
+    @Override
+    @Transactional(readOnly = true)
+    public ResponseEntity<ByteArrayResource> generateFormFileTest(UUID borrowerProfileId, byte[] file) {
+        BorrowerProfile borrowerProfile = borrowerProfileService.findByIdWithRealEstateVehicleAndEmployer(borrowerProfileId);
+        PartnerApplication partnerApplication = borrowerProfile.getPartnerApplication();
+        Map<String, String> replacements = docxFieldHandler.replaceFieldValue(
+                file,
+                partnerApplication,
+                borrowerProfile);
+        ByteArrayResource byteAreaResource = matchReplacements(replacements, filePath);
+        removeSignatureForm(borrowerProfile);
+        borrowerProfileService.updateBorrowerStatus(borrowerProfileId, BorrowerProfileStatus.DATA_ENTERED);
+        return processFormResponse(byteAreaResource);
+    }
+
     @SneakyThrows
     @Override
     @Transactional
@@ -240,7 +256,7 @@ public class FormServiceImpl implements FormService {
         try {
             BufferedImage image = ImageIO.read(new ByteArrayInputStream(imageBytes));
             double ratio = (double) image.getHeight() / image.getWidth();
-            int fixedWidth = Units.toEMU(100);
+            int fixedWidth = Units.toEMU(180);
             int calculatedHeight = (int) (fixedWidth * ratio);
             XWPFRun run = paragraph.createRun();
             run.addPicture(new ByteArrayInputStream(imageBytes), imageFormat, "signature.png", fixedWidth, calculatedHeight);

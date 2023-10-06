@@ -6,6 +6,9 @@ import org.springframework.http.ResponseEntity;
 import java.util.UUID;
 
 public interface FormService {
+    //todo удалить после тестов
+    ResponseEntity<ByteArrayResource> generateFormFileTest(UUID borrowerProfileId, byte[] file);
+
     ResponseEntity<ByteArrayResource> generateFormFile(UUID borrowerProfileId);
 
     ResponseEntity<ByteArrayResource> signatureFormFile(UUID borrowerProfileId, byte[] signature);
