@@ -293,7 +293,8 @@ public class DocxFieldHandlerImpl implements DocxFieldHandler {
 
                 put("contractDate", (v) -> LocalDate.now().toString());
 
-                put("borrowerTIN", (v) -> Objects.nonNull(borrowerProfile.getEmployer())
+                put("borrowerTIN", (v) -> Objects.nonNull(borrowerProfile)
+                        && Objects.nonNull(borrowerProfile.getTIN())
                         ? borrowerProfile.getTIN().toString()
                         : "-");
 
