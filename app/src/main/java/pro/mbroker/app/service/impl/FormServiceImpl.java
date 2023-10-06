@@ -33,6 +33,8 @@ import pro.mbroker.app.service.DocxFieldHandler;
 import pro.mbroker.app.service.FormService;
 import pro.mbroker.app.util.CustomMultipartFile;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -236,8 +238,12 @@ public class FormServiceImpl implements FormService {
 
     private void addImageToParagraph(XWPFParagraph paragraph, byte[] imageBytes, int imageFormat) {
         try {
+            BufferedImage image = ImageIO.read(new ByteArrayInputStream(imageBytes));
+            double ratio = (double) image.getHeight() / image.getWidth();
+            int fixedWidth = Units.toEMU(100);
+            int calculatedHeight = (int) (fixedWidth * ratio);
             XWPFRun run = paragraph.createRun();
-            run.addPicture(new ByteArrayInputStream(imageBytes), imageFormat, "signature.png", Units.toEMU(600), Units.toEMU(150));
+            run.addPicture(new ByteArrayInputStream(imageBytes), imageFormat, "signature.png", fixedWidth, calculatedHeight);
         } catch (Exception e) {
             throw new RuntimeException("Could not add image to paragraph", e);
         }
