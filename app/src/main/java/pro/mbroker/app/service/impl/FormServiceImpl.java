@@ -237,7 +237,7 @@ public class FormServiceImpl implements FormService {
     private void addImageToParagraph(XWPFParagraph paragraph, byte[] imageBytes, int imageFormat) {
         try {
             XWPFRun run = paragraph.createRun();
-            run.addPicture(new ByteArrayInputStream(imageBytes), imageFormat, "signature.png", Units.toEMU(60), Units.toEMU(15));
+            run.addPicture(new ByteArrayInputStream(imageBytes), imageFormat, "signature.png", Units.toEMU(600), Units.toEMU(150));
         } catch (Exception e) {
             throw new RuntimeException("Could not add image to paragraph", e);
         }
