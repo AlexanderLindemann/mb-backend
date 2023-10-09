@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.ColumnDefault;
 import pro.mbroker.api.enums.BorrowerProfileStatus;
 import pro.mbroker.api.enums.Education;
 import pro.mbroker.api.enums.EmploymentStatus;
@@ -54,6 +55,7 @@ public class BorrowerProfile extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "borrower_application_status")
+    @ColumnDefault("'DATA_NO_ENTERED'")
     private BorrowerProfileStatus borrowerProfileStatus;
 
     @Column(name = "prev_full_name")

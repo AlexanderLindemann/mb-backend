@@ -41,7 +41,6 @@ import pro.mbroker.app.service.PartnerApplicationService;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -74,6 +73,7 @@ public class BorrowerProfileServiceImpl implements BorrowerProfileService {
             List<BorrowerProfile> coBorrowerProfiles = request.getCoBorrower().stream()
                     .map(borrower -> prepareBorrowerProfile(partnerApplication, borrower))
                     .collect(Collectors.toList());
+
             borrowerProfilesToSave.addAll(coBorrowerProfiles);
         }
         if (Objects.nonNull(request.getMainBorrower())) {
@@ -101,12 +101,11 @@ public class BorrowerProfileServiceImpl implements BorrowerProfileService {
                 .filter(borrowerProfile -> !borrowerProfile.getId().equals(mainBorrower.getId()) && borrowerProfile.isActive())
                 .collect(Collectors.toMap(BorrowerProfile::getId, borrowerProfileMapper::toBorrowerProfileResponse));
 
-        List<BorrowerProfileResponse> sortedCoBorrowerProfiles = new ArrayList<>(coBorrowerProfiles.values());
-        sortedCoBorrowerProfiles.sort(Comparator.comparing(BorrowerProfileResponse::getCreatedAt));
+        List<BorrowerProfileResponse> coBorrowers = new ArrayList<>(coBorrowerProfiles.values());
 
         return new BorrowerResponse()
                 .setMainBorrower(borrowerProfileMapper.toBorrowerProfileResponse(mainBorrower))
-                .setCoBorrower(sortedCoBorrowerProfiles);
+                .setCoBorrower(coBorrowers);
     }
 
     @Override
@@ -272,12 +271,15 @@ public class BorrowerProfileServiceImpl implements BorrowerProfileService {
             List<BorrowerProfile> coBorrowerProfiles = request.getCoBorrower().stream()
                     .map(borrower -> prepareBorrowerProfile(partnerApplication, borrower))
                     .collect(Collectors.toList());
+
             borrowerProfilesToSave.addAll(coBorrowerProfiles);
         }
+
         if (Objects.nonNull(request.getMainBorrower())) {
             BorrowerProfile mainBorrowerProfile = prepareBorrowerProfile(partnerApplication, request.getMainBorrower());
             borrowerProfilesToSave.add(mainBorrowerProfile);
         }
+
         borrowerProfileRepository.saveAll(borrowerProfilesToSave);
         borrowerProfileRepository.flush();
         return getBorrowersByPartnerApplicationId(request.getId());

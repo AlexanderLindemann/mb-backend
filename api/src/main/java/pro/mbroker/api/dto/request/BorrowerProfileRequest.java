@@ -24,6 +24,6 @@ public class BorrowerProfileRequest {
 
     private String email;
 
-    private BorrowerProfileStatus status;
+    private BorrowerProfileStatus status = BorrowerProfileStatus.DATA_NO_ENTERED;
 
 }
