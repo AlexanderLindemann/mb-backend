@@ -94,7 +94,7 @@ public class FormServiceImpl implements FormService {
 
     //TODO - тестовое апи, удалить после Саниных тестов
     @Override
-    @Transactional(readOnly = true)
+    @Transactional
     public ResponseEntity<ByteArrayResource> generateFormFileTest(UUID borrowerProfileId, byte[] file) {
         BorrowerProfile borrowerProfile = borrowerProfileService.findByIdWithRealEstateVehicleAndEmployer(borrowerProfileId);
         PartnerApplication partnerApplication = borrowerProfile.getPartnerApplication();
