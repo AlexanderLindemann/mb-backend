@@ -170,18 +170,21 @@ public class BorrowerProfileServiceImpl implements BorrowerProfileService {
                 && isPassportInfoComplete(profile)
                 && isEmployerInfoComplete(profile)
                 && isIncomeInfoComplete(profile)) {
-            BankApplication bankApplication = bankApplicationService
-                    .getBankApplicationByBorrowerId(profile.getId()).get(0);
+            bankApplicationService.getBankApplicationByBorrowerId(profile.getId())
+                    .stream()
+                    .findFirst()
+                    .ifPresent(bankApplication -> {
+                        if (profile.getSignedForm() != null) {
+                            profile.setBorrowerProfileStatus(BorrowerProfileStatus.DOCS_SIGNED);
+                            bankApplicationService.changeStatus(bankApplication.getId(), BankApplicationStatus.READY_TO_SENDING);
+                        } else {
+                            profile.setBorrowerProfileStatus(BorrowerProfileStatus.DATA_ENTERED);
+                        }
+                    });
 
-                    if (profile.getSignedForm() != null) {
-                        profile.setBorrowerProfileStatus(BorrowerProfileStatus.DOCS_SIGNED);
-                        bankApplicationService
-                                .changeStatus(bankApplication.getId(), BankApplicationStatus.READY_TO_SENDING);
-                    } else {
-                        profile.setBorrowerProfileStatus(BorrowerProfileStatus.DATA_ENTERED);
-                    }
         }
     }
+
 
     private boolean isEmployerInfoComplete(BorrowerProfile profile) {
         BorrowerEmployer employer = profile.getEmployer();
@@ -210,7 +213,7 @@ public class BorrowerProfileServiceImpl implements BorrowerProfileService {
     private boolean isDocumentUploaded(List<BorrowerDocument> documents) {
         List<DocumentType> documentTypes = Arrays.asList(DocumentType.values());//todo возможно тут надо жестко прописат какие документы должны быть
         // иначе может появится не обязательный документ и метод упадет
-        return  documents.stream().allMatch(document -> documentTypes.contains(document.getDocumentType()));
+        return documents.stream().allMatch(document -> documentTypes.contains(document.getDocumentType()));
 
     }
 
@@ -224,7 +227,7 @@ public class BorrowerProfileServiceImpl implements BorrowerProfileService {
 
     }
 
-    private boolean isBorrowerMainInfoComplete (BorrowerProfile profile) {
+    private boolean isBorrowerMainInfoComplete(BorrowerProfile profile) {
 
         return profile.getEmployer() != null
                 && !StringUtils.isEmpty(profile.getFirstName())
