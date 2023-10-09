@@ -70,6 +70,7 @@ public class DocxFieldHandlerImpl implements DocxFieldHandler {
                         .map(BorrowerProfile::getTotalWorkExperience)
                         .map(TotalWorkExperience::getName)
                         .orElse("-"));
+
                 put("borrowerMarriageContract", (v) -> (Objects.nonNull(borrowerProfile.getMarriageContract()) ? borrowerProfile.getMarriageContract().getName() : "-"));
                 put("borrowerEmploymentStatus", (v) -> (Objects.nonNull(borrowerProfile.getEmploymentStatus())) ? borrowerProfile.getEmploymentStatus().getName() : "-");
                 put("borrowerChildren", (v) -> (Objects.nonNull(borrowerProfile.getChildren())) ? borrowerProfile.getChildren().toString() : "-");
@@ -107,12 +108,12 @@ public class DocxFieldHandlerImpl implements DocxFieldHandler {
                         return "-";
                     }
                 });
-                put("borrowerRegistrationAddress", (v) -> Optional.ofNullable(borrowerProfile)
-                        .map(BorrowerProfile::getRegistrationAddress)
+                put("borrowerRegistrationAddress", (v) -> Optional.ofNullable(borrowerProfile.getRegistrationAddress())
+                        .map(String::toString)
                         .orElse("-"));
 
-                put("borrowerResidenceAddress", (v) -> Optional.ofNullable(borrowerProfile)
-                        .map(BorrowerProfile::getResidenceAddress)
+                put("borrowerResidenceAddress", (v) -> Optional.ofNullable(borrowerProfile.getResidenceAddress())
+                        .map(String::toString)
                         .orElse("-"));
 
                 put("borrowerPassportIssuedDate", (v) -> Optional.ofNullable(borrowerProfile.getPassportIssuedDate())
@@ -145,42 +146,48 @@ public class DocxFieldHandlerImpl implements DocxFieldHandler {
 
                     return fio.length() < 1 ? "-" : fio.toString();
                 });
+
                 put("creditTermInYears", (v) -> Optional.ofNullable(maxMonthCreditTerm)
                         .map(value -> String.valueOf(value.getAsInt()))
                         .orElse("-"));
 
-                put("realEstatePrice", (v) -> Optional.ofNullable(bankApplication)
-                        .map(app -> Optional.ofNullable(app.getRealEstatePrice())
-                                .map(Object::toString)
-                                .orElse("-"))
-                        .orElse("-"));
 
-                put("borrowerPassportIssuedByCode", (v) -> Optional.ofNullable(borrowerProfile)
-                        .map(BorrowerProfile::getPassportIssuedByCode)
-                        .orElse("-"));
+                put("realEstatePrice", (v) -> Objects.nonNull(bankApplication)
+                        && Objects.nonNull(bankApplication.getRealEstatePrice())
+                        ? bankApplication.getRealEstatePrice().toString()
+                        : "-");
 
-                put("borrowerSNILS", (v) -> Optional.ofNullable(borrowerProfile)
-                        .map(BorrowerProfile::getSnils)
-                        .orElse("-"));
+                put("borrowerPassportIssuedByCode", (v) -> Objects.nonNull(borrowerProfile)
+                        && Objects.nonNull(borrowerProfile.getPassportIssuedByCode())
+                        ? borrowerProfile.getPassportIssuedByCode()
+                        : "-");
+
+                put("borrowerSNILS", (v) -> Objects.nonNull(borrowerProfile)
+                        && Objects.nonNull(borrowerProfile.getSnils())
+                        ? borrowerProfile.getSnils()
+                        : "-");
 
                 put("downPayment", (v) -> Optional.ofNullable(bankApplication)
                         .map(app -> Optional.ofNullable(app.getDownPayment())
                                 .map(Object::toString)
                                 .orElse("-"))
                         .orElse("-"));
+
                 put("borrowerBirthdate", (v) -> Optional.ofNullable(borrowerProfile)
                         .map(profile -> Optional.ofNullable(profile.getBirthdate())
                                 .map(Object::toString)
                                 .orElse("-"))
                         .orElse("-"));
 
-                put("borrowerPrevFullName", (v) -> Optional.ofNullable(borrowerProfile)
-                        .map(BorrowerProfile::getPrevFullName)
-                        .orElse("-"));
+                put("borrowerPrevFullName", (v) -> Objects.nonNull(borrowerProfile)
+                        && Objects.nonNull(borrowerProfile.getPrevFullName())
+                        ? borrowerProfile.getPrevFullName()
+                        : "-");
 
-                put("borrowerPhone", (v) -> Optional.ofNullable(borrowerProfile)
-                        .map(BorrowerProfile::getPhoneNumber)
-                        .orElse("-"));
+                put("borrowerPhone", (v) -> Objects.nonNull(borrowerProfile)
+                        && Objects.nonNull(borrowerProfile.getPhoneNumber())
+                        ? borrowerProfile.getPhoneNumber()
+                        : "-");
 
                 put("borrowerCompanyExistence", (v) -> Optional.ofNullable(borrowerProfile)
                         .map(profile -> Optional.ofNullable(profile.getEmployer())

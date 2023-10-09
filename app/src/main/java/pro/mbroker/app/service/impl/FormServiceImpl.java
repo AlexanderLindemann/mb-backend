@@ -136,10 +136,10 @@ public class FormServiceImpl implements FormService {
         borrowerProfile.setSignedForm(upload);
         borrowerProfile.setBorrowerProfileStatus(BorrowerProfileStatus.DOCS_SIGNED);
         borrowerProfileRepository.save(borrowerProfile);
-        BankApplication bankApplication = bankApplicationService
-                .getBankApplicationByBorrowerId(borrowerProfile.getId()).get(0);
-        bankApplicationService.changeStatus(bankApplication.getId(), BankApplicationStatus.READY_TO_SENDING);
-
+        bankApplicationService.getBankApplicationByBorrowerId(borrowerProfile.getId())
+                .stream()
+                .findFirst()
+                .ifPresent(bankApplication -> bankApplicationService.changeStatus(bankApplication.getId(), BankApplicationStatus.READY_TO_SENDING));
     }
 
     private void removeSignatureForm(BorrowerProfile borrowerProfile) {
