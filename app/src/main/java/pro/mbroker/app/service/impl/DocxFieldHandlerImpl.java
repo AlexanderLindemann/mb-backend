@@ -55,7 +55,9 @@ public class DocxFieldHandlerImpl implements DocxFieldHandler {
         }
         Map<String, Function<Void, String>> fieldMapping = new HashMap<>() {
             {
-                put("borrowerPassportNumber", (v) -> borrowerProfile.getPassportNumber());
+                put("borrowerPassportNumber", (v) -> (Objects.nonNull(borrowerProfile.getPassportNumber())
+                        ? borrowerProfile.getPassportNumber()
+                        : "-"));
                 put("borrowerType", (v) -> (Objects.nonNull(mainBorrower))
                         ? mainBorrower.getId().equals(borrowerProfile.getId())
                         ? "Заемщик" : "Созаемщик" : "-");
@@ -288,7 +290,8 @@ public class DocxFieldHandlerImpl implements DocxFieldHandler {
                         ? "да" : "нет") : "-");
 
                 put("borrowerIncomeVerification", (v) -> Objects.nonNull(borrowerProfile)
-                        ? borrowerProfile.getPassportNumber()
+                        && Objects.nonNull(borrowerProfile.getProofOfIncome())
+                        ? borrowerProfile.getProofOfIncome().toString()
                         : "-");
 
                 put("contractDate", (v) -> LocalDate.now().toString());
