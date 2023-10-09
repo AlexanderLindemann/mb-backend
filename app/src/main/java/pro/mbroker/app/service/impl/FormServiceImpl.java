@@ -22,7 +22,6 @@ import org.springframework.web.multipart.MultipartFile;
 import pro.mbroker.api.enums.BankApplicationStatus;
 import pro.mbroker.api.enums.BorrowerProfileStatus;
 import pro.mbroker.app.entity.Attachment;
-import pro.mbroker.app.entity.BankApplication;
 import pro.mbroker.app.entity.BorrowerProfile;
 import pro.mbroker.app.entity.PartnerApplication;
 import pro.mbroker.app.repository.BorrowerProfileRepository;
@@ -102,7 +101,7 @@ public class FormServiceImpl implements FormService {
                 file,
                 partnerApplication,
                 borrowerProfile);
-        ByteArrayResource byteAreaResource = matchReplacements(replacements, filePath);
+        ByteArrayResource byteAreaResource = matchReplacementsTest(replacements, file);
         removeSignatureForm(borrowerProfile);
         borrowerProfileService.updateBorrowerStatus(borrowerProfileId, BorrowerProfileStatus.DATA_ENTERED);
         return processFormResponse(byteAreaResource);
@@ -165,6 +164,22 @@ public class FormServiceImpl implements FormService {
     private ByteArrayResource matchReplacements(Map<String, String> replacements, String filePath) {
         byte[] file = getFileFromPath(filePath);
 
+        try (InputStream inputStream = new ByteArrayInputStream(file)) {
+            XWPFDocument document = new XWPFDocument(inputStream);
+            replaceTextInDocx(document, replacements);
+            ByteArrayOutputStream docxOutputStream = new ByteArrayOutputStream();
+            document.write(docxOutputStream);
+
+            return new ByteArrayResource(docxOutputStream.toByteArray());
+        } catch (IOException e) {
+            log.error("Error processing the form with replacements", e);
+            throw new RuntimeException(e);
+        }
+
+    }
+
+    //TODO удалить после тестов
+    private ByteArrayResource matchReplacementsTest(Map<String, String> replacements, byte[] file) {
         try (InputStream inputStream = new ByteArrayInputStream(file)) {
             XWPFDocument document = new XWPFDocument(inputStream);
             replaceTextInDocx(document, replacements);
