@@ -16,6 +16,7 @@ import pro.mbroker.app.service.BorrowerDocumentService;
 import pro.mbroker.app.service.BorrowerProfileService;
 import pro.mbroker.app.service.FormService;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.UUID;
 
 @Slf4j
@@ -55,8 +56,8 @@ public class BorrowerProfileControllerImpl implements BorrowerProfileController 
     }
 
     @Override
-    public void updateBorrowerProfileField(UUID borrowerProfileId, BorrowerProfileUpdateRequest updateRequest) {
-        borrowerProfileService.updateBorrowerProfileField(borrowerProfileId, updateRequest);
+    public void updateBorrowerProfileField(UUID borrowerProfileId, BorrowerProfileUpdateRequest updateRequest, HttpServletRequest request) {
+        borrowerProfileService.updateBorrowerProfileField(borrowerProfileId, updateRequest, request);
     }
 
     @Override

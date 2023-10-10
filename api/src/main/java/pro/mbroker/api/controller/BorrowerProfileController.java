@@ -19,6 +19,7 @@ import pro.mbroker.api.dto.request.BorrowerRequest;
 import pro.mbroker.api.dto.response.BorrowerProfileForUpdateResponse;
 import pro.mbroker.api.dto.response.BorrowerResponse;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.NotNull;
 import java.util.UUID;
 
@@ -51,7 +52,8 @@ public interface BorrowerProfileController {
     @ApiOperation("Добавить поле в профиль клиента")
     @PutMapping("/{borrowerProfileId}/updateField")
     void updateBorrowerProfileField(@ApiParam(value = "Идентификатор профиля") @PathVariable UUID borrowerProfileId,
-                                    @RequestBody BorrowerProfileUpdateRequest updateRequest);
+                                    @RequestBody BorrowerProfileUpdateRequest updateRequest,
+                                    HttpServletRequest request);
 
     @ApiOperation("получить полный профиль клиента")
     @GetMapping("/{borrowerProfileId}/full")

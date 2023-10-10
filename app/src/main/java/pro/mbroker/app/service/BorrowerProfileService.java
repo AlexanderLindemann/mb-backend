@@ -6,6 +6,7 @@ import pro.mbroker.api.dto.response.BorrowerResponse;
 import pro.mbroker.api.enums.BorrowerProfileStatus;
 import pro.mbroker.app.entity.BorrowerProfile;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.UUID;
 
 public interface BorrowerProfileService {
@@ -22,11 +23,11 @@ public interface BorrowerProfileService {
 
     BorrowerResponse getBorrowersByBankApplicationId(UUID bankApplicationId);
 
-    void updateBorrowerProfileField(UUID borrowerProfileId, BorrowerProfileUpdateRequest updateRequest);
+    void updateBorrowerProfileField(UUID borrowerProfileId, BorrowerProfileUpdateRequest updateRequest, HttpServletRequest request);
 
     BorrowerProfile findByIdWithRealEstateVehicleAndEmployer(UUID borrowerProfileId);
 
     void deleteSignatureForm(Long id);
 
-    void updateBorrowerStatus (UUID borrowerProfileId, BorrowerProfileStatus status);
+    void updateBorrowerStatus(UUID borrowerProfileId, BorrowerProfileStatus status);
 }

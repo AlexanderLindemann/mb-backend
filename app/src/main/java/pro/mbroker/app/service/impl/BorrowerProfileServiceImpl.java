@@ -1,10 +1,12 @@
 package pro.mbroker.app.service.impl;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.util.ContentCachingRequestWrapper;
 import pro.mbroker.api.dto.BorrowerRealEstateDto;
 import pro.mbroker.api.dto.BorrowerVehicleDto;
 import pro.mbroker.api.dto.EmployerDto;
@@ -38,9 +40,12 @@ import pro.mbroker.app.service.BankService;
 import pro.mbroker.app.service.BorrowerProfileService;
 import pro.mbroker.app.service.PartnerApplicationService;
 
+import javax.servlet.http.HttpServletRequest;
 import java.lang.reflect.Field;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -62,6 +67,7 @@ public class BorrowerProfileServiceImpl implements BorrowerProfileService {
     private final BorrowerRealEstateMapper borrowerRealEstateMapper;
     private final BorrowerVehicleMapper borrowerVehicleMapper;
     private final PartnerApplicationService partnerApplicationService;
+    private final ObjectMapper objectMapper;
 
     @Override
     @Transactional
@@ -125,35 +131,26 @@ public class BorrowerProfileServiceImpl implements BorrowerProfileService {
 
     @Override
     @Transactional
-    public void updateBorrowerProfileField(UUID borrowerProfileId, BorrowerProfileUpdateRequest updateRequest) {
+    public void updateBorrowerProfileField(UUID borrowerProfileId, BorrowerProfileUpdateRequest updateRequest, HttpServletRequest request) {
+        Map<String, Object> fieldsMap = extractFieldsFromRequest(request);
+        if (fieldsMap.isEmpty()) return;
         BorrowerProfile borrowerProfile = findByIdWithRealEstateVehicleAndEmployer(borrowerProfileId);
         for (Field field : BorrowerProfileUpdateRequest.class.getDeclaredFields()) {
             field.setAccessible(true);
             try {
                 Object value = field.get(updateRequest);
-                if (value != null) {
+                if (field.getType().isEnum() && fieldsMap.containsKey(field.getName()))
+                    updateEnumField(borrowerProfile, field, fieldsMap);
+                else if (value != null) {
                     Field borrowerProfileField = BorrowerProfile.class.getDeclaredField(field.getName());
                     borrowerProfileField.setAccessible(true);
-                    if (field.getName().equals("employer") && value instanceof EmployerDto) {
-                        BorrowerEmployer employer = borrowerProfile.getEmployer() != null
-                                ? borrowerProfile.getEmployer()
-                                : new BorrowerEmployer();
-                        BorrowerEmployer convertedEmployer = convertToBorrowerEmployer((EmployerDto) value, employer);
-                        Objects.requireNonNull(convertedEmployer).setBorrowerProfile(borrowerProfile);
-                        borrowerProfile.setEmployer(convertedEmployer);
-                    } else if (field.getName().equals("realEstate") && value instanceof BorrowerRealEstateDto) {
-                        BorrowerRealEstate realEstate = borrowerProfile.getRealEstate();
-                        BorrowerRealEstate convertedToBorrowerRealEstate = convertToBorrowerRealEstate((BorrowerRealEstateDto) value, realEstate);
-                        Objects.requireNonNull(convertedToBorrowerRealEstate).setBorrowerProfile(borrowerProfile);
-                        borrowerProfile.setRealEstate(convertedToBorrowerRealEstate);
-                    } else if (field.getName().equals("vehicle") && value instanceof BorrowerVehicleDto) {
-                        BorrowerVehicle vehicle = borrowerProfile.getVehicle();
-                        BorrowerVehicle convertToBorrowerVehicle = convertToBorrowerVehicle((BorrowerVehicleDto) value, vehicle);
-                        Objects.requireNonNull(convertToBorrowerVehicle).setBorrowerProfile(borrowerProfile);
-                        borrowerProfile.setVehicle(convertToBorrowerVehicle);
-                    } else {
-                        borrowerProfileField.set(borrowerProfile, value);
-                    }
+                    if (field.getName().equals("employer") && value instanceof EmployerDto)
+                        updateEmployerField(borrowerProfile, fieldsMap, value);
+                    else if (field.getName().equals("realEstate") && value instanceof BorrowerRealEstateDto)
+                        updateRealEstateField(borrowerProfile, fieldsMap, value);
+                    else if (field.getName().equals("vehicle") && value instanceof BorrowerVehicleDto)
+                        updateVehicleField(borrowerProfile, fieldsMap, value);
+                    else borrowerProfileField.set(borrowerProfile, value);
                 }
             } catch (NoSuchFieldException | IllegalAccessException e) {
                 throw new ProfileUpdateException(field.getName(), "Ошибка при обновлении профиля заемщика");
@@ -162,6 +159,90 @@ public class BorrowerProfileServiceImpl implements BorrowerProfileService {
         checkAndUpdateStatus(borrowerProfile);
         partnerApplicationService.statusChanger(borrowerProfile.getPartnerApplication());
         borrowerProfileRepository.save(borrowerProfile);
+    }
+
+    private void updateEnumField(BorrowerProfile borrowerProfile, Field field, Map<String, Object> fieldsMap) throws NoSuchFieldException, IllegalAccessException {
+        String enumValue = (String) fieldsMap.get(field.getName());
+        Field borrowerProfileField = BorrowerProfile.class.getDeclaredField(field.getName());
+        borrowerProfileField.setAccessible(true);
+        if (enumValue != null) {
+            Object updatedEnum = Enum.valueOf((Class<Enum>) field.getType(), enumValue);
+            borrowerProfileField.set(borrowerProfile, updatedEnum);
+        } else borrowerProfileField.set(borrowerProfile, null);
+
+    }
+
+    private void updateEmployerField(BorrowerProfile borrowerProfile, Map<String, Object> fieldsMap, Object value) throws NoSuchFieldException, IllegalAccessException {
+        BorrowerEmployer employer = borrowerProfile.getEmployer() != null ? borrowerProfile.getEmployer() : new BorrowerEmployer();
+        BorrowerEmployer convertedEmployer = convertToBorrowerEmployer((EmployerDto) value, employer);
+        updateObjectWithEnumsAndValues((Map<String, Object>) fieldsMap.get("employer"), convertedEmployer, BorrowerEmployer.class);
+        Objects.requireNonNull(convertedEmployer).setBorrowerProfile(borrowerProfile);
+        borrowerProfile.setEmployer(convertedEmployer);
+    }
+
+    private void updateRealEstateField(BorrowerProfile borrowerProfile, Map<String, Object> fieldsMap, Object value) {
+        BorrowerRealEstate realEstate = borrowerProfile.getRealEstate();
+        BorrowerRealEstate convertedToBorrowerRealEstate = convertToBorrowerRealEstate((BorrowerRealEstateDto) value, realEstate);
+        Map<String, Object> realEstateFieldsMap = (Map<String, Object>) fieldsMap.get("realEstate");
+        updateObjectWithEnumsAndValues(realEstateFieldsMap, convertedToBorrowerRealEstate, BorrowerRealEstate.class);
+        Objects.requireNonNull(convertedToBorrowerRealEstate).setBorrowerProfile(borrowerProfile);
+        borrowerProfile.setRealEstate(convertedToBorrowerRealEstate);
+    }
+
+    private void updateVehicleField(BorrowerProfile borrowerProfile, Map<String, Object> fieldsMap, Object value) {
+        BorrowerVehicle vehicle = borrowerProfile.getVehicle();
+        BorrowerVehicle convertToBorrowerVehicle = convertToBorrowerVehicle((BorrowerVehicleDto) value, vehicle);
+        Map<String, Object> vehicleFieldsMap = (Map<String, Object>) fieldsMap.get("vehicle");
+        updateObjectWithEnumsAndValues(vehicleFieldsMap, convertToBorrowerVehicle, BorrowerVehicle.class);
+        Objects.requireNonNull(convertToBorrowerVehicle).setBorrowerProfile(borrowerProfile);
+        borrowerProfile.setVehicle(convertToBorrowerVehicle);
+
+    }
+
+    private <T> void updateObjectWithEnumsAndValues(Map<String, Object> fieldsMap, T targetObject, Class<T> targetClass) {
+        for (Field field : targetClass.getDeclaredFields()) {
+            if (fieldsMap.containsKey(field.getName())) {
+                field.setAccessible(true);
+                if (field.getType().isEnum()) setField(targetObject, field, getEnumValue(field, fieldsMap));
+                else setField(targetObject, field, fieldsMap.get(field.getName()));
+
+            }
+        }
+    }
+
+    private Object getEnumValue(Field field, Map<String, Object> fieldsMap) {
+        String enumValue = (String) fieldsMap.get(field.getName());
+        if (enumValue != null) return Enum.valueOf((Class<Enum>) field.getType(), enumValue);
+        return null;
+    }
+
+    private <T> void setField(T targetObject, Field field, Object value) {
+        try {
+            field.set(targetObject, value);
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+
+    private Map<String, Object> extractFieldsFromRequest(HttpServletRequest request) {
+        new ContentCachingRequestWrapper(request);
+        ContentCachingRequestWrapper wrappedRequest;
+        String jsonPayload;
+        if (request instanceof ContentCachingRequestWrapper) {
+            wrappedRequest = (ContentCachingRequestWrapper) request;
+            byte[] content = wrappedRequest.getContentAsByteArray();
+            jsonPayload = new String(content, StandardCharsets.UTF_8);
+        } else {
+            log.warn("Request is not an instance of ContentCachingRequestWrapper");
+            return Collections.emptyMap();
+        }
+        try {
+            return objectMapper.readValue(jsonPayload, Map.class);
+        } catch (Exception e) {
+            log.error("Error during reading request payload", e);
+            return Collections.emptyMap();
+        }
     }
 
     private void checkAndUpdateStatus(BorrowerProfile profile) {
