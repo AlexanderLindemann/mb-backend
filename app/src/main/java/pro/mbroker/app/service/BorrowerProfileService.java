@@ -30,4 +30,6 @@ public interface BorrowerProfileService {
     void deleteSignatureForm(Long id);
 
     void updateBorrowerStatus(UUID borrowerProfileId, BorrowerProfileStatus status);
+
+    BorrowerProfile getBorrowerProfileBySignatureId(Long signatureId);
 }

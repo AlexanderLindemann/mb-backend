@@ -5,12 +5,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import pro.mbroker.api.controller.AttachmentController;
 import pro.mbroker.api.dto.request.AttachmentRequest;
 import pro.mbroker.api.dto.request.BorrowerDocumentRequest;
 import pro.mbroker.api.dto.response.AttachmentInfo;
 import pro.mbroker.api.dto.response.BorrowerDocumentResponse;
+import pro.mbroker.api.enums.BorrowerProfileStatus;
 import pro.mbroker.api.enums.DocumentType;
 import pro.mbroker.app.entity.BankApplication;
 import pro.mbroker.app.entity.BorrowerDocument;
@@ -93,8 +95,15 @@ public class AttachmentControllerImpl implements AttachmentController {
     }
 
     @Override
+    @Transactional
     public void deleteAttachment(AttachmentRequest attachmentRequest) {
+        var borrower = borrowerProfileService.getBorrowerProfileBySignatureId(attachmentRequest.getId());
+        if (borrower != null) {
+            borrowerProfileService.updateBorrowerStatus(borrower.getId(), BorrowerProfileStatus.DATA_ENTERED);
+        }
+
         attachmentService.markAttachmentAsDeleted(attachmentRequest.getId());
+
         switch (attachmentRequest.getAttachmentType()) {
             case SIGNATURE_FORM:
                 borrowerProfileService.deleteSignatureForm(attachmentRequest.getId());
@@ -105,6 +114,8 @@ public class AttachmentControllerImpl implements AttachmentController {
             case OTHER:
                 break;
         }
+
+        partnerApplicationService.statusChanger(Objects.requireNonNull(borrower).getPartnerApplication());
     }
 
     @Override

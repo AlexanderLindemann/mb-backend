@@ -267,17 +267,14 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
                     .collect(Collectors.toList());
             boolean allDocumentsPresent = requiredDocuments.stream().allMatch(requiredDocument -> {
                 DocumentType requiredType = requiredDocument.getDocumentType();
-                UUID requiredBankId = requiredDocument.getBankId();
                 return borrowerDocuments.stream().anyMatch(borrowerDocument ->
-                        borrowerDocument.getDocumentType() == requiredType &&
-                                (requiredType != DocumentType.APPLICATION_FORM ||
-                                        borrowerDocument.getBank().getId().equals(requiredBankId)));
+                        borrowerDocument.getDocumentType() == requiredType);
             });
+
+
             if (allDocumentsPresent) {
                 borrowerProfile.setBorrowerProfileStatus(BorrowerProfileStatus.DATA_ENTERED);
-            } /*else {
-                borrowerProfile.setBorrowerProfileStatus(BorrowerProfileStatus.DATA_NO_ENTERED);
-            }*/
+            }
         }
         checkBankApplicationStatus(partnerApplication);
     }

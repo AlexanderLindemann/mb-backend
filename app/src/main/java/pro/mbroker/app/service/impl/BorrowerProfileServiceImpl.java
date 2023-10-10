@@ -47,6 +47,7 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
@@ -419,4 +420,12 @@ public class BorrowerProfileServiceImpl implements BorrowerProfileService {
         updatedBanks.addAll(banksToAdd);
         employer.setSalaryBanks(updatedBanks);
     }
+
+    @Override
+    public BorrowerProfile getBorrowerProfileBySignatureId(Long signatureId) {
+        return borrowerProfileRepository.findBorrowerProfileBySignedFormId(signatureId)
+                .orElseThrow(() ->
+                        new NoSuchElementException("BorrowerProfile not found for signatureId: " + signatureId));
+    }
+
 }

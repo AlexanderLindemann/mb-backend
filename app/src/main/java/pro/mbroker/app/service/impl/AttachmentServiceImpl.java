@@ -26,8 +26,6 @@ import pro.smartdeal.ng.attachment.api.AttachmentControllerService;
 import pro.smartdeal.ng.attachment.api.pojo.AttachmentMeta;
 
 import java.io.IOException;
-import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -110,10 +108,12 @@ public class AttachmentServiceImpl implements AttachmentService {
         }
     }
 
+    @Transactional
     public void markAttachmentAsDeleted(Long attachmentId) {
         var attachment = attachmentRepository.findAttachmentById(attachmentId)
                 .orElseThrow(() -> new ItemNotFoundException(Attachment.class, attachmentId));
         attachment.setActive(false);
+
         attachmentRepository.save(attachment);
     }
 
