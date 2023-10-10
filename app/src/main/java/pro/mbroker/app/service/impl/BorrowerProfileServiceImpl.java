@@ -43,6 +43,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -100,11 +101,11 @@ public class BorrowerProfileServiceImpl implements BorrowerProfileService {
                 .filter(borrowerProfile -> !borrowerProfile.getId().equals(mainBorrower.getId()) && borrowerProfile.isActive())
                 .collect(Collectors.toMap(BorrowerProfile::getId, borrowerProfileMapper::toBorrowerProfileResponse));
 
-        List<BorrowerProfileResponse> coBorrowers = new ArrayList<>(coBorrowerProfiles.values());
-
+        List<BorrowerProfileResponse> sortedCoBorrowerProfiles = new ArrayList<>(coBorrowerProfiles.values());
+        sortedCoBorrowerProfiles.sort(Comparator.comparing(BorrowerProfileResponse::getCreatedAt));
         return new BorrowerResponse()
                 .setMainBorrower(borrowerProfileMapper.toBorrowerProfileResponse(mainBorrower))
-                .setCoBorrower(coBorrowers);
+                .setCoBorrower(sortedCoBorrowerProfiles);
     }
 
     @Override
@@ -117,9 +118,11 @@ public class BorrowerProfileServiceImpl implements BorrowerProfileService {
                 .stream()
                 .filter(borrowerProfile -> !borrowerProfile.getId().equals(mainBorrower.getId()) && borrowerProfile.isActive())
                 .collect(Collectors.toMap(BorrowerProfile::getId, borrowerProfileMapper::toBorrowerProfileResponse));
+        List<BorrowerProfileResponse> sortedCoBorrowerProfiles = new ArrayList<>(coBorrowerProfiles.values());
+        sortedCoBorrowerProfiles.sort(Comparator.comparing(BorrowerProfileResponse::getCreatedAt));
         return new BorrowerResponse()
                 .setMainBorrower(borrowerProfileMapper.toBorrowerProfileResponse(mainBorrower))
-                .setCoBorrower(new ArrayList<>(coBorrowerProfiles.values()));
+                .setCoBorrower(sortedCoBorrowerProfiles);
     }
 
     @Override
