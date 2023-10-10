@@ -30,10 +30,7 @@ import pro.mbroker.app.entity.PartnerApplication;
 import pro.mbroker.app.exception.ItemConflictException;
 import pro.mbroker.app.exception.ItemNotFoundException;
 import pro.mbroker.app.exception.ProfileUpdateException;
-import pro.mbroker.app.mapper.BorrowerEmployerMapper;
 import pro.mbroker.app.mapper.BorrowerProfileMapper;
-import pro.mbroker.app.mapper.BorrowerRealEstateMapper;
-import pro.mbroker.app.mapper.BorrowerVehicleMapper;
 import pro.mbroker.app.repository.BorrowerProfileRepository;
 import pro.mbroker.app.service.BankApplicationService;
 import pro.mbroker.app.service.BankService;
@@ -50,7 +47,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -63,9 +59,6 @@ public class BorrowerProfileServiceImpl implements BorrowerProfileService {
     private final BankApplicationService bankApplicationService;
     private final BankService bankService;
     private final BorrowerProfileMapper borrowerProfileMapper;
-    private final BorrowerEmployerMapper borrowerEmployerMapper;
-    private final BorrowerRealEstateMapper borrowerRealEstateMapper;
-    private final BorrowerVehicleMapper borrowerVehicleMapper;
     private final PartnerApplicationService partnerApplicationService;
     private final ObjectMapper objectMapper;
 
@@ -147,9 +140,9 @@ public class BorrowerProfileServiceImpl implements BorrowerProfileService {
                     if (field.getName().equals("employer") && value instanceof EmployerDto)
                         updateEmployerField(borrowerProfile, fieldsMap, value);
                     else if (field.getName().equals("realEstate") && value instanceof BorrowerRealEstateDto)
-                        updateRealEstateField(borrowerProfile, fieldsMap, value);
+                        updateRealEstateField(borrowerProfile, fieldsMap);
                     else if (field.getName().equals("vehicle") && value instanceof BorrowerVehicleDto)
-                        updateVehicleField(borrowerProfile, fieldsMap, value);
+                        updateVehicleField(borrowerProfile, fieldsMap);
                     else borrowerProfileField.set(borrowerProfile, value);
                 }
             } catch (NoSuchFieldException | IllegalAccessException e) {
@@ -172,40 +165,37 @@ public class BorrowerProfileServiceImpl implements BorrowerProfileService {
 
     }
 
-    private void updateEmployerField(BorrowerProfile borrowerProfile, Map<String, Object> fieldsMap, Object value) throws NoSuchFieldException, IllegalAccessException {
+    private void updateEmployerField(BorrowerProfile borrowerProfile, Map<String, Object> fieldsMap, Object value) {
         BorrowerEmployer employer = borrowerProfile.getEmployer() != null ? borrowerProfile.getEmployer() : new BorrowerEmployer();
-        BorrowerEmployer convertedEmployer = convertToBorrowerEmployer((EmployerDto) value, employer);
-        updateObjectWithEnumsAndValues((Map<String, Object>) fieldsMap.get("employer"), convertedEmployer, BorrowerEmployer.class);
-        Objects.requireNonNull(convertedEmployer).setBorrowerProfile(borrowerProfile);
-        borrowerProfile.setEmployer(convertedEmployer);
+        updateSalaryBank((EmployerDto) value, employer);
+        updateObjectWithEnumsAndValues((Map<String, Object>) fieldsMap.get("employer"), employer, BorrowerEmployer.class);
+        Objects.requireNonNull(employer).setBorrowerProfile(borrowerProfile);
+        borrowerProfile.setEmployer(employer);
     }
 
-    private void updateRealEstateField(BorrowerProfile borrowerProfile, Map<String, Object> fieldsMap, Object value) {
+    private void updateRealEstateField(BorrowerProfile borrowerProfile, Map<String, Object> fieldsMap) {
         BorrowerRealEstate realEstate = borrowerProfile.getRealEstate();
-        BorrowerRealEstate convertedToBorrowerRealEstate = convertToBorrowerRealEstate((BorrowerRealEstateDto) value, realEstate);
         Map<String, Object> realEstateFieldsMap = (Map<String, Object>) fieldsMap.get("realEstate");
-        updateObjectWithEnumsAndValues(realEstateFieldsMap, convertedToBorrowerRealEstate, BorrowerRealEstate.class);
-        Objects.requireNonNull(convertedToBorrowerRealEstate).setBorrowerProfile(borrowerProfile);
-        borrowerProfile.setRealEstate(convertedToBorrowerRealEstate);
+        updateObjectWithEnumsAndValues(realEstateFieldsMap, realEstate, BorrowerRealEstate.class);
+        Objects.requireNonNull(realEstate).setBorrowerProfile(borrowerProfile);
+        borrowerProfile.setRealEstate(realEstate);
     }
 
-    private void updateVehicleField(BorrowerProfile borrowerProfile, Map<String, Object> fieldsMap, Object value) {
+    private void updateVehicleField(BorrowerProfile borrowerProfile, Map<String, Object> fieldsMap) {
         BorrowerVehicle vehicle = borrowerProfile.getVehicle();
-        BorrowerVehicle convertToBorrowerVehicle = convertToBorrowerVehicle((BorrowerVehicleDto) value, vehicle);
         Map<String, Object> vehicleFieldsMap = (Map<String, Object>) fieldsMap.get("vehicle");
-        updateObjectWithEnumsAndValues(vehicleFieldsMap, convertToBorrowerVehicle, BorrowerVehicle.class);
-        Objects.requireNonNull(convertToBorrowerVehicle).setBorrowerProfile(borrowerProfile);
-        borrowerProfile.setVehicle(convertToBorrowerVehicle);
+        updateObjectWithEnumsAndValues(vehicleFieldsMap, vehicle, BorrowerVehicle.class);
+        Objects.requireNonNull(vehicle).setBorrowerProfile(borrowerProfile);
+        borrowerProfile.setVehicle(vehicle);
 
     }
 
     private <T> void updateObjectWithEnumsAndValues(Map<String, Object> fieldsMap, T targetObject, Class<T> targetClass) {
         for (Field field : targetClass.getDeclaredFields()) {
-            if (fieldsMap.containsKey(field.getName())) {
+            if (fieldsMap.containsKey(field.getName()) && !field.getName().equals("salaryBanks")) {
                 field.setAccessible(true);
                 if (field.getType().isEnum()) setField(targetObject, field, getEnumValue(field, fieldsMap));
                 else setField(targetObject, field, fieldsMap.get(field.getName()));
-
             }
         }
     }
@@ -382,6 +372,12 @@ public class BorrowerProfileServiceImpl implements BorrowerProfileService {
         }
     }
 
+    @Override
+    @Transactional
+    public void updateBorrowerStatus(UUID borrowerProfileId, BorrowerProfileStatus status) {
+        borrowerProfileRepository.updateBorrowerProfileStatus(borrowerProfileId, status);
+    }
+
     private BorrowerProfile prepareBorrowerProfile(PartnerApplication partnerApplication, BorrowerProfileRequest borrower) {
         BorrowerProfile borrowerProfile;
         if (borrower.getId() != null) {
@@ -403,48 +399,21 @@ public class BorrowerProfileServiceImpl implements BorrowerProfileService {
         return borrowerProfile;
     }
 
-    private BorrowerVehicle convertToBorrowerVehicle(BorrowerVehicleDto dto, BorrowerVehicle vehicle) {
+    private void updateSalaryBank(EmployerDto dto, BorrowerEmployer employer) {
         if (Objects.isNull(dto)) {
-            return null;
+            return;
         }
-        BorrowerVehicle entity = (Objects.nonNull(vehicle)) ? vehicle : new BorrowerVehicle();
-        borrowerVehicleMapper.updateBorrowerVehicleFromDto(dto, entity);
-        return entity;
-    }
-
-    private BorrowerRealEstate convertToBorrowerRealEstate(BorrowerRealEstateDto dto, BorrowerRealEstate realEstate) {
-        if (Objects.isNull(dto)) {
-            return null;
-        }
-        BorrowerRealEstate entity = (Objects.nonNull(realEstate)) ? realEstate : new BorrowerRealEstate();
-        borrowerRealEstateMapper.updateBorrowerRealEstateFromDto(dto, entity);
-        return entity;
-    }
-
-    private BorrowerEmployer convertToBorrowerEmployer(EmployerDto dto, BorrowerEmployer employer) {
-        if (Objects.isNull(dto)) {
-            return null;
-        }
-        BorrowerEmployer entity = Optional.ofNullable(employer).orElse(new BorrowerEmployer());
-        borrowerEmployerMapper.updateBorrowerEmployerFromDto(dto, entity);
         if (dto.getSalaryBanks() == null) {
-            entity.getSalaryBanks().clear();
-            return entity;
+            employer.getSalaryBanks().clear();
+            return;
         }
         Set<UUID> dtoBankIds = new HashSet<>(dto.getSalaryBanks());
-        Set<Bank> updatedBanks = entity.getSalaryBanks().stream()
+        Set<Bank> updatedBanks = employer.getSalaryBanks().stream()
                 .filter(bank -> dtoBankIds.contains(bank.getId()))
                 .collect(Collectors.toSet());
-        dtoBankIds.removeAll(entity.getSalaryBanks().stream().map(Bank::getId).collect(Collectors.toSet()));
+        dtoBankIds.removeAll(employer.getSalaryBanks().stream().map(Bank::getId).collect(Collectors.toSet()));
         List<Bank> banksToAdd = bankService.getAllBankByIds(dtoBankIds);
         updatedBanks.addAll(banksToAdd);
-        entity.setSalaryBanks(updatedBanks);
-        return entity;
-    }
-
-    @Override
-    @Transactional
-    public void updateBorrowerStatus(UUID borrowerProfileId, BorrowerProfileStatus status) {
-        borrowerProfileRepository.updateBorrowerProfileStatus(borrowerProfileId, status);
+        employer.setSalaryBanks(updatedBanks);
     }
 }

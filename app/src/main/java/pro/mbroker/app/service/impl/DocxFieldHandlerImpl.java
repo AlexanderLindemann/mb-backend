@@ -18,6 +18,7 @@ import pro.mbroker.app.entity.Bank;
 import pro.mbroker.app.entity.BankApplication;
 import pro.mbroker.app.entity.BorrowerEmployer;
 import pro.mbroker.app.entity.BorrowerProfile;
+import pro.mbroker.app.entity.CreditProgram;
 import pro.mbroker.app.entity.PartnerApplication;
 import pro.mbroker.app.service.DocxFieldHandler;
 import pro.mbroker.app.util.DocxFieldExtractor;
@@ -148,7 +149,7 @@ public class DocxFieldHandlerImpl implements DocxFieldHandler {
                 });
 
                 put("creditTermInYears", (v) -> Optional.ofNullable(maxMonthCreditTerm)
-                        .map(value -> String.valueOf(value.getAsInt()))
+                        .map(value -> String.valueOf(value.getAsInt() / 12))
                         .orElse("-"));
 
 
@@ -298,7 +299,7 @@ public class DocxFieldHandlerImpl implements DocxFieldHandler {
 
                 put("borrowerIncomeVerification", (v) -> Objects.nonNull(borrowerProfile)
                         && Objects.nonNull(borrowerProfile.getProofOfIncome())
-                        ? borrowerProfile.getProofOfIncome().toString()
+                        ? borrowerProfile.getProofOfIncome().getName()
                         : "-");
 
                 put("contractDate", (v) -> LocalDate.now().toString());
@@ -359,16 +360,25 @@ public class DocxFieldHandlerImpl implements DocxFieldHandler {
                         ? borrowerProfile.getRealEstate().getPrice().toString()
                         : "-");
 
-                put("creditProgramName", (v) -> Objects.nonNull(bankApplication)
-                        && Objects.nonNull(bankApplication.getCreditProgram())
-                        && Objects.nonNull(bankApplication.getCreditProgram().getProgramName())
-                        ? bankApplication.getCreditProgram().getProgramName()
-                        : "-");
-
                 put("borrowerCompanySalaryBank", (v) -> {
                     if (Objects.nonNull(borrowerProfile.getEmployer()) && Objects.nonNull(borrowerProfile.getEmployer().getSalaryBanks())) {
                         return borrowerProfile.getEmployer().getSalaryBanks().stream()
                                 .map(Bank::getName)
+                                .collect(Collectors.joining(", "));
+                    } else {
+                        return "-";
+                    }
+                });
+
+                put("borrowerResidenceRF", (v) -> Objects.nonNull(borrowerProfile)
+                        && Objects.nonNull(borrowerProfile.getResidenceRF())
+                        ? (borrowerProfile.getResidenceRF()
+                        ? "да" : "нет") : "-");
+
+                put("creditProgramName", (v) -> {
+                    if (Objects.nonNull(partnerApplication.getPartner()) && Objects.nonNull(partnerApplication.getPartner().getCreditPrograms())) {
+                        return partnerApplication.getPartner().getCreditPrograms().stream()
+                                .map(CreditProgram::getProgramName)
                                 .collect(Collectors.joining(", "));
                     } else {
                         return "-";

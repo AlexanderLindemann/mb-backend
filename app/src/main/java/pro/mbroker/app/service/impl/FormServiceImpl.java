@@ -58,7 +58,7 @@ public class FormServiceImpl implements FormService {
     private final BorrowerProfileRepository borrowerProfileRepository;
     private final DocxFieldHandler docxFieldHandler;
     private final BankApplicationService bankApplicationService;
-    String filePath = "forms/SDMortgageForm_2023-09-27.docx";
+    String filePath = "forms/form.docx";
 
     @Override
     @Transactional
