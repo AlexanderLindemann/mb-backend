@@ -109,11 +109,14 @@ public class AttachmentServiceImpl implements AttachmentService {
         }
     }
 
-    @Transactional
     public void markAttachmentAsDeleted(Long attachmentId) {
         var borrower = borrowerProfileRepository.findBorrowerProfileBySignedFormId(attachmentId);
-        borrower.ifPresent(profile -> borrowerProfileRepository.updateBorrowerProfileStatus(profile.getId(),
-                BorrowerProfileStatus.DATA_ENTERED));
+        borrower.ifPresent(profile -> {
+                    profile.setBorrowerProfileStatus(BorrowerProfileStatus.DATA_ENTERED);
+                    borrowerProfileRepository.save(profile);
+                    borrowerProfileRepository.flush();
+                }
+        );
 
         var attachment = attachmentRepository.findAttachmentById(attachmentId)
                 .orElseThrow(() -> new ItemNotFoundException(Attachment.class, attachmentId));
