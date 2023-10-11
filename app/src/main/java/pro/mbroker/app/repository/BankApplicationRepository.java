@@ -45,5 +45,4 @@ public interface BankApplicationRepository extends JpaRepository<BankApplication
     List<BankApplication> findAllByApplicationNumberIn(Collection<Integer> applicationNumbers);
 
     List<BankApplication> findByMainBorrowerId(UUID borrowerId);
-
 }

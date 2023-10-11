@@ -270,8 +270,6 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
                 return borrowerDocuments.stream().anyMatch(borrowerDocument ->
                         borrowerDocument.getDocumentType() == requiredType);
             });
-
-
             if (allDocumentsPresent) {
                 borrowerProfile.setBorrowerProfileStatus(BorrowerProfileStatus.DATA_ENTERED);
             }
@@ -622,10 +620,12 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
         bankApplications.removeIf(app -> !app.isActive() || UNCHANGEABLE_STATUSES.contains(app.getBankApplicationStatus()));
         for (BankApplication bankApplication : bankApplications) {
             if (allProfilesHaveRequiredDocuments(bankApplication, partnerApplication)) {
-                bankApplication.setBankApplicationStatus(BankApplicationStatus.READY_TO_SENDING);
-            } /*else {
+                if (bankApplication.getMainBorrower().getSignedForm().isActive()) {
+                    bankApplication.setBankApplicationStatus(BankApplicationStatus.READY_TO_SENDING);
+                }
+            } else {
                 bankApplication.setBankApplicationStatus(BankApplicationStatus.DATA_NO_ENTERED);
-            }*/
+            }
         }
     }
 

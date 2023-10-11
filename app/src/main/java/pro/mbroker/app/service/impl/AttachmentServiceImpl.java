@@ -113,7 +113,6 @@ public class AttachmentServiceImpl implements AttachmentService {
         var attachment = attachmentRepository.findAttachmentById(attachmentId)
                 .orElseThrow(() -> new ItemNotFoundException(Attachment.class, attachmentId));
         attachment.setActive(false);
-
         attachmentRepository.save(attachment);
     }
 
