@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import pro.mbroker.api.dto.request.BorrowerDocumentRequest;
 import pro.mbroker.api.dto.response.AttachmentInfo;
+import pro.mbroker.api.enums.BorrowerProfileStatus;
 import pro.mbroker.app.entity.Attachment;
 import pro.mbroker.app.entity.Bank;
 import pro.mbroker.app.entity.BorrowerDocument;
@@ -110,9 +111,14 @@ public class AttachmentServiceImpl implements AttachmentService {
 
     @Transactional
     public void markAttachmentAsDeleted(Long attachmentId) {
+        var borrower = borrowerProfileRepository.findBorrowerProfileBySignedFormId(attachmentId);
+        borrower.ifPresent(profile -> borrowerProfileRepository.updateBorrowerProfileStatus(profile.getId(),
+                BorrowerProfileStatus.DATA_ENTERED));
+
         var attachment = attachmentRepository.findAttachmentById(attachmentId)
                 .orElseThrow(() -> new ItemNotFoundException(Attachment.class, attachmentId));
         attachment.setActive(false);
+
         attachmentRepository.save(attachment);
     }
 

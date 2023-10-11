@@ -12,7 +12,6 @@ import pro.mbroker.api.dto.request.AttachmentRequest;
 import pro.mbroker.api.dto.request.BorrowerDocumentRequest;
 import pro.mbroker.api.dto.response.AttachmentInfo;
 import pro.mbroker.api.dto.response.BorrowerDocumentResponse;
-import pro.mbroker.api.enums.BorrowerProfileStatus;
 import pro.mbroker.api.enums.DocumentType;
 import pro.mbroker.app.entity.BankApplication;
 import pro.mbroker.app.entity.BorrowerDocument;
@@ -97,11 +96,6 @@ public class AttachmentControllerImpl implements AttachmentController {
     @Override
     @Transactional
     public void deleteAttachment(AttachmentRequest attachmentRequest) {
-        var borrower = borrowerProfileService.getBorrowerProfileBySignatureId(attachmentRequest.getId());
-        if (borrower != null) {
-            borrowerProfileService.updateBorrowerStatus(borrower.getId(), BorrowerProfileStatus.DATA_ENTERED);
-        }
-
         attachmentService.markAttachmentAsDeleted(attachmentRequest.getId());
 
         switch (attachmentRequest.getAttachmentType()) {
@@ -114,8 +108,6 @@ public class AttachmentControllerImpl implements AttachmentController {
             case OTHER:
                 break;
         }
-
-        partnerApplicationService.statusChanger(Objects.requireNonNull(borrower).getPartnerApplication());
     }
 
     @Override
