@@ -183,7 +183,7 @@ public class BorrowerProfileServiceImpl implements BorrowerProfileService {
     }
 
     private void updateRealEstateField(BorrowerProfile borrowerProfile, Map<String, Object> fieldsMap) {
-        BorrowerRealEstate realEstate = borrowerProfile.getRealEstate();
+        BorrowerRealEstate realEstate = borrowerProfile.getRealEstate() != null ? borrowerProfile.getRealEstate() : new BorrowerRealEstate();
         Map<String, Object> realEstateFieldsMap = (Map<String, Object>) fieldsMap.get("realEstate");
         updateObjectWithEnumsAndValues(realEstateFieldsMap, realEstate, BorrowerRealEstate.class);
         Objects.requireNonNull(realEstate).setBorrowerProfile(borrowerProfile);
@@ -191,7 +191,7 @@ public class BorrowerProfileServiceImpl implements BorrowerProfileService {
     }
 
     private void updateVehicleField(BorrowerProfile borrowerProfile, Map<String, Object> fieldsMap) {
-        BorrowerVehicle vehicle = borrowerProfile.getVehicle();
+        BorrowerVehicle vehicle = borrowerProfile.getVehicle() != null ? borrowerProfile.getVehicle() : new BorrowerVehicle();
         Map<String, Object> vehicleFieldsMap = (Map<String, Object>) fieldsMap.get("vehicle");
         updateObjectWithEnumsAndValues(vehicleFieldsMap, vehicle, BorrowerVehicle.class);
         Objects.requireNonNull(vehicle).setBorrowerProfile(borrowerProfile);
