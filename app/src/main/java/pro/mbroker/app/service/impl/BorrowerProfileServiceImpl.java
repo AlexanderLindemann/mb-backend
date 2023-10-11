@@ -38,6 +38,7 @@ import pro.mbroker.app.service.PartnerApplicationService;
 import javax.servlet.http.HttpServletRequest;
 import java.lang.reflect.Field;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -148,7 +149,12 @@ public class BorrowerProfileServiceImpl implements BorrowerProfileService {
                     } else if ("vehicle".equals(fieldName) && value instanceof Map) {
                         updateVehicleField(borrowerProfile, fieldsMap);
                     } else {
-                        borrowerProfileField.set(borrowerProfile, value);
+                        if (borrowerProfileField.getType().equals(LocalDate.class) && value instanceof String) {
+                            LocalDate dateValue = LocalDate.parse((String) value);
+                            borrowerProfileField.set(borrowerProfile, dateValue);
+                        } else {
+                            borrowerProfileField.set(borrowerProfile, value);
+                        }
                     }
                 }
             } catch (NoSuchFieldException | IllegalAccessException e) {
@@ -217,12 +223,16 @@ public class BorrowerProfileServiceImpl implements BorrowerProfileService {
 
     private <T> void setField(T targetObject, Field field, Object value) {
         try {
-            field.set(targetObject, value);
+            if (field.getType().equals(Float.class) && value instanceof Integer) {
+                Float floatValue = ((Integer) value).floatValue();
+                field.set(targetObject, floatValue);
+            } else {
+                field.set(targetObject, value);
+            }
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
         }
     }
-
 
     private Map<String, Object> extractFieldsFromRequest(HttpServletRequest request) {
         new ContentCachingRequestWrapper(request);
