@@ -7,8 +7,6 @@ import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.util.ContentCachingRequestWrapper;
-import pro.mbroker.api.dto.BorrowerRealEstateDto;
-import pro.mbroker.api.dto.BorrowerVehicleDto;
 import pro.mbroker.api.dto.EmployerDto;
 import pro.mbroker.api.dto.request.BorrowerProfileRequest;
 import pro.mbroker.api.dto.request.BorrowerProfileUpdateRequest;
@@ -132,31 +130,36 @@ public class BorrowerProfileServiceImpl implements BorrowerProfileService {
         Map<String, Object> fieldsMap = extractFieldsFromRequest(request);
         if (fieldsMap.isEmpty()) return;
         BorrowerProfile borrowerProfile = findByIdWithRealEstateVehicleAndEmployer(borrowerProfileId);
-        for (Field field : BorrowerProfileUpdateRequest.class.getDeclaredFields()) {
-            field.setAccessible(true);
+        for (Map.Entry<String, Object> entry : fieldsMap.entrySet()) {
+            String fieldName = entry.getKey();
+            Object value = entry.getValue();
             try {
-                Object value = field.get(updateRequest);
-                if (field.getType().isEnum() && fieldsMap.containsKey(field.getName()))
+                Field field = BorrowerProfileUpdateRequest.class.getDeclaredField(fieldName);
+                field.setAccessible(true);
+                if (field.getType().isEnum()) {
                     updateEnumField(borrowerProfile, field, fieldsMap);
-                else if (value != null) {
+                } else {
                     Field borrowerProfileField = BorrowerProfile.class.getDeclaredField(field.getName());
                     borrowerProfileField.setAccessible(true);
-                    if (field.getName().equals("employer") && value instanceof EmployerDto)
+                    if ("employer".equals(fieldName) && value instanceof Map) {
                         updateEmployerField(borrowerProfile, fieldsMap, value);
-                    else if (field.getName().equals("realEstate") && value instanceof BorrowerRealEstateDto)
+                    } else if ("realEstate".equals(fieldName) && value instanceof Map) {
                         updateRealEstateField(borrowerProfile, fieldsMap);
-                    else if (field.getName().equals("vehicle") && value instanceof BorrowerVehicleDto)
+                    } else if ("vehicle".equals(fieldName) && value instanceof Map) {
                         updateVehicleField(borrowerProfile, fieldsMap);
-                    else borrowerProfileField.set(borrowerProfile, value);
+                    } else {
+                        borrowerProfileField.set(borrowerProfile, value);
+                    }
                 }
             } catch (NoSuchFieldException | IllegalAccessException e) {
-                throw new ProfileUpdateException(field.getName(), "Ошибка при обновлении профиля заемщика");
+                throw new ProfileUpdateException(fieldName, "Ошибка при обновлении профиля заемщика");
             }
         }
         checkAndUpdateStatus(borrowerProfile);
         partnerApplicationService.statusChanger(borrowerProfile.getPartnerApplication());
         borrowerProfileRepository.save(borrowerProfile);
     }
+
 
     private void updateEnumField(BorrowerProfile borrowerProfile, Field field, Map<String, Object> fieldsMap) throws NoSuchFieldException, IllegalAccessException {
         String enumValue = (String) fieldsMap.get(field.getName());
@@ -171,7 +174,9 @@ public class BorrowerProfileServiceImpl implements BorrowerProfileService {
 
     private void updateEmployerField(BorrowerProfile borrowerProfile, Map<String, Object> fieldsMap, Object value) {
         BorrowerEmployer employer = borrowerProfile.getEmployer() != null ? borrowerProfile.getEmployer() : new BorrowerEmployer();
-        updateSalaryBank((EmployerDto) value, employer);
+        ObjectMapper mapper = new ObjectMapper();
+        EmployerDto employerDto = mapper.convertValue(value, EmployerDto.class);
+        updateSalaryBank(employerDto, employer);
         updateObjectWithEnumsAndValues((Map<String, Object>) fieldsMap.get("employer"), employer, BorrowerEmployer.class);
         Objects.requireNonNull(employer).setBorrowerProfile(borrowerProfile);
         borrowerProfile.setEmployer(employer);
