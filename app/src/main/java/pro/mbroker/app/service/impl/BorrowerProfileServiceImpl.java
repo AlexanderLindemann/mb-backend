@@ -259,6 +259,8 @@ public class BorrowerProfileServiceImpl implements BorrowerProfileService {
                 && isPassportInfoComplete(profile)
                 && isEmployerInfoComplete(profile)
                 && isIncomeInfoComplete(profile)) {
+
+            partnerApplicationService.statusChanger(profile.getPartnerApplication());
             bankApplicationService.getBankApplicationByBorrowerId(profile.getId())
                     .stream()
                     .findFirst()

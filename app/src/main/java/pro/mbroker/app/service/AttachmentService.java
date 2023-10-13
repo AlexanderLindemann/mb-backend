@@ -73,4 +73,6 @@ public interface AttachmentService {
      * @return список преобразованных вложений
      */
     List<AttachmentInfo> getConvertedFiles(List<Long> attachmentsIds);
+
+    public BorrowerDocument saveBorrowerDocument (Attachment attachment, BorrowerDocumentRequest documentDto);
 }

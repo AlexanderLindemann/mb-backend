@@ -236,45 +236,49 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
         if (Objects.isNull(partnerApplication.getPartnerApplicationStatus())) {
             partnerApplication.setPartnerApplicationStatus(PartnerApplicationStatus.UPLOADING_DOCS);
         }
-        partnerApplication.getBankApplications().forEach(bankApplication -> {
-            if (Objects.isNull(bankApplication.getBankApplicationStatus())) {
-                bankApplication.setBankApplicationStatus(BankApplicationStatus.DATA_NO_ENTERED);
-            }
-        });
+
         partnerApplication.getBorrowerProfiles().forEach(borrowerProfile -> {
             if (Objects.isNull(borrowerProfile.getBorrowerProfileStatus())) {
                 borrowerProfile.setBorrowerProfileStatus(BorrowerProfileStatus.DATA_NO_ENTERED);
             }
         });
+
         if (Objects.nonNull(partnerApplication.getId())) {
-            checkDocumentStatus(partnerApplication);
+            checkBorrowerStatus(partnerApplication);
         }
+
+        partnerApplication.getBankApplications().forEach(bankApplication -> {
+            if (Objects.isNull(bankApplication.getBankApplicationStatus())) {
+                bankApplication.setBankApplicationStatus(BankApplicationStatus.DATA_NO_ENTERED);
+            }
+        });
+
+        if (Objects.nonNull(partnerApplication.getId())) {
+            checkBankApplicationStatus(partnerApplication);
+        }
+
+
         return partnerApplicationRepository.save(partnerApplication);
     }
 
     @Transactional
-    public void checkDocumentStatus(PartnerApplication partnerApplication) {
-        List<RequiredDocumentResponse> requiredDocuments = getRequiredDocuments(partnerApplication.getId())
-                .stream()
-                .filter(requiredDocument ->
-                        requiredDocument.getDocumentType() != DocumentType.DATA_PROCESSING_AGREEMENT &&
-                                requiredDocument.getDocumentType() != DocumentType.CERTIFIED_COPY_TK &&
-                                requiredDocument.getDocumentType() != DocumentType.INCOME_CERTIFICATE)
-                .collect(Collectors.toList());
+    public void checkBorrowerStatus(PartnerApplication partnerApplication) {
         for (BorrowerProfile borrowerProfile : partnerApplication.getBorrowerProfiles()) {
             List<BorrowerDocument> borrowerDocuments = borrowerProfile.getBorrowerDocument().stream()
                     .filter(BorrowerDocument::isActive)
                     .collect(Collectors.toList());
-            boolean allDocumentsPresent = requiredDocuments.stream().allMatch(requiredDocument -> {
-                DocumentType requiredType = requiredDocument.getDocumentType();
-                return borrowerDocuments.stream().anyMatch(borrowerDocument ->
-                        borrowerDocument.getDocumentType() == requiredType);
-            });
+            Bank bank = partnerApplication.getBankApplications().stream().findFirst().get().getCreditProgram().getBank();
+
+            boolean allDocumentsPresent = checkRequiredDocuments(borrowerDocuments, bank);
+
             if (allDocumentsPresent) {
-                borrowerProfile.setBorrowerProfileStatus(BorrowerProfileStatus.DATA_ENTERED);
-            }
+                if (borrowerProfile.getSignedForm() != null) {
+                    borrowerProfile.setBorrowerProfileStatus(BorrowerProfileStatus.DOCS_SIGNED);
+                } else {
+                    borrowerProfile.setBorrowerProfileStatus(BorrowerProfileStatus.DATA_ENTERED);
+                }
+            } else  borrowerProfile.setBorrowerProfileStatus(BorrowerProfileStatus.DATA_NO_ENTERED);
         }
-        checkBankApplicationStatus(partnerApplication);
     }
 
 
@@ -287,7 +291,7 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
     }
 
     @Override
-    @Transactional(readOnly = true)
+    @Transactional
     public PartnerApplicationResponse buildPartnerApplicationResponse(PartnerApplication partnerApplication) {
         PartnerApplicationResponse response = partnerApplicationMapper.toPartnerApplicationResponse(partnerApplication);
         Map<UUID, BorrowerProfile> borrowerProfileMap = getActiveBorrowerProfilesMap(partnerApplication);
@@ -625,9 +629,11 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
     private void checkBankApplicationStatus(PartnerApplication partnerApplication) {
         List<BankApplication> bankApplications = new ArrayList<>(partnerApplication.getBankApplications());
         bankApplications.removeIf(app -> !app.isActive() || UNCHANGEABLE_STATUSES.contains(app.getBankApplicationStatus()));
+        boolean borrowersInSignedStatus = allBorrowerInSignedStatus(partnerApplication.getBorrowerProfiles());
         for (BankApplication bankApplication : bankApplications) {
             if (allProfilesHaveRequiredDocuments(bankApplication, partnerApplication)) {
-                if (bankApplication.getMainBorrower().getSignedForm().isActive()) {
+                if (borrowersInSignedStatus
+                        && bankApplication.getBankApplicationStatus() == BankApplicationStatus.DATA_NO_ENTERED) {
                     bankApplication.setBankApplicationStatus(BankApplicationStatus.READY_TO_SENDING);
                 }
             } else {
@@ -636,13 +642,20 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
         }
     }
 
+    private boolean allBorrowerInSignedStatus(List<BorrowerProfile> borrowers) {
+        return borrowers.stream()
+                .filter(BorrowerProfile::isActive)
+                .allMatch(x -> x.getBorrowerProfileStatus() == BorrowerProfileStatus.DOCS_SIGNED);
+    }
+
+
     private boolean allProfilesHaveRequiredDocuments(BankApplication bankApplication, PartnerApplication partnerApplication) {
         Bank bank = bankApplication.getCreditProgram().getBank();
         List<BorrowerProfile> borrowerProfiles = partnerApplication.getBorrowerProfiles();
-        return borrowerProfiles.stream()
-                .allMatch(borrowerProfile ->
+        return borrowerProfiles.stream().filter(bp -> bp.isActive()).allMatch(borrowerProfile ->
+                        borrowerProfile.getSignedForm().isActive() &&
                         checkRequiredDocuments(borrowerProfile.getBorrowerDocument(), bank)
-                );
+        );
     }
 
     private boolean checkRequiredDocuments(List<BorrowerDocument> borrowerDocuments, Bank bank) {
@@ -650,10 +663,8 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
                 .filter(BorrowerDocument::isActive)
                 .map(BorrowerDocument::getDocumentType)
                 .collect(Collectors.toSet());
-        boolean allRequiredDocumentsPresent = documentTypes.containsAll(REQUIRED_DOCUMENT_TYPES);
-        boolean applicationFormDocumentPresent = borrowerDocuments.stream()
-                .anyMatch(doc -> doc.getDocumentType().equals(DocumentType.APPLICATION_FORM) && doc.getBank().equals(bank));
-        return allRequiredDocumentsPresent && applicationFormDocumentPresent;
+
+        return documentTypes.containsAll(REQUIRED_DOCUMENT_TYPES);
     }
 
 }

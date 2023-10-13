@@ -1,10 +1,13 @@
 package pro.mbroker.app.mapper;
 
-import org.mapstruct.*;
+import org.mapstruct.AfterMapping;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
+import org.mapstruct.Named;
 import pro.mbroker.api.dto.request.BankApplicationRequest;
 import pro.mbroker.api.dto.request.BankApplicationUpdateRequest;
 import pro.mbroker.api.dto.response.BankApplicationResponse;
-import pro.mbroker.api.enums.BankApplicationStatus;
 import pro.mbroker.app.entity.BankApplication;
 
 import java.util.ArrayList;
@@ -99,7 +102,6 @@ public interface BankApplicationMapper {
         if (existing == null) {
             existing = new BankApplication();
         }
-        existing.setBankApplicationStatus(BankApplicationStatus.DATA_NO_ENTERED);
         existing.setMonthlyPayment(request.getMonthlyPayment());
         existing.setRealEstatePrice(request.getRealEstatePrice());
         existing.setDownPayment(request.getDownPayment());

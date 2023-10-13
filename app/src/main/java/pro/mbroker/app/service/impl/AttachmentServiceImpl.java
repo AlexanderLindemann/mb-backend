@@ -63,17 +63,35 @@ public class AttachmentServiceImpl implements AttachmentService {
 
     @Override
     @Transactional
-    public BorrowerDocument uploadDocument(MultipartFile file,
-                                           BorrowerDocumentRequest documentDto) {
+    public BorrowerDocument uploadDocument(MultipartFile file, BorrowerDocumentRequest documentDto) {
         Attachment attachment = upload(file);
+
         var borrowerProfile = borrowerProfileRepository.findById(documentDto.getBorrowerProfileId())
                 .orElseThrow(() -> new ItemNotFoundException(BorrowerProfile.class, documentDto.getBorrowerProfileId()));
+
         BorrowerDocument borrowerDocument = new BorrowerDocument().setAttachment(attachment)
                 .setDocumentType(documentDto.getDocumentType()).setBorrowerProfile(borrowerProfile);
         if (Objects.nonNull(documentDto.getBankId())) {
             borrowerDocument.setBank(bankRepository.findById(documentDto.getBankId())
                     .orElseThrow(() -> new ItemNotFoundException(Bank.class, documentDto.getBankId())));
         }
+
+        return borrowerDocumentRepository.save(borrowerDocument);
+    }
+
+    @Override
+    @Transactional
+    public BorrowerDocument saveBorrowerDocument (Attachment attachment, BorrowerDocumentRequest documentDto) {
+        var borrowerProfile = borrowerProfileRepository.findById(documentDto.getBorrowerProfileId())
+                .orElseThrow(() -> new ItemNotFoundException(BorrowerProfile.class, documentDto.getBorrowerProfileId()));
+
+        BorrowerDocument borrowerDocument = new BorrowerDocument().setAttachment(attachment)
+                .setDocumentType(documentDto.getDocumentType()).setBorrowerProfile(borrowerProfile);
+        if (Objects.nonNull(documentDto.getBankId())) {
+            borrowerDocument.setBank(bankRepository.findById(documentDto.getBankId())
+                    .orElseThrow(() -> new ItemNotFoundException(Bank.class, documentDto.getBankId())));
+        }
+
         return borrowerDocumentRepository.save(borrowerDocument);
     }
 
