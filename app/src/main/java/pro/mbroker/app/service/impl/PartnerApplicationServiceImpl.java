@@ -164,7 +164,7 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
     @Transactional
     public PartnerApplication createPartnerApplication(PartnerApplicationRequest request) {
         PartnerApplication partnerApplication = getPartnerApplication(request);
-        List<BankApplication> bankApplications = buildBankApplications(request.getBankApplications(), partnerApplication);
+        List<BankApplication> bankApplications = buildBankApplications(request, partnerApplication);
         partnerApplication.setBankApplications(bankApplications);
         updateMainBorrower(partnerApplication, request.getMainBorrower());
         return statusChanger(partnerApplication);
@@ -182,7 +182,7 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
                 existingPartnerApplication.getMortgageCalculation());
         setSalaryBank(request, existingPartnerApplication);
         existingPartnerApplication.setRealEstate(realEstateService.findById(request.getRealEstateId()));
-        List<BankApplication> updatedBorrowerApplications = buildBankApplications(request.getBankApplications(), existingPartnerApplication);
+        List<BankApplication> updatedBorrowerApplications = buildBankApplications(request, existingPartnerApplication);
         existingPartnerApplication.setBankApplications(updatedBorrowerApplications);
         return statusChanger(existingPartnerApplication);
     }
@@ -536,8 +536,14 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
                 .orElseThrow(() -> new ItemNotFoundException(BorrowerProfile.class, borrowerProfileId));
     }
 
-    private List<BankApplication> buildBankApplications(List<BankApplicationRequest> requests, PartnerApplication partnerApplication) {
-        List<UUID> updateCreditProgramIds = requests.stream()
+    private List<BankApplication> buildBankApplications(PartnerApplicationRequest requests, PartnerApplication partnerApplication) {
+        Optional<BorrowerProfileRequest> optionalBorrower = Optional.ofNullable(requests.getMainBorrower());
+        BorrowerProfile mainBorrower = optionalBorrower
+                .filter(borrower -> Objects.nonNull(borrower.getId()))
+                .map(borrower -> getBorrowerProfile(borrower.getId()))
+                .orElseGet(() -> borrowerProfileMapper.toBorrowerProfile(optionalBorrower.orElse(null)));
+        List<BankApplicationRequest> bankApplicationRequests = requests.getBankApplications();
+        List<UUID> updateCreditProgramIds = bankApplicationRequests.stream()
                 .map(BankApplicationRequest::getCreditProgramId)
                 .collect(Collectors.toList());
         MortgageCalculation mortgageCalculation = partnerApplication.getMortgageCalculation();
@@ -547,12 +553,13 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
         Map<UUID, BankApplication> currentBankApplications = partnerApplication.getBankApplications()
                 .stream()
                 .collect(Collectors.toMap(bankApplication -> bankApplication.getCreditProgram().getId(), Function.identity()));
-        requests.forEach(bankApplicationRequest -> {
+        bankApplicationRequests.forEach(bankApplicationRequest -> {
             BankApplication currentBankApplication = currentBankApplications.get(bankApplicationRequest.getCreditProgramId());
             if (currentBankApplication != null) {
                 bankApplicationMapper.updateBankApplicationFromRequest(currentBankApplication, bankApplicationRequest);
             } else {
                 BankApplication newBankApplication = bankApplicationMapper.toBankApplication(bankApplicationRequest)
+                        .setMainBorrower(mainBorrower)
                         .setPartnerApplication(partnerApplication);
                 currentBankApplications.put(bankApplicationRequest.getCreditProgramId(), newBankApplication);
             }
