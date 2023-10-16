@@ -263,19 +263,27 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
     @Transactional
     public void checkBorrowerStatus(PartnerApplication partnerApplication) {
         for (BorrowerProfile borrowerProfile : partnerApplication.getBorrowerProfiles()) {
-            List<BorrowerDocument> borrowerDocuments = borrowerProfile.getBorrowerDocument().stream()
-                    .filter(BorrowerDocument::isActive)
-                    .collect(Collectors.toList());
+            if (borrowerProfile != null) {
+                List<BorrowerDocument> borrowerDocuments = borrowerProfile.getBorrowerDocument();
 
-            boolean allDocumentsPresent = checkRequiredDocuments(borrowerDocuments);
+                if (borrowerDocuments != null) {
+                    borrowerDocuments = borrowerDocuments.stream()
+                            .filter(BorrowerDocument::isActive)
+                            .collect(Collectors.toList());
 
-            if (allDocumentsPresent) {
-                if (borrowerProfile.getSignedForm() != null) {
-                    borrowerProfile.setBorrowerProfileStatus(BorrowerProfileStatus.DOCS_SIGNED);
+                    boolean allDocumentsPresent = checkRequiredDocuments(borrowerDocuments);
+
+                    if (borrowerProfile.getSignedForm() != null) {
+                        borrowerProfile.setBorrowerProfileStatus(allDocumentsPresent
+                                ? BorrowerProfileStatus.DOCS_SIGNED
+                                : BorrowerProfileStatus.DATA_NO_ENTERED);
+                    } else {
+                        borrowerProfile.setBorrowerProfileStatus(BorrowerProfileStatus.DATA_ENTERED);
+                    }
                 } else {
-                    borrowerProfile.setBorrowerProfileStatus(BorrowerProfileStatus.DATA_ENTERED);
+                    borrowerProfile.setBorrowerProfileStatus(BorrowerProfileStatus.DATA_NO_ENTERED);
                 }
-            } else  borrowerProfile.setBorrowerProfileStatus(BorrowerProfileStatus.DATA_NO_ENTERED);
+            }
         }
     }
 
@@ -631,17 +639,26 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
     }
 
     private void checkBankApplicationStatus(PartnerApplication partnerApplication) {
-        List<BankApplication> bankApplications = new ArrayList<>(partnerApplication.getBankApplications());
-        bankApplications.removeIf(app -> !app.isActive() || UNCHANGEABLE_STATUSES.contains(app.getBankApplicationStatus()));
-        boolean borrowersInSignedStatus = allBorrowerInSignedStatus(partnerApplication.getBorrowerProfiles());
-        for (BankApplication bankApplication : bankApplications) {
-            if (allProfilesHaveRequiredDocuments(bankApplication, partnerApplication)) {
-                if (borrowersInSignedStatus
-                        && bankApplication.getBankApplicationStatus() == BankApplicationStatus.DATA_NO_ENTERED) {
-                    bankApplication.setBankApplicationStatus(BankApplicationStatus.READY_TO_SENDING);
+        List<BankApplication> bankApplications = new ArrayList<>();
+
+        if (partnerApplication != null && partnerApplication.getBankApplications() != null) {
+            bankApplications.addAll(partnerApplication.getBankApplications());
+
+            bankApplications.removeIf(app -> !app.isActive() || UNCHANGEABLE_STATUSES.contains(app.getBankApplicationStatus()));
+
+            boolean borrowersInSignedStatus = allBorrowerInSignedStatus(partnerApplication.getBorrowerProfiles());
+            for (BankApplication bankApplication : bankApplications) {
+                if (bankApplication != null) {
+                    if (allProfilesHaveRequiredDocuments(bankApplication, partnerApplication)) {
+                        if (borrowersInSignedStatus
+                                && bankApplication.getBankApplicationStatus() != null
+                                && bankApplication.getBankApplicationStatus() == BankApplicationStatus.DATA_NO_ENTERED) {
+                            bankApplication.setBankApplicationStatus(BankApplicationStatus.READY_TO_SENDING);
+                        }
+                    } else {
+                        bankApplication.setBankApplicationStatus(BankApplicationStatus.DATA_NO_ENTERED);
+                    }
                 }
-            } else {
-                bankApplication.setBankApplicationStatus(BankApplicationStatus.DATA_NO_ENTERED);
             }
         }
     }
