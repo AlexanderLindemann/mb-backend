@@ -273,12 +273,14 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
 
                     boolean allDocumentsPresent = checkRequiredDocuments(borrowerDocuments);
 
-                    if (borrowerProfile.getSignedForm() != null) {
-                        borrowerProfile.setBorrowerProfileStatus(allDocumentsPresent
-                                ? BorrowerProfileStatus.DOCS_SIGNED
-                                : BorrowerProfileStatus.DATA_NO_ENTERED);
+                    if (allDocumentsPresent) {
+                        if (borrowerProfile.getSignedForm() != null) {
+                            borrowerProfile.setBorrowerProfileStatus(BorrowerProfileStatus.DOCS_SIGNED);
+                        } else {
+                            borrowerProfile.setBorrowerProfileStatus(BorrowerProfileStatus.DATA_ENTERED);
+                        }
                     } else {
-                        borrowerProfile.setBorrowerProfileStatus(BorrowerProfileStatus.DATA_ENTERED);
+                        borrowerProfile.setBorrowerProfileStatus(BorrowerProfileStatus.DATA_NO_ENTERED);
                     }
                 } else {
                     borrowerProfile.setBorrowerProfileStatus(BorrowerProfileStatus.DATA_NO_ENTERED);
@@ -286,6 +288,8 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
             }
         }
     }
+
+
 
 
     @Override
@@ -369,9 +373,9 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
     private List<BankWithBankApplicationDto> getGroupBankApplication(List<BankApplicationResponse> activeBankApplicationResponses) {
         Map<UUID, BankApplicationResponse> creditProgramMap = activeBankApplicationResponses.stream()
                 .collect(Collectors.toMap(
-                        BankApplicationResponse::getCreditProgramId, // Ключ
-                        Function.identity(), // Значение
-                        (existingValue, newValue) -> existingValue // Резольвер дубликатов (оставить существующее значение)
+                        BankApplicationResponse::getCreditProgramId,
+                        Function.identity(),
+                        (existingValue, newValue) -> existingValue
                 ));
 
         List<CreditProgram> programByCreditProgramIds = creditProgramService.getProgramByCreditProgramIds(new ArrayList<>(creditProgramMap.keySet()));
