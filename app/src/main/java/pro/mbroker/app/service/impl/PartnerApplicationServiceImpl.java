@@ -360,7 +360,12 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
 
     private List<BankWithBankApplicationDto> getGroupBankApplication(List<BankApplicationResponse> activeBankApplicationResponses) {
         Map<UUID, BankApplicationResponse> creditProgramMap = activeBankApplicationResponses.stream()
-                .collect(Collectors.toMap(BankApplicationResponse::getCreditProgramId, Function.identity()));
+                .collect(Collectors.toMap(
+                        BankApplicationResponse::getCreditProgramId, // Ключ
+                        Function.identity(), // Значение
+                        (existingValue, newValue) -> existingValue // Резольвер дубликатов (оставить существующее значение)
+                ));
+
         List<CreditProgram> programByCreditProgramIds = creditProgramService.getProgramByCreditProgramIds(new ArrayList<>(creditProgramMap.keySet()));
         Map<UUID, Bank> bankMap = programByCreditProgramIds.stream()
                 .map(CreditProgram::getBank)
