@@ -18,6 +18,7 @@ import java.util.UUID;
 @Setter
 @ToString
 @SuppressWarnings("PMD")
+
 public class NotificationBankLetterResponse implements Serializable {
 
     private static final long serialVersionUID = -6639215001970950771L;
@@ -49,48 +50,11 @@ public class NotificationBankLetterResponse implements Serializable {
     private BorrowerResponse borrowerResponse;
     private UUID bankId;
     private String bankName;
+    private String message = "";
+    private String tokenBearer = "";
 
-    public NotificationBankLetterResponse(UUID id,
-                                          UUID partnerApplicationId,
-                                          Integer applicationNumber,
-                                          UUID borrowerId,
-                                          String partnerName,
-                                          RegionType regionType,
-                                          String residentialComplexName,
-                                          String address,
-                                          RealEstateType realEstateType,
-                                          CreditPurposeType creditPurposeType,
-                                          String programName,
-                                          BigDecimal realEstatePrice,
-                                          BigDecimal downPayment,
-                                          Integer monthCreditTerm,
-                                          String lastName,
-                                          String firstName,
-                                          String middleName,
-                                          UUID bankId,
-                                          String bankName) {
-        this.id = id;
-        this.partnerApplicationId = partnerApplicationId;
-        this.applicationNumber = applicationNumber;
-        this.borrowerId = borrowerId;
-        this.partnerName = partnerName;
-        this.regionType = regionType;
-        this.residentialComplexName = residentialComplexName;
-        this.address = address;
-        this.realEstateType = realEstateType;
-        this.realEstateTypeName = realEstateType.getName();
-        this.creditPurposeType = creditPurposeType;
-        this.programName = programName;
-        this.realEstatePrice = realEstatePrice;
-        this.downPayment = downPayment;
-        this.creditSize = realEstatePrice.subtract(downPayment);
-        this.monthCreditTerm = monthCreditTerm;
-        this.lastName = lastName;
-        this.firstName = firstName;
-        this.middleName = middleName;
-        this.bankId = bankId;
-        this.bankName = bankName;
-    }
+
+    public NotificationBankLetterResponse() {}
 
     public String convertCreditPurposeTypeToString(List<CreditPurposeType> creditPurposeTypes) {
         StringBuilder stringBuilder = new StringBuilder();

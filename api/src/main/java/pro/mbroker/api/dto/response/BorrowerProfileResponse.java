@@ -1,5 +1,6 @@
 package pro.mbroker.api.dto.response;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -31,6 +32,7 @@ public class BorrowerProfileResponse {
 
     private List<BorrowerDocumentRequest> documents;
 
+    @JsonIgnore
     private LocalDateTime createdAt;
 
 }

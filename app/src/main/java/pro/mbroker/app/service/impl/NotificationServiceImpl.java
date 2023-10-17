@@ -2,19 +2,25 @@ package pro.mbroker.app.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import pro.mbroker.api.dto.response.BorrowerProfileResponse;
 import pro.mbroker.api.dto.response.BorrowerResponse;
 import pro.mbroker.api.dto.response.NotificationBankLetterResponse;
 import pro.mbroker.api.enums.BankApplicationStatus;
+import pro.mbroker.app.entity.Bank;
+import pro.mbroker.app.entity.BankApplication;
+import pro.mbroker.app.entity.BorrowerProfile;
+import pro.mbroker.app.entity.MortgageCalculation;
+import pro.mbroker.app.entity.PartnerApplication;
+import pro.mbroker.app.entity.RealEstate;
 import pro.mbroker.app.exception.DataNotFoundException;
 import pro.mbroker.app.repository.BankApplicationRepository;
 import pro.mbroker.app.repository.BorrowerDocumentRepository;
 import pro.mbroker.app.service.BankApplicationService;
 import pro.mbroker.app.service.BorrowerProfileService;
 import pro.mbroker.app.service.NotificationService;
+import pro.mbroker.app.service.PartnerRealEstateService;
 
 import java.util.List;
 import java.util.UUID;
@@ -32,23 +38,72 @@ public class NotificationServiceImpl implements NotificationService {
     private final BorrowerProfileService borrowerProfileService;
     private final BankApplicationRepository bankApplicationRepository;
     private final BorrowerDocumentRepository borrowerDocumentRepository;
+    private final PartnerRealEstateService partnerRealEstateService;
 
     @Override
+    @Transactional
     public NotificationBankLetterResponse getCustomerInfoForBankLetter(UUID bankApplicationId) {
-        bankApplicationService.changeStatus(bankApplicationId, BankApplicationStatus.SENDING_TO_BANK);
         NotificationBankLetterResponse notificationResponse = fetchNotificationData(bankApplicationId);
         enrichNotificationResponseWithData(notificationResponse, bankApplicationId);
+        bankApplicationService.changeStatus(bankApplicationId, BankApplicationStatus.SENDING_TO_BANK);
         return notificationResponse;
     }
 
     private NotificationBankLetterResponse fetchNotificationData(UUID bankApplicationId) {
         log.info("Fetching information for letter formation");
-        Page<NotificationBankLetterResponse> customerInfoPage = bankApplicationRepository
-                .getCustomerInfoForBankLetter(bankApplicationId, PageRequest.of(0, 1));
-        if (customerInfoPage.isEmpty()) {
-            throw new DataNotFoundException("No customer information found for the given bank application ID");
+        NotificationBankLetterResponse response = new NotificationBankLetterResponse();
+        BankApplication bankApplication = bankApplicationService.getBankApplicationById(bankApplicationId);
+        if (bankApplication != null) {
+            BorrowerProfile borrowerProfile = bankApplication.getMainBorrower();
+            if (borrowerProfile != null) {
+                PartnerApplication partnerApplication = borrowerProfile.getPartnerApplication();
+                if (partnerApplication != null) {
+                    RealEstate realEstate = partnerApplication.getRealEstate();
+                    MortgageCalculation mortgageCalculation = partnerApplication.getMortgageCalculation();
+                    Bank bank = bankApplication.getCreditProgram().getBank();
+                    response.setBankId(bankApplicationId);
+                    response.setPartnerApplicationId(borrowerProfile.getPartnerApplication().getId());
+                    response.setApplicationNumber(bankApplication.getApplicationNumber());
+                    response.setBorrowerId(borrowerProfile.getId());
+                    response.setPartnerName(partnerApplication.getPartner().getName());
+                    if (realEstate != null) {
+                        response.setRegionType(realEstate.getRegion());
+                        response.setResidentialComplexName(realEstate.getResidentialComplexName());
+                        response.setAddress(realEstate.getAddress());
+                        response.setRealEstateTypeName(partnerApplication.getRealEstateType().getName());
+
+                    }
+                    response.setRealEstateType(partnerApplication.getRealEstateType());
+                    response.setCreditPurposeType(partnerApplication.getCreditPurposeType());
+                    response.setProgramName(bankApplication.getCreditProgram().getProgramName());
+                    if (mortgageCalculation != null) {
+                        response.setRealEstatePrice(mortgageCalculation.getRealEstatePrice());
+                        response.setDownPayment(mortgageCalculation.getDownPayment());
+                        response.setCreditSize(mortgageCalculation.getRealEstatePrice()
+                                .subtract(mortgageCalculation.getDownPayment()));
+                    }
+                    response.setMonthCreditTerm(bankApplication.getMonthCreditTerm());
+                    response.setLastName(borrowerProfile.getLastName());
+                    response.setFirstName(borrowerProfile.getFirstName());
+                    response.setMiddleName(borrowerProfile.getMiddleName() == null
+                            ? ""
+                            : borrowerProfile.getMiddleName());
+                    if (bank != null) {
+                        response.setBankId(bank.getId());
+                        response.setBankName(bank.getName());
+                    }
+
+                } else {
+                    throw new DataNotFoundException("PartnerApplication is not found");
+                }
+            } else {
+                throw new DataNotFoundException("BorrowerProfile is not found");
+            }
+        } else {
+            throw new DataNotFoundException("BankApplication is not found. BankApplicationId: " + bankApplicationId);
         }
-        return customerInfoPage.getContent().get(FIRST_ELEMENT);
+
+        return response;
     }
 
     private void enrichNotificationResponseWithData(NotificationBankLetterResponse response, UUID bankApplicationId) {

@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 import pro.mbroker.api.controller.BankApplicationController;
 import pro.mbroker.api.dto.request.BankApplicationRequest;
 import pro.mbroker.api.dto.request.NotificationStatusRequest;
@@ -47,16 +48,17 @@ public class BankApplicationControllerImpl implements BankApplicationController 
     }
 
     @Override
+    @Transactional
     public ResponseEntity<String> updateStatuses(NotificationStatusRequest notificationStatusRequest) {
-        List<BankApplication> bankApplicationByApplicationId = bankApplicationService
+        List<BankApplication> bankApplicationByApplications = bankApplicationService
                 .getBankApplicationByApplicationId(notificationStatusRequest.getApplications().keySet());
 
-        bankApplicationByApplicationId.forEach(bankApplication -> {
+        bankApplicationByApplications.forEach(bankApplication -> {
             BankApplicationStatus newStatus = notificationStatusRequest.getApplications()
                     .get(bankApplication.getApplicationNumber());
             bankApplication.setBankApplicationStatus(newStatus);
         });
-        bankApplicationService.saveAll(bankApplicationByApplicationId);
+        bankApplicationService.saveAll(bankApplicationByApplications);
         return ResponseEntity.ok().build();
     }
 

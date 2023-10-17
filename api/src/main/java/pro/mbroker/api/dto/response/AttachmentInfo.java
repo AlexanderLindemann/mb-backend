@@ -12,4 +12,6 @@ public class AttachmentInfo {
     private String originalFileName;
     private String contentType;
 
+    public AttachmentInfo() {}
+
 }
