@@ -21,12 +21,16 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import pro.mbroker.api.enums.BankApplicationStatus;
 import pro.mbroker.api.enums.BorrowerProfileStatus;
+import pro.mbroker.api.enums.DocumentType;
 import pro.mbroker.app.entity.Attachment;
+import pro.mbroker.app.entity.BankApplication;
+import pro.mbroker.app.entity.BorrowerDocument;
 import pro.mbroker.app.entity.BorrowerProfile;
 import pro.mbroker.app.entity.PartnerApplication;
 import pro.mbroker.app.repository.BorrowerProfileRepository;
 import pro.mbroker.app.service.AttachmentService;
 import pro.mbroker.app.service.BankApplicationService;
+import pro.mbroker.app.service.BorrowerDocumentService;
 import pro.mbroker.app.service.BorrowerProfileService;
 import pro.mbroker.app.service.DocxFieldHandler;
 import pro.mbroker.app.service.FormService;
@@ -58,6 +62,7 @@ public class FormServiceImpl implements FormService {
     private final BorrowerProfileRepository borrowerProfileRepository;
     private final DocxFieldHandler docxFieldHandler;
     private final BankApplicationService bankApplicationService;
+    private final BorrowerDocumentService borrowerDocumentService;
     String filePath = "forms/form.docx";
 
     @Override
@@ -126,6 +131,8 @@ public class FormServiceImpl implements FormService {
     @Transactional
     public void updateSignatureForm(UUID borrowerProfileId, byte[] form) {
         BorrowerProfile borrowerProfile = borrowerProfileService.getBorrowerProfile(borrowerProfileId);
+        BankApplication bankApplication = borrowerProfile.getPartnerApplication().getBankApplications().get(0);
+
         MultipartFile multipartFile = new CustomMultipartFile(
                 form,
                 borrowerProfile.getLastName() + "_" + borrowerProfile.getFirstName() + ".pdf",
@@ -134,17 +141,32 @@ public class FormServiceImpl implements FormService {
         Attachment upload = attachmentService.upload(multipartFile);
         borrowerProfile.setSignedForm(upload);
         borrowerProfile.setBorrowerProfileStatus(BorrowerProfileStatus.DOCS_SIGNED);
+
+        BorrowerDocument singForm = new BorrowerDocument();
+        singForm.setAttachment(upload);
+        singForm.setBorrowerProfile(borrowerProfile);
+        singForm.setBank(bankApplication.getCreditProgram().getBank());
+        singForm.setBankApplication(bankApplication);
+        singForm.setDocumentType(DocumentType.APPLICATION_FORM);
+        singForm.setActive(true);
+
+        borrowerProfile.getBorrowerDocument().add(singForm);
+
+       // borrowerDocumentService.saveBorrowerDocument(singForm, DocumentType.APPLICATION_FORM);
         borrowerProfileRepository.save(borrowerProfile);
         bankApplicationService.getBankApplicationByBorrowerId(borrowerProfile.getId())
                 .stream()
                 .findFirst()
-                .ifPresent(bankApplication -> bankApplicationService.changeStatus(bankApplication.getId(), BankApplicationStatus.READY_TO_SENDING));
+                .ifPresent(ba ->
+                        bankApplicationService.changeStatus(bankApplication.getId(),
+                        BankApplicationStatus.READY_TO_SENDING));
     }
 
     private void removeSignatureForm(BorrowerProfile borrowerProfile) {
         Optional.ofNullable(borrowerProfile.getSignedForm())
                 .map(Attachment::getId)
                 .ifPresent(attachment -> {
+                    borrowerDocumentService.deleteDocumentByAttachmentId(attachment);
                     attachmentService.markAttachmentAsDeleted(attachment);
                     borrowerProfileService.deleteSignatureForm(attachment);
                 });

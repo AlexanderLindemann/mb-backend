@@ -97,7 +97,7 @@ public class AttachmentControllerImpl implements AttachmentController {
     @Transactional
     public void deleteAttachment(AttachmentRequest attachmentRequest) {
         attachmentService.markAttachmentAsDeleted(attachmentRequest.getId());
-
+        borrowerDocumentService.deleteDocumentByAttachmentId(attachmentRequest.getId());
         switch (attachmentRequest.getAttachmentType()) {
             case SIGNATURE_FORM:
                 borrowerProfileService.deleteSignatureForm(attachmentRequest.getId());

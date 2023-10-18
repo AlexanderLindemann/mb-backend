@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.util.ContentCachingRequestWrapper;
 import pro.mbroker.api.dto.EmployerDto;
+import pro.mbroker.api.dto.request.BorrowerDocumentRequest;
 import pro.mbroker.api.dto.request.BorrowerProfileRequest;
 import pro.mbroker.api.dto.request.BorrowerProfileUpdateRequest;
 import pro.mbroker.api.dto.request.BorrowerRequest;
@@ -50,6 +51,7 @@ import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
+import java.util.function.BinaryOperator;
 import java.util.stream.Collectors;
 
 @Service
@@ -95,10 +97,15 @@ public class BorrowerProfileServiceImpl implements BorrowerProfileService {
                     "Could not find any bank applications with an associated client profile");
         } else {
             mainBorrower = partnerApplication.getBankApplications().get(0).getMainBorrower();
+            List<BorrowerDocument> activeBorrowerDocuments = getActiveBorrowerDocuments(mainBorrower.getBorrowerDocument());
+            mainBorrower.setBorrowerDocument(activeBorrowerDocuments);
         }
+
         Map<UUID, BorrowerProfileResponse> coBorrowerProfiles = partnerApplication.getBorrowerProfiles()
                 .stream()
-                .filter(borrowerProfile -> !borrowerProfile.getId().equals(mainBorrower.getId()) && borrowerProfile.isActive())
+                .filter(borrowerProfile ->
+                        !borrowerProfile.getId().equals(mainBorrower.getId()) && borrowerProfile.isActive()
+                ). map( co -> co.setBorrowerDocument(getActiveBorrowerDocuments(co.getBorrowerDocument())))
                 .collect(Collectors.toMap(BorrowerProfile::getId, borrowerProfileMapper::toBorrowerProfileResponse));
 
         List<BorrowerProfileResponse> sortedCoBorrowerProfiles = new ArrayList<>(coBorrowerProfiles.values());
@@ -106,6 +113,21 @@ public class BorrowerProfileServiceImpl implements BorrowerProfileService {
         return new BorrowerResponse()
                 .setMainBorrower(borrowerProfileMapper.toBorrowerProfileResponse(mainBorrower))
                 .setCoBorrower(sortedCoBorrowerProfiles);
+    }
+    private List<BorrowerDocument> getActiveBorrowerDocuments (List<BorrowerDocument> documents) {
+        if (documents == null) {
+            return Collections.emptyList();
+        }
+        List<BorrowerDocument> latestActiveDocuments = new ArrayList<>(documents.stream()
+                .filter(d -> d.isActive() && d.getDocumentType() != DocumentType.APPLICATION_FORM)
+                .collect(Collectors.toMap(
+                        BorrowerDocument::getDocumentType,
+                        d -> d,
+                        BinaryOperator.maxBy(Comparator.comparing(BorrowerDocument::getCreatedAt))
+                ))
+                .values());
+
+        return  latestActiveDocuments;
     }
 
     @Override
@@ -443,6 +465,19 @@ public class BorrowerProfileServiceImpl implements BorrowerProfileService {
         return borrowerProfileRepository.findBorrowerProfileBySignedFormId(signatureId)
                 .orElseThrow(() ->
                         new NoSuchElementException("BorrowerProfile not found for signatureId: " + signatureId));
+    }
+
+    private BorrowerDocumentRequest enrichApplicationForm(BorrowerProfile borrowerProfile, BankApplication bankApplication) {
+        BorrowerDocumentRequest form = new BorrowerDocumentRequest();
+        var attachment = borrowerProfile.getSignedForm();
+        form.setAttachmentId(attachment.getId());
+        form.setBorrowerProfileId(borrowerProfile.getId());
+        form.setDocumentType(DocumentType.APPLICATION_FORM);
+        form.setBankId(bankApplication.getCreditProgram().getBank().getId());
+        form.setAttachmentName(attachment.getName());
+
+        return form;
+
     }
 
 }
