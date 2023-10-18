@@ -28,6 +28,7 @@ import pro.mbroker.api.enums.PartnerApplicationStatus;
 import pro.mbroker.api.enums.RegionType;
 import pro.mbroker.app.entity.Bank;
 import pro.mbroker.app.entity.BankApplication;
+import pro.mbroker.app.entity.BaseEntity;
 import pro.mbroker.app.entity.BorrowerDocument;
 import pro.mbroker.app.entity.BorrowerProfile;
 import pro.mbroker.app.entity.CreditProgram;
@@ -42,6 +43,7 @@ import pro.mbroker.app.mapper.BankApplicationMapper;
 import pro.mbroker.app.mapper.BorrowerProfileMapper;
 import pro.mbroker.app.mapper.MortgageCalculationMapper;
 import pro.mbroker.app.mapper.PartnerApplicationMapper;
+import pro.mbroker.app.repository.BankApplicationRepository;
 import pro.mbroker.app.repository.BankRepository;
 import pro.mbroker.app.repository.BorrowerProfileRepository;
 import pro.mbroker.app.repository.PartnerApplicationRepository;
@@ -233,63 +235,76 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
     @Override
     @Transactional
     public PartnerApplication statusChanger(PartnerApplication partnerApplication) {
+        boolean isChange = false;
         if (Objects.isNull(partnerApplication.getPartnerApplicationStatus())) {
             partnerApplication.setPartnerApplicationStatus(PartnerApplicationStatus.UPLOADING_DOCS);
+            isChange = true;
         }
-
-        partnerApplication.getBorrowerProfiles().forEach(borrowerProfile -> {
+        for (BorrowerProfile borrowerProfile : partnerApplication.getBorrowerProfiles()) {
             if (Objects.isNull(borrowerProfile.getBorrowerProfileStatus())) {
                 borrowerProfile.setBorrowerProfileStatus(BorrowerProfileStatus.DATA_NO_ENTERED);
+                isChange = true;
             }
-        });
-
-        if (Objects.nonNull(partnerApplication.getId())) {
-            checkBorrowerStatus(partnerApplication);
         }
-
-        partnerApplication.getBankApplications().forEach(bankApplication -> {
+        if (Objects.nonNull(partnerApplication.getId())) {
+            boolean statusChanged = checkBorrowerStatus(partnerApplication);
+            isChange = isChange || statusChanged;
+        }
+        for (BankApplication bankApplication : partnerApplication.getBankApplications()) {
             if (Objects.isNull(bankApplication.getBankApplicationStatus())) {
                 bankApplication.setBankApplicationStatus(BankApplicationStatus.DATA_NO_ENTERED);
+                isChange = true;
             }
-        });
-
-        if (Objects.nonNull(partnerApplication.getId())) {
-            checkBankApplicationStatus(partnerApplication);
         }
-
-        return partnerApplicationRepository.save(partnerApplication);
+        if (Objects.nonNull(partnerApplication.getId())) {
+            boolean statusChanged = checkBankApplicationStatus(partnerApplication);
+            isChange = isChange || statusChanged;
+        }
+        if (isChange) {
+            partnerApplicationRepository.save(partnerApplication);
+        }
+        return partnerApplication;
     }
 
-    @Transactional
-    public void checkBorrowerStatus(PartnerApplication partnerApplication) {
+    private boolean checkBorrowerStatus(PartnerApplication partnerApplication) {
+        boolean isChange = false;
         for (BorrowerProfile borrowerProfile : partnerApplication.getBorrowerProfiles()) {
             if (borrowerProfile != null) {
                 List<BorrowerDocument> borrowerDocuments = borrowerProfile.getBorrowerDocument();
-
-                if (borrowerDocuments != null) {
+                BorrowerProfileStatus currentStatus = borrowerProfile.getBorrowerProfileStatus();
+                if (Objects.nonNull(borrowerDocuments)) {
                     borrowerDocuments = borrowerDocuments.stream()
                             .filter(BorrowerDocument::isActive)
                             .collect(Collectors.toList());
-
                     boolean allDocumentsPresent = checkRequiredDocuments(borrowerDocuments);
-
                     if (allDocumentsPresent) {
                         if (borrowerProfile.getSignedForm() != null) {
-                            borrowerProfile.setBorrowerProfileStatus(BorrowerProfileStatus.DOCS_SIGNED);
+                            if (!currentStatus.equals(BorrowerProfileStatus.DOCS_SIGNED)) {
+                                borrowerProfile.setBorrowerProfileStatus(BorrowerProfileStatus.DOCS_SIGNED);
+                                isChange = true;
+                            }
                         } else {
-                            borrowerProfile.setBorrowerProfileStatus(BorrowerProfileStatus.DATA_ENTERED);
+                            if (!currentStatus.equals(BorrowerProfileStatus.DATA_ENTERED)) {
+                                borrowerProfile.setBorrowerProfileStatus(BorrowerProfileStatus.DATA_ENTERED);
+                                isChange = true;
+                            }
                         }
                     } else {
-                        borrowerProfile.setBorrowerProfileStatus(BorrowerProfileStatus.DATA_NO_ENTERED);
+                        if (!currentStatus.equals(BorrowerProfileStatus.DATA_NO_ENTERED)) {
+                            borrowerProfile.setBorrowerProfileStatus(BorrowerProfileStatus.DATA_NO_ENTERED);
+                            isChange = true;
+                        }
                     }
                 } else {
-                    borrowerProfile.setBorrowerProfileStatus(BorrowerProfileStatus.DATA_NO_ENTERED);
+                    if (!currentStatus.equals(BorrowerProfileStatus.DATA_NO_ENTERED)) {
+                        borrowerProfile.setBorrowerProfileStatus(BorrowerProfileStatus.DATA_NO_ENTERED);
+                        isChange = true;
+                    }
                 }
             }
         }
+        return isChange;
     }
-
-
 
 
     @Override
@@ -301,9 +316,7 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
     }
 
     @Override
-    @Transactional
     public PartnerApplicationResponse buildPartnerApplicationResponse(PartnerApplication partnerApplication) {
-        statusChanger(partnerApplication);
         PartnerApplicationResponse response = partnerApplicationMapper.toPartnerApplicationResponse(partnerApplication);
         Map<UUID, BorrowerProfile> borrowerProfileMap = getActiveBorrowerProfilesMap(partnerApplication);
         List<BankApplicationResponse> activeBankApplicationResponses = getActiveBankApplicationResponses(partnerApplication, borrowerProfileMap);
@@ -642,29 +655,34 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
                 .orElseThrow(() -> new ItemNotFoundException(PartnerApplication.class, String.valueOf(partnerApplicationId)));
     }
 
-    private void checkBankApplicationStatus(PartnerApplication partnerApplication) {
-        List<BankApplication> bankApplications = new ArrayList<>();
-
-        if (partnerApplication != null && partnerApplication.getBankApplications() != null) {
-            bankApplications.addAll(partnerApplication.getBankApplications());
-
+    private boolean checkBankApplicationStatus(PartnerApplication partnerApplication) {
+        boolean isChange = false;
+        if (Objects.nonNull(partnerApplication) && Objects.nonNull(partnerApplication.getBankApplications())) {
+            List<BankApplication> bankApplications = new ArrayList<>(partnerApplication.getBankApplications());
             bankApplications.removeIf(app -> !app.isActive() || UNCHANGEABLE_STATUSES.contains(app.getBankApplicationStatus()));
-
             boolean borrowersInSignedStatus = allBorrowerInSignedStatus(partnerApplication.getBorrowerProfiles());
             for (BankApplication bankApplication : bankApplications) {
-                if (bankApplication != null) {
-                    if (allProfilesHaveRequiredDocuments(bankApplication, partnerApplication)) {
+                if (Objects.nonNull(bankApplication)) {
+                    BankApplicationStatus currentStatus = bankApplication.getBankApplicationStatus();
+                    if (allProfilesHaveRequiredDocuments(partnerApplication)) {
                         if (borrowersInSignedStatus
                                 && bankApplication.getBankApplicationStatus() != null
                                 && bankApplication.getBankApplicationStatus() == BankApplicationStatus.DATA_NO_ENTERED) {
-                            bankApplication.setBankApplicationStatus(BankApplicationStatus.READY_TO_SENDING);
+                            if (!currentStatus.equals(BankApplicationStatus.READY_TO_SENDING)) {
+                                bankApplication.setBankApplicationStatus(BankApplicationStatus.READY_TO_SENDING);
+                                isChange = true;
+                            }
                         }
                     } else {
-                        bankApplication.setBankApplicationStatus(BankApplicationStatus.DATA_NO_ENTERED);
+                        if (!currentStatus.equals(BankApplicationStatus.DATA_NO_ENTERED)) {
+                            bankApplication.setBankApplicationStatus(BankApplicationStatus.DATA_NO_ENTERED);
+                            isChange = true;
+                        }
                     }
                 }
             }
         }
+        return isChange;
     }
 
     private boolean allBorrowerInSignedStatus(List<BorrowerProfile> borrowers) {
@@ -674,9 +692,9 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
     }
 
 
-    private boolean allProfilesHaveRequiredDocuments(BankApplication bankApplication, PartnerApplication partnerApplication) {
+    private boolean allProfilesHaveRequiredDocuments(PartnerApplication partnerApplication) {
         List<BorrowerProfile> borrowerProfiles = partnerApplication.getBorrowerProfiles();
-        return borrowerProfiles.stream().filter(bp -> bp.isActive()).allMatch(borrowerProfile ->
+        return borrowerProfiles.stream().filter(BaseEntity::isActive).allMatch(borrowerProfile ->
                 borrowerProfile.getSignedForm() != null && borrowerProfile.getSignedForm().isActive() &&
                         checkRequiredDocuments(borrowerProfile.getBorrowerDocument())
         );

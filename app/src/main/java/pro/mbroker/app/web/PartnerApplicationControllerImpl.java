@@ -18,7 +18,6 @@ import pro.mbroker.app.service.PartnerApplicationService;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -32,8 +31,7 @@ public class PartnerApplicationControllerImpl implements PartnerApplicationContr
             " hasAnyAuthority(T(pro.smartdeal.common.security.Permission$Code).MB_REQUEST_READ_ORGANIZATION)")
     public Page<PartnerApplicationResponse> getAllPartnerApplication(int page, int size, String sortBy, String sortOrder, LocalDateTime startDate, LocalDateTime endDate) {
         Page<PartnerApplication> partnerApplications = partnerApplicationService.getAllPartnerApplication(page, size, sortBy, sortOrder, startDate, endDate);
-        Page<PartnerApplicationResponse> responsePage = partnerApplications.map(partnerApplicationService::buildPartnerApplicationResponse);
-        return responsePage;
+        return partnerApplications.map(partnerApplicationService::buildPartnerApplicationResponse);
     }
 
     @Override
