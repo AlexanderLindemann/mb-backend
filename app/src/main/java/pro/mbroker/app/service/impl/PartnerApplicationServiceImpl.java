@@ -3,6 +3,8 @@ package pro.mbroker.app.service.impl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -130,6 +132,10 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
             } else if (auth.getAuthorities().contains(new SimpleGrantedAuthority(Permission.Code.MB_REQUEST_READ_OWN.toString()))) {
                 Integer createdBy = TokenExtractor.extractSdId(currentUserService.getCurrentUserToken());
                 result = partnerApplicationRepository.findAllByCreatedByAndIsActiveTrue(start, end, createdBy, pageable);
+            } else if (auth.getAuthorities().contains(new SimpleGrantedAuthority("MB_CABINET_ACCESS"))) {
+                String phoneNumber = TokenExtractor.extractPhoneNumber(currentUserService.getCurrentUserToken());
+                List<PartnerApplication> partnerApplications = getPartnerApplicationsByPhoneNumber(phoneNumber);
+                result = new PageImpl<>(partnerApplications, PageRequest.of(page, size), partnerApplications.size());
             } else {
                 log.warn("User does not have any valid permission to fetch partner applications");
             }
@@ -144,7 +150,6 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
         } catch (Exception e) {
             log.error("Error while fetching partner applications", e);
         }
-
         return result;
     }
 
@@ -187,6 +192,27 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
         List<BankApplication> updatedBorrowerApplications = buildBankApplications(request, existingPartnerApplication);
         existingPartnerApplication.setBankApplications(updatedBorrowerApplications);
         return statusChanger(existingPartnerApplication);
+    }
+
+    private List<PartnerApplication> getPartnerApplicationsByPhoneNumber(String phoneNumber) {
+        List<BorrowerProfile> borrowerProfiles = borrowerProfileRepository.findAllByPhoneNumberAndIsActiveTrue(phoneNumber);
+        List<PartnerApplication> partnerApplications = borrowerProfiles.stream()
+                .map(BorrowerProfile::getPartnerApplication)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+        partnerApplications.forEach(partnerApplication -> {
+            if (partnerApplication.getBorrowerProfiles() != null) {
+                List<BorrowerProfile> profiles = partnerApplication.getBorrowerProfiles().stream()
+                        .filter(borrowerProfile ->
+                                borrowerProfile != null &&
+                                        borrowerProfile.getPhoneNumber() != null &&
+                                        borrowerProfile.getPhoneNumber().equals(phoneNumber) &&
+                                        borrowerProfile.isActive())
+                        .collect(Collectors.toList());
+                partnerApplication.setBorrowerProfiles(profiles);
+            }
+        });
+        return partnerApplications;
     }
 
     private void setSalaryBank(PartnerApplicationRequest request, PartnerApplication existingPartnerApplication) {
@@ -301,7 +327,7 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
                         isChange = true;
                     }
                 }
-            }
+            } else borrowerProfile.setBorrowerProfileStatus(BorrowerProfileStatus.DATA_NO_ENTERED);
         }
         return isChange;
     }

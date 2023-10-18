@@ -8,6 +8,7 @@ import net.minidev.json.JSONObject;
 import net.minidev.json.parser.JSONParser;
 import net.minidev.json.parser.ParseException;
 import org.springframework.stereotype.Component;
+
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Base64;
@@ -30,6 +31,12 @@ public final class TokenExtractor {
         int sdIdAsInt = Integer.parseInt((String) data.get("sd_id"));
         log.info("Извлечен sd_id: {}", sdIdAsInt);
         return sdIdAsInt;
+    }
+
+    public static String extractPhoneNumber(String token) {
+        String phoneNumber = getJsonPayloadFromTokenByValue(token, "phone", String.class);
+        log.info("Извлечен phone_number: {}", phoneNumber);
+        return phoneNumber;
     }
 
     public List<String> getPermissions(String token) {

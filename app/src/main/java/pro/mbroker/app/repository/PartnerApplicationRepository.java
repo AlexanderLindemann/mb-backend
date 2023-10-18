@@ -6,7 +6,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import pro.mbroker.app.entity.MortgageCalculation;
 import pro.mbroker.app.entity.PartnerApplication;
 
 import java.time.LocalDateTime;
@@ -61,6 +60,5 @@ public interface PartnerApplicationRepository extends JpaRepository<PartnerAppli
             @Param("endDate") Optional<LocalDateTime> endDate,
             Pageable pageable);
 
-    PartnerApplication findByMortgageCalculation(MortgageCalculation mortgageCalculation);
 }
 

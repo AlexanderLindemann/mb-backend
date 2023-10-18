@@ -42,14 +42,14 @@ public class AuthenticationTokenFilter extends OncePerRequestFilter {
     }
 
     private Authentication getAuthentication(String token) {
-        int sdId = TokenExtractor.extractSdId(token);
         List<SimpleGrantedAuthority> authorities = getAuthorities(token);
-
+        int sdId = authorities.stream().anyMatch(authority -> authority.getAuthority().contains("MB_CABINET_ACCESS"))
+                ? 0
+                : TokenExtractor.extractSdId(token);
         Jwt jwt = Jwt.withTokenValue(token)
                 .header("alg", "RS384")
                 .claim("sd_id", sdId)
                 .build();
-
         return new JwtAuthenticationToken(jwt, authorities);
     }
 

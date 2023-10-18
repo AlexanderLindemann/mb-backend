@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 import pro.mbroker.api.enums.BorrowerProfileStatus;
 import pro.mbroker.app.entity.BorrowerProfile;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -21,6 +22,8 @@ public interface BorrowerProfileRepository extends JpaRepository<BorrowerProfile
     Optional<BorrowerProfile> findByIdWithRealEstateVehicleAndEmployer(@Param("id") UUID id);
 
     Optional<BorrowerProfile> findBorrowerProfileBySignedFormId(Long id);
+
+    List<BorrowerProfile> findAllByPhoneNumberAndIsActiveTrue(String phoneNumber);
 
     @Modifying
     @Transactional
