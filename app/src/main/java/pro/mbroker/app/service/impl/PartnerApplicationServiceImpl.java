@@ -28,6 +28,7 @@ import pro.mbroker.api.enums.BorrowerProfileStatus;
 import pro.mbroker.api.enums.DocumentType;
 import pro.mbroker.api.enums.PartnerApplicationStatus;
 import pro.mbroker.api.enums.PaymentSource;
+import pro.mbroker.api.enums.ProofOfIncome;
 import pro.mbroker.api.enums.RegionType;
 import pro.mbroker.app.entity.Bank;
 import pro.mbroker.app.entity.BankApplication;
@@ -311,7 +312,7 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
                     borrowerDocuments = borrowerDocuments.stream()
                             .filter(BorrowerDocument::isActive)
                             .collect(Collectors.toList());
-                    boolean allDocumentsPresent = checkRequiredDocuments(borrowerDocuments);
+                    boolean allDocumentsPresent = checkRequiredDocuments(borrowerProfile);
                     if (allDocumentsPresent) {
                         if (borrowerProfile.getSignedForm() != null) {
                             if (!currentStatus.equals(BorrowerProfileStatus.DOCS_SIGNED)) {
@@ -733,17 +734,21 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
         List<BorrowerProfile> borrowerProfiles = partnerApplication.getBorrowerProfiles();
         return borrowerProfiles.stream().filter(BaseEntity::isActive).allMatch(borrowerProfile ->
                 borrowerProfile.getSignedForm() != null && borrowerProfile.getSignedForm().isActive() &&
-                        checkRequiredDocuments(borrowerProfile.getBorrowerDocument())
+                        checkRequiredDocuments(borrowerProfile)
         );
     }
 
-    private boolean checkRequiredDocuments(List<BorrowerDocument> borrowerDocuments) {
+    private boolean checkRequiredDocuments(BorrowerProfile borrowerProfile) {
+        List<BorrowerDocument> borrowerDocuments = borrowerProfile.getBorrowerDocument();
         Set<DocumentType> documentTypes = borrowerDocuments.stream()
                 .filter(BorrowerDocument::isActive)
                 .map(BorrowerDocument::getDocumentType)
                 .collect(Collectors.toSet());
+        boolean majorDocumentIsPresent = documentTypes.containsAll(REQUIRED_DOCUMENT_TYPES);
 
-        return documentTypes.containsAll(REQUIRED_DOCUMENT_TYPES);
+        boolean proofOfIncomeIsPresent = (borrowerProfile.getProofOfIncome() == ProofOfIncome.NO_CONFIRMATION)
+                || (borrowerProfile.getProofOfIncome() != null
+                && documentTypes.contains(DocumentType.INCOME_CERTIFICATE));
+        return majorDocumentIsPresent && proofOfIncomeIsPresent;
     }
-
 }

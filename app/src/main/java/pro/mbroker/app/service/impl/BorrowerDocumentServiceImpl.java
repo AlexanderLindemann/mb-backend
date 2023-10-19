@@ -3,6 +3,7 @@ package pro.mbroker.app.service.impl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import pro.mbroker.api.enums.DocumentType;
 import pro.mbroker.app.entity.BorrowerDocument;
 import pro.mbroker.app.exception.ItemNotFoundException;
@@ -18,9 +19,11 @@ public class BorrowerDocumentServiceImpl implements BorrowerDocumentService {
     private final PartnerApplicationService partnerApplicationService;
 
     @Override
+    @Transactional
     public void deleteDocumentByAttachmentId(Long attachmentId) {
         BorrowerDocument borrowerDocument = getBorrowerDocumentByAttachmentId(attachmentId);
         borrowerDocument.setActive(false);
+
         borrowerDocumentRepository.save(borrowerDocument);
         partnerApplicationService.statusChanger(borrowerDocument.getBorrowerProfile().getPartnerApplication());
     }

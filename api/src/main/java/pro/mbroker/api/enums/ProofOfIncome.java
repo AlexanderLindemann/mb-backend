@@ -5,6 +5,9 @@ import lombok.RequiredArgsConstructor;
 import pro.smartdeal.common.enums.DictionaryEnum;
 import pro.smartdeal.common.enums.EnumWithValue;
 
+import java.util.Arrays;
+import java.util.List;
+
 @Getter
 @RequiredArgsConstructor
 @DictionaryEnum(code = "ProofOfIncome", name = "Вид подтверждения дохода")
@@ -16,6 +19,9 @@ public enum ProofOfIncome implements EnumWithValue<String> {
 
     private final String value;
     private final String name;
+
+    public static final List<ProofOfIncome> REQUIRED_INCOME_PROF_TYPES =
+            Arrays.asList(TWO_NDFL, BANK_REFERENCE, FULL_PACKAGE);
 }
 
 
