@@ -89,3 +89,6 @@ databaseChangeLog:
   - include:
       file: 20230926_504-change_type_inn.xml
       relativeToChangelogFile: true
+  - include:
+      file: 20231012_1400-add-new-fields-to-partner-application.xml
+      relativeToChangelogFile: true

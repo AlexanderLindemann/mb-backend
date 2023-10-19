@@ -5,10 +5,21 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import pro.mbroker.api.enums.CreditPurposeType;
+import pro.mbroker.api.enums.Insurance;
 import pro.mbroker.api.enums.PartnerApplicationStatus;
 import pro.mbroker.api.enums.RealEstateType;
 
-import javax.persistence.*;
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
+import javax.persistence.Table;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,6 +34,19 @@ public class PartnerApplication extends BaseEntity {
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "partner_id", referencedColumnName = "id")
     private Partner partner;
+
+    @Column(name = "maternal_capital_amount", precision = 12, scale = 0)
+    private BigDecimal maternalCapitalAmount;
+
+    @Column(name = "subsidy_amount", precision = 12, scale = 0)
+    private BigDecimal subsidyAmount;
+
+    @Column(name = "payment_source")
+    private String paymentSource;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "insurance")
+    private Insurance insurance;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "credit_purpose_type", nullable = false)

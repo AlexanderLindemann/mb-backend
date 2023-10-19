@@ -6,9 +6,12 @@ import lombok.ToString;
 import pro.mbroker.api.dto.BankWithBankApplicationDto;
 import pro.mbroker.api.dto.MortgageCalculationDto;
 import pro.mbroker.api.enums.CreditPurposeType;
+import pro.mbroker.api.enums.Insurance;
 import pro.mbroker.api.enums.PartnerApplicationStatus;
+import pro.mbroker.api.enums.PaymentSource;
 import pro.mbroker.api.enums.RealEstateType;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -18,6 +21,14 @@ import java.util.UUID;
 @ToString
 public class PartnerApplicationResponse {
     private UUID id;
+
+    private BigDecimal maternalCapitalAmount;
+
+    private BigDecimal subsidyAmount;
+
+    private List<PaymentSource> paymentSource;
+
+    private Insurance insurance;
 
     private CreditPurposeType creditPurposeType;
 

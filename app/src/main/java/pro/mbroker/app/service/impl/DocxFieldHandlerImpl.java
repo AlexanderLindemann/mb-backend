@@ -12,6 +12,7 @@ import pro.mbroker.api.enums.Branch;
 import pro.mbroker.api.enums.Education;
 import pro.mbroker.api.enums.Gender;
 import pro.mbroker.api.enums.NumberOfEmployees;
+import pro.mbroker.api.enums.PaymentSource;
 import pro.mbroker.api.enums.RealEstateType;
 import pro.mbroker.api.enums.TotalWorkExperience;
 import pro.mbroker.app.entity.Bank;
@@ -21,6 +22,7 @@ import pro.mbroker.app.entity.BorrowerProfile;
 import pro.mbroker.app.entity.CreditProgram;
 import pro.mbroker.app.entity.PartnerApplication;
 import pro.mbroker.app.service.DocxFieldHandler;
+import pro.mbroker.app.util.Converter;
 import pro.mbroker.app.util.DocxFieldExtractor;
 
 import java.io.ByteArrayInputStream;
@@ -385,6 +387,30 @@ public class DocxFieldHandlerImpl implements DocxFieldHandler {
                     }
                 });
 
+                put("maternalCapitalAmount", (v) -> Objects.nonNull(partnerApplication)
+                        && Objects.nonNull(partnerApplication.getMaternalCapitalAmount())
+                        ? partnerApplication.getMaternalCapitalAmount().toString()
+                        : "-");
+
+                put("subsidiesAmount", (v) -> Objects.nonNull(partnerApplication.getSubsidyAmount())
+                        ? partnerApplication.getSubsidyAmount().toString()
+                        : "-");
+
+                put("paymentSource", (v) -> {
+                    if (Objects.nonNull(partnerApplication.getPaymentSource())) {
+                        return Converter.convertStringListToEnumList(partnerApplication.getPaymentSource(), PaymentSource.class).stream()
+                                .map(PaymentSource::getName)
+                                .collect(Collectors.joining(", "));
+                    } else {
+                        return "-";
+                    }
+                });
+
+                put("insurance", (v) -> Objects.nonNull(partnerApplication)
+                        && Objects.nonNull(partnerApplication.getInsurance())
+                        ? partnerApplication.getInsurance().toString()
+                        : "-");
+
                 //todo доработать поля, когда будет расширение БД
                 put("borrowerBirthPlace", (v) -> "-");
                 put("borrowerFamilyRelation", (v) -> "-");
@@ -393,10 +419,6 @@ public class DocxFieldHandlerImpl implements DocxFieldHandler {
                 put("borrowerTaxResidencyCountries", (v) -> "-");
                 put("borrowerIsPublicOfficial", (v) -> "-");
                 put("borrowerRelatedPublicOfficial", (v) -> "-");
-                put("paymentSource", (v) -> "-");
-                put("maternalCapitalAmount", (v) -> "-");
-                put("subsidiesAmount", (v) -> "-");
-                put("insurance", (v) -> "-");
                 put("borrowerCompany2Name", (v) -> "-");
                 put("borrowerCompany2Inn", (v) -> "-");
                 put("borrowerCompany2Branch»", (v) -> "-");

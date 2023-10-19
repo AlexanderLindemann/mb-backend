@@ -1,0 +1,16 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+
+    <changeSet id="20231012-add-new-fields-to-partner-application" author="a.lindemann">
+        <addColumn tableName="partner_application">
+            <column name="maternal_capital_amount" type="decimal(12, 0)"/>
+            <column name="subsidy_amount" type="decimal(12, 0)"/>
+            <column name="payment_source" type="varchar(255)"/>
+            <column name="insurance" type="varchar(50)"/>
+        </addColumn>
+    </changeSet>
+
+</databaseChangeLog>

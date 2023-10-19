@@ -27,6 +27,7 @@ import pro.mbroker.api.enums.BankApplicationStatus;
 import pro.mbroker.api.enums.BorrowerProfileStatus;
 import pro.mbroker.api.enums.DocumentType;
 import pro.mbroker.api.enums.PartnerApplicationStatus;
+import pro.mbroker.api.enums.PaymentSource;
 import pro.mbroker.api.enums.RegionType;
 import pro.mbroker.app.entity.Bank;
 import pro.mbroker.app.entity.BankApplication;
@@ -356,6 +357,7 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
         List<BankApplicationResponse> activeBankApplicationResponses = getActiveBankApplicationResponses(partnerApplication, borrowerProfileMap);
         List<BankWithBankApplicationDto> bankWithBankApplicationDtos = getGroupBankApplication(activeBankApplicationResponses);
         response.setBankWithBankApplicationDto(bankWithBankApplicationDtos);
+        response.setPaymentSource(Converter.convertStringListToEnumList(partnerApplication.getPaymentSource(), PaymentSource.class));
         response.setBorrowerProfiles(
                 borrowerProfileMap.values()
                         .stream()
@@ -679,6 +681,7 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
         PartnerApplication partnerApplication = partnerApplicationMapper.toPartnerApplication(request)
                 .setPartner(partner)
                 .setRealEstate(realEstate)
+                .setPaymentSource(Converter.convertEnumListToStringList(request.getPaymentSource()))
                 .setMortgageCalculation(mortgageCalculationMapper.toMortgageCalculation(request.getMortgageCalculation()));
         setSalaryBank(request, partnerApplication);
         return partnerApplication;

@@ -5,8 +5,11 @@ import lombok.Setter;
 import lombok.ToString;
 import pro.mbroker.api.dto.MortgageCalculationDto;
 import pro.mbroker.api.enums.CreditPurposeType;
+import pro.mbroker.api.enums.Insurance;
+import pro.mbroker.api.enums.PaymentSource;
 import pro.mbroker.api.enums.RealEstateType;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 
@@ -14,6 +17,14 @@ import java.util.UUID;
 @Setter
 @ToString
 public class PartnerApplicationRequest {
+
+    private BigDecimal maternalCapitalAmount;
+
+    private BigDecimal subsidyAmount;
+
+    private List<PaymentSource> paymentSource;
+
+    private Insurance insurance;
 
     private CreditPurposeType creditPurposeType;
 

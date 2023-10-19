@@ -71,6 +71,7 @@ public interface BorrowerProfileMapper {
     @Mapping(target = "generatedForm", ignore = true)
     @Mapping(target = "signedForm", ignore = true)
     BorrowerProfile toBorrowerProfile(BorrowerProfileRequest request);
+
     @Mapping(source = "request.firstName", target = "firstName")
     @Mapping(source = "request.lastName", target = "lastName")
     @Mapping(source = "request.middleName", target = "middleName")
