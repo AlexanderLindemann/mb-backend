@@ -45,7 +45,6 @@ import pro.mbroker.app.mapper.BankApplicationMapper;
 import pro.mbroker.app.mapper.BorrowerProfileMapper;
 import pro.mbroker.app.mapper.MortgageCalculationMapper;
 import pro.mbroker.app.mapper.PartnerApplicationMapper;
-import pro.mbroker.app.repository.BankApplicationRepository;
 import pro.mbroker.app.repository.BankRepository;
 import pro.mbroker.app.repository.BorrowerProfileRepository;
 import pro.mbroker.app.repository.PartnerApplicationRepository;
@@ -133,7 +132,7 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
                 Integer createdBy = TokenExtractor.extractSdId(currentUserService.getCurrentUserToken());
                 result = partnerApplicationRepository.findAllByCreatedByAndIsActiveTrue(start, end, createdBy, pageable);
             } else if (auth.getAuthorities().contains(new SimpleGrantedAuthority("MB_CABINET_ACCESS"))) {
-                String phoneNumber = TokenExtractor.extractPhoneNumber(currentUserService.getCurrentUserToken());
+                String phoneNumber = formatPhoneNumber(TokenExtractor.extractPhoneNumber(currentUserService.getCurrentUserToken()));
                 List<PartnerApplication> partnerApplications = getPartnerApplicationsByPhoneNumber(phoneNumber);
                 result = new PageImpl<>(partnerApplications, PageRequest.of(page, size), partnerApplications.size());
             } else {
@@ -192,6 +191,15 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
         List<BankApplication> updatedBorrowerApplications = buildBankApplications(request, existingPartnerApplication);
         existingPartnerApplication.setBankApplications(updatedBorrowerApplications);
         return statusChanger(existingPartnerApplication);
+    }
+
+    private String formatPhoneNumber(String phoneNumber) {
+        String cleanNumber = phoneNumber.startsWith("+") ? phoneNumber.substring(1) : phoneNumber;
+        if (cleanNumber.length() > 10) {
+            return cleanNumber.substring(cleanNumber.length() - 10);
+        } else {
+            return cleanNumber;
+        }
     }
 
     private List<PartnerApplication> getPartnerApplicationsByPhoneNumber(String phoneNumber) {
