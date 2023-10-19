@@ -152,14 +152,12 @@ public class FormServiceImpl implements FormService {
 
         borrowerProfile.getBorrowerDocument().add(singForm);
 
-       // borrowerDocumentService.saveBorrowerDocument(singForm, DocumentType.APPLICATION_FORM);
+        // borrowerDocumentService.saveBorrowerDocument(singForm, DocumentType.APPLICATION_FORM);
         borrowerProfileRepository.save(borrowerProfile);
-        bankApplicationService.getBankApplicationByBorrowerId(borrowerProfile.getId())
-                .stream()
-                .findFirst()
-                .ifPresent(ba ->
-                        bankApplicationService.changeStatus(bankApplication.getId(),
-                        BankApplicationStatus.READY_TO_SENDING));
+        List<BankApplication> bankApplications = bankApplicationService.getBankApplicationByBorrowerId(borrowerProfile.getId());
+        if (Objects.nonNull(bankApplications)) {
+            bankApplications.forEach(ba -> bankApplicationService.changeStatus(ba.getId(), BankApplicationStatus.READY_TO_SENDING));
+        }
     }
 
     private void removeSignatureForm(BorrowerProfile borrowerProfile) {

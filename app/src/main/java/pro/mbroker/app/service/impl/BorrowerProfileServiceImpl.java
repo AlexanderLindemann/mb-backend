@@ -283,18 +283,17 @@ public class BorrowerProfileServiceImpl implements BorrowerProfileService {
                 && isIncomeInfoComplete(profile)) {
 
             partnerApplicationService.statusChanger(profile.getPartnerApplication());
-            bankApplicationService.getBankApplicationByBorrowerId(profile.getId())
-                    .stream()
-                    .findFirst()
-                    .ifPresent(bankApplication -> {
-                        if (profile.getSignedForm() != null) {
-                            profile.setBorrowerProfileStatus(BorrowerProfileStatus.DOCS_SIGNED);
-                            bankApplicationService.changeStatus(bankApplication.getId(), BankApplicationStatus.READY_TO_SENDING);
-                        } else {
-                            profile.setBorrowerProfileStatus(BorrowerProfileStatus.DATA_ENTERED);
-                        }
-                    });
-
+            List<BankApplication> bankApplications = bankApplicationService.getBankApplicationByBorrowerId(profile.getId());
+            if (!bankApplications.isEmpty()) {
+                for (BankApplication bankApplication : bankApplications) {
+                    if (profile.getSignedForm() != null) {
+                        profile.setBorrowerProfileStatus(BorrowerProfileStatus.DOCS_SIGNED);
+                        bankApplicationService.changeStatus(bankApplication.getId(), BankApplicationStatus.READY_TO_SENDING);
+                    } else {
+                        profile.setBorrowerProfileStatus(BorrowerProfileStatus.DATA_ENTERED);
+                    }
+                }
+            }
         }
     }
 
