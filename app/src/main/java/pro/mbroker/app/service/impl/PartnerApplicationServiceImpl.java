@@ -188,6 +188,11 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
         partnerApplicationMapper.updatePartnerApplicationFromRequest(request, existingPartnerApplication);
         mortgageCalculationMapper.updateMortgageCalculationFromRequest(request.getMortgageCalculation(),
                 existingPartnerApplication.getMortgageCalculation());
+        if (Objects.nonNull(request.getPaymentSource())) {
+            existingPartnerApplication.setPaymentSource(Converter.convertEnumListToStringList(request.getPaymentSource()));
+        } else {
+            existingPartnerApplication.setPaymentSource(null);
+        }
         setSalaryBank(request, existingPartnerApplication);
         existingPartnerApplication.setRealEstate(realEstateService.findById(request.getRealEstateId()));
         List<BankApplication> updatedBorrowerApplications = buildBankApplications(request, existingPartnerApplication);
@@ -683,8 +688,10 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
         PartnerApplication partnerApplication = partnerApplicationMapper.toPartnerApplication(request)
                 .setPartner(partner)
                 .setRealEstate(realEstate)
-                .setPaymentSource(Converter.convertEnumListToStringList(request.getPaymentSource()))
                 .setMortgageCalculation(mortgageCalculationMapper.toMortgageCalculation(request.getMortgageCalculation()));
+        if (Objects.nonNull(request.getPaymentSource())) {
+            partnerApplication.setPaymentSource(Converter.convertEnumListToStringList(request.getPaymentSource()));
+        }
         setSalaryBank(request, partnerApplication);
         return partnerApplication;
     }
