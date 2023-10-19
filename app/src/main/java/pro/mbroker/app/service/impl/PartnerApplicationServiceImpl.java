@@ -482,6 +482,7 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
                 .sorted(Comparator.comparing(BorrowerProfile::getCreatedAt))
                 .collect(Collectors.toList());
         partnerApplication.setBorrowerProfiles(sortedBorrowerProfiles);
+        statusChanger(partnerApplication);
         return partnerApplication;
     }
 
