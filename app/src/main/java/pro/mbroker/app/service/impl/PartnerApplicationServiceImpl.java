@@ -2,6 +2,7 @@ package pro.mbroker.app.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.Session;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -63,6 +64,7 @@ import pro.mbroker.app.util.TokenExtractor;
 import pro.smartdeal.common.security.Permission;
 import pro.smartdeal.ng.common.security.service.CurrentUserService;
 
+import javax.persistence.EntityManager;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -100,6 +102,7 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
     private final BorrowerProfileMapper borrowerProfileMapper;
     private final BankApplicationMapper bankApplicationMapper;
     private final MortgageCalculationMapper mortgageCalculationMapper;
+    private final EntityManager entityManager;
 
     private static final List<DocumentType> REQUIRED_DOCUMENT_TYPES =
             Arrays.asList(DocumentType.BORROWER_PASSPORT, DocumentType.BORROWER_SNILS);
@@ -125,14 +128,18 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
         Page<PartnerApplication> result = Page.empty(pageable);
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         try {
-            if (auth.getAuthorities().contains(new SimpleGrantedAuthority(Permission.Code.MB_ADMIN_ACCESS.toString()))) {
+            Session hibernateSession = entityManager.unwrap(Session.class);
+            if (auth.getAuthorities().contains(new SimpleGrantedAuthority(Permission.Code.MB_ADMIN_ACCESS))) {
                 result = partnerApplicationRepository.findAllByIsActiveTrue(start, end, pageable);
-            } else if (auth.getAuthorities().contains(new SimpleGrantedAuthority(Permission.Code.MB_REQUEST_READ_ORGANIZATION.toString()))) {
+                hibernateSession.evict(result);
+            } else if (auth.getAuthorities().contains(new SimpleGrantedAuthority(Permission.Code.MB_REQUEST_READ_ORGANIZATION))) {
                 UUID partnerId = partnerService.getCurrentPartner().getId();
                 result = partnerApplicationRepository.findAllIsActiveByPartnerId(start, end, partnerId, pageable);
-            } else if (auth.getAuthorities().contains(new SimpleGrantedAuthority(Permission.Code.MB_REQUEST_READ_OWN.toString()))) {
+                hibernateSession.evict(result);
+            } else if (auth.getAuthorities().contains(new SimpleGrantedAuthority(Permission.Code.MB_REQUEST_READ_OWN))) {
                 Integer createdBy = TokenExtractor.extractSdId(currentUserService.getCurrentUserToken());
                 result = partnerApplicationRepository.findAllByCreatedByAndIsActiveTrue(start, end, createdBy, pageable);
+                hibernateSession.evict(result);
             } else if (auth.getAuthorities().contains(new SimpleGrantedAuthority("MB_CABINET_ACCESS"))) {
                 String phoneNumber = formatPhoneNumber(TokenExtractor.extractPhoneNumber(currentUserService.getCurrentUserToken()));
                 List<PartnerApplication> partnerApplications = getPartnerApplicationsByPhoneNumber(phoneNumber);
