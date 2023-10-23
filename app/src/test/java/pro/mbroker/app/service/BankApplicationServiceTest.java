@@ -15,6 +15,7 @@ import java.math.BigDecimal;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -85,7 +86,7 @@ public class BankApplicationServiceTest extends AbstractServiceTest {
         assertEquals(bankApplication.getOverpayment(), BigDecimal.valueOf(6000000));
         assertEquals(bankApplication.getPartnerApplication().getId(), UUID.fromString("5ff4b32c-f967-4cb1-8705-7470a321fe34"));
         assertEquals(bankApplication.getId(), UUID.fromString("3b339aa4-5462-485a-9118-5922cd948566"));
-        assertEquals(bankApplication.isActive(), true);
+        assertTrue(bankApplication.isActive());
     }
 
 }
