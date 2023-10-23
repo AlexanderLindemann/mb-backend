@@ -21,8 +21,7 @@ public class UserServiceTest extends AbstractControllerTest {
     private UserServiceImpl userServiceImpl;
 
     private static final List<String> PERMISSION_SCOPES =
-            List.of("MB_ACCESS",
-                    "MB_REQUEST_READ_OWN",
+            List.of("MB_REQUEST_READ_OWN",
                     "MB_REQUEST_READ_ORGANIZATION",
                     "MB_ADMIN_ACCESS");
 

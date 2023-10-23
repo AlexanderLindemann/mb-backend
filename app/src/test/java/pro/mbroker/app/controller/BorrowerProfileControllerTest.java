@@ -8,19 +8,43 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MvcResult;
 import pro.mbroker.api.dto.request.BorrowerRequest;
 import pro.mbroker.api.dto.response.BorrowerProfileResponse;
+import pro.mbroker.api.enums.BasisOfOwnership;
+import pro.mbroker.api.enums.Branch;
+import pro.mbroker.api.enums.Education;
+import pro.mbroker.api.enums.EmploymentStatus;
+import pro.mbroker.api.enums.Gender;
+import pro.mbroker.api.enums.MaritalStatus;
+import pro.mbroker.api.enums.MarriageContract;
+import pro.mbroker.api.enums.NumberOfEmployees;
+import pro.mbroker.api.enums.OrganizationAge;
+import pro.mbroker.api.enums.ProofOfIncome;
+import pro.mbroker.api.enums.RealEstateType;
+import pro.mbroker.api.enums.RegistrationType;
+import pro.mbroker.api.enums.TotalWorkExperience;
 import pro.mbroker.app.TestData;
+import pro.mbroker.app.entity.Bank;
+import pro.mbroker.app.entity.BorrowerProfile;
+import pro.mbroker.app.service.BorrowerProfileService;
 
+import java.time.LocalDate;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
+import static org.hibernate.validator.internal.util.Contracts.assertNotNull;
 import static org.hibernate.validator.internal.util.Contracts.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
 public class BorrowerProfileControllerTest extends AbstractControllerTest {
+    @Autowired
+    private BorrowerProfileService borrowerProfileService;
 
     @Autowired
     private TestData testData;
@@ -60,6 +84,272 @@ public class BorrowerProfileControllerTest extends AbstractControllerTest {
                             expectedCoBorrower.getLastName().equals(coBorrower.get("lastName")) &&
                             expectedCoBorrower.getEmail().equals(coBorrower.get("email")));
             assertTrue(found, "Did not find expected coBorrower: " + expectedCoBorrower);
+        }
+    }
+
+    @Test
+    public void testUpdateBorrowerProfileFieldsSequentially() {
+        updateField("{\"additionalIncome\": 10000}");
+        updateField("{\"age\": 35}");
+        updateField("{\"birthdate\": \"1990-01-01\"}");
+        updateField("{\"children\": 2}");
+        updateField("{\"education\": \"INCOMPLETE_SECONDARY\"}");
+        updateField("{\"email\": \"email@test.com\"}");
+        updateField("{\"employmentStatus\": \"EMPLOYEE\"}");
+        updateField("{\"firstName\": \"test_first_name\"}");
+        updateField("{\"gender\": \"MALE\"}");
+        updateField("{\"lastName\": \"test_last_name\"}");
+        updateField("{\"mainIncome\": 100000}");
+        updateField("{\"maritalStatus\": \"MARRIED\"}");
+        updateField("{\"marriageContract\": \"NO\"}");
+        updateField("{\"middleName\": \"test_middle_name\"}");
+        updateField("{\"passportIssuedByCode\": \"123123\"}");
+        updateField("{\"passportIssuedByName\": \"Отделение Тестового УВД\"}");
+        updateField("{\"passportIssuedDate\": \"2020-01-01\"}");
+        updateField("{\"passportNumber\": \"11112222\"}");
+        updateField("{\"pension\": 10000}");
+        updateField("{\"phoneNumber\": \"9999999999\"}");
+        updateField("{\"prevFullName\": \"Тестовый Тестослав Тестович\"}");
+        updateField("{\"proofOfIncome\": \"TWO_NDFL\"}");
+        updateField("{\"registrationAddress\": \"test_address\"}");
+        updateField("{\"registrationType\": \"PERMANENT\"}");
+        updateField("{\"residenceAddress\": \"test_address_residence\"}");
+        updateField("{\"residenceRF\": true}");
+        updateField("{\"snils\": \"8877665544\"}");
+        updateField("{\"totalWorkExperience\": \"FROM_1_TO_3\"}");
+        updateField("{\"employer\": {\"address\": \"test_address\"}}");
+        updateField("{\"employer\": {\"branch\": \"RESCUE\"}}");
+        updateField("{\"employer\": {\"inn\": 555666677788}}");
+        updateField("{\"employer\": {\"name\": \"test_name_employer\"}}");
+        updateField("{\"employer\": {\"numberOfEmployees\": \"LESS_THAN_10\"}}");
+        updateField("{\"employer\": {\"organizationAge\": \"LESS_THAN_1\"}}");
+        updateField("{\"employer\": {\"phone\": \"4556667778\"}}");
+        updateField("{\"employer\": {\"position\": \"director\"}}");
+        updateField("{\"employer\": {\"site\": \"site.com\"}}");
+        updateField("{\"employer\": {\"workExperience\": \"FROM_1_TO_3\"}}");
+        updateField("{\"realEstate\": {\"address\": \"test_address\"}}");
+        updateField("{\"realEstate\": {\"area\": 100}}");
+        updateField("{\"realEstate\": {\"basisOfOwnership\": \"PURCHASE\"}}");
+        updateField("{\"realEstate\": {\"isCollateral\": true}}");
+        updateField("{\"realEstate\": {\"price\": 10000000}}");
+        updateField("{\"realEstate\": {\"share\": 50}}");
+        updateField("{\"realEstate\": {\"type\": \"APARTMENT\"}}");
+        updateField("{\"vehicle\": {\"basisOfOwnership\": \"PURCHASE\"}}");
+        updateField("{\"vehicle\": {\"isCollateral\": true}}");
+        updateField("{\"vehicle\": {\"model\": \"LADA_BAKLAZHAN\"}}");
+        updateField("{\"vehicle\": {\"price\": 1000000}}");
+        updateField("{\"vehicle\": {\"yearOfManufacture\": 2000}}");
+
+        BorrowerProfile borrowerProfile = borrowerProfileService.findByIdWithRealEstateVehicleAndEmployer(UUID.fromString("1348b508-f476-11ed-a05b-0242ac120003"));
+        assertEquals(10000, borrowerProfile.getAdditionalIncome());
+        assertEquals(35, borrowerProfile.getAge());
+        assertEquals(LocalDate.of(1990, 1, 1), borrowerProfile.getBirthdate());
+        assertEquals(2, borrowerProfile.getChildren());
+        assertEquals(Education.INCOMPLETE_SECONDARY, borrowerProfile.getEducation());
+        assertEquals("email@test.com", borrowerProfile.getEmail());
+        assertEquals(EmploymentStatus.EMPLOYEE, borrowerProfile.getEmploymentStatus());
+        assertEquals("test_first_name", borrowerProfile.getFirstName());
+        assertEquals(Gender.MALE, borrowerProfile.getGender());
+        assertEquals("test_last_name", borrowerProfile.getLastName());
+        assertEquals(100000, borrowerProfile.getMainIncome());
+        assertEquals(MaritalStatus.MARRIED, borrowerProfile.getMaritalStatus());
+        assertEquals(MarriageContract.NO, borrowerProfile.getMarriageContract());
+        assertEquals("test_middle_name", borrowerProfile.getMiddleName());
+        assertEquals("123123", borrowerProfile.getPassportIssuedByCode());
+        assertEquals("Отделение Тестового УВД", borrowerProfile.getPassportIssuedByName());
+        assertEquals(LocalDate.of(2020, 1, 1), borrowerProfile.getPassportIssuedDate());
+        assertEquals("11112222", borrowerProfile.getPassportNumber());
+        assertEquals(10000, borrowerProfile.getPension());
+        assertEquals("9999999999", borrowerProfile.getPhoneNumber());
+        assertEquals("Тестовый Тестослав Тестович", borrowerProfile.getPrevFullName());
+        assertEquals(ProofOfIncome.TWO_NDFL, borrowerProfile.getProofOfIncome());
+        assertEquals("test_address_residence", borrowerProfile.getResidenceAddress());
+        assertEquals(RegistrationType.PERMANENT, borrowerProfile.getRegistrationType());
+        assertEquals("test_address_residence", borrowerProfile.getResidenceAddress());
+        assertEquals(true, borrowerProfile.getResidenceRF());
+        assertEquals("8877665544", borrowerProfile.getSnils());
+        assertEquals(TotalWorkExperience.FROM_1_TO_3, borrowerProfile.getTotalWorkExperience());
+        assertEquals("test_address", borrowerProfile.getEmployer().getAddress());
+        assertEquals(Branch.RESCUE, borrowerProfile.getEmployer().getBranch());
+        assertEquals(555666677788L, borrowerProfile.getEmployer().getInn());
+        assertEquals("test_name_employer", borrowerProfile.getEmployer().getName());
+        assertEquals(NumberOfEmployees.LESS_THAN_10, borrowerProfile.getEmployer().getNumberOfEmployees());
+        assertEquals(OrganizationAge.LESS_THAN_1, borrowerProfile.getEmployer().getOrganizationAge());
+        assertEquals("4556667778", borrowerProfile.getEmployer().getPhone());
+        assertEquals("director", borrowerProfile.getEmployer().getPosition());
+        assertEquals("site.com", borrowerProfile.getEmployer().getSite());
+        assertEquals(TotalWorkExperience.FROM_1_TO_3, borrowerProfile.getEmployer().getWorkExperience());
+        assertEquals("test_address", borrowerProfile.getRealEstate().getAddress());
+        assertEquals(100, borrowerProfile.getRealEstate().getArea());
+        assertEquals(BasisOfOwnership.PURCHASE, borrowerProfile.getRealEstate().getBasisOfOwnership());
+        assertEquals(true, borrowerProfile.getRealEstate().getIsCollateral());
+        assertEquals(10000000, borrowerProfile.getRealEstate().getPrice());
+        assertEquals(50, borrowerProfile.getRealEstate().getShare());
+        assertEquals(RealEstateType.APARTMENT, borrowerProfile.getRealEstate().getType());
+        assertEquals(BasisOfOwnership.PURCHASE, borrowerProfile.getVehicle().getBasisOfOwnership());
+        assertEquals(true, borrowerProfile.getVehicle().getIsCollateral());
+        assertEquals("LADA_BAKLAZHAN", borrowerProfile.getVehicle().getModel());
+        assertEquals(1000000, borrowerProfile.getVehicle().getPrice());
+        assertEquals(2000, borrowerProfile.getVehicle().getYearOfManufacture());
+    }
+
+    @Test
+    public void testDeleteBorrowerProfileFieldsSequentially() {
+        updateField("{\"additionalIncome\": null}");
+        updateField("{\"age\": null}");
+        updateField("{\"birthdate\": null}");
+        updateField("{\"children\": null}");
+        updateField("{\"education\": null}");
+        updateField("{\"email\": null}");
+        updateField("{\"employmentStatus\": null}");
+        updateField("{\"firstName\":null}");
+        updateField("{\"gender\": null}");
+        updateField("{\"lastName\": null}");
+        updateField("{\"mainIncome\": null}");
+        updateField("{\"maritalStatus\": null}");
+        updateField("{\"marriageContract\": null}");
+        updateField("{\"middleName\": null}");
+        updateField("{\"passportIssuedByCode\": null}");
+        updateField("{\"passportIssuedByName\": null}");
+        updateField("{\"passportIssuedDate\": null}");
+        updateField("{\"passportNumber\": null}");
+        updateField("{\"pension\": null}");
+        updateField("{\"phoneNumber\": null}");
+        updateField("{\"prevFullName\": null}");
+        updateField("{\"proofOfIncome\": null}");
+        updateField("{\"registrationAddress\": null}");
+        updateField("{\"registrationType\": null}");
+        updateField("{\"residenceAddress\": null}");
+        updateField("{\"residenceRF\": null}");
+        updateField("{\"snils\": null}");
+        updateField("{\"totalWorkExperience\": null}");
+        updateField("{\"employer\": {\"address\": null}}");
+        updateField("{\"employer\": {\"branch\": null}}");
+        updateField("{\"employer\": {\"inn\": null}}");
+        updateField("{\"employer\": {\"name\": null}}");
+        updateField("{\"employer\": {\"numberOfEmployees\": null}}");
+        updateField("{\"employer\": {\"organizationAge\": null}}");
+        updateField("{\"employer\": {\"phone\": null}}");
+        updateField("{\"employer\": {\"position\": null}}");
+        updateField("{\"employer\": {\"site\": null}}");
+        updateField("{\"employer\": {\"workExperience\": null}}");
+        updateField("{\"realEstate\": {\"address\": null}}");
+        updateField("{\"realEstate\": {\"area\": null}}");
+        updateField("{\"realEstate\": {\"basisOfOwnership\": null}}");
+        updateField("{\"realEstate\": {\"isCollateral\": null}}");
+        updateField("{\"realEstate\": {\"price\": null}}");
+        updateField("{\"realEstate\": {\"share\": null}}");
+        updateField("{\"realEstate\": {\"type\": null}}");
+        updateField("{\"vehicle\": {\"basisOfOwnership\": null}}");
+        updateField("{\"vehicle\": {\"isCollateral\": null}}");
+        updateField("{\"vehicle\": {\"model\": null}}");
+        updateField("{\"vehicle\": {\"price\": null}}");
+        updateField("{\"vehicle\": {\"yearOfManufacture\": null}}");
+
+        BorrowerProfile borrowerProfile = borrowerProfileService.findByIdWithRealEstateVehicleAndEmployer(UUID.fromString("1348b508-f476-11ed-a05b-0242ac120003"));
+        assertEquals(null, borrowerProfile.getAdditionalIncome());
+        assertEquals(null, borrowerProfile.getAge());
+        assertEquals(null, borrowerProfile.getBirthdate());
+        assertEquals(null, borrowerProfile.getChildren());
+        assertEquals(null, borrowerProfile.getEducation());
+        assertEquals(null, borrowerProfile.getEmail());
+        assertEquals(null, borrowerProfile.getEmploymentStatus());
+        assertEquals(null, borrowerProfile.getFirstName());
+        assertEquals(null, borrowerProfile.getGender());
+        assertEquals(null, borrowerProfile.getLastName());
+        assertEquals(null, borrowerProfile.getMainIncome());
+        assertEquals(null, borrowerProfile.getMaritalStatus());
+        assertEquals(null, borrowerProfile.getMarriageContract());
+        assertEquals(null, borrowerProfile.getMiddleName());
+        assertEquals(null, borrowerProfile.getPassportIssuedByCode());
+        assertEquals(null, borrowerProfile.getPassportIssuedByName());
+        assertEquals(null, borrowerProfile.getPassportIssuedDate());
+        assertEquals(null, borrowerProfile.getPassportNumber());
+        assertEquals(null, borrowerProfile.getPension());
+        assertEquals(null, borrowerProfile.getPhoneNumber());
+        assertEquals(null, borrowerProfile.getPrevFullName());
+        assertEquals(null, borrowerProfile.getProofOfIncome());
+        assertEquals(null, borrowerProfile.getResidenceAddress());
+        assertEquals(null, borrowerProfile.getRegistrationType());
+        assertEquals(null, borrowerProfile.getResidenceAddress());
+        assertEquals(null, borrowerProfile.getResidenceRF());
+        assertEquals(null, borrowerProfile.getSnils());
+        assertEquals(null, borrowerProfile.getTotalWorkExperience());
+        assertEquals(null, borrowerProfile.getEmployer().getAddress());
+        assertEquals(null, borrowerProfile.getEmployer().getBranch());
+        assertEquals(null, borrowerProfile.getEmployer().getInn());
+        assertEquals(null, borrowerProfile.getEmployer().getName());
+        assertEquals(null, borrowerProfile.getEmployer().getNumberOfEmployees());
+        assertEquals(null, borrowerProfile.getEmployer().getOrganizationAge());
+        assertEquals(null, borrowerProfile.getEmployer().getPhone());
+        assertEquals(null, borrowerProfile.getEmployer().getPosition());
+        assertEquals(null, borrowerProfile.getEmployer().getSite());
+        assertEquals(null, borrowerProfile.getEmployer().getWorkExperience());
+        assertEquals(null, borrowerProfile.getRealEstate().getAddress());
+        assertEquals(null, borrowerProfile.getRealEstate().getArea());
+        assertEquals(null, borrowerProfile.getRealEstate().getBasisOfOwnership());
+        assertEquals(null, borrowerProfile.getRealEstate().getIsCollateral());
+        assertEquals(null, borrowerProfile.getRealEstate().getPrice());
+        assertEquals(null, borrowerProfile.getRealEstate().getShare());
+        assertEquals(null, borrowerProfile.getRealEstate().getType());
+        assertEquals(null, borrowerProfile.getVehicle().getBasisOfOwnership());
+        assertEquals(null, borrowerProfile.getVehicle().getIsCollateral());
+        assertEquals(null, borrowerProfile.getVehicle().getModel());
+        assertEquals(null, borrowerProfile.getVehicle().getPrice());
+        assertEquals(null, borrowerProfile.getVehicle().getYearOfManufacture());
+    }
+
+    @Test
+    public void testAddSalaryBanks() {
+        updateField("{\"employer\": {\"salaryBanks\": [\"1fd0708a-d848-11ed-afa1-0242ac120002\", \"0c371042-d848-11ed-afa1-0242ac120002\"]}}");
+        BorrowerProfile borrowerProfile = borrowerProfileService.findByIdWithRealEstateVehicleAndEmployer(UUID.fromString("1348b508-f476-11ed-a05b-0242ac120003"));
+        assertNotNull(borrowerProfile.getEmployer().getSalaryBanks());
+        Set<UUID> actualSalaryBanks = borrowerProfile.getEmployer().getSalaryBanks().stream()
+                .map(Bank::getId)
+                .collect(Collectors.toSet());
+        Set<UUID> expectedBanks = new HashSet<>();
+        expectedBanks.add(UUID.fromString("1fd0708a-d848-11ed-afa1-0242ac120002"));
+        expectedBanks.add(UUID.fromString("0c371042-d848-11ed-afa1-0242ac120002"));
+        assertEquals(expectedBanks, actualSalaryBanks);
+    }
+
+    @Test
+    public void testModifySalaryBanks() {
+        updateField("{\"employer\": {\"salaryBanks\": [\"1fd0708a-d848-11ed-afa1-0242ac120002\", \"0c371042-d848-11ed-afa1-0242ac120002\"]}}");
+        updateField("{\"employer\": {\"salaryBanks\": [\"2708daa4-d848-11ed-afa1-0242ac120002\", \"0c371042-d848-11ed-afa1-0242ac120002\"]}}");
+        BorrowerProfile borrowerProfile = borrowerProfileService.findByIdWithRealEstateVehicleAndEmployer(UUID.fromString("1348b508-f476-11ed-a05b-0242ac120003"));
+        assertNotNull(borrowerProfile.getEmployer().getSalaryBanks());
+        Set<UUID> actualSalaryBanks = borrowerProfile.getEmployer().getSalaryBanks().stream()
+                .map(Bank::getId)
+                .collect(Collectors.toSet());
+        assertEquals(2, actualSalaryBanks.size());
+        Set<UUID> expectedBanks = new HashSet<>();
+        expectedBanks.add(UUID.fromString("2708daa4-d848-11ed-afa1-0242ac120002"));
+        expectedBanks.add(UUID.fromString("0c371042-d848-11ed-afa1-0242ac120002"));
+        assertEquals(expectedBanks, actualSalaryBanks);
+    }
+
+    @Test
+    public void testDeleteSalaryBanks() {
+        updateField("{\"employer\": {\"salaryBanks\": [\"1fd0708a-d848-11ed-afa1-0242ac120002\", \"0c371042-d848-11ed-afa1-0242ac120002\"]}}");
+        updateField("{\"employer\": {\"salaryBanks\": null}}");
+        BorrowerProfile borrowerProfile = borrowerProfileService.findByIdWithRealEstateVehicleAndEmployer(UUID.fromString("1348b508-f476-11ed-a05b-0242ac120003"));
+        assertNotNull(borrowerProfile.getEmployer().getSalaryBanks());
+        Set<UUID> actualSalaryBanks = borrowerProfile.getEmployer().getSalaryBanks().stream()
+                .map(Bank::getId)
+                .collect(Collectors.toSet());
+        assertEquals(0, actualSalaryBanks.size());
+    }
+
+    private void updateField(String requestBody) {
+        UUID borrowerProfileId = UUID.fromString("1348b508-f476-11ed-a05b-0242ac120003");
+        try {
+            mockMvc.perform(put("/public/borrower_profile/" + borrowerProfileId + "/updateField")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(requestBody))
+                    .andExpect(status().isOk());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 }

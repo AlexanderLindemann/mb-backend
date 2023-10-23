@@ -17,6 +17,8 @@ FROM credit_program_detail;
 DELETE
 FROM bank_contact;
 DELETE
+FROM employer_bank_relation;
+DELETE
 FROM bank;
 DELETE
 FROM mortgage_calculation;

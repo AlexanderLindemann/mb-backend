@@ -40,7 +40,6 @@ subprojects {
     apply plugin: 'java-library'
     apply plugin: 'io.spring.dependency-management'
 
-   // apply from: "${rootProject.projectDir}/gradle/sd_plugins/pmd.gradle"
     apply from: "${rootProject.projectDir}/gradle/sd_plugins/lombok.gradle"
     apply from: "${rootProject.projectDir}/gradle/sd_plugins/mapstruct.gradle"
 
@@ -65,8 +64,6 @@ subprojects {
         }
         implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
         implementation 'org.apache.pdfbox:pdfbox:2.0.28'
-        testImplementation 'org.powermock:powermock-core:2.0.9'
-        testImplementation 'org.mockito:mockito-core:5.5.0'
     }
 
     repositories {
