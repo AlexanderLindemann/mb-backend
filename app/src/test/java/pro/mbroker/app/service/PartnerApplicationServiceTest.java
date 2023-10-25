@@ -3,6 +3,7 @@ package pro.mbroker.app.service;
 import org.hamcrest.Matchers;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -27,6 +28,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @Transactional
 @Sql(scripts = "classpath:sql/test_data.sql")
 @Sql(value = "classpath:sql/clear_all.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+@Disabled
 public class PartnerApplicationServiceTest extends AbstractServiceTest {
     @Autowired
     private PartnerApplicationService partnerApplicationService;

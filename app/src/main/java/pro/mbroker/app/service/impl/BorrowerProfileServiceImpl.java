@@ -20,6 +20,7 @@ import pro.mbroker.api.enums.DocumentType;
 import pro.mbroker.api.enums.EmploymentStatus;
 import pro.mbroker.app.entity.Bank;
 import pro.mbroker.app.entity.BankApplication;
+import pro.mbroker.app.entity.BaseEntity;
 import pro.mbroker.app.entity.BorrowerDocument;
 import pro.mbroker.app.entity.BorrowerEmployer;
 import pro.mbroker.app.entity.BorrowerProfile;
@@ -120,7 +121,7 @@ public class BorrowerProfileServiceImpl implements BorrowerProfileService {
             return Collections.emptyList();
         }
         List<BorrowerDocument> latestActiveDocuments = new ArrayList<>(documents.stream()
-                .filter(d -> d.isActive() && d.getDocumentType() != DocumentType.APPLICATION_FORM)
+                .filter(BaseEntity::isActive)
                 .collect(Collectors.toMap(
                         BorrowerDocument::getDocumentType,
                         d -> d,

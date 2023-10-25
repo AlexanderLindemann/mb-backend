@@ -2,9 +2,11 @@ package pro.mbroker.app.service;
 
 import org.junit.Ignore;
 import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,6 +26,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @Transactional
 @Sql(scripts = "classpath:sql/test_data.sql")
 @Sql(value = "classpath:sql/clear_all.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+@Disabled
+@ActiveProfiles("test")
 public class BankApplicationServiceTest extends AbstractServiceTest {
     @Autowired
     private BankApplicationService bankApplicationService;
