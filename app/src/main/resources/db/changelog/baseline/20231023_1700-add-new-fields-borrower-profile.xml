@@ -1,0 +1,45 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+
+    <changeSet id="change_inn_to_tin" author="a.lindemann">
+        <renameColumn
+                columnDataType="bigint"
+                oldColumnName="inn"
+                newColumnName="TIN"
+                tableName="borrower_employer"/>
+
+        <modifyDataType
+                columnName="TIN"
+                newDataType="VARCHAR(12)"
+                tableName="borrower_employer"/>
+
+        <modifyDataType
+                columnName="TIN"
+                newDataType="VARCHAR(12)"
+        tableName="borrower_profile"/>
+    </changeSet>
+
+    <changeSet id="add-new-fields-to-borrower_profile" author="a.lindemann">
+        <addColumn tableName="borrower_profile">
+            <column name="public_official_position" type="varchar(255)">
+                <constraints nullable="true" />
+            </column>
+            <column name="tin_foreign" type="varchar(32)">
+                <constraints nullable="true" />
+            </column>
+            <column name="birth_place" type="varchar(255)">
+                <constraints nullable="true" />
+            </column>
+            <column name="citizenship" type="varchar(128)">
+                <constraints nullable="true" />
+            </column>
+            <column name="tax_residency_countries" type="varchar(16)">
+                <constraints nullable="true" />
+            </column>
+        </addColumn>
+    </changeSet>
+
+</databaseChangeLog>

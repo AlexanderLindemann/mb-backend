@@ -9,7 +9,16 @@ import pro.mbroker.api.enums.NumberOfEmployees;
 import pro.mbroker.api.enums.OrganizationAge;
 import pro.mbroker.api.enums.TotalWorkExperience;
 
-import javax.persistence.*;
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
+import javax.persistence.OneToOne;
+import javax.persistence.Table;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -24,8 +33,8 @@ public class BorrowerEmployer extends BaseEntity {
     @Column(name = "name", nullable = false)
     private String name;
 
-    @Column(name = "inn", nullable = false)
-    private Long inn;
+    @Column(name = "TIN", nullable = false)
+    private String tin;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "branch", nullable = false)

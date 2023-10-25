@@ -8,6 +8,7 @@ import pro.mbroker.api.dto.BorrowerVehicleDto;
 import pro.mbroker.api.dto.EmployerDto;
 import pro.mbroker.api.enums.Education;
 import pro.mbroker.api.enums.EmploymentStatus;
+import pro.mbroker.api.enums.FamilyRelation;
 import pro.mbroker.api.enums.Gender;
 import pro.mbroker.api.enums.MaritalStatus;
 import pro.mbroker.api.enums.MarriageContract;
@@ -33,25 +34,11 @@ public class BorrowerProfileUpdateRequest {
 
     private String email;
 
+    private String tin;
+
     private String prevFullName;
 
-    private LocalDate birthdate;
-
-    private Integer age;
-
-    private Gender gender;
-
-    private MaritalStatus maritalStatus;
-
-    private Integer children;
-
-    private MarriageContract marriageContract;
-
-    private Education education;
-
     private String passportNumber;
-
-    private LocalDate passportIssuedDate;
 
     private String passportIssuedByCode;
 
@@ -61,15 +48,25 @@ public class BorrowerProfileUpdateRequest {
 
     private String residenceAddress;
 
-    private RegistrationType registrationType;
-
     private String snils;
 
-    private Boolean residenceRF;
+    private String residencyOutsideRU;
 
-    private EmploymentStatus employmentStatus;
+    private String longTermStayOutsideRU;
 
-    private TotalWorkExperience totalWorkExperience;
+    private String taxResidencyCountries;
+
+    private String publicOfficialPosition;
+
+    private String tinForeign;
+
+    private String birthPlace;
+
+    private String citizenship;
+
+    private Integer age;
+
+    private Integer children;
 
     private Integer mainIncome;
 
@@ -77,7 +74,33 @@ public class BorrowerProfileUpdateRequest {
 
     private Integer pension;
 
+    private Boolean residenceRF;
+
+    private Boolean isPublicOfficial;
+
+    private LocalDate birthdate;
+
+    private LocalDate passportIssuedDate;
+
+    private FamilyRelation relatedPublicOfficial;
+
+    private MarriageContract marriageContract;
+
+    private Education education;
+
+    private EmploymentStatus employmentStatus;
+
+    private RegistrationType registrationType;
+
+    private MaritalStatus maritalStatus;
+
+    private TotalWorkExperience totalWorkExperience;
+
+    private Gender gender;
+
     private ProofOfIncome proofOfIncome;
+
+    private FamilyRelation familyRelation;
 
     private EmployerDto employer;
 

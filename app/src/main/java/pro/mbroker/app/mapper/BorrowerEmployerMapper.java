@@ -17,7 +17,7 @@ public interface BorrowerEmployerMapper {
         }
 
         Optional.ofNullable(dto.getName()).ifPresent(employer::setName);
-        Optional.ofNullable(dto.getInn()).ifPresent(employer::setInn);
+        Optional.ofNullable(dto.getTin()).ifPresent(employer::setTin);
         Optional.ofNullable(dto.getBranch()).ifPresent(employer::setBranch);
         Optional.ofNullable(dto.getNumberOfEmployees()).ifPresent(employer::setNumberOfEmployees);
         Optional.ofNullable(dto.getOrganizationAge()).ifPresent(employer::setOrganizationAge);

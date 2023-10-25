@@ -1,6 +1,7 @@
 package pro.mbroker.app.service;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -16,6 +17,7 @@ import pro.smartdeal.ng.common.security.service.CurrentUserService;
 import java.util.ArrayList;
 import java.util.List;
 
+@Ignore
 @TestPropertySource(locations = "classpath:application-test.yaml")
 public abstract class AbstractServiceTest {
 

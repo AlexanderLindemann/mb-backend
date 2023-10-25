@@ -92,3 +92,6 @@ databaseChangeLog:
   - include:
       file: 20231012_1400-add-new-fields-to-partner-application.xml
       relativeToChangelogFile: true
+  - include:
+      file: 20231023_1700-add-new-fields-borrower-profile.xml
+      relativeToChangelogFile: true

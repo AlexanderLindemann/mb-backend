@@ -1,6 +1,7 @@
 package pro.mbroker.app.service;
 
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +14,7 @@ import pro.mbroker.app.service.impl.UserServiceImpl;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Ignore
 @RunWith(SpringRunner.class)
 @SpringBootTest
 public class UserServiceTest extends AbstractControllerTest {

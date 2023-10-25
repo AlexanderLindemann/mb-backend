@@ -105,7 +105,7 @@ public class BorrowerProfileServiceImpl implements BorrowerProfileService {
                 .stream()
                 .filter(borrowerProfile ->
                         !borrowerProfile.getId().equals(mainBorrower.getId()) && borrowerProfile.isActive()
-                ). map( co -> co.setBorrowerDocument(getActiveBorrowerDocuments(co.getBorrowerDocument())))
+                ).map(co -> co.setBorrowerDocument(getActiveBorrowerDocuments(co.getBorrowerDocument())))
                 .collect(Collectors.toMap(BorrowerProfile::getId, borrowerProfileMapper::toBorrowerProfileResponse));
 
         List<BorrowerProfileResponse> sortedCoBorrowerProfiles = new ArrayList<>(coBorrowerProfiles.values());
@@ -114,7 +114,8 @@ public class BorrowerProfileServiceImpl implements BorrowerProfileService {
                 .setMainBorrower(borrowerProfileMapper.toBorrowerProfileResponse(mainBorrower))
                 .setCoBorrower(sortedCoBorrowerProfiles);
     }
-    private List<BorrowerDocument> getActiveBorrowerDocuments (List<BorrowerDocument> documents) {
+
+    private List<BorrowerDocument> getActiveBorrowerDocuments(List<BorrowerDocument> documents) {
         if (documents == null) {
             return Collections.emptyList();
         }
@@ -127,7 +128,7 @@ public class BorrowerProfileServiceImpl implements BorrowerProfileService {
                 ))
                 .values());
 
-        return  latestActiveDocuments;
+        return latestActiveDocuments;
     }
 
     @Override
@@ -307,8 +308,8 @@ public class BorrowerProfileServiceImpl implements BorrowerProfileService {
                     && profile.getTotalWorkExperience() != null
                     && !StringUtils.isEmpty(employer.getName())
                     && employer.getBranch() != null
-                    && employer.getInn() != null
-                    && employer.getInn() > 9
+                    && employer.getTin() != null
+                    && employer.getTin().length() > 9
                     && !StringUtils.isEmpty(employer.getPhone())
                     && employer.getNumberOfEmployees() != null
                     && employer.getOrganizationAge() != null

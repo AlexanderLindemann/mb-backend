@@ -17,7 +17,21 @@ import java.util.UUID;
 public class EmployerDto {
     private String name;
 
-    private Long inn;
+    private String tin;
+
+    private String position;
+
+    private String address;
+
+    private String phone;
+
+    private String site;
+
+    private String bankDetails;
+
+    private String manager;
+
+    private Boolean isCurrentEmployer;
 
     private Branch branch;
 
@@ -25,16 +39,8 @@ public class EmployerDto {
 
     private OrganizationAge organizationAge;
 
-    private List<UUID> salaryBanks;
-
-    private String phone;
-
-    private String site;
-
     private TotalWorkExperience workExperience;
 
-    private String position;
-
-    private String address;
+    private List<UUID> salaryBanks;
 
 }

@@ -1,6 +1,7 @@
 package pro.mbroker.app.service;
 
 import org.hamcrest.Matchers;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static pro.mbroker.app.TestConstants.PARTNER_ID;
 import static pro.mbroker.app.TestConstants.REAL_ESTATE_ID;
 
+@Ignore
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @Transactional

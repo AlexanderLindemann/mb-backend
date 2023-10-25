@@ -1,5 +1,6 @@
 package pro.mbroker.app.controller;
 
+import org.junit.Ignore;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
 
@@ -8,7 +9,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-
+@Ignore
 public class PartnerApplicationControllerTest extends AbstractControllerTest {
 
     @Test

@@ -92,14 +92,23 @@ public class BorrowerProfile extends BaseEntity {
     @Column(name = "residency_outside_ru")
     private String residencyOutsideRU;
 
+    @Column(name = "public_official_position")
+    private String publicOfficialPosition;
+
     @Column(name = "long_term_stay_outside_ru")
     private String longTermStayOutsideRU;
 
     @Column(name = "is_public_official")
     private Boolean isPublicOfficial;
 
-    @Column(name = "TIN")
-    private Integer TIN;
+    @Column(name = "tin")
+    private String tin;
+
+    @Column(name = "tin_foreign")
+    private String tinForeign;
+
+    @Column(name = "birth_place")
+    private String birthPlace;
 
     @Column(name = "passport_issued_date")
     private LocalDate passportIssuedDate;
@@ -109,6 +118,9 @@ public class BorrowerProfile extends BaseEntity {
 
     @Column(name = "passport_issued_by_name")
     private String passportIssuedByName;
+
+    @Column(name = "citizenship")
+    private String citizenship;
 
     @Column(name = "registration_address")
     private String registrationAddress;
@@ -130,6 +142,9 @@ public class BorrowerProfile extends BaseEntity {
 
     @Column(name = "snils")
     private String snils;
+
+    @Column(name = "tax_residency_countries")
+    private String taxResidencyCountries;
 
     @Column(name = "residence_rf")
     private Boolean residenceRF = true;

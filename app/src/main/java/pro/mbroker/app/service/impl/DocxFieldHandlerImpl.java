@@ -81,7 +81,7 @@ public class DocxFieldHandlerImpl implements DocxFieldHandler {
                 put("borrowerCompanyName", (v) -> Optional.ofNullable(borrowerProfile.getEmployer())
                         .map(employer -> Optional.ofNullable(employer.getName()).orElse("-"))
                         .orElse("-"));
-                put("borrowerCompanyInn", (v) -> Optional.ofNullable(borrowerProfile.getEmployer()).map(BorrowerEmployer::getInn).map(Object::toString).orElse("-"));
+                put("borrowerCompanyInn", (v) -> Optional.ofNullable(borrowerProfile.getEmployer()).map(BorrowerEmployer::getTin).map(Object::toString).orElse("-"));
                 put("borrowerCompanyBranch", (v) -> Optional.ofNullable(borrowerProfile.getEmployer()).map(BorrowerEmployer::getBranch).map(Branch::getName).orElse("-"));
                 put("borrowerCompanyEmployeeCount", (v) -> Optional.ofNullable(borrowerProfile.getEmployer()).map(BorrowerEmployer::getNumberOfEmployees).map(NumberOfEmployees::getName).orElse("-"));
                 put("creditAmount", (v) -> {
@@ -307,8 +307,8 @@ public class DocxFieldHandlerImpl implements DocxFieldHandler {
                 put("contractDate", (v) -> LocalDate.now().toString());
 
                 put("borrowerTIN", (v) -> Objects.nonNull(borrowerProfile)
-                        && Objects.nonNull(borrowerProfile.getTIN())
-                        ? borrowerProfile.getTIN().toString()
+                        && Objects.nonNull(borrowerProfile.getTin())
+                        ? borrowerProfile.getTin()
                         : "-");
 
                 put("borrowerResidencyOutsideRU", (v) -> Objects.nonNull(borrowerProfile)
@@ -411,14 +411,47 @@ public class DocxFieldHandlerImpl implements DocxFieldHandler {
                         ? partnerApplication.getInsurance().toString()
                         : "-");
 
+                put("borrowerFamilyRelation", (v) -> Objects.nonNull(borrowerProfile)
+                        && Objects.nonNull(borrowerProfile.getFamilyRelation())
+                        ? borrowerProfile.getFamilyRelation().getName()
+                        : "-");
+
+                put("borrowerIsPublicOfficial", (v) -> Objects.nonNull(borrowerProfile)
+                        && Objects.nonNull(borrowerProfile.getIsPublicOfficial())
+                        ? (borrowerProfile.getIsPublicOfficial()
+                        ? "да" : "нет") : "-");
+
+                put("borrowerRelatedPublicOfficial", (v) -> Objects.nonNull(borrowerProfile)
+                        && Objects.nonNull(borrowerProfile.getRelatedPublicOfficial())
+                        ? (borrowerProfile.getRelatedPublicOfficial().getName())
+                        : "-");
+
+                put("borrowerTaxResidencyCountries", (v) -> Objects.nonNull(borrowerProfile)
+                        && Objects.nonNull(borrowerProfile.getTaxResidencyCountries())
+                        ? (borrowerProfile.getTaxResidencyCountries())
+                        : "-");
+
+                put("publicOfficialPosition", (v) -> Objects.nonNull(borrowerProfile)
+                        && Objects.nonNull(borrowerProfile.getPublicOfficialPosition())
+                        ? (borrowerProfile.getPublicOfficialPosition())
+                        : "-");
+
+                put("borrowerTINForeign", (v) -> Objects.nonNull(borrowerProfile)
+                        && Objects.nonNull(borrowerProfile.getTinForeign())
+                        ? (borrowerProfile.getTinForeign())
+                        : "-");
+
+                put("borrowerBirthPlace", (v) -> Objects.nonNull(borrowerProfile)
+                        && Objects.nonNull(borrowerProfile.getBirthPlace())
+                        ? (borrowerProfile.getBirthPlace())
+                        : "-");
+
+                put("borrowerCitizenship", (v) -> Objects.nonNull(borrowerProfile)
+                        && Objects.nonNull(borrowerProfile.getCitizenship())
+                        ? (borrowerProfile.getCitizenship())
+                        : "-");
+
                 //todo доработать поля, когда будет расширение БД
-                put("borrowerBirthPlace", (v) -> "-");
-                put("borrowerFamilyRelation", (v) -> "-");
-                put("borrowerTINForeign", (v) -> "-");
-                put("borrowerCitezenship", (v) -> "-");
-                put("borrowerTaxResidencyCountries", (v) -> "-");
-                put("borrowerIsPublicOfficial", (v) -> "-");
-                put("borrowerRelatedPublicOfficial", (v) -> "-");
                 put("borrowerCompany2Name", (v) -> "-");
                 put("borrowerCompany2Inn", (v) -> "-");
                 put("borrowerCompany2Branch»", (v) -> "-");
