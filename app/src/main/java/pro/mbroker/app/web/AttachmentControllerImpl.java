@@ -19,6 +19,7 @@ import pro.mbroker.app.entity.BorrowerProfile;
 import pro.mbroker.app.mapper.BorrowerDocumentMapper;
 import pro.mbroker.app.repository.BorrowerDocumentRepository;
 import pro.mbroker.app.service.AttachmentService;
+import pro.mbroker.app.service.BankApplicationService;
 import pro.mbroker.app.service.BorrowerDocumentService;
 import pro.mbroker.app.service.BorrowerProfileService;
 import pro.mbroker.app.service.PartnerApplicationService;
@@ -36,6 +37,7 @@ import java.util.stream.Collectors;
 public class AttachmentControllerImpl implements AttachmentController {
     private final AttachmentService attachmentService;
     private final BorrowerProfileService borrowerProfileService;
+    private final BankApplicationService bankApplicationService;
     private final PartnerApplicationService partnerApplicationService;
     private final BorrowerDocumentService borrowerDocumentService;
     private final BorrowerDocumentMapper borrowerDocumentMapper;
@@ -53,7 +55,7 @@ public class AttachmentControllerImpl implements AttachmentController {
                                                    UUID bankId,
                                                    UUID bankApplicationId) {
         BorrowerProfile borrowerProfile = borrowerProfileService.getBorrowerProfile(borrowerProfileId);
-        List<BankApplication> bankApplications = borrowerProfileService.getBorrowerProfile(borrowerProfileId).getPartnerApplication().getBankApplications();
+        List<BankApplication> bankApplications = bankApplicationService.getBankApplicationByBorrowerId(borrowerProfileId);
         if (bankApplicationId != null) {
             bankApplications = bankApplications.stream()
                     .filter(bankApplication -> bankApplication.getId().equals(bankApplicationId))

@@ -24,5 +24,12 @@ public interface BankApplicationRepository extends JpaRepository<BankApplication
 
     List<BankApplication> findByMainBorrowerId(UUID borrowerId);
 
-    BankApplication findByPartnerApplicationId(UUID partnerApplicationId);
+    @Query("SELECT ba " +
+            "FROM BankApplication ba " +
+            "WHERE ba.partnerApplication.id " +
+            "IN (SELECT bp.partnerApplication.id " +
+            "FROM BorrowerProfile bp " +
+            "WHERE bp.id = :borrowerProfileId) AND ba.isActive = true")
+    List<BankApplication> findBankApplicationsByBorrowerProfileId(@Param("borrowerProfileId") UUID borrowerProfileId);
+
 }

@@ -23,7 +23,7 @@ import pro.mbroker.app.repository.BankRepository;
 import pro.mbroker.app.repository.BorrowerDocumentRepository;
 import pro.mbroker.app.repository.BorrowerProfileRepository;
 import pro.mbroker.app.service.AttachmentService;
-import pro.smartdeal.ng.attachment.api.AttachmentControllerService;
+import pro.smartdeal.ng.attachment.api.AttachmentRestApi;
 import pro.smartdeal.ng.attachment.api.pojo.AttachmentMeta;
 
 import java.io.IOException;
@@ -35,7 +35,7 @@ import java.util.Objects;
 @Slf4j
 @RequiredArgsConstructor
 public class AttachmentServiceImpl implements AttachmentService {
-    private final AttachmentControllerService attachmentService;
+    private final AttachmentRestApi attachmentService;
     private final BankRepository bankRepository;
     private final AttachmentRepository attachmentRepository;
     private final BorrowerDocumentRepository borrowerDocumentRepository;
@@ -45,14 +45,12 @@ public class AttachmentServiceImpl implements AttachmentService {
     @Transactional
     public Attachment upload(MultipartFile file) {
         AttachmentMeta upload = attachmentService.upload(file);
-
-        Attachment attachment = attachmentRepository.save(new Attachment()
+        return attachmentRepository.save(new Attachment()
                 .setId(upload.getId())
                 .setName(upload.getName())
                 .setMimeType(upload.getMimeType())
                 .setSizeBytes(upload.getSizeBytes())
                 .setContentMd5(upload.getMd5Hash()));
-        return attachment;
     }
 
     @Override

@@ -57,6 +57,15 @@ subprojects {
             url "https://nexus.practus.ru/repository/sd-maven-snapshot"
         }
     }
+    repositories {
+        maven {
+            credentials {
+                username "$practusUser"
+                password "$practusPassword"
+            }
+            url "https://nexus.practus.ru/repository/sd-maven"
+        }
+    }
 
     dependencies {
         testImplementation('org.springframework.boot:spring-boot-starter-test') {

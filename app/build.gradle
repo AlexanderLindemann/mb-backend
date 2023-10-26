@@ -15,7 +15,7 @@ dependencies {
     implementation "ru.smartdeal:common-security:$smartdeal_dependencies_version"
     implementation "ru.smartdeal:common-web:$smartdeal_dependencies_version"
 
-    implementation "ru.smartdeal:attachment-api:$smartdeal_dependencies_version"
+    implementation "pro.smartdeal.common:attachment-api:$smartdeal_attachment_version"
 
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-security'
