@@ -678,7 +678,9 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
         String currentUserToken = currentUserService.getCurrentUserToken();
         Integer organizationId = TokenExtractor.extractSdCurrentOrganizationId(currentUserToken);
         Integer sdId = TokenExtractor.extractSdId(currentUserToken);
+        String phoneNumber = TokenExtractor.extractPhoneNumber(currentUserToken);
 
+        //TODO нужно придумать валидацию для токена с mb-cabinet
         if (authorities.contains(new SimpleGrantedAuthority(Permission.Code.MB_REQUEST_READ_ORGANIZATION)) &&
                 !partnerApplication.getPartner().getSmartDealOrganizationId().equals(organizationId)) {
             throw new AccessDeniedException("organization_id: " + organizationId, PartnerApplication.class);

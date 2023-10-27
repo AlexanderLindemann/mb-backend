@@ -21,15 +21,21 @@ public final class TokenExtractor {
 
     public static int extractSdCurrentOrganizationId(String token) {
         JSONObject data = getJsonPayloadFromTokenByValue(token, "data", JSONObject.class);
-        int sdCurrentOrganizationIdAsInt = Integer.parseInt((String) data.get("sd_current_organization_id"));
-        log.info("Извлечен sd_current_organization_id: {}", sdCurrentOrganizationIdAsInt);
+        int sdCurrentOrganizationIdAsInt = 0;
+        if (data != null) {
+            sdCurrentOrganizationIdAsInt = Integer.parseInt((String) data.get("sd_current_organization_id"));
+            log.info("Извлечен sd_current_organization_id: {}", sdCurrentOrganizationIdAsInt);
+        }
         return sdCurrentOrganizationIdAsInt;
     }
 
     public static int extractSdId(String token) {
         JSONObject data = getJsonPayloadFromTokenByValue(token, "data", JSONObject.class);
-        int sdIdAsInt = Integer.parseInt((String) data.get("sd_id"));
-        log.info("Извлечен sd_id: {}", sdIdAsInt);
+        int sdIdAsInt = 0;
+        if (data != null) {
+            sdIdAsInt = Integer.parseInt((String) data.get("sd_id"));
+            log.info("Извлечен sd_id: {}", sdIdAsInt);
+        }
         return sdIdAsInt;
     }
 

@@ -13,6 +13,7 @@ dependencies {
     implementation project(":api")
 
     implementation "ru.smartdeal:common-security:$smartdeal_dependencies_version"
+    implementation "ru.smartdeal:common-pojo:$smartdeal_dependencies_version"
     implementation "ru.smartdeal:common-web:$smartdeal_dependencies_version"
 
     implementation "pro.smartdeal.common:attachment-api:$smartdeal_attachment_version"
