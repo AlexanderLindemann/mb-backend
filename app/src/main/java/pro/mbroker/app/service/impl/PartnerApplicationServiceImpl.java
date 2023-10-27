@@ -195,15 +195,17 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
         partnerApplicationMapper.updatePartnerApplicationFromRequest(request, existingPartnerApplication);
         mortgageCalculationMapper.updateMortgageCalculationFromRequest(request.getMortgageCalculation(),
                 existingPartnerApplication.getMortgageCalculation());
-        if (Objects.nonNull(request.getPaymentSource())) {
-            existingPartnerApplication.setPaymentSource(Converter.convertEnumListToStringList(request.getPaymentSource()));
-        } else {
-            existingPartnerApplication.setPaymentSource(null);
-        }
+        existingPartnerApplication.setPaymentSource(Objects.nonNull(request.getPaymentSource())
+                ? Converter.convertEnumListToStringList(request.getPaymentSource())
+                : null);
         setSalaryBank(request, existingPartnerApplication);
-        existingPartnerApplication.setRealEstate(realEstateService.findById(request.getRealEstateId()));
-        List<BankApplication> updatedBorrowerApplications = buildBankApplications(request, existingPartnerApplication);
-        existingPartnerApplication.setBankApplications(updatedBorrowerApplications);
+        if (Objects.nonNull(request.getRealEstateId())) {
+            existingPartnerApplication.setRealEstate(realEstateService.findById(request.getRealEstateId()));
+        }
+        if (Objects.nonNull(request.getBankApplications())) {
+            List<BankApplication> updatedBorrowerApplications = buildBankApplications(request, existingPartnerApplication);
+            existingPartnerApplication.setBankApplications(updatedBorrowerApplications);
+        }
         return statusChanger(existingPartnerApplication);
     }
 
@@ -238,7 +240,7 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
     }
 
     private void setSalaryBank(PartnerApplicationRequest request, PartnerApplication existingPartnerApplication) {
-        if (Objects.nonNull(request.getMortgageCalculation().getSalaryBanks())) {
+        if (Objects.nonNull(request.getMortgageCalculation()) && Objects.nonNull(request.getMortgageCalculation().getSalaryBanks())) {
             List<Bank> banks = bankRepository.findAllById(request.getMortgageCalculation().getSalaryBanks());
             existingPartnerApplication.getMortgageCalculation().setSalaryBanks(banks);
         }
