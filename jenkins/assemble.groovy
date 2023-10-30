@@ -72,8 +72,10 @@ pipeline {
         stage("Push docker") {
             steps {
                 script {
+                    String imageVersion = env.BUILD_VERSION
+                    imageVersion = imageVersion.replace('/', '_')
                     String dockerRepositoryUrl = nexus_repository.getDockerRepositoryUrl(params.DOCKER_REPOSITORY_NAME)
-                    executeGradlewCommand("dockerImagePushDetailed -Pbuild.version=${env.BUILD_VERSION} -Pdocker.repository.url=${dockerRepositoryUrl}")
+                    executeGradlewCommand("dockerImagePushDetailed -Pbuild.version=${imageVersion} -Pdocker.repository.url=${dockerRepositoryUrl}")
                 }
             }
         }
