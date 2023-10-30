@@ -193,6 +193,9 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
             deleteBorrowerDocuments(existingPartnerApplication);
         }
         partnerApplicationMapper.updatePartnerApplicationFromRequest(request, existingPartnerApplication);
+        if (Objects.isNull(request.getInsurance())) {
+            existingPartnerApplication.setInsurance(null);
+        }
         mortgageCalculationMapper.updateMortgageCalculationFromRequest(request.getMortgageCalculation(),
                 existingPartnerApplication.getMortgageCalculation());
         existingPartnerApplication.setPaymentSource(Objects.nonNull(request.getPaymentSource())
