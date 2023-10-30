@@ -411,6 +411,8 @@ public class BorrowerProfileServiceImpl implements BorrowerProfileService {
         if (!mainBorrowerIds.contains(borrowerProfile.getId())) {
             borrowerProfile.setActive(false);
             borrowerProfileRepository.save(borrowerProfile);
+            borrowerProfileRepository.flush();
+            partnerApplicationService.statusChanger(partnerApplication);
         } else {
             throw new ItemConflictException(BorrowerProfile.class, borrowerProfileId);
         }

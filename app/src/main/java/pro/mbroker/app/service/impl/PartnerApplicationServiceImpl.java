@@ -321,14 +321,14 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
 
     private boolean checkBorrowerStatus(PartnerApplication partnerApplication) {
         boolean isChange = false;
-        for (BorrowerProfile borrowerProfile : partnerApplication.getBorrowerProfiles()) {
+        List<BorrowerProfile> activeBorrowers = partnerApplication.getBorrowerProfiles().stream()
+                .filter(BaseEntity::isActive)
+                .collect(Collectors.toList());
+        for (BorrowerProfile borrowerProfile : activeBorrowers) {
             if (borrowerProfile != null) {
                 List<BorrowerDocument> borrowerDocuments = borrowerProfile.getBorrowerDocument();
                 BorrowerProfileStatus currentStatus = borrowerProfile.getBorrowerProfileStatus();
                 if (Objects.nonNull(borrowerDocuments)) {
-                    borrowerDocuments = borrowerDocuments.stream()
-                            .filter(BorrowerDocument::isActive)
-                            .collect(Collectors.toList());
                     boolean allDocumentsPresent = checkRequiredDocuments(borrowerProfile);
                     if (allDocumentsPresent) {
                         if (borrowerProfile.getSignedForm() != null) {
@@ -354,7 +354,7 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
                         isChange = true;
                     }
                 }
-            } else borrowerProfile.setBorrowerProfileStatus(BorrowerProfileStatus.DATA_NO_ENTERED);
+            }
         }
         return isChange;
     }
