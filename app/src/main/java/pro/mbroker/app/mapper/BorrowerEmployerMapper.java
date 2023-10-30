@@ -3,7 +3,7 @@ package pro.mbroker.app.mapper;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValueCheckStrategy;
-import pro.mbroker.api.dto.EmployerDto;
+import pro.mbroker.api.dto.request.BorrowerEmployerRequest;
 import pro.mbroker.app.entity.BorrowerEmployer;
 
 import java.util.Optional;
@@ -11,7 +11,7 @@ import java.util.Optional;
 @Mapper(nullValueCheckStrategy = NullValueCheckStrategy.ALWAYS, uses = BankMapper.class)
 public interface BorrowerEmployerMapper {
 
-    default void updateBorrowerEmployerFromDto(EmployerDto dto, @MappingTarget BorrowerEmployer employer) {
+    default void updateBorrowerEmployerFromDto(BorrowerEmployerRequest dto, @MappingTarget BorrowerEmployer employer) {
         if (dto == null || employer == null) {
             return;
         }

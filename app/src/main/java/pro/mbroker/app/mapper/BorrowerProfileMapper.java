@@ -3,9 +3,9 @@ package pro.mbroker.app.mapper;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
-import pro.mbroker.api.dto.EmployerDto;
 import pro.mbroker.api.dto.request.BorrowerDocumentRequest;
 import pro.mbroker.api.dto.request.BorrowerProfileRequest;
+import pro.mbroker.api.dto.response.BorrowerEmployerResponse;
 import pro.mbroker.api.dto.response.BorrowerProfileDto;
 import pro.mbroker.api.dto.response.BorrowerProfileForUpdateResponse;
 import pro.mbroker.api.dto.response.BorrowerProfileResponse;
@@ -30,7 +30,7 @@ public interface BorrowerProfileMapper {
     @Mapping(target = "updatedBy", ignore = true)
     @Mapping(target = "active", ignore = true)
     @Mapping(target = "partnerApplication", ignore = true)
-    @Mapping(source = "status",  target = "borrowerProfileStatus", defaultValue = "DATA_NO_ENTERED")
+    @Mapping(source = "status", target = "borrowerProfileStatus", defaultValue = "DATA_NO_ENTERED")
     @Mapping(target = "borrowerDocument", ignore = true)
     @Mapping(source = "firstName", target = "firstName")
     @Mapping(source = "lastName", target = "lastName")
@@ -170,8 +170,8 @@ public interface BorrowerProfileMapper {
                 .map(this::toBorrowerDocumentRequest)
                 .collect(Collectors.toList());
     }
-    @Mapping(target = "salaryBanks", expression =  "java(mapSalaryBanksToUuidList(borrowerEmployer.getSalaryBanks()))")
-    EmployerDto toEmployerDto(BorrowerEmployer borrowerEmployer);
+
+    BorrowerEmployerResponse toEmployerDto(BorrowerEmployer borrowerEmployer);
 
 
     default List<UUID> mapSalaryBanksToUuidList(Set<Bank> bankResponses) {

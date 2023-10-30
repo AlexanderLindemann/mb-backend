@@ -1,4 +1,4 @@
-package pro.mbroker.api.dto;
+package pro.mbroker.api.dto.request;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -14,7 +14,7 @@ import java.util.UUID;
 @Getter
 @Setter
 @ToString
-public class EmployerDto {
+public class BorrowerEmployerRequest {
     private String name;
 
     private String tin;

@@ -7,7 +7,7 @@ import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.util.ContentCachingRequestWrapper;
-import pro.mbroker.api.dto.EmployerDto;
+import pro.mbroker.api.dto.request.BorrowerEmployerRequest;
 import pro.mbroker.api.dto.request.BorrowerDocumentRequest;
 import pro.mbroker.api.dto.request.BorrowerProfileRequest;
 import pro.mbroker.api.dto.request.BorrowerProfileUpdateRequest;
@@ -205,8 +205,8 @@ public class BorrowerProfileServiceImpl implements BorrowerProfileService {
     private void updateEmployerField(BorrowerProfile borrowerProfile, Map<String, Object> fieldsMap, Object value) {
         BorrowerEmployer employer = borrowerProfile.getEmployer() != null ? borrowerProfile.getEmployer() : new BorrowerEmployer();
         ObjectMapper mapper = new ObjectMapper();
-        EmployerDto employerDto = mapper.convertValue(value, EmployerDto.class);
-        updateSalaryBank(employerDto, employer);
+        BorrowerEmployerRequest borrowerEmployerRequest = mapper.convertValue(value, BorrowerEmployerRequest.class);
+        updateSalaryBank(borrowerEmployerRequest, employer);
         updateObjectWithEnumsAndValues((Map<String, Object>) fieldsMap.get("employer"), employer, BorrowerEmployer.class);
         Objects.requireNonNull(employer).setBorrowerProfile(borrowerProfile);
         borrowerProfile.setEmployer(employer);
@@ -443,7 +443,7 @@ public class BorrowerProfileServiceImpl implements BorrowerProfileService {
         return borrowerProfile;
     }
 
-    private void updateSalaryBank(EmployerDto dto, BorrowerEmployer employer) {
+    private void updateSalaryBank(BorrowerEmployerRequest dto, BorrowerEmployer employer) {
         if (Objects.isNull(dto)) {
             return;
         }

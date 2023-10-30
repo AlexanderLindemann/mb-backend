@@ -5,11 +5,11 @@ import lombok.Setter;
 import lombok.ToString;
 import pro.mbroker.api.dto.BorrowerRealEstateDto;
 import pro.mbroker.api.dto.BorrowerVehicleDto;
-import pro.mbroker.api.dto.EmployerDto;
 import pro.mbroker.api.dto.request.BorrowerDocumentRequest;
 import pro.mbroker.api.enums.BorrowerProfileStatus;
 import pro.mbroker.api.enums.Education;
 import pro.mbroker.api.enums.EmploymentStatus;
+import pro.mbroker.api.enums.FamilyRelation;
 import pro.mbroker.api.enums.Gender;
 import pro.mbroker.api.enums.MaritalStatus;
 import pro.mbroker.api.enums.MarriageContract;
@@ -39,31 +39,23 @@ public class BorrowerProfileForUpdateResponse {
 
     private String email;
 
-    private BorrowerProfileStatus status;
-
-    private List<BorrowerDocumentRequest> documents;
-
-    private LocalDateTime createdAt;
-
     private String prevFullName;
 
-    private LocalDate birthdate;
+    private String taxResidencyCountries;
 
-    private Integer age;
+    private String residencyOutsideRU;
 
-    private Gender gender;
+    private String publicOfficialPosition;
 
-    private MaritalStatus maritalStatus;
+    private String longTermStayOutsideRU;
 
-    private Integer children;
+    private String tinForeign;
 
-    private MarriageContract marriageContract;
+    private String birthPlace;
 
-    private Education education;
+    private String citizenship;
 
     private String passportNumber;
-
-    private LocalDate passportIssuedDate;
 
     private String passportIssuedByCode;
 
@@ -73,15 +65,13 @@ public class BorrowerProfileForUpdateResponse {
 
     private String residenceAddress;
 
-    private RegistrationType registrationType;
-
     private String snils;
 
-    private Boolean residenceRF;
+    private String tin;
 
-    private EmploymentStatus employmentStatus;
+    private Integer age;
 
-    private TotalWorkExperience totalWorkExperience;
+    private Integer children;
 
     private Integer mainIncome;
 
@@ -89,9 +79,39 @@ public class BorrowerProfileForUpdateResponse {
 
     private Integer pension;
 
+    private Boolean residenceRF;
+
+    private Boolean isPublicOfficial;
+
+    private LocalDateTime createdAt;
+
+    private LocalDate birthdate;
+
+    private BorrowerProfileStatus status;
+
+    private Gender gender;
+
+    private MaritalStatus maritalStatus;
+
+    private LocalDate passportIssuedDate;
+
+    private FamilyRelation relatedPublicOfficial;
+
+    private MarriageContract marriageContract;
+
+    private Education education;
+
+    private EmploymentStatus employmentStatus;
+
+    private RegistrationType registrationType;
+
+    private TotalWorkExperience totalWorkExperience;
+
     private ProofOfIncome proofOfIncome;
 
-    private EmployerDto employer;
+    private FamilyRelation familyRelation;
+
+    private BorrowerEmployerResponse employer;
 
     private BorrowerRealEstateDto realEstate;
 
@@ -100,5 +120,7 @@ public class BorrowerProfileForUpdateResponse {
     private AttachmentResponse generatedForm;
 
     private AttachmentResponse signedForm;
+
+    private List<BorrowerDocumentRequest> documents;
 
 }

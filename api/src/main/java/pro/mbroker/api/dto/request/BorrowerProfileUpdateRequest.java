@@ -5,7 +5,6 @@ import lombok.Setter;
 import lombok.ToString;
 import pro.mbroker.api.dto.BorrowerRealEstateDto;
 import pro.mbroker.api.dto.BorrowerVehicleDto;
-import pro.mbroker.api.dto.EmployerDto;
 import pro.mbroker.api.enums.Education;
 import pro.mbroker.api.enums.EmploymentStatus;
 import pro.mbroker.api.enums.FamilyRelation;
@@ -102,7 +101,7 @@ public class BorrowerProfileUpdateRequest {
 
     private FamilyRelation familyRelation;
 
-    private EmployerDto employer;
+    private BorrowerEmployerRequest employer;
 
     private BorrowerRealEstateDto realEstate;
 

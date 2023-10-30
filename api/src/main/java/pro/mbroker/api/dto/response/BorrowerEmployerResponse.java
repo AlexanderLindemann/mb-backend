@@ -1,9 +1,8 @@
-package pro.mbroker.api.dto;
+package pro.mbroker.api.dto.response;
 
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import pro.mbroker.api.dto.response.BankResponse;
 import pro.mbroker.api.enums.Branch;
 import pro.mbroker.api.enums.NumberOfEmployees;
 import pro.mbroker.api.enums.OrganizationAge;
@@ -14,11 +13,11 @@ import java.util.Set;
 @Getter
 @Setter
 @ToString
-public class BorrowerEmployerDto {
+public class BorrowerEmployerResponse {
 
     private String name;
 
-    private Long inn;
+    private String tin;
 
     private Branch branch;
 
@@ -37,4 +36,10 @@ public class BorrowerEmployerDto {
     private String position;
 
     private String address;
+
+    private String bankDetails;
+
+    private String manager;
+
+    private Boolean isCurrentEmployer;
 }
