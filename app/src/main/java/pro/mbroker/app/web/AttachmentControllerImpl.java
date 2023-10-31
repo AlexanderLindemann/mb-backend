@@ -125,6 +125,11 @@ public class AttachmentControllerImpl implements AttachmentController {
         return documentType == DocumentType.BORROWER_SNILS ||
                 documentType == DocumentType.CERTIFIED_COPY_TK ||
                 documentType == DocumentType.BORROWER_PASSPORT ||
+                documentType == DocumentType.FOREIGN_PASSPORT_OR_ID_CARD ||
+                documentType == DocumentType.MILITARY_ID ||
+                documentType == DocumentType.PENSION_CERTIFICATE ||
+                documentType == DocumentType.EGRUL_EGRIP_EXTRACT ||
+                documentType == DocumentType.OTHER_DOCUMENTS ||
                 documentType == DocumentType.INCOME_CERTIFICATE;
     }
 
