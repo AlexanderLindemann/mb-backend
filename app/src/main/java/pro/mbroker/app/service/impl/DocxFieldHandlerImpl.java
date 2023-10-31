@@ -408,7 +408,7 @@ public class DocxFieldHandlerImpl implements DocxFieldHandler {
 
                 put("insurance", (v) -> Objects.nonNull(partnerApplication)
                         && Objects.nonNull(partnerApplication.getInsurance())
-                        ? partnerApplication.getInsurance().toString()
+                        ? partnerApplication.getInsurance().getName()
                         : "-");
 
                 put("borrowerFamilyRelation", (v) -> Objects.nonNull(borrowerProfile)
