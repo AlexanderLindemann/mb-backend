@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -89,6 +90,10 @@ public class AttachmentControllerImpl implements AttachmentController {
     }
 
     @Override
+    @PreAuthorize("hasAuthority(T(pro.smartdeal.common.security.Permission$Code).MB_ADMIN_ACCESS) or " +
+            "hasAuthority(T(pro.smartdeal.common.security.Permission$Code).MB_REQUEST_READ_OWN) or " +
+            "hasAuthority('MB_CABINET_ACCESS') or " +
+            "hasAnyAuthority(T(pro.smartdeal.common.security.Permission$Code).MB_REQUEST_READ_ORGANIZATION)")
     //TODO переделать логику. Убрать из этого метода borrowerDocumentService и сделать метод универсальным для аттачментов
     public void deleteDocument(Long attachmentId) {
         borrowerDocumentService.deleteDocumentByAttachmentId(attachmentId); //TODO Как только фронт переедет на deleteBorrowerDocument MB-285
@@ -97,6 +102,10 @@ public class AttachmentControllerImpl implements AttachmentController {
 
     @Override
     @Transactional
+    @PreAuthorize("hasAuthority(T(pro.smartdeal.common.security.Permission$Code).MB_ADMIN_ACCESS) or " +
+            "hasAuthority(T(pro.smartdeal.common.security.Permission$Code).MB_REQUEST_READ_OWN) or " +
+            "hasAuthority('MB_CABINET_ACCESS') or " +
+            "hasAnyAuthority(T(pro.smartdeal.common.security.Permission$Code).MB_REQUEST_READ_ORGANIZATION)")
     public void deleteAttachment(AttachmentRequest attachmentRequest) {
         attachmentService.markAttachmentAsDeleted(attachmentRequest.getId());
         switch (attachmentRequest.getAttachmentType()) {
@@ -117,6 +126,10 @@ public class AttachmentControllerImpl implements AttachmentController {
     }
 
     @Override
+    @PreAuthorize("hasAuthority(T(pro.smartdeal.common.security.Permission$Code).MB_ADMIN_ACCESS) or " +
+            "hasAuthority(T(pro.smartdeal.common.security.Permission$Code).MB_REQUEST_READ_OWN) or " +
+            "hasAuthority('MB_CABINET_ACCESS') or " +
+            "hasAnyAuthority(T(pro.smartdeal.common.security.Permission$Code).MB_REQUEST_READ_ORGANIZATION)")
     public ResponseEntity<InputStreamResource> downloadFile(Long attachmentId) {
         return attachmentService.downloadFile(attachmentId);
     }
