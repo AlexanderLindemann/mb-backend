@@ -7,8 +7,8 @@ import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.util.ContentCachingRequestWrapper;
-import pro.mbroker.api.dto.request.BorrowerEmployerRequest;
 import pro.mbroker.api.dto.request.BorrowerDocumentRequest;
+import pro.mbroker.api.dto.request.BorrowerEmployerRequest;
 import pro.mbroker.api.dto.request.BorrowerProfileRequest;
 import pro.mbroker.api.dto.request.BorrowerProfileUpdateRequest;
 import pro.mbroker.api.dto.request.BorrowerRequest;
@@ -20,7 +20,6 @@ import pro.mbroker.api.enums.DocumentType;
 import pro.mbroker.api.enums.EmploymentStatus;
 import pro.mbroker.app.entity.Bank;
 import pro.mbroker.app.entity.BankApplication;
-import pro.mbroker.app.entity.BaseEntity;
 import pro.mbroker.app.entity.BorrowerDocument;
 import pro.mbroker.app.entity.BorrowerEmployer;
 import pro.mbroker.app.entity.BorrowerProfile;
@@ -50,9 +49,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
-import java.util.function.BinaryOperator;
 import java.util.stream.Collectors;
 
 @Service
@@ -120,16 +119,19 @@ public class BorrowerProfileServiceImpl implements BorrowerProfileService {
         if (documents == null) {
             return Collections.emptyList();
         }
-        List<BorrowerDocument> latestActiveDocuments = new ArrayList<>(documents.stream()
-                .filter(BaseEntity::isActive)
-                .collect(Collectors.toMap(
-                        BorrowerDocument::getDocumentType,
-                        d -> d,
-                        BinaryOperator.maxBy(Comparator.comparing(BorrowerDocument::getCreatedAt))
-                ))
-                .values());
 
-        return latestActiveDocuments;
+        List<BorrowerDocument> attacments = new ArrayList<>(documents.stream()
+                .filter(d-> d.isActive() && d.getDocumentType() != DocumentType.APPLICATION_FORM
+                 )
+                .collect(Collectors.toList()));
+
+        Optional<BorrowerDocument> latestApplicationForm = documents.stream()
+                .filter(document -> document.getDocumentType() == DocumentType.APPLICATION_FORM)
+                .max(Comparator.comparing(BorrowerDocument::getCreatedAt));
+
+        latestApplicationForm.ifPresent(attacments::add);
+
+        return attacments;
     }
 
     @Override

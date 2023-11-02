@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import pro.mbroker.api.dto.response.BorrowerProfileResponse;
+import pro.mbroker.api.dto.request.BorrowerDocumentRequest;
 import pro.mbroker.api.dto.response.BorrowerResponse;
 import pro.mbroker.api.dto.response.NotificationBankLetterResponse;
 import pro.mbroker.api.enums.BankApplicationStatus;
@@ -16,16 +16,15 @@ import pro.mbroker.app.entity.PartnerApplication;
 import pro.mbroker.app.entity.RealEstate;
 import pro.mbroker.app.exception.DataNotFoundException;
 import pro.mbroker.app.repository.BankApplicationRepository;
-import pro.mbroker.app.repository.BorrowerDocumentRepository;
 import pro.mbroker.app.service.BankApplicationService;
 import pro.mbroker.app.service.BorrowerProfileService;
 import pro.mbroker.app.service.NotificationService;
-import pro.mbroker.app.service.PartnerRealEstateService;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Service
 @Slf4j
@@ -37,8 +36,6 @@ public class NotificationServiceImpl implements NotificationService {
     private final BankApplicationService bankApplicationService;
     private final BorrowerProfileService borrowerProfileService;
     private final BankApplicationRepository bankApplicationRepository;
-    private final BorrowerDocumentRepository borrowerDocumentRepository;
-    private final PartnerRealEstateService partnerRealEstateService;
 
     @Override
     @Transactional
@@ -110,21 +107,26 @@ public class NotificationServiceImpl implements NotificationService {
         UUID borrowerId = response.getBorrowerId();
         UUID partnerApplicationId = response.getPartnerApplicationId();
         BorrowerResponse borrowers = borrowerProfileService.getBorrowersByPartnerApplicationId(partnerApplicationId);
-        List<UUID> concatenatedBorrowers = extractAllBorrowerIds(borrowers);
-        log.info("Fetching document IDs for borrower {}", borrowerId);
-        response.setAttachmentIds(borrowerDocumentRepository.getAttachments(bankApplicationId, concatenatedBorrowers));
+
+        response.setAttachmentIds(extractAllAttachmentsIds(borrowers));
+
         log.info("Fetching email addresses for sending");
         response.setEmails(bankApplicationRepository.getEmailsByBankApplicationId(bankApplicationId));
         response.setCreditPurposeTypeName(response.getCreditPurposeType().getName());
         response.setBorrowerResponse(borrowers);
     }
 
-    private List<UUID> extractAllBorrowerIds(BorrowerResponse borrowers) {
-        return Stream.concat(
-                        Stream.of(borrowers.getMainBorrower()),
-                        borrowers.getCoBorrower().stream())
-                .map(BorrowerProfileResponse::getId)
-                .collect(Collectors.toList());
+    private Set<Long> extractAllAttachmentsIds (BorrowerResponse borrowers) {
+        Set<Long> mainBorrowerDocIds = getAllAttachmentsIds(borrowers.getMainBorrower().getDocuments());
+        Set<Long> ids = new HashSet<>(mainBorrowerDocIds);
+        borrowers.getCoBorrower().forEach(d -> ids.addAll(getAllAttachmentsIds(d.getDocuments())));
+
+    return ids;
+    }
+
+    private Set<Long> getAllAttachmentsIds (List<BorrowerDocumentRequest> documents) {
+
+        return documents.stream().map(BorrowerDocumentRequest::getAttachmentId).collect(Collectors.toSet());
     }
 
 }
