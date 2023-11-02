@@ -378,8 +378,9 @@ public class DocxFieldHandlerImpl implements DocxFieldHandler {
                         ? "да" : "нет") : "-");
 
                 put("creditProgramName", (v) -> {
-                    if (Objects.nonNull(partnerApplication.getPartner()) && Objects.nonNull(partnerApplication.getPartner().getCreditPrograms())) {
-                        return partnerApplication.getPartner().getCreditPrograms().stream()
+                    if (Objects.nonNull(partnerApplication.getBankApplications())) {
+                        return partnerApplication.getBankApplications().stream()
+                                .map(BankApplication::getCreditProgram)
                                 .map(CreditProgram::getProgramName)
                                 .collect(Collectors.joining(", "));
                     } else {
