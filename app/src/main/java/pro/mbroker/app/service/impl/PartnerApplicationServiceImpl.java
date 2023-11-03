@@ -683,9 +683,7 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
         String currentUserToken = currentUserService.getCurrentUserToken();
         Integer organizationId = TokenExtractor.extractSdCurrentOrganizationId(currentUserToken);
         Integer sdId = TokenExtractor.extractSdId(currentUserToken);
-        String phoneNumber = TokenExtractor.extractPhoneNumber(currentUserToken);
 
-        //TODO нужно придумать валидацию для токена с mb-cabinet
         if (authorities.contains(new SimpleGrantedAuthority(Permission.Code.MB_REQUEST_READ_ORGANIZATION)) &&
                 !partnerApplication.getPartner().getSmartDealOrganizationId().equals(organizationId)) {
             throw new AccessDeniedException("organization_id: " + organizationId, PartnerApplication.class);
@@ -694,6 +692,22 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
                 !partnerApplication.getCreatedBy().equals(sdId)) {
             throw new AccessDeniedException("sd_id: " + sdId, PartnerApplication.class);
         }
+        if (authorities.contains(new SimpleGrantedAuthority(Permission.Code.MB_REQUEST_READ_OWN)) &&
+                !partnerApplication.getCreatedBy().equals(sdId)) {
+            throw new AccessDeniedException("sd_id: " + sdId, PartnerApplication.class);
+        }
+        if ((authorities.contains(new SimpleGrantedAuthority("MB_CABINET_ACCESS")))) {
+            String phoneNumber = TokenExtractor.extractPhoneNumber(currentUserToken);
+            List<PartnerApplication> partnerApplicationByPhoneNumber = findPartnerApplicationByPhoneNumber(phoneNumber);
+            if (!partnerApplicationByPhoneNumber.contains(partnerApplication)) {
+                throw new AccessDeniedException("phoneNumber: " + phoneNumber, PartnerApplication.class);
+            }
+        }
+    }
+
+    private List<PartnerApplication> findPartnerApplicationByPhoneNumber(String phoneNumber) {
+        List<PartnerApplication> partnerApplication = partnerApplicationRepository.findByBorrowerPhoneNumber(phoneNumber);
+        return partnerApplication;
     }
 
     private PartnerApplication getPartnerApplication(PartnerApplicationRequest request) {

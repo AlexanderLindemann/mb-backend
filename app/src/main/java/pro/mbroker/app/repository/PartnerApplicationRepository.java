@@ -60,5 +60,11 @@ public interface PartnerApplicationRepository extends JpaRepository<PartnerAppli
             @Param("endDate") Optional<LocalDateTime> endDate,
             Pageable pageable);
 
+    @Query("SELECT DISTINCT pa FROM PartnerApplication pa " +
+            "JOIN pa.borrowerProfiles bp " +
+            "WHERE bp.phoneNumber = :phoneNumber")
+    List<PartnerApplication> findByBorrowerPhoneNumber(@Param("phoneNumber") String phoneNumber);
+
+
 }
 
