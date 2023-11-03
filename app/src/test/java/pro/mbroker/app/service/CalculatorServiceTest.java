@@ -1,14 +1,7 @@
 package pro.mbroker.app.service;
 
-import org.junit.Ignore;
 import org.junit.Test;
-import org.junit.jupiter.api.Disabled;
-import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.jdbc.Sql;
-import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.transaction.annotation.Transactional;
 import pro.mbroker.api.dto.LoanProgramCalculationDto;
 import pro.mbroker.api.dto.PropertyMortgageDTO;
 import pro.mbroker.app.TestData;
@@ -20,19 +13,11 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@Ignore
-@RunWith(SpringRunner.class)
-@SpringBootTest
-@Transactional
-@Sql(scripts = "classpath:sql/test_data.sql")
-@Sql(value = "classpath:sql/clear_all.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
-@Disabled
-public class CalculatorServiceTest {
+public class CalculatorServiceTest extends AbstractServiceTest {
     @Autowired
     private CalculatorServiceImpl calculatorService;
     @Autowired
     private TestData testData;
-
 
     @Test
     public void testCalculateMonthlyPayment() {

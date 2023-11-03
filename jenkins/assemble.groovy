@@ -59,6 +59,28 @@ pipeline {
                 executeGradlewCommand('assemble')
             }
         }
+        stage("Unit test") {
+            steps {
+                script {
+                    def existingContainer = sh(script: 'docker ps -aqf "name=^mb-backend-db-test$"', returnStdout: true).trim()
+                    if (existingContainer) {
+                        sh "docker stop ${existingContainer}"
+                        sh "docker rm ${existingContainer}"
+                    }
+                    try {
+                        sh "docker run -d -p 40002:5432 --name mb-backend-db-test mb-docker.practus.ru/mb-postgres:15.4"
+                        executeGradlewCommand('test')
+                    } finally {
+                        try {
+                            sh "docker stop mb-backend-db-test"
+                            sh "docker rm mb-backend-db-test"
+                        } catch (Exception e) {
+                            echo "Ошибка при удалении Docker контейнера 'mb-backend-db-test': ${e.message}"
+                        }
+                    }
+                }
+            }
+        }
         stage("Build Docker") {
             steps {
                 executeGradlewCommand('buildDocker')

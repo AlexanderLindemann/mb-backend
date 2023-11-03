@@ -1,15 +1,8 @@
 package pro.mbroker.app.service;
 
 import org.hamcrest.Matchers;
-import org.junit.Ignore;
 import org.junit.Test;
-import org.junit.jupiter.api.Disabled;
-import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.jdbc.Sql;
-import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.transaction.annotation.Transactional;
 import pro.mbroker.api.dto.request.RealEstateRequest;
 import pro.mbroker.api.enums.RegionType;
 import pro.mbroker.app.entity.RealEstate;
@@ -21,15 +14,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static pro.mbroker.app.TestConstants.PARTNER_ID;
 import static pro.mbroker.app.TestConstants.REAL_ESTATE_ID;
 
-@Ignore
-@RunWith(SpringRunner.class)
-@SpringBootTest
-@Transactional
-@Sql(scripts = "classpath:sql/test_data.sql")
-@Sql(value = "classpath:sql/clear_all.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
-@Disabled
 public class PartnerRealEstateServiceImplTest extends AbstractServiceTest {
-
     @Autowired
     private PartnerRealEstateService partnerRealEstateService;
 

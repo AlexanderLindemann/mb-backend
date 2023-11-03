@@ -1,15 +1,8 @@
 package pro.mbroker.app.service;
 
 import org.hamcrest.Matchers;
-import org.junit.Ignore;
 import org.junit.Test;
-import org.junit.jupiter.api.Disabled;
-import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.jdbc.Sql;
-import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.transaction.annotation.Transactional;
 import pro.mbroker.app.TestData;
 import pro.mbroker.app.entity.Bank;
 import pro.mbroker.app.repository.BankRepository;
@@ -20,20 +13,11 @@ import java.util.stream.Collectors;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hibernate.validator.internal.util.Contracts.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static pro.mbroker.app.TestConstants.BANK_ID;
 
-@Ignore
-@RunWith(SpringRunner.class)
-@SpringBootTest
-@Transactional
-@Sql(scripts = "classpath:sql/test_data.sql")
-@Sql(value = "classpath:sql/clear_all.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
-@Disabled
-public class BankServiceTest extends AbstractServiceTest {
 
+public class BankServiceTest extends AbstractServiceTest {
     @Autowired
     private BankService bankService;
     @Autowired
