@@ -121,8 +121,8 @@ public class BorrowerProfileServiceImpl implements BorrowerProfileService {
         }
 
         List<BorrowerDocument> attacments = new ArrayList<>(documents.stream()
-                .filter(d-> d.isActive() && d.getDocumentType() != DocumentType.APPLICATION_FORM
-                 )
+                .filter(d -> d.isActive() && d.getDocumentType() != DocumentType.APPLICATION_FORM
+                )
                 .collect(Collectors.toList()));
 
         Optional<BorrowerDocument> latestApplicationForm = documents.stream()
@@ -206,12 +206,21 @@ public class BorrowerProfileServiceImpl implements BorrowerProfileService {
 
     private void updateEmployerField(BorrowerProfile borrowerProfile, Map<String, Object> fieldsMap, Object value) {
         BorrowerEmployer employer = borrowerProfile.getEmployer() != null ? borrowerProfile.getEmployer() : new BorrowerEmployer();
-        ObjectMapper mapper = new ObjectMapper();
-        BorrowerEmployerRequest borrowerEmployerRequest = mapper.convertValue(value, BorrowerEmployerRequest.class);
-        updateSalaryBank(borrowerEmployerRequest, employer);
+        updateObjectWithSalaryBankValues(fieldsMap, value, employer);
         updateObjectWithEnumsAndValues((Map<String, Object>) fieldsMap.get("employer"), employer, BorrowerEmployer.class);
         Objects.requireNonNull(employer).setBorrowerProfile(borrowerProfile);
         borrowerProfile.setEmployer(employer);
+    }
+
+    private void updateObjectWithSalaryBankValues(Map<String, Object> fieldsMap, Object value, BorrowerEmployer employer) {
+        BorrowerEmployerRequest borrowerEmployerRequest = new ObjectMapper().convertValue(value, BorrowerEmployerRequest.class);
+        Object employerObject = fieldsMap.get("employer");
+        if (employerObject instanceof Map<?, ?>) {
+            Map<?, ?> employerMap = (Map<?, ?>) employerObject;
+            if (employerMap.containsKey("salaryBanks")) {
+                updateSalaryBank(borrowerEmployerRequest, employer);
+            }
+        }
     }
 
     private void updateRealEstateField(BorrowerProfile borrowerProfile, Map<String, Object> fieldsMap) {

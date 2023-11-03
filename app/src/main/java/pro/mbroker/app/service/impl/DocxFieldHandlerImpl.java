@@ -363,8 +363,9 @@ public class DocxFieldHandlerImpl implements DocxFieldHandler {
                         : "-");
 
                 put("borrowerCompanySalaryBank", (v) -> {
-                    if (Objects.nonNull(partnerApplication.getMortgageCalculation()) && Objects.nonNull(partnerApplication.getMortgageCalculation().getSalaryBanks())) {
-                        return partnerApplication.getMortgageCalculation().getSalaryBanks().stream()
+                    if (Objects.nonNull(borrowerProfile.getEmployer())
+                            && Objects.nonNull(borrowerProfile.getEmployer().getSalaryBanks())) {
+                        return borrowerProfile.getEmployer().getSalaryBanks().stream()
                                 .map(Bank::getName)
                                 .collect(Collectors.joining(", "));
                     } else {
