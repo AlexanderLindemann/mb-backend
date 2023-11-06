@@ -95,3 +95,6 @@ databaseChangeLog:
   - include:
       file: 20231023_1700-add-new-fields-borrower-profile.xml
       relativeToChangelogFile: true
+  - include:
+      file: 20231029_399-create_program_type.xml
+      relativeToChangelogFile: true

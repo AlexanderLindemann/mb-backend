@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import pro.mbroker.api.dto.MortgageCalculationDto;
+import pro.mbroker.api.enums.CreditProgramType;
 import pro.mbroker.api.enums.CreditPurposeType;
 import pro.mbroker.api.enums.Insurance;
 import pro.mbroker.api.enums.PaymentSource;
@@ -27,6 +28,8 @@ public class PartnerApplicationRequest {
     private Insurance insurance;
 
     private CreditPurposeType creditPurposeType;
+
+    private CreditProgramType creditProgramType;
 
     private RealEstateType realEstateType;
 

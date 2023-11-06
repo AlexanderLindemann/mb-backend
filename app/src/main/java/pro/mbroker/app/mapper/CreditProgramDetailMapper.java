@@ -22,6 +22,7 @@ public interface CreditProgramDetailMapper {
     @Mapping(source = "exclude", target = "exclude")
     @Mapping(source = "creditPurposeType", target = "creditPurposeType")
     @Mapping(source = "realEstateType", target = "realEstateType")
+    @Mapping(source = "creditProgramType", target = "creditProgramType")
     CreditProgramDetailResponse toProgramDetailResponse(BankProgramRequest request);
 
     @Named("stringToRealEstateTypeList")

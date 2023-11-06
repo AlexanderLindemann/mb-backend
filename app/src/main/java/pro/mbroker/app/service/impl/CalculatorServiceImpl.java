@@ -11,6 +11,7 @@ import pro.mbroker.api.dto.SalaryClientProgramCalculationDto;
 import pro.mbroker.api.dto.request.CalculatorRequest;
 import pro.mbroker.api.dto.response.EnumDescription;
 import pro.mbroker.api.dto.response.EnumItemDescription;
+import pro.mbroker.api.enums.CreditProgramType;
 import pro.mbroker.api.enums.CreditPurposeType;
 import pro.mbroker.api.enums.RealEstateType;
 import pro.mbroker.api.enums.RegionType;
@@ -194,11 +195,15 @@ public class CalculatorServiceImpl implements CalculatorService {
         int downPaymentPercentage = calculateDownPaymentPercentage(request.getDownPayment(), request.getRealEstatePrice());
         String creditPurposeType = creditProgram.getCreditProgramDetail().getCreditPurposeType();
         String realEstateType = creditProgram.getCreditProgramDetail().getRealEstateType();
+        String creditProgramType = creditProgram.getCreditProgramDetail().getCreditProgramType();
         List<CreditPurposeType> creditPurposeTypes = Converter.convertStringListToEnumList(creditPurposeType, CreditPurposeType.class);
         List<RealEstateType> realEstateTypes = Converter.convertStringListToEnumList(realEstateType, RealEstateType.class);
+        List<CreditProgramType> creditProgramTypes = Converter.convertStringListToEnumList(creditProgramType, CreditProgramType.class);
+
         int creditTermMonths = getCreditTermMonths(creditProgram, request);
         return creditPurposeTypes.contains(request.getCreditPurposeType()) &&
                 realEstateTypes.contains(request.getRealEstateType()) &&
+                creditProgramTypes.contains(request.getCreditProgramType()) &&
                 mortgageSum.compareTo(creditProgram.getCreditParameter().getMinMortgageSum()) >= 0 &&
                 mortgageSum.compareTo(creditProgram.getCreditParameter().getMaxMortgageSum()) <= 0 &&
                 creditProgram.getCreditParameter().getMinCreditTerm() <= creditTermMonths &&

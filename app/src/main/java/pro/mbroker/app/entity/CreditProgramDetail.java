@@ -23,5 +23,6 @@ public class CreditProgramDetail {
 
     private String exclude;
 
+    private String creditProgramType;
 }
 

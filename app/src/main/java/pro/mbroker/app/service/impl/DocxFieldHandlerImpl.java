@@ -9,6 +9,7 @@ import org.docx4j.openpackaging.parts.WordprocessingML.MainDocumentPart;
 import org.springframework.stereotype.Service;
 import pro.mbroker.api.enums.BasisOfOwnership;
 import pro.mbroker.api.enums.Branch;
+import pro.mbroker.api.enums.CreditProgramType;
 import pro.mbroker.api.enums.Education;
 import pro.mbroker.api.enums.Gender;
 import pro.mbroker.api.enums.NumberOfEmployees;
@@ -20,6 +21,7 @@ import pro.mbroker.app.entity.BankApplication;
 import pro.mbroker.app.entity.BorrowerEmployer;
 import pro.mbroker.app.entity.BorrowerProfile;
 import pro.mbroker.app.entity.CreditProgram;
+import pro.mbroker.app.entity.CreditProgramDetail;
 import pro.mbroker.app.entity.PartnerApplication;
 import pro.mbroker.app.service.DocxFieldHandler;
 import pro.mbroker.app.util.Converter;
@@ -100,7 +102,16 @@ public class DocxFieldHandlerImpl implements DocxFieldHandler {
                         .orElse("-"));
 
                 put("creditPurposeType", (v) -> Objects.nonNull(partnerApplication.getCreditPurposeType()) ? partnerApplication.getCreditPurposeType().getName() : "-");
-
+                put("creditProgramType", (v) -> {
+                    CreditProgram creditProgram = bankApplication.getCreditProgram();
+                    if (creditProgram != null) {
+                        CreditProgramDetail creditProgramDetail = creditProgram.getCreditProgramDetail();
+                        if (creditProgramDetail != null) {
+                            return creditProgramDetail.getCreditProgramType();
+                        }
+                    }
+                    return CreditProgramType.STANDARD.getName(); // Или другое значение по умолчанию, которое вы хотите вернуть в случае null
+                });
                 put("realEstateRegion", (v) -> {
                     if (Objects.nonNull(bankApplication) &&
                             Objects.nonNull(bankApplication.getPartnerApplication()) &&

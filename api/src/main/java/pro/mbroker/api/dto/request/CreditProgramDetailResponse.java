@@ -3,6 +3,7 @@ package pro.mbroker.api.dto.request;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import pro.mbroker.api.enums.CreditProgramType;
 import pro.mbroker.api.enums.CreditPurposeType;
 import pro.mbroker.api.enums.RealEstateType;
 import pro.mbroker.api.enums.RegionType;
@@ -20,4 +21,6 @@ public class CreditProgramDetailResponse {
     private List<RegionType> include;
 
     private List<RegionType> exclude;
+
+    private List<CreditProgramType> creditProgramType;
 }

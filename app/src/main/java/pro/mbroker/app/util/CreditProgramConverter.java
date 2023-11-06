@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import pro.mbroker.api.dto.request.BankProgramRequest;
 import pro.mbroker.api.dto.request.CreditProgramDetailResponse;
+import pro.mbroker.api.enums.CreditProgramType;
 import pro.mbroker.api.enums.CreditPurposeType;
 import pro.mbroker.api.enums.RealEstateType;
 import pro.mbroker.api.enums.RegionType;
@@ -18,7 +19,8 @@ public class CreditProgramConverter {
                 .setCreditPurposeType(Converter.convertStringListToEnumList(creditProgramDetail.getCreditPurposeType(), CreditPurposeType.class))
                 .setRealEstateType(Converter.convertStringListToEnumList(creditProgramDetail.getRealEstateType(), RealEstateType.class))
                 .setInclude(Converter.convertStringListToEnumList(creditProgramDetail.getInclude(), RegionType.class))
-                .setExclude(Converter.convertStringListToEnumList(creditProgramDetail.getExclude(), RegionType.class));
+                .setExclude(Converter.convertStringListToEnumList(creditProgramDetail.getExclude(), RegionType.class))
+                .setCreditProgramType(Converter.convertStringListToEnumList(creditProgramDetail.getCreditProgramType(), CreditProgramType.class));
     }
 
     public CreditProgramDetail convertCreditDetailToStringFormat(BankProgramRequest createCreditParameter) {
@@ -38,6 +40,10 @@ public class CreditProgramConverter {
                 .setRealEstateType(
                         createCreditParameter.getRealEstateType() != null
                                 ? Converter.convertEnumListToStringList(createCreditParameter.getRealEstateType())
+                                : null)
+                .setCreditProgramType(
+                        createCreditParameter.getCreditProgramType() != null
+                                ?  Converter.convertEnumListToStringList(createCreditParameter.getCreditProgramType())
                                 : null);
     }
 }

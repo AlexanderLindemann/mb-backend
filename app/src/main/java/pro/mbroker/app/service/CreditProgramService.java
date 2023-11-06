@@ -23,4 +23,6 @@ public interface CreditProgramService {
     List<CreditProgram> getAllCreditProgram(Pageable pageable);
 
     void deleteCreditProgram(UUID creditProgramId);
+
+    List<CreditProgram> getProgramsWithDetail(List<UUID> creditProgramIds);
 }

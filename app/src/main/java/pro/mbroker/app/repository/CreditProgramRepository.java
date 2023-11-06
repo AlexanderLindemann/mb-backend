@@ -1,7 +1,6 @@
 package pro.mbroker.app.repository;
 
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
@@ -20,4 +19,8 @@ public interface CreditProgramRepository extends JpaRepository<CreditProgram, UU
 
     @Query("SELECT cp FROM CreditProgram cp JOIN FETCH cp.bank WHERE cp.id IN :creditProgramIds")
     List<CreditProgram> findByIdInWithBank(List<UUID> creditProgramIds);
+
+    @Query("SELECT cp FROM CreditProgram cp JOIN cp.creditProgramDetail  " +
+            "WHERE cp.id IN :creditProgramIds and cp.isActive = true")
+    List<CreditProgram> findByIdInWithCreditProgramDetail(List<UUID> creditProgramIds);
 }
