@@ -40,7 +40,7 @@ public class BankProgramRequest {
 
     private List<RealEstateType> realEstateType;
 
-    private List<CreditProgramType> creditProgramType;
+    private CreditProgramType creditProgramType;
 
     private List<RegionType> include;
 

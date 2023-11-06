@@ -2,6 +2,7 @@ package pro.mbroker.app.entity;
 
 import lombok.Getter;
 import lombok.Setter;
+import pro.mbroker.api.enums.CreditProgramType;
 
 import javax.persistence.*;
 import java.util.UUID;
@@ -23,6 +24,8 @@ public class CreditProgramDetail {
 
     private String exclude;
 
-    private String creditProgramType;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "credit_program_type", nullable = false)
+    private CreditProgramType creditProgramType;
 }
 

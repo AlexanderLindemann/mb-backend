@@ -22,5 +22,5 @@ public class CreditProgramDetailResponse {
 
     private List<RegionType> exclude;
 
-    private List<CreditProgramType> creditProgramType;
+    private CreditProgramType creditProgramType;
 }

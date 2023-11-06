@@ -195,7 +195,7 @@ public class CalculatorServiceImpl implements CalculatorService {
         int downPaymentPercentage = calculateDownPaymentPercentage(request.getDownPayment(), request.getRealEstatePrice());
         String creditPurposeType = creditProgram.getCreditProgramDetail().getCreditPurposeType();
         String realEstateType = creditProgram.getCreditProgramDetail().getRealEstateType();
-        String creditProgramType = creditProgram.getCreditProgramDetail().getCreditProgramType();
+        String creditProgramType = creditProgram.getCreditProgramDetail().getCreditProgramType().getValue();
         List<CreditPurposeType> creditPurposeTypes = Converter.convertStringListToEnumList(creditPurposeType, CreditPurposeType.class);
         List<RealEstateType> realEstateTypes = Converter.convertStringListToEnumList(realEstateType, RealEstateType.class);
         List<CreditProgramType> creditProgramTypes = Converter.convertStringListToEnumList(creditProgramType, CreditProgramType.class);

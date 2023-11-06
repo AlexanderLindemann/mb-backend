@@ -107,7 +107,7 @@ public class DocxFieldHandlerImpl implements DocxFieldHandler {
                     if (creditProgram != null) {
                         CreditProgramDetail creditProgramDetail = creditProgram.getCreditProgramDetail();
                         if (creditProgramDetail != null) {
-                            return creditProgramDetail.getCreditProgramType();
+                            return creditProgramDetail.getCreditProgramType().getValue();
                         }
                     }
                     return CreditProgramType.STANDARD.getName(); // Или другое значение по умолчанию, которое вы хотите вернуть в случае null
