@@ -4,6 +4,9 @@ spring:
     url: jdbc:postgresql://localhost:40002/mb_backend
     username: mb_backend
     password: mb_backend
+  spring:
+    liquibase:
+      enabled: true
 eureka:
   client:
     register-with-eureka: false
