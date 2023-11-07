@@ -3,7 +3,11 @@ FROM partner_credit_program;
 DELETE
 FROM bank_application;
 DELETE
+FROM borrower_documents;
+DELETE
 FROM borrower_profile;
+DELETE
+FROM attachment;
 DELETE
 FROM partner_application;
 DELETE

@@ -72,5 +72,10 @@ public interface PartnerApplicationRepository extends JpaRepository<PartnerAppli
             "WHERE a.id = :attachmentId")
     Optional<PartnerApplication> findByAttachmentId(@Param("attachmentId") Long attachmentId);
 
+    @Query("SELECT pa FROM PartnerApplication pa " +
+            "JOIN pa.borrowerProfiles bp " +
+            "WHERE bp.generatedForm.id = :attachmentId OR bp.signedForm.id = :attachmentId")
+    Optional<PartnerApplication> findPartnerApplicationByGeneratedFormOrSignedForm(@Param("attachmentId") Long attachmentId);
+
 }
 
