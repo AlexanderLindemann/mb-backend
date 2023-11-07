@@ -11,6 +11,7 @@ import pro.mbroker.app.entity.PartnerApplication;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public interface PartnerApplicationService {
@@ -24,7 +25,7 @@ public interface PartnerApplicationService {
 
     PartnerApplicationResponse buildPartnerApplicationResponse(PartnerApplication partnerApplication);
 
-    PartnerApplication getPartnerApplicationByIdWithPermission(UUID partnerApplicationId);
+    PartnerApplication getPartnerApplicationByIdCheckPermission(UUID partnerApplicationId);
 
     PartnerApplication getPartnerApplication(UUID partnerApplicationId);
 
@@ -48,4 +49,8 @@ public interface PartnerApplicationService {
     PartnerApplication statusChanger(PartnerApplication partnerApplication);
 
     PartnerApplication changeMainBorrowerByPartnerApplication(UUID partnerApplicationId, UUID newMainBorrowerId);
+
+    Optional<PartnerApplication> getPartnerApplicationByAttachmentId(Long attachmentId);
+
+    void checkPermission(PartnerApplication partnerApplication);
 }

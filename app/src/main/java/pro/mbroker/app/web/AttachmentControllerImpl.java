@@ -17,6 +17,8 @@ import pro.mbroker.api.enums.DocumentType;
 import pro.mbroker.app.entity.BankApplication;
 import pro.mbroker.app.entity.BorrowerDocument;
 import pro.mbroker.app.entity.BorrowerProfile;
+import pro.mbroker.app.entity.PartnerApplication;
+import pro.mbroker.app.exception.AccessDeniedException;
 import pro.mbroker.app.mapper.BorrowerDocumentMapper;
 import pro.mbroker.app.repository.BorrowerDocumentRepository;
 import pro.mbroker.app.service.AttachmentService;
@@ -107,6 +109,10 @@ public class AttachmentControllerImpl implements AttachmentController {
             "hasAuthority('MB_CABINET_ACCESS') or " +
             "hasAnyAuthority(T(pro.smartdeal.common.security.Permission$Code).MB_REQUEST_READ_ORGANIZATION)")
     public void deleteAttachment(AttachmentRequest attachmentRequest) {
+        PartnerApplication partnerApplication = partnerApplicationService
+                .getPartnerApplicationByAttachmentId(attachmentRequest.getId())
+                .orElseThrow(() -> new AccessDeniedException(attachmentRequest.getId(), PartnerApplication.class));
+        partnerApplicationService.checkPermission(partnerApplication);
         attachmentService.markAttachmentAsDeleted(attachmentRequest.getId());
         switch (attachmentRequest.getAttachmentType()) {
             case SIGNATURE_FORM:
@@ -131,6 +137,10 @@ public class AttachmentControllerImpl implements AttachmentController {
             "hasAuthority('MB_CABINET_ACCESS') or " +
             "hasAnyAuthority(T(pro.smartdeal.common.security.Permission$Code).MB_REQUEST_READ_ORGANIZATION)")
     public ResponseEntity<InputStreamResource> downloadFile(Long attachmentId) {
+        PartnerApplication partnerApplication = partnerApplicationService
+                .getPartnerApplicationByAttachmentId(attachmentId)
+                .orElseThrow(() -> new AccessDeniedException(attachmentId, PartnerApplication.class));
+        partnerApplicationService.checkPermission(partnerApplication);
         return attachmentService.downloadFile(attachmentId);
     }
 

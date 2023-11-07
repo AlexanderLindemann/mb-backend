@@ -65,6 +65,12 @@ public interface PartnerApplicationRepository extends JpaRepository<PartnerAppli
             "WHERE bp.phoneNumber = :phoneNumber")
     List<PartnerApplication> findByBorrowerPhoneNumber(@Param("phoneNumber") String phoneNumber);
 
+    @Query("SELECT pa FROM PartnerApplication pa " +
+            "JOIN pa.borrowerProfiles bp " +
+            "JOIN bp.borrowerDocument bd " +
+            "JOIN bd.attachment a " +
+            "WHERE a.id = :attachmentId")
+    Optional<PartnerApplication> findByAttachmentId(@Param("attachmentId") Long attachmentId);
 
 }
 

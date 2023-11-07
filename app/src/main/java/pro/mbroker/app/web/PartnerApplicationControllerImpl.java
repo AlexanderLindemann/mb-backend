@@ -41,7 +41,7 @@ public class PartnerApplicationControllerImpl implements PartnerApplicationContr
             "hasAuthority('MB_CABINET_ACCESS') or " +
             "hasAnyAuthority(T(pro.smartdeal.common.security.Permission$Code).MB_REQUEST_READ_ORGANIZATION)")
     public PartnerApplicationResponse getPartnerApplicationById(UUID partnerApplicationId) {
-        PartnerApplication partnerApplication = partnerApplicationService.getPartnerApplicationByIdWithPermission(partnerApplicationId);
+        PartnerApplication partnerApplication = partnerApplicationService.getPartnerApplicationByIdCheckPermission(partnerApplicationId);
         return partnerApplicationService.buildPartnerApplicationResponse(partnerApplication);
     }
 
