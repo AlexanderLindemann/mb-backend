@@ -3,7 +3,6 @@ package pro.mbroker.api.dto.request;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import pro.mbroker.api.enums.CreditProgramType;
 import pro.mbroker.api.enums.CreditPurposeType;
 import pro.mbroker.api.enums.RealEstateType;
 
@@ -22,9 +21,6 @@ public class CalculatorRequest {
     private CreditPurposeType creditPurposeType;
     @NotNull
     private RealEstateType realEstateType;
-
-    @NotNull
-    private CreditProgramType creditProgramType;
 
     private BigDecimal realEstatePrice;
 

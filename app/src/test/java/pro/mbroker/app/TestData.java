@@ -2,8 +2,14 @@ package pro.mbroker.app;
 
 import org.springframework.stereotype.Component;
 import pro.mbroker.api.dto.MortgageCalculationDto;
-import pro.mbroker.api.dto.request.*;
-import pro.mbroker.api.enums.CreditProgramType;
+import pro.mbroker.api.dto.request.BankApplicationRequest;
+import pro.mbroker.api.dto.request.BankApplicationUpdateRequest;
+import pro.mbroker.api.dto.request.BankContactRequest;
+import pro.mbroker.api.dto.request.BankRequest;
+import pro.mbroker.api.dto.request.BorrowerProfileRequest;
+import pro.mbroker.api.dto.request.BorrowerRequest;
+import pro.mbroker.api.dto.request.CalculatorRequest;
+import pro.mbroker.api.dto.request.PartnerApplicationRequest;
 import pro.mbroker.api.enums.CreditPurposeType;
 import pro.mbroker.api.enums.RealEstateType;
 
@@ -118,7 +124,6 @@ public class TestData {
                 .setDownPayment(BigDecimal.valueOf(10000000))
                 .setRealEstatePrice(BigDecimal.valueOf(20000000))
                 .setRealEstateType(RealEstateType.APARTMENT)
-                .setIsMaternalCapital(true)
-                .setCreditProgramType(CreditProgramType.STANDARD);
+                .setIsMaternalCapital(true);
     }
 }
