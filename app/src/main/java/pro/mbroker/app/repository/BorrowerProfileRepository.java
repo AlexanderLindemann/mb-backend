@@ -21,6 +21,7 @@ public interface BorrowerProfileRepository extends JpaRepository<BorrowerProfile
             "WHERE b.id = :id")
     Optional<BorrowerProfile> findByIdWithRealEstateVehicleAndEmployer(@Param("id") UUID id);
 
+
     Optional<BorrowerProfile> findBorrowerProfileBySignedFormId(Long id);
 
     List<BorrowerProfile> findAllByPhoneNumberAndIsActiveTrue(String phoneNumber);

@@ -126,8 +126,9 @@ public class FormServiceImpl implements FormService {
                 "application/pdf"
         );
 
-        List<Long> generatedForms = getAttachmentIdsByDocumentType(borrowerProfile, DocumentType.GENERATED_FORM);
-        if (!generatedForms.isEmpty()) attachmentService.markAttachmentsAsDeleted(generatedForms);
+        List<Long> generatedFormsAttachmentIds = getAttachmentIdsByDocumentType(borrowerProfile, DocumentType.GENERATED_FORM);
+        attachmentService.markAttachmentsAsDeleted(generatedFormsAttachmentIds);
+        borrowerDocumentService.markDocumentsAsDeleted(generatedFormsAttachmentIds);
 
         Attachment attachment = attachmentService.upload(multipartFile);
         BorrowerDocumentRequest borrowerDocumentRequest = new BorrowerDocumentRequest()

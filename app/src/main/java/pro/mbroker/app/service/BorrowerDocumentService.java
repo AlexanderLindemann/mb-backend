@@ -4,6 +4,8 @@ import org.springframework.context.annotation.Lazy;
 import pro.mbroker.api.enums.DocumentType;
 import pro.mbroker.app.entity.BorrowerDocument;
 
+import java.util.List;
+
 @Lazy
 public interface BorrowerDocumentService {
 
@@ -12,4 +14,6 @@ public interface BorrowerDocumentService {
     void deleteDocumentByAttachmentId(Long attachmentId);
 
     BorrowerDocument saveBorrowerDocument(BorrowerDocument singForm, DocumentType documentType);
+
+    void markDocumentsAsDeleted(List<Long> attachmentIds);
 }

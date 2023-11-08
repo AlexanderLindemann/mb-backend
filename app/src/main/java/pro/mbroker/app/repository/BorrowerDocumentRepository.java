@@ -1,6 +1,7 @@
 package pro.mbroker.app.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import pro.mbroker.app.entity.BorrowerDocument;
@@ -20,5 +21,9 @@ public interface BorrowerDocumentRepository extends JpaRepository<BorrowerDocume
             "(bd.borrowerProfile.id IN :borrowerProfileIds)) ")
     Set<Long> getAttachments(@Param("bankApplicationId") UUID bankApplicationId,
                              @Param("borrowerProfileIds") List<UUID> borrowerProfileIds);
+
+    @Modifying
+    @Query("UPDATE BorrowerDocument a SET a.isActive = false WHERE a.id IN :attachmentIds")
+    void setAttachmentsInactive(List<Long> attachmentIds);
 }
 

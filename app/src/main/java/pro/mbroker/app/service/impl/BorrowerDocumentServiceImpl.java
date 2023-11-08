@@ -11,6 +11,8 @@ import pro.mbroker.app.repository.BorrowerDocumentRepository;
 import pro.mbroker.app.service.BorrowerDocumentService;
 import pro.mbroker.app.service.PartnerApplicationService;
 
+import java.util.List;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -31,8 +33,17 @@ public class BorrowerDocumentServiceImpl implements BorrowerDocumentService {
     @Override
     public BorrowerDocument saveBorrowerDocument(BorrowerDocument document, DocumentType documentType) {
         document.setDocumentType(documentType);
-       return borrowerDocumentRepository.save(document);
+        return borrowerDocumentRepository.save(document);
     }
+
+    @Override
+    public void markDocumentsAsDeleted(List<Long> attachmentIds) {
+        if (attachmentIds == null || attachmentIds.isEmpty()) {
+            return;
+        }
+        borrowerDocumentRepository.setAttachmentsInactive(attachmentIds);
+    }
+
 
     @Override
     public BorrowerDocument getBorrowerDocumentByAttachmentId(Long attachmentId) {
