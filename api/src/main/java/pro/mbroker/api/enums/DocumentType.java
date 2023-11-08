@@ -19,6 +19,9 @@ public enum DocumentType implements EnumWithValue<String> {
     MILITARY_ID("MILITARY_ID", "Военный билет"),
     PENSION_CERTIFICATE("PENSION_CERTIFICATE", "Пенсионное удостоверение"),
     EGRUL_EGRIP_EXTRACT("EGRUL_EGRIP_EXTRACT", "Выписка из ЕГРЮЛ / ЕГРИП"),
+    GENERATED_FORM("GENERATED_FORM", "Сгенерированная анкета"),
+    GENERATED_SIGNATURE_FORM("GENERATED_SIGNATURE_FORM", "Сгенерированная подписанная анкета"),
+    SIGNATURE_FORM("SIGNATURE_FORM", "Подписанная бумажная анкета"),
     OTHER_DOCUMENTS("OTHER_DOCUMENTS", "Прочие документы");
 
     private final String value;

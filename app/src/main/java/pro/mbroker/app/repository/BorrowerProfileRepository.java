@@ -30,4 +30,11 @@ public interface BorrowerProfileRepository extends JpaRepository<BorrowerProfile
     @Query("UPDATE BorrowerProfile bp SET bp.borrowerProfileStatus = :status WHERE bp.id = :profileId")
     void updateBorrowerProfileStatus(@Param("profileId") UUID profileId, @Param("status") BorrowerProfileStatus status);
 
+    @Query("SELECT bp FROM BorrowerProfile bp WHERE bp.signedForm.id IN :signedFormIds")
+    List<BorrowerProfile> findAllBySignedFormIds(@Param("ids") List<Long> signedFormIds);
+
+    @Modifying
+    @Query("UPDATE BorrowerProfile bp SET bp.borrowerProfileStatus = :status WHERE bp.id IN :profileIds")
+    void updateBorrowerProfilesStatus(@Param("profileIds") List<UUID> profileIds, @Param("status") BorrowerProfileStatus status);
+
 }

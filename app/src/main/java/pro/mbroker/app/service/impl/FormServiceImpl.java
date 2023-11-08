@@ -19,11 +19,13 @@ import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import pro.mbroker.api.dto.request.BorrowerDocumentRequest;
 import pro.mbroker.api.enums.BankApplicationStatus;
 import pro.mbroker.api.enums.BorrowerProfileStatus;
 import pro.mbroker.api.enums.DocumentType;
 import pro.mbroker.app.entity.Attachment;
 import pro.mbroker.app.entity.BankApplication;
+import pro.mbroker.app.entity.BaseEntity;
 import pro.mbroker.app.entity.BorrowerDocument;
 import pro.mbroker.app.entity.BorrowerProfile;
 import pro.mbroker.app.entity.PartnerApplication;
@@ -50,6 +52,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -122,8 +125,18 @@ public class FormServiceImpl implements FormService {
                 borrowerProfile.getLastName() + "_" + borrowerProfile.getFirstName() + ".pdf",
                 "application/pdf"
         );
-        Attachment upload = attachmentService.upload(multipartFile);
-        borrowerProfile.setGeneratedForm(upload);
+
+        List<Long> generatedForms = getAttachmentIdsByDocumentType(borrowerProfile, DocumentType.GENERATED_FORM);
+        if (!generatedForms.isEmpty()) attachmentService.markAttachmentsAsDeleted(generatedForms);
+
+        Attachment attachment = attachmentService.upload(multipartFile);
+        BorrowerDocumentRequest borrowerDocumentRequest = new BorrowerDocumentRequest()
+                .setBorrowerProfileId(borrowerProfileId)
+                .setDocumentType(DocumentType.GENERATED_FORM);
+        attachmentService.uploadDocument(multipartFile, borrowerDocumentRequest);
+
+        //TODO нужно удалить колонки generatedForm и signedForm и сохранять в документы клиента
+        borrowerProfile.setGeneratedForm(attachment);
         borrowerProfileRepository.save(borrowerProfile);
     }
 
@@ -152,18 +165,26 @@ public class FormServiceImpl implements FormService {
 
         borrowerProfile.getBorrowerDocument().add(singForm);
 
-       // borrowerDocumentService.saveBorrowerDocument(singForm, DocumentType.APPLICATION_FORM);
         borrowerProfileRepository.save(borrowerProfile);
         bankApplicationService.getBankApplicationByBorrowerId(borrowerProfile.getId())
                 .stream()
                 .findFirst()
                 .ifPresent(ba ->
                         bankApplicationService.changeStatus(bankApplication.getId(),
-                        BankApplicationStatus.READY_TO_SENDING));
+                                BankApplicationStatus.READY_TO_SENDING));
         List<BankApplication> bankApplications = bankApplicationService.getBankApplicationByBorrowerId(borrowerProfile.getId());
         if (Objects.nonNull(bankApplications)) {
             bankApplications.forEach(ba -> bankApplicationService.changeStatus(ba.getId(), BankApplicationStatus.READY_TO_SENDING));
         }
+    }
+
+    private List<Long> getAttachmentIdsByDocumentType(BorrowerProfile borrowerProfile, DocumentType documentType) {
+        return borrowerProfile.getBorrowerDocument().stream()
+                .filter(d -> d.getDocumentType().equals(documentType))
+                .filter(BaseEntity::isActive)
+                .map(BorrowerDocument::getAttachment)
+                .map(Attachment::getId)
+                .collect(Collectors.toList());
     }
 
     private void removeSignatureForm(BorrowerProfile borrowerProfile) {

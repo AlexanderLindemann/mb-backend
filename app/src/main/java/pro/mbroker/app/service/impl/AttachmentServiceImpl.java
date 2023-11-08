@@ -30,6 +30,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -129,16 +130,28 @@ public class AttachmentServiceImpl implements AttachmentService {
         var borrower = borrowerProfileRepository.findBorrowerProfileBySignedFormId(attachmentId);
         borrower.ifPresent(profile -> {
                     profile.setBorrowerProfileStatus(BorrowerProfileStatus.DATA_ENTERED);
-                    borrowerProfileRepository.save(profile);
-                    borrowerProfileRepository.flush();
+                    borrowerProfileRepository.saveAndFlush(profile);
                 }
         );
 
         var attachment = attachmentRepository.findAttachmentById(attachmentId)
                 .orElseThrow(() -> new ItemNotFoundException(Attachment.class, attachmentId));
         attachment.setActive(false);
-
         attachmentRepository.save(attachment);
+    }
+
+    public void markAttachmentsAsDeleted(List<Long> attachmentIds) {
+        if (attachmentIds == null || attachmentIds.isEmpty()) {
+            return;
+        }
+        List<BorrowerProfile> borrowerProfiles = borrowerProfileRepository.findAllBySignedFormIds(attachmentIds);
+        if (!borrowerProfiles.isEmpty()) {
+            borrowerProfileRepository.updateBorrowerProfilesStatus(
+                    borrowerProfiles.stream().map(BorrowerProfile::getId).collect(Collectors.toList()),
+                    BorrowerProfileStatus.DATA_ENTERED
+            );
+        }
+        attachmentRepository.setAttachmentsInactive(attachmentIds);
     }
 
     @Override

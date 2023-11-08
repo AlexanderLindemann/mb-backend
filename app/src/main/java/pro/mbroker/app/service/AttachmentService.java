@@ -59,7 +59,6 @@ public interface AttachmentService {
     ResponseEntity<InputStreamResource> downloadFile(Long attachmentId);
 
     /**
-     *
      * Метод помечает файл attachment как удаленный
      *
      * @param attachmentId айди вложения
@@ -74,5 +73,12 @@ public interface AttachmentService {
      */
     List<AttachmentInfo> getConvertedFiles(List<Long> attachmentsIds);
 
-    public BorrowerDocument saveBorrowerDocument (Attachment attachment, BorrowerDocumentRequest documentDto);
+    BorrowerDocument saveBorrowerDocument(Attachment attachment, BorrowerDocumentRequest documentDto);
+
+    /**
+     * Метод помечает файлы attachment как удаленные
+     *
+     * @param attachmentIds айди вложений
+     */
+    void markAttachmentsAsDeleted(List<Long> attachmentIds);
 }

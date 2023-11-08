@@ -153,6 +153,8 @@ public class AttachmentControllerImpl implements AttachmentController {
                 documentType == DocumentType.PENSION_CERTIFICATE ||
                 documentType == DocumentType.EGRUL_EGRIP_EXTRACT ||
                 documentType == DocumentType.OTHER_DOCUMENTS ||
+                documentType == DocumentType.GENERATED_FORM ||
+                documentType == DocumentType.SIGNATURE_FORM ||
                 documentType == DocumentType.INCOME_CERTIFICATE;
     }
 
