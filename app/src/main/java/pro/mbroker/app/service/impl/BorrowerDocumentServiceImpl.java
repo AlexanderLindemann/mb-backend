@@ -12,6 +12,8 @@ import pro.mbroker.app.service.BorrowerDocumentService;
 import pro.mbroker.app.service.PartnerApplicationService;
 
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -41,7 +43,13 @@ public class BorrowerDocumentServiceImpl implements BorrowerDocumentService {
         if (attachmentIds == null || attachmentIds.isEmpty()) {
             return;
         }
-        borrowerDocumentRepository.setAttachmentsInactive(attachmentIds);
+        List<BorrowerDocument> borrowerDocuments =
+                borrowerDocumentRepository.findAllByAttachmentIdIn(attachmentIds);
+        if (Objects.nonNull(borrowerDocuments)) {
+            borrowerDocumentRepository.setAttachmentsInactive(borrowerDocuments.stream()
+                    .map(BorrowerDocument::getId)
+                    .collect(Collectors.toList()));
+        }
     }
 
 

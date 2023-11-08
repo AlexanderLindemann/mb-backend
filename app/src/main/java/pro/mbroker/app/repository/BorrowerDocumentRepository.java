@@ -23,8 +23,10 @@ public interface BorrowerDocumentRepository extends JpaRepository<BorrowerDocume
                              @Param("borrowerProfileIds") List<UUID> borrowerProfileIds);
 
     @Modifying
-    @Query("UPDATE BorrowerDocument bd SET bd.isActive = false WHERE bd.attachment.id IN :attachmentIds")
-    void setAttachmentsInactive(@Param("attachmentIds") List<Long> attachmentIds);
+    @Query("UPDATE BorrowerDocument bd SET bd.isActive = false WHERE bd.id IN :borrowerDocumentIds")
+    void setAttachmentsInactive(List<UUID> borrowerDocumentIds);
+
+    List<BorrowerDocument> findAllByAttachmentIdIn(List<Long> attachmentIds);
 
 }
 
