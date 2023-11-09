@@ -2,8 +2,11 @@ package pro.mbroker.app.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.transaction.annotation.Transactional;
+import pro.mbroker.api.enums.BankApplicationStatus;
 import pro.mbroker.app.entity.BankApplication;
 
 import java.util.Collection;
@@ -31,5 +34,11 @@ public interface BankApplicationRepository extends JpaRepository<BankApplication
             "FROM BorrowerProfile bp " +
             "WHERE bp.id = :borrowerProfileId) AND ba.isActive = true")
     List<BankApplication> findBankApplicationsByBorrowerProfileId(@Param("borrowerProfileId") UUID borrowerProfileId);
+
+
+    @Modifying
+    @Transactional
+    @Query("update BankApplication b set b.bankApplicationStatus = :status where b.id = :id")
+    int updateStatus(@Param("id") UUID id, @Param("status") BankApplicationStatus status);
 
 }

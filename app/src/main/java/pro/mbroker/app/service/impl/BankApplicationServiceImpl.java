@@ -74,6 +74,12 @@ public class BankApplicationServiceImpl implements BankApplicationService {
         bankApplicationRepository.saveAll(bankApplications);
     }
 
+    @Transactional
+    @Override
+    public void save(BankApplication bankApplications) {
+        bankApplicationRepository.save(bankApplications);
+    }
+
 
     @Override
     public BankApplication updateBankApplication(BankApplicationRequest request) {
@@ -83,5 +89,10 @@ public class BankApplicationServiceImpl implements BankApplicationService {
     @Transactional(readOnly = true)
     public List<BankApplication> getBankApplicationByBorrowerId(UUID borrowerId) {
         return bankApplicationRepository.findByMainBorrowerId(borrowerId);
+    }
+
+    @Override
+    public int updateStatus(UUID bankApplicationId, BankApplicationStatus status) {
+        return bankApplicationRepository.updateStatus(bankApplicationId, status);
     }
 }

@@ -23,4 +23,8 @@ public interface BankApplicationService {
     List<BankApplication> getBankApplicationByApplicationId(Collection<Integer> applicationNumbers);
 
     void saveAll(Collection<BankApplication> bankApplications);
+
+    void save(BankApplication bankApplication);
+
+    int updateStatus (UUID bankApplicationId, BankApplicationStatus statu);
 }
