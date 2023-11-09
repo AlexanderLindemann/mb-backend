@@ -152,6 +152,9 @@ public class FormServiceImpl implements FormService {
                 borrowerProfile.getLastName() + "_" + borrowerProfile.getFirstName() + ".pdf",
                 "application/pdf"
         );
+        List<Long> signatureFormsAttachmentIds = getAttachmentIdsByDocumentType(borrowerProfile, DocumentType.GENERATED_SIGNATURE_FORM);
+        attachmentService.markAttachmentsAsDeleted(signatureFormsAttachmentIds);
+        borrowerDocumentService.markDocumentsAsDeleted(signatureFormsAttachmentIds);
         Attachment upload = attachmentService.upload(multipartFile);
         borrowerProfile.setSignedForm(upload);
         borrowerProfile.setBorrowerProfileStatus(BorrowerProfileStatus.DOCS_SIGNED);
@@ -159,9 +162,8 @@ public class FormServiceImpl implements FormService {
         BorrowerDocument singForm = new BorrowerDocument();
         singForm.setAttachment(upload);
         singForm.setBorrowerProfile(borrowerProfile);
-        singForm.setBank(bankApplication.getCreditProgram().getBank());
         singForm.setBankApplication(bankApplication);
-        singForm.setDocumentType(DocumentType.APPLICATION_FORM);
+        singForm.setDocumentType(DocumentType.GENERATED_SIGNATURE_FORM);
         singForm.setActive(true);
 
         borrowerProfile.getBorrowerDocument().add(singForm);
