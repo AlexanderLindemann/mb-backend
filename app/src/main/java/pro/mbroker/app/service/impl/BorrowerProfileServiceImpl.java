@@ -188,10 +188,31 @@ public class BorrowerProfileServiceImpl implements BorrowerProfileService {
             }
         }
         checkAndUpdateStatus(borrowerProfile);
-        partnerApplicationService.statusChanger(borrowerProfile.getPartnerApplication());
         borrowerProfileRepository.save(borrowerProfile);
     }
 
+    private void checkAndUpdateStatus(BorrowerProfile profile) {
+        if (isBorrowerMainInfoComplete(profile)
+                && isPassportInfoComplete(profile)
+                && isEmployerInfoComplete(profile)
+                && isIncomeInfoComplete(profile)) {
+
+            partnerApplicationService.statusChanger(profile.getPartnerApplication());
+            List<BankApplication> bankApplications = bankApplicationService.getBankApplicationByBorrowerId(profile.getId());
+            if (!bankApplications.isEmpty()) {
+                for (BankApplication bankApplication : bankApplications) {
+                    if (profile.getBorrowerDocument().stream()
+                            .map(BorrowerDocument::getDocumentType)
+                            .anyMatch(DocumentType.GENERATED_SIGNATURE_FORM::equals)) {
+                        profile.setBorrowerProfileStatus(BorrowerProfileStatus.DATA_UPDATED);
+                        bankApplicationService.changeStatus(bankApplication.getId(), BankApplicationStatus.DATA_NO_ENTERED);
+                    } else {
+                        profile.setBorrowerProfileStatus(BorrowerProfileStatus.DATA_ENTERED);
+                    }
+                }
+            }
+        }
+    }
 
     private void updateEnumField(BorrowerProfile borrowerProfile, Field field, Map<String, Object> fieldsMap) throws NoSuchFieldException, IllegalAccessException {
         String enumValue = (String) fieldsMap.get(field.getName());
@@ -288,28 +309,6 @@ public class BorrowerProfileServiceImpl implements BorrowerProfileService {
             return Collections.emptyMap();
         }
     }
-
-    private void checkAndUpdateStatus(BorrowerProfile profile) {
-        if (isBorrowerMainInfoComplete(profile)
-                && isPassportInfoComplete(profile)
-                && isEmployerInfoComplete(profile)
-                && isIncomeInfoComplete(profile)) {
-
-            partnerApplicationService.statusChanger(profile.getPartnerApplication());
-            List<BankApplication> bankApplications = bankApplicationService.getBankApplicationByBorrowerId(profile.getId());
-            if (!bankApplications.isEmpty()) {
-                for (BankApplication bankApplication : bankApplications) {
-                    if (profile.getSignedForm() != null) {
-                        profile.setBorrowerProfileStatus(BorrowerProfileStatus.DOCS_SIGNED);
-                        bankApplicationService.changeStatus(bankApplication.getId(), BankApplicationStatus.READY_TO_SENDING);
-                    } else {
-                        profile.setBorrowerProfileStatus(BorrowerProfileStatus.DATA_ENTERED);
-                    }
-                }
-            }
-        }
-    }
-
 
     private boolean isEmployerInfoComplete(BorrowerProfile profile) {
         BorrowerEmployer employer = profile.getEmployer();

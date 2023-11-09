@@ -339,9 +339,11 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
                 if (Objects.nonNull(borrowerDocuments)) {
                     boolean allDocumentsPresent = checkRequiredDocuments(borrowerProfile);
                     if (allDocumentsPresent) {
-                        if (borrowerProfile.getSignedForm() != null) {
-                            if (!currentStatus.equals(BorrowerProfileStatus.DOCS_SIGNED)) {
-                                borrowerProfile.setBorrowerProfileStatus(BorrowerProfileStatus.DOCS_SIGNED);
+                        if (borrowerProfile.getBorrowerDocument().stream()
+                                .map(BorrowerDocument::getDocumentType)
+                                .anyMatch(DocumentType.GENERATED_SIGNATURE_FORM::equals)) {
+                            if (currentStatus.equals(BorrowerProfileStatus.DOCS_SIGNED)) {
+                                borrowerProfile.setBorrowerProfileStatus(BorrowerProfileStatus.DATA_UPDATED);
                                 isChange = true;
                             }
                         } else {
