@@ -528,7 +528,7 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
                 throw new AccessDeniedException("sd_id: " + sdId, PartnerApplication.class);
             }
             if ((authorities.contains(new SimpleGrantedAuthority("MB_CABINET_ACCESS")))) {
-                String phoneNumber = TokenExtractor.extractPhoneNumber(currentUserToken);
+                String phoneNumber = formatPhoneNumber(TokenExtractor.extractPhoneNumber(currentUserToken));
                 List<PartnerApplication> partnerApplicationByPhoneNumber = findPartnerApplicationByPhoneNumber(phoneNumber);
                 if (!partnerApplicationByPhoneNumber.contains(partnerApplication)) {
                     throw new AccessDeniedException("phoneNumber: " + phoneNumber, PartnerApplication.class);
