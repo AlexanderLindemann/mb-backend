@@ -3,21 +3,17 @@ package pro.mbroker.app.service.impl;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.util.ContentCachingRequestWrapper;
-import pro.mbroker.api.dto.request.BorrowerDocumentRequest;
 import pro.mbroker.api.dto.request.BorrowerEmployerRequest;
 import pro.mbroker.api.dto.request.BorrowerProfileRequest;
 import pro.mbroker.api.dto.request.BorrowerProfileUpdateRequest;
 import pro.mbroker.api.dto.request.BorrowerRequest;
 import pro.mbroker.api.dto.response.BorrowerProfileResponse;
 import pro.mbroker.api.dto.response.BorrowerResponse;
-import pro.mbroker.api.enums.BankApplicationStatus;
 import pro.mbroker.api.enums.BorrowerProfileStatus;
 import pro.mbroker.api.enums.DocumentType;
-import pro.mbroker.api.enums.EmploymentStatus;
 import pro.mbroker.app.entity.Bank;
 import pro.mbroker.app.entity.BankApplication;
 import pro.mbroker.app.entity.BorrowerDocument;
@@ -41,9 +37,9 @@ import java.lang.reflect.Field;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -152,7 +148,6 @@ public class BorrowerProfileServiceImpl implements BorrowerProfileService {
     }
 
     @Override
-    @Transactional
     public void updateBorrowerProfileField(UUID borrowerProfileId, BorrowerProfileUpdateRequest updateRequest, HttpServletRequest request) {
         Map<String, Object> fieldsMap = extractFieldsFromRequest(request);
         if (fieldsMap.isEmpty()) return;
@@ -187,31 +182,21 @@ public class BorrowerProfileServiceImpl implements BorrowerProfileService {
                 throw new ProfileUpdateException(fieldName, "Ошибка при обновлении профиля заемщика");
             }
         }
-        checkAndUpdateStatus(borrowerProfile);
-        borrowerProfileRepository.save(borrowerProfile);
+
+        deleteBorrowerDocuments(borrowerProfile);
+        partnerApplicationService.statusChanger(borrowerProfile.getPartnerApplication());
     }
 
-    private void checkAndUpdateStatus(BorrowerProfile profile) {
-        if (isBorrowerMainInfoComplete(profile)
-                && isPassportInfoComplete(profile)
-                && isEmployerInfoComplete(profile)
-                && isIncomeInfoComplete(profile)) {
+    private void deleteBorrowerDocuments(BorrowerProfile profile) {
+        EnumSet<DocumentType> typesToDelete = EnumSet.of(
+                DocumentType.APPLICATION_FORM,
+                DocumentType.GENERATED_FORM,
+                DocumentType.GENERATED_SIGNATURE_FORM);
 
-            partnerApplicationService.statusChanger(profile.getPartnerApplication());
-            List<BankApplication> bankApplications = bankApplicationService.getBankApplicationByBorrowerId(profile.getId());
-            if (!bankApplications.isEmpty()) {
-                for (BankApplication bankApplication : bankApplications) {
-                    if (profile.getBorrowerDocument().stream()
-                            .map(BorrowerDocument::getDocumentType)
-                            .anyMatch(DocumentType.GENERATED_SIGNATURE_FORM::equals)) {
-                        profile.setBorrowerProfileStatus(BorrowerProfileStatus.DATA_UPDATED);
-                        bankApplicationService.changeStatus(bankApplication.getId(), BankApplicationStatus.DATA_NO_ENTERED);
-                    } else {
-                        profile.setBorrowerProfileStatus(BorrowerProfileStatus.DATA_ENTERED);
-                    }
-                }
-            }
-        }
+        List<BorrowerDocument> documents = profile.getBorrowerDocument();
+        documents.stream()
+                .filter(document -> typesToDelete.contains(document.getDocumentType()))
+                .forEach(document -> document.setActive(false));
     }
 
     private void updateEnumField(BorrowerProfile borrowerProfile, Field field, Map<String, Object> fieldsMap) throws NoSuchFieldException, IllegalAccessException {
@@ -308,59 +293,6 @@ public class BorrowerProfileServiceImpl implements BorrowerProfileService {
             log.error("Error during reading request payload", e);
             return Collections.emptyMap();
         }
-    }
-
-    private boolean isEmployerInfoComplete(BorrowerProfile profile) {
-        BorrowerEmployer employer = profile.getEmployer();
-        if (profile.getEmploymentStatus() != null && profile.getEmploymentStatus() == EmploymentStatus.UNEMPLOYED)
-            return true;
-        else {
-            return profile.getEmploymentStatus() != null
-                    && profile.getTotalWorkExperience() != null
-                    && !StringUtils.isEmpty(employer.getName())
-                    && employer.getBranch() != null
-                    && employer.getTin() != null
-                    && employer.getTin().length() > 9
-                    && !StringUtils.isEmpty(employer.getPhone())
-                    && employer.getNumberOfEmployees() != null
-                    && employer.getOrganizationAge() != null
-                    && !StringUtils.isEmpty(employer.getAddress())
-                    && employer.getWorkExperience() != null
-                    && !StringUtils.isEmpty(employer.getPosition());
-        }
-    }
-
-    private boolean isIncomeInfoComplete(BorrowerProfile profile) {
-        return profile.getMainIncome() != null && profile.getProofOfIncome() != null;
-    }
-
-    private boolean isDocumentUploaded(List<BorrowerDocument> documents) {
-        List<DocumentType> documentTypes = Arrays.asList(DocumentType.values());//todo возможно тут надо жестко прописат какие документы должны быть
-        // иначе может появится не обязательный документ и метод упадет
-        return documents.stream().allMatch(document -> documentTypes.contains(document.getDocumentType()));
-
-    }
-
-    private boolean isPassportInfoComplete(BorrowerProfile profile) {
-        return !StringUtils.isEmpty(profile.getPassportNumber())
-                && profile.getPassportIssuedDate() != null
-                && !StringUtils.isEmpty(profile.getPassportIssuedByName())
-                && !StringUtils.isEmpty(profile.getRegistrationAddress());
-        //todo узнать как проверит галочку совпадает регистрация с факт жильем или нет и добавить
-        //profile.getResidenceAddress();
-
-    }
-
-    private boolean isBorrowerMainInfoComplete(BorrowerProfile profile) {
-
-        return profile.getEmployer() != null
-                && !StringUtils.isEmpty(profile.getFirstName())
-                && !StringUtils.isEmpty(profile.getLastName())
-                && profile.getPhoneNumber() != null
-                && profile.getPhoneNumber().length() == 10
-                && profile.getBirthdate() != null
-                && profile.getGender() != null
-                && !StringUtils.isEmpty(profile.getSnils());
     }
 
     @Override
@@ -478,19 +410,6 @@ public class BorrowerProfileServiceImpl implements BorrowerProfileService {
         return borrowerProfileRepository.findBorrowerProfileBySignedFormId(signatureId)
                 .orElseThrow(() ->
                         new NoSuchElementException("BorrowerProfile not found for signatureId: " + signatureId));
-    }
-
-    private BorrowerDocumentRequest enrichApplicationForm(BorrowerProfile borrowerProfile, BankApplication bankApplication) {
-        BorrowerDocumentRequest form = new BorrowerDocumentRequest();
-        var attachment = borrowerProfile.getSignedForm();
-        form.setAttachmentId(attachment.getId());
-        form.setBorrowerProfileId(borrowerProfile.getId());
-        form.setDocumentType(DocumentType.APPLICATION_FORM);
-        form.setBankId(bankApplication.getCreditProgram().getBank().getId());
-        form.setAttachmentName(attachment.getName());
-
-        return form;
-
     }
 
 }

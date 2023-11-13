@@ -2,6 +2,7 @@ package pro.mbroker.app.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringUtils;
 import org.hibernate.Session;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -27,6 +28,7 @@ import pro.mbroker.api.dto.response.RequiredDocumentResponse;
 import pro.mbroker.api.enums.BankApplicationStatus;
 import pro.mbroker.api.enums.BorrowerProfileStatus;
 import pro.mbroker.api.enums.DocumentType;
+import pro.mbroker.api.enums.EmploymentStatus;
 import pro.mbroker.api.enums.PartnerApplicationStatus;
 import pro.mbroker.api.enums.PaymentSource;
 import pro.mbroker.api.enums.ProofOfIncome;
@@ -35,6 +37,7 @@ import pro.mbroker.app.entity.Bank;
 import pro.mbroker.app.entity.BankApplication;
 import pro.mbroker.app.entity.BaseEntity;
 import pro.mbroker.app.entity.BorrowerDocument;
+import pro.mbroker.app.entity.BorrowerEmployer;
 import pro.mbroker.app.entity.BorrowerProfile;
 import pro.mbroker.app.entity.CreditProgram;
 import pro.mbroker.app.entity.MortgageCalculation;
@@ -71,6 +74,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -223,152 +227,62 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
 
     @Override
     @Transactional
-    public PartnerApplication statusChanger(PartnerApplication partnerApplication) {
-        boolean isChange = false;
-        if (Objects.isNull(partnerApplication.getPartnerApplicationStatus())) {
-            partnerApplication.setPartnerApplicationStatus(PartnerApplicationStatus.UPLOADING_DOCS);
-            isChange = true;
-        }
-        for (BorrowerProfile borrowerProfile : partnerApplication.getBorrowerProfiles()) {
-            if (Objects.isNull(borrowerProfile.getBorrowerProfileStatus())) {
-                borrowerProfile.setBorrowerProfileStatus(BorrowerProfileStatus.DATA_NO_ENTERED);
-                isChange = true;
-            }
-        }
-        if (Objects.nonNull(partnerApplication.getId())) {
-            boolean statusChanged = checkBorrowerStatus(partnerApplication);
-            isChange = isChange || statusChanged;
-        }
-        for (BankApplication bankApplication : partnerApplication.getBankApplications()) {
-            if (Objects.isNull(bankApplication.getBankApplicationStatus())) {
-                bankApplication.setBankApplicationStatus(BankApplicationStatus.DATA_NO_ENTERED);
-                isChange = true;
-            }
-        }
-        if (Objects.nonNull(partnerApplication.getId())) {
-            boolean statusChanged = checkBankApplicationStatus(partnerApplication);
-            isChange = isChange || statusChanged;
-        }
-        if (isChange) {
-            partnerApplicationRepository.save(partnerApplication);
+    public PartnerApplication statusChanger(PartnerApplication application) {
+        PartnerApplication partnerApplication = application;
+        boolean borrowerStatusChanged = checkBorrowerStatus(application);
+        boolean bankApplicationStatusChanged = checkBankApplicationStatus(application);
+        boolean partnerApplicationStatusChanged = partnerApplicationStatusChanged(application);
+        if (partnerApplicationStatusChanged || borrowerStatusChanged || bankApplicationStatusChanged) {
+            partnerApplication = partnerApplicationRepository.save(application);
         }
         return partnerApplication;
     }
 
-    private String formatPhoneNumber(String phoneNumber) {
-        String cleanNumber = phoneNumber.startsWith("+") ? phoneNumber.substring(1) : phoneNumber;
-        if (cleanNumber.length() > 10) {
-            return cleanNumber.substring(cleanNumber.length() - 10);
-        } else {
-            return cleanNumber;
+    private boolean isIncomeInfoComplete(BorrowerProfile profile) {
+        return profile.getMainIncome() != null && profile.getProofOfIncome() != null;
+    }
+
+    private boolean isEmployerInfoComplete(BorrowerProfile profile) {
+        BorrowerEmployer employer = profile.getEmployer();
+        if (profile.getEmploymentStatus() != null && profile.getEmploymentStatus() == EmploymentStatus.UNEMPLOYED)
+            return true;
+        else {
+            return profile.getEmploymentStatus() != null
+                    && profile.getTotalWorkExperience() != null
+                    && !StringUtils.isEmpty(employer.getName())
+                    && employer.getBranch() != null
+                    && employer.getTin() != null
+                    && employer.getTin().length() > 9
+                    && !StringUtils.isEmpty(employer.getPhone())
+                    && employer.getNumberOfEmployees() != null
+                    && employer.getOrganizationAge() != null
+                    && !StringUtils.isEmpty(employer.getAddress())
+                    && employer.getWorkExperience() != null
+                    && !StringUtils.isEmpty(employer.getPosition());
         }
     }
 
-    private List<PartnerApplication> getPartnerApplicationsByPhoneNumber(String phoneNumber) {
-        List<BorrowerProfile> borrowerProfiles = borrowerProfileRepository.findAllByPhoneNumberAndIsActiveTrue(phoneNumber);
-        List<PartnerApplication> partnerApplications = borrowerProfiles.stream()
-                .map(BorrowerProfile::getPartnerApplication)
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList());
-        partnerApplications.forEach(partnerApplication -> {
-            if (partnerApplication.getBorrowerProfiles() != null) {
-                List<BorrowerProfile> profiles = partnerApplication.getBorrowerProfiles().stream()
-                        .filter(borrowerProfile ->
-                                borrowerProfile != null &&
-                                        borrowerProfile.getPhoneNumber() != null &&
-                                        borrowerProfile.getPhoneNumber().equals(phoneNumber) &&
-                                        borrowerProfile.isActive())
-                        .collect(Collectors.toList());
-                partnerApplication.setBorrowerProfiles(profiles);
-            }
-        });
-        return partnerApplications;
+    private boolean isBorrowerMainInfoComplete(BorrowerProfile profile) {
+
+        return profile.getEmployer() != null
+                && !StringUtils.isEmpty(profile.getFirstName())
+                && !StringUtils.isEmpty(profile.getLastName())
+                && profile.getPhoneNumber() != null
+                && profile.getPhoneNumber().length() == 10
+                && profile.getBirthdate() != null
+                && profile.getGender() != null
+                && !StringUtils.isEmpty(profile.getSnils());
     }
 
-    private void setSalaryBank(PartnerApplicationRequest request, PartnerApplication existingPartnerApplication) {
-        if (Objects.nonNull(request.getMortgageCalculation()) && Objects.nonNull(request.getMortgageCalculation().getSalaryBanks())) {
-            List<Bank> banks = bankRepository.findAllById(request.getMortgageCalculation().getSalaryBanks());
-            existingPartnerApplication.getMortgageCalculation().setSalaryBanks(banks);
-        }
+    private boolean isPassportInfoComplete(BorrowerProfile profile) {
+        return !StringUtils.isEmpty(profile.getPassportNumber())
+                && profile.getPassportIssuedDate() != null
+                && !StringUtils.isEmpty(profile.getPassportIssuedByName())
+                && !StringUtils.isEmpty(profile.getRegistrationAddress());
+        //todo узнать как проверит галочку совпадает регистрация с факт жильем или нет и добавить
+        //profile.getResidenceAddress();
+
     }
-
-    private boolean isBorrowerProfileChanged(PartnerApplicationRequest request, PartnerApplication existingApplication) {
-        if (!Objects.equals(request.getCreditPurposeType(), existingApplication.getCreditPurposeType())) {
-            return true;
-        }
-        if (!Objects.equals(request.getRealEstateType(), existingApplication.getRealEstateType())) {
-            return true;
-        }
-        UUID existingRealEstateId = existingApplication.getRealEstate() != null ? existingApplication.getRealEstate().getId() : null;
-        if (!Objects.equals(request.getRealEstateId(), existingRealEstateId)) {
-            return true;
-        }
-        MortgageCalculationDto requestMortgageCalculation = request.getMortgageCalculation();
-        MortgageCalculation existingMortgageCalculation = existingApplication.getMortgageCalculation();
-        if (!Objects.equals(requestMortgageCalculation.getRealEstatePrice(), existingMortgageCalculation.getRealEstatePrice())) {
-            return true;
-        }
-        if (!Objects.equals(requestMortgageCalculation.getDownPayment(), existingMortgageCalculation.getDownPayment())) {
-            return true;
-        }
-        if (!Objects.equals(requestMortgageCalculation.getIsMaternalCapital(), existingMortgageCalculation.getIsMaternalCapital())) {
-            return true;
-        }
-        return !Objects.equals(requestMortgageCalculation.getCreditTerm(), existingMortgageCalculation.getMonthCreditTerm() / 12);
-    }
-
-
-    private void deleteBorrowerDocuments(PartnerApplication application) {
-        application.getBorrowerProfiles().forEach(borrowerProfile -> {
-            List<BorrowerDocument> documents = borrowerProfile.getBorrowerDocument();
-            documents.stream()
-                    .filter(document -> document.getDocumentType().equals(DocumentType.APPLICATION_FORM))
-                    .forEach(document -> document.setActive(false));
-        });
-    }
-
-    private boolean checkBorrowerStatus(PartnerApplication partnerApplication) {
-        boolean isChange = false;
-        List<BorrowerProfile> activeBorrowers = partnerApplication.getBorrowerProfiles().stream()
-                .filter(BaseEntity::isActive)
-                .collect(Collectors.toList());
-        for (BorrowerProfile borrowerProfile : activeBorrowers) {
-            if (borrowerProfile != null) {
-                List<BorrowerDocument> borrowerDocuments = borrowerProfile.getBorrowerDocument();
-                BorrowerProfileStatus currentStatus = borrowerProfile.getBorrowerProfileStatus();
-                if (Objects.nonNull(borrowerDocuments)) {
-                    boolean allDocumentsPresent = checkRequiredDocuments(borrowerProfile);
-                    if (allDocumentsPresent) {
-                        if (borrowerProfile.getBorrowerDocument().stream()
-                                .map(BorrowerDocument::getDocumentType)
-                                .anyMatch(DocumentType.GENERATED_SIGNATURE_FORM::equals)) {
-                            if (currentStatus.equals(BorrowerProfileStatus.DOCS_SIGNED)) {
-                                borrowerProfile.setBorrowerProfileStatus(BorrowerProfileStatus.DATA_UPDATED);
-                                isChange = true;
-                            }
-                        } else {
-                            if (!currentStatus.equals(BorrowerProfileStatus.DATA_ENTERED)) {
-                                borrowerProfile.setBorrowerProfileStatus(BorrowerProfileStatus.DATA_ENTERED);
-                                isChange = true;
-                            }
-                        }
-                    } else {
-                        if (!currentStatus.equals(BorrowerProfileStatus.DATA_NO_ENTERED)) {
-                            borrowerProfile.setBorrowerProfileStatus(BorrowerProfileStatus.DATA_NO_ENTERED);
-                            isChange = true;
-                        }
-                    }
-                } else {
-                    if (!currentStatus.equals(BorrowerProfileStatus.DATA_NO_ENTERED)) {
-                        borrowerProfile.setBorrowerProfileStatus(BorrowerProfileStatus.DATA_NO_ENTERED);
-                        isChange = true;
-                    }
-                }
-            }
-        }
-        return isChange;
-    }
-
 
     @Override
     @Transactional
@@ -406,7 +320,6 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
                 .sorted(Comparator.comparing(BorrowerProfile::getCreatedAt))
                 .collect(Collectors.toList());
         partnerApplication.setBorrowerProfiles(sortedBorrowerProfiles);
-        statusChanger(partnerApplication);
         return partnerApplication;
     }
 
@@ -537,6 +450,212 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
                 }
             }
         }
+    }
+
+    private String formatPhoneNumber(String phoneNumber) {
+        String cleanNumber = phoneNumber.startsWith("+") ? phoneNumber.substring(1) : phoneNumber;
+        if (cleanNumber.length() > 10) {
+            return cleanNumber.substring(cleanNumber.length() - 10);
+        } else {
+            return cleanNumber;
+        }
+    }
+
+    private List<PartnerApplication> getPartnerApplicationsByPhoneNumber(String phoneNumber) {
+        List<BorrowerProfile> borrowerProfiles = borrowerProfileRepository.findAllByPhoneNumberAndIsActiveTrue(phoneNumber);
+        List<PartnerApplication> partnerApplications = borrowerProfiles.stream()
+                .map(BorrowerProfile::getPartnerApplication)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+        partnerApplications.forEach(partnerApplication -> {
+            if (partnerApplication.getBorrowerProfiles() != null) {
+                List<BorrowerProfile> profiles = partnerApplication.getBorrowerProfiles().stream()
+                        .filter(borrowerProfile ->
+                                borrowerProfile != null &&
+                                        borrowerProfile.getPhoneNumber() != null &&
+                                        borrowerProfile.getPhoneNumber().equals(phoneNumber) &&
+                                        borrowerProfile.isActive())
+                        .collect(Collectors.toList());
+                partnerApplication.setBorrowerProfiles(profiles);
+            }
+        });
+        return partnerApplications;
+    }
+
+    private void setSalaryBank(PartnerApplicationRequest request, PartnerApplication existingPartnerApplication) {
+        if (Objects.nonNull(request.getMortgageCalculation()) && Objects.nonNull(request.getMortgageCalculation().getSalaryBanks())) {
+            List<Bank> banks = bankRepository.findAllById(request.getMortgageCalculation().getSalaryBanks());
+            existingPartnerApplication.getMortgageCalculation().setSalaryBanks(banks);
+        }
+    }
+
+    private boolean isBorrowerProfileChanged(PartnerApplicationRequest request, PartnerApplication existingApplication) {
+        if (Objects.nonNull(request.getMaternalCapitalAmount())
+                && !Objects.equals(request.getMaternalCapitalAmount(), existingApplication.getMaternalCapitalAmount())) {
+            return true;
+        }
+        if (Objects.nonNull(request.getSubsidyAmount())
+                && !Objects.equals(request.getSubsidyAmount(), existingApplication.getSubsidyAmount())) {
+            return true;
+        }
+        List<PaymentSource> existingPaymentSources = Converter.convertStringListToEnumList(existingApplication.getPaymentSource(), PaymentSource.class);
+        if (Objects.nonNull(request.getPaymentSource())) {
+            if (request.getPaymentSource().size() != existingPaymentSources.size()) {
+                return true;
+            } else {
+                if (!Objects.equals(existingPaymentSources, request.getPaymentSource())) {
+                    return true;
+                }
+            }
+        }
+        if (Objects.nonNull(request.getInsurance())
+                && !Objects.equals(request.getInsurance(), existingApplication.getInsurance())) {
+            return true;
+        }
+        if (Objects.nonNull(request.getCreditPurposeType())
+                && Objects.nonNull(existingApplication.getCreditPurposeType())
+                && !Objects.equals(request.getCreditPurposeType(), existingApplication.getCreditPurposeType())) {
+            return true;
+        }
+        if (Objects.nonNull(request.getRealEstateType())
+                && Objects.nonNull(existingApplication.getRealEstateType())
+                && !Objects.equals(request.getRealEstateType(), existingApplication.getRealEstateType())) {
+            return true;
+        }
+        UUID existingRealEstateId = existingApplication.getRealEstate() != null ? existingApplication.getRealEstate().getId() : null;
+        if (Objects.nonNull(existingRealEstateId)
+                && Objects.nonNull(request.getRealEstateId())
+                && !Objects.equals(request.getRealEstateId(), existingRealEstateId)) {
+            return true;
+        }
+        MortgageCalculationDto requestMortgageCalculation = request.getMortgageCalculation();
+        MortgageCalculation existingMortgageCalculation = existingApplication.getMortgageCalculation();
+        if (Objects.nonNull(requestMortgageCalculation) && Objects.nonNull(existingMortgageCalculation)) {
+            if (!Objects.equals(requestMortgageCalculation.getRealEstatePrice(), existingMortgageCalculation.getRealEstatePrice())) {
+                return true;
+            }
+            if (!Objects.equals(requestMortgageCalculation.getDownPayment(), existingMortgageCalculation.getDownPayment())) {
+                return true;
+            }
+            if (!Objects.equals(requestMortgageCalculation.getIsMaternalCapital(), existingMortgageCalculation.getIsMaternalCapital())) {
+                return true;
+            }
+            return !Objects.equals(requestMortgageCalculation.getCreditTerm(), existingMortgageCalculation.getMonthCreditTerm() / 12);
+        }
+        return false;
+    }
+
+
+    private void deleteBorrowerDocuments(PartnerApplication application) {
+        EnumSet<DocumentType> typesToDelete = EnumSet.of(
+                DocumentType.APPLICATION_FORM,
+                DocumentType.GENERATED_FORM,
+                DocumentType.GENERATED_SIGNATURE_FORM);
+
+        application.getBorrowerProfiles().forEach(borrowerProfile -> {
+            List<BorrowerDocument> documents = borrowerProfile.getBorrowerDocument();
+            documents.stream()
+                    .filter(document -> typesToDelete.contains(document.getDocumentType()))
+                    .forEach(document -> document.setActive(false));
+        });
+    }
+
+    private boolean checkBorrowerStatus(PartnerApplication partnerApplication) {
+        boolean isChange = false;
+        List<BorrowerProfile> activeBorrowers = partnerApplication.getBorrowerProfiles().stream()
+                .filter(BaseEntity::isActive)
+                .collect(Collectors.toList());
+        for (BorrowerProfile borrowerProfile : activeBorrowers) {
+            if (borrowerProfile != null) {
+                if (Objects.isNull(borrowerProfile.getBorrowerProfileStatus())) {
+                    borrowerProfile.setBorrowerProfileStatus(BorrowerProfileStatus.DATA_NO_ENTERED);
+                    isChange = true;
+                }
+                List<BorrowerDocument> borrowerDocuments = borrowerProfile.getBorrowerDocument();
+                BorrowerProfileStatus currentStatus = borrowerProfile.getBorrowerProfileStatus();
+
+                if (Objects.nonNull(borrowerDocuments)) {
+                    boolean allDocumentsPresent = checkRequiredDocuments(borrowerProfile);
+                    if (allDocumentsPresent) {
+
+                        if (borrowerProfile.getBorrowerDocument().stream()
+                                .filter(BaseEntity::isActive)
+                                .map(BorrowerDocument::getDocumentType)
+                                .anyMatch(DocumentType.GENERATED_SIGNATURE_FORM::equals)) {
+                            if (!currentStatus.equals(BorrowerProfileStatus.DOCS_SIGNED)
+                                    && (isBorrowerMainInfoComplete(borrowerProfile)
+                                    && isPassportInfoComplete(borrowerProfile)
+                                    && isEmployerInfoComplete(borrowerProfile)
+                                    && isIncomeInfoComplete(borrowerProfile))) {
+                                borrowerProfile.setBorrowerProfileStatus(BorrowerProfileStatus.DOCS_SIGNED);
+                                isChange = true;
+                            }
+                        } else {
+                            if (!currentStatus.equals(BorrowerProfileStatus.DATA_ENTERED)) {
+                                borrowerProfile.setBorrowerProfileStatus(BorrowerProfileStatus.DATA_ENTERED);
+                                isChange = true;
+                            }
+                        }
+                    } else {
+                        if (!currentStatus.equals(BorrowerProfileStatus.DATA_NO_ENTERED)) {
+                            borrowerProfile.setBorrowerProfileStatus(BorrowerProfileStatus.DATA_NO_ENTERED);
+                            isChange = true;
+                        }
+                    }
+                } else {
+                    if (!currentStatus.equals(BorrowerProfileStatus.DATA_NO_ENTERED)) {
+                        borrowerProfile.setBorrowerProfileStatus(BorrowerProfileStatus.DATA_NO_ENTERED);
+                        isChange = true;
+                    }
+                }
+            }
+        }
+        return isChange;
+    }
+
+    private boolean partnerApplicationStatusChanged(PartnerApplication partnerApplication) {
+        if (Objects.isNull(partnerApplication.getPartnerApplicationStatus())) {
+            partnerApplication.setPartnerApplicationStatus(PartnerApplicationStatus.UPLOADING_DOCS);
+            return true;
+        }
+        return false;
+    }
+
+    private boolean checkBankApplicationStatus(PartnerApplication partnerApplication) {
+        boolean isChange = false;
+        if (Objects.nonNull(partnerApplication) && Objects.nonNull(partnerApplication.getBankApplications())) {
+            List<BankApplication> bankApplications = new ArrayList<>(partnerApplication.getBankApplications());
+            bankApplications.removeIf(app -> !app.isActive() ||
+                    (app.getBankApplicationStatus() != null &&
+                            UNCHANGEABLE_STATUSES.contains(app.getBankApplicationStatus())));
+            boolean borrowersInSignedStatus = allBorrowerInSignedStatus(partnerApplication.getBorrowerProfiles());
+            for (BankApplication bankApplication : bankApplications) {
+                if (Objects.nonNull(bankApplication)) {
+                    BankApplicationStatus currentStatus = bankApplication.getBankApplicationStatus();
+                    if (currentStatus == null) {
+                        bankApplication.setBankApplicationStatus(BankApplicationStatus.DATA_NO_ENTERED);
+                        isChange = true;
+                    } else {
+                        if (allProfilesHaveRequiredDocuments(partnerApplication)) {
+                            if (borrowersInSignedStatus
+                                    && bankApplication.getBankApplicationStatus() != null
+                                    && bankApplication.getBankApplicationStatus() == BankApplicationStatus.DATA_NO_ENTERED) {
+                                if (!currentStatus.equals(BankApplicationStatus.READY_TO_SENDING)) {
+                                    bankApplication.setBankApplicationStatus(BankApplicationStatus.READY_TO_SENDING);
+                                    isChange = true;
+                                }
+                            }
+                        } else {
+                            if (!currentStatus.equals(BankApplicationStatus.DATA_NO_ENTERED)) {
+                                bankApplication.setBankApplicationStatus(BankApplicationStatus.DATA_NO_ENTERED);
+                                isChange = true;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return isChange;
     }
 
     private Map<UUID, BorrowerProfile> getActiveBorrowerProfilesMap(PartnerApplication partnerApplication) {
@@ -736,47 +855,19 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
                 .orElseThrow(() -> new ItemNotFoundException(PartnerApplication.class, String.valueOf(partnerApplicationId)));
     }
 
-    private boolean checkBankApplicationStatus(PartnerApplication partnerApplication) {
-        boolean isChange = false;
-        if (Objects.nonNull(partnerApplication) && Objects.nonNull(partnerApplication.getBankApplications())) {
-            List<BankApplication> bankApplications = new ArrayList<>(partnerApplication.getBankApplications());
-            bankApplications.removeIf(app -> !app.isActive() || UNCHANGEABLE_STATUSES.contains(app.getBankApplicationStatus()));
-            boolean borrowersInSignedStatus = allBorrowerInSignedStatus(partnerApplication.getBorrowerProfiles());
-            for (BankApplication bankApplication : bankApplications) {
-                if (Objects.nonNull(bankApplication)) {
-                    BankApplicationStatus currentStatus = bankApplication.getBankApplicationStatus();
-                    if (allProfilesHaveRequiredDocuments(partnerApplication)) {
-                        if (borrowersInSignedStatus
-                                && bankApplication.getBankApplicationStatus() != null
-                                && bankApplication.getBankApplicationStatus() == BankApplicationStatus.DATA_NO_ENTERED) {
-                            if (!currentStatus.equals(BankApplicationStatus.READY_TO_SENDING)) {
-                                bankApplication.setBankApplicationStatus(BankApplicationStatus.READY_TO_SENDING);
-                                isChange = true;
-                            }
-                        }
-                    } else {
-                        if (!currentStatus.equals(BankApplicationStatus.DATA_NO_ENTERED)) {
-                            bankApplication.setBankApplicationStatus(BankApplicationStatus.DATA_NO_ENTERED);
-                            isChange = true;
-                        }
-                    }
-                }
-            }
-        }
-        return isChange;
-    }
-
     private boolean allBorrowerInSignedStatus(List<BorrowerProfile> borrowers) {
         return borrowers.stream()
                 .filter(BorrowerProfile::isActive)
                 .allMatch(x -> x.getBorrowerProfileStatus() == BorrowerProfileStatus.DOCS_SIGNED);
     }
 
-
     private boolean allProfilesHaveRequiredDocuments(PartnerApplication partnerApplication) {
         List<BorrowerProfile> borrowerProfiles = partnerApplication.getBorrowerProfiles();
         return borrowerProfiles.stream().filter(BaseEntity::isActive).allMatch(borrowerProfile ->
-                borrowerProfile.getSignedForm() != null && borrowerProfile.getSignedForm().isActive() &&
+                borrowerProfile.getBorrowerDocument().stream()
+                        .filter(BaseEntity::isActive)
+                        .map(BorrowerDocument::getDocumentType)
+                        .anyMatch(DocumentType.GENERATED_SIGNATURE_FORM::equals) &&
                         checkRequiredDocuments(borrowerProfile)
         );
     }
