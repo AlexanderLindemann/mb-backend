@@ -25,4 +25,6 @@ public class BorrowerDocumentResponse {
 
     private LocalDateTime updatedAt;
 
+    private String attachmentName;
+
 }
