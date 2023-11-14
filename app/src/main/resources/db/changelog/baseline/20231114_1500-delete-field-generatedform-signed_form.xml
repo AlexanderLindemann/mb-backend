@@ -1,0 +1,18 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+    http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+
+    <changeSet id="remove_columns_from_borrower_profile" author="a.lindemann">
+        <dropForeignKeyConstraint baseTableName="borrower_profile"
+                                  constraintName="fk_borrower_profile_generated_form"/>
+
+        <dropForeignKeyConstraint baseTableName="borrower_profile"
+                                  constraintName="fk_borrower_profile_signed_form"/>
+
+        <dropColumn tableName="borrower_profile" columnName="generated_form_id"/>
+        <dropColumn tableName="borrower_profile" columnName="signed_form_id"/>
+    </changeSet>
+
+</databaseChangeLog>

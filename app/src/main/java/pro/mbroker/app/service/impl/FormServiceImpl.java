@@ -50,9 +50,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Slf4j
 @Service
@@ -79,7 +79,6 @@ public class FormServiceImpl implements FormService {
                 partnerApplication,
                 borrowerProfile);
         ByteArrayResource byteAreaResource = matchReplacements(replacements, filePath);
-        removeSignatureForm(borrowerProfile);
         borrowerProfileService.updateBorrowerStatus(borrowerProfileId, BorrowerProfileStatus.DATA_ENTERED);
         return processFormResponse(byteAreaResource);
     }
@@ -110,7 +109,6 @@ public class FormServiceImpl implements FormService {
                 partnerApplication,
                 borrowerProfile);
         ByteArrayResource byteAreaResource = matchReplacementsTest(replacements, file);
-        removeSignatureForm(borrowerProfile);
         borrowerProfileService.updateBorrowerStatus(borrowerProfileId, BorrowerProfileStatus.DATA_ENTERED);
         return processFormResponse(byteAreaResource);
     }
@@ -126,19 +124,16 @@ public class FormServiceImpl implements FormService {
                 "application/pdf"
         );
 
-        List<Long> generatedFormsAttachmentIds = getAttachmentIdsByDocumentType(borrowerProfile, DocumentType.GENERATED_FORM);
-        attachmentService.markAttachmentsAsDeleted(generatedFormsAttachmentIds);
-        borrowerDocumentService.markDocumentsAsDeleted(generatedFormsAttachmentIds);
-
-        Attachment attachment = attachmentService.upload(multipartFile);
+        List<Long> generatedAndSignatureFormsAttachmentIds = Stream.concat(
+                        getAttachmentIdsByDocumentType(borrowerProfile, DocumentType.GENERATED_FORM).stream(),
+                        getAttachmentIdsByDocumentType(borrowerProfile, DocumentType.GENERATED_SIGNATURE_FORM).stream())
+                .collect(Collectors.toList());
+        attachmentService.markAttachmentsAsDeleted(generatedAndSignatureFormsAttachmentIds);
+        borrowerDocumentService.markDocumentsAsDeleted(generatedAndSignatureFormsAttachmentIds);
         BorrowerDocumentRequest borrowerDocumentRequest = new BorrowerDocumentRequest()
                 .setBorrowerProfileId(borrowerProfileId)
                 .setDocumentType(DocumentType.GENERATED_FORM);
         attachmentService.uploadDocument(multipartFile, borrowerDocumentRequest);
-
-        //TODO нужно удалить колонки generatedForm и signedForm и сохранять в документы клиента
-        borrowerProfile.setGeneratedForm(attachment);
-        borrowerProfileRepository.save(borrowerProfile);
     }
 
     @Override
@@ -155,20 +150,12 @@ public class FormServiceImpl implements FormService {
         List<Long> signatureFormsAttachmentIds = getAttachmentIdsByDocumentType(borrowerProfile, DocumentType.GENERATED_SIGNATURE_FORM);
         attachmentService.markAttachmentsAsDeleted(signatureFormsAttachmentIds);
         borrowerDocumentService.markDocumentsAsDeleted(signatureFormsAttachmentIds);
-        Attachment upload = attachmentService.upload(multipartFile);
-        borrowerProfile.setSignedForm(upload);
-        borrowerProfile.setBorrowerProfileStatus(BorrowerProfileStatus.DOCS_SIGNED);
 
-        BorrowerDocument singForm = new BorrowerDocument();
-        singForm.setAttachment(upload);
-        singForm.setBorrowerProfile(borrowerProfile);
-        singForm.setBankApplication(bankApplication);
-        singForm.setDocumentType(DocumentType.GENERATED_SIGNATURE_FORM);
-        singForm.setActive(true);
+        BorrowerDocumentRequest borrowerDocumentRequest = new BorrowerDocumentRequest()
+                .setBorrowerProfileId(borrowerProfileId)
+                .setDocumentType(DocumentType.GENERATED_SIGNATURE_FORM);
+        attachmentService.uploadDocument(multipartFile, borrowerDocumentRequest);
 
-        borrowerProfile.getBorrowerDocument().add(singForm);
-
-        borrowerProfileRepository.save(borrowerProfile);
         bankApplicationService.getBankApplicationByBorrowerId(borrowerProfile.getId())
                 .stream()
                 .findFirst()
@@ -188,16 +175,6 @@ public class FormServiceImpl implements FormService {
                 .map(BorrowerDocument::getAttachment)
                 .map(Attachment::getId)
                 .collect(Collectors.toList());
-    }
-
-    private void removeSignatureForm(BorrowerProfile borrowerProfile) {
-        Optional.ofNullable(borrowerProfile.getSignedForm())
-                .map(Attachment::getId)
-                .ifPresent(attachment -> {
-                    borrowerDocumentService.deleteDocumentByAttachmentId(attachment);
-                    attachmentService.markAttachmentAsDeleted(attachment);
-                    borrowerProfileService.deleteSignatureForm(attachment);
-                });
     }
 
     private ResponseEntity<ByteArrayResource> processFormResponse(ByteArrayResource resource) {

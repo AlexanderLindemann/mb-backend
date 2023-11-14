@@ -5,7 +5,6 @@ import lombok.Setter;
 import lombok.ToString;
 import pro.mbroker.api.dto.BorrowerRealEstateDto;
 import pro.mbroker.api.dto.BorrowerVehicleDto;
-import pro.mbroker.api.dto.request.BorrowerDocumentRequest;
 import pro.mbroker.api.enums.BorrowerProfileStatus;
 import pro.mbroker.api.enums.Education;
 import pro.mbroker.api.enums.EmploymentStatus;
@@ -41,7 +40,7 @@ public class BorrowerProfileDto {
 
     private BorrowerProfileStatus status;
 
-    private List<BorrowerDocumentRequest> documents;
+    private List<BorrowerDocumentResponse> documents;
 
     private LocalDateTime createdAt;
 
@@ -97,7 +96,4 @@ public class BorrowerProfileDto {
 
     private BorrowerVehicleDto vehicle;
 
-    private AttachmentResponse generatedForm;
-
-    private AttachmentResponse signedForm;
 }

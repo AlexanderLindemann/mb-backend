@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import pro.mbroker.api.dto.request.BorrowerDocumentRequest;
 import pro.mbroker.api.enums.BorrowerProfileStatus;
 
 import java.time.LocalDateTime;
@@ -30,7 +29,7 @@ public class BorrowerProfileResponse {
 
     private BorrowerProfileStatus status;
 
-    private List<BorrowerDocumentRequest> documents;
+    private List<BorrowerDocumentResponse> documents;
 
     @JsonIgnore
     private LocalDateTime createdAt;

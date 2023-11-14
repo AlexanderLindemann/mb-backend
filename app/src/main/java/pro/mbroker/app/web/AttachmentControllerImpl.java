@@ -85,10 +85,7 @@ public class AttachmentControllerImpl implements AttachmentController {
             }
         }
         partnerApplicationService.statusChanger(borrowerProfile.getPartnerApplication());
-        Map<UUID, BorrowerProfile> borrowerProfileMap = borrowerProfile.getPartnerApplication().getBorrowerProfiles()
-                .stream().collect(Collectors.toMap(BorrowerProfile::getId, Function.identity()));
-        return borrowerDocument == null ? null : borrowerDocumentMapper.toBorrowerDocumentResponse(borrowerDocument)
-                .setStatus(borrowerProfileMap.get(borrowerProfile.getId()).getBorrowerProfileStatus());
+        return borrowerDocument == null ? null : borrowerDocumentMapper.toBorrowerDocumentResponse(borrowerDocument);
     }
 
     @Override
@@ -116,8 +113,6 @@ public class AttachmentControllerImpl implements AttachmentController {
         attachmentService.markAttachmentAsDeleted(attachmentRequest.getId());
         switch (attachmentRequest.getAttachmentType()) {
             case SIGNATURE_FORM:
-                borrowerProfileService.deleteSignatureForm(attachmentRequest.getId());
-                break;
             case BORROWER_DOCUMENT:
                 borrowerDocumentService.deleteDocumentByAttachmentId(attachmentRequest.getId());
                 break;

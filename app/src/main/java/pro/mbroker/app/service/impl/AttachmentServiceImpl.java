@@ -12,7 +12,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import pro.mbroker.api.dto.request.BorrowerDocumentRequest;
 import pro.mbroker.api.dto.response.AttachmentInfo;
-import pro.mbroker.api.enums.BorrowerProfileStatus;
 import pro.mbroker.app.entity.Attachment;
 import pro.mbroker.app.entity.Bank;
 import pro.mbroker.app.entity.BorrowerDocument;
@@ -30,7 +29,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -64,23 +62,22 @@ public class AttachmentServiceImpl implements AttachmentService {
     @Transactional
     public BorrowerDocument uploadDocument(MultipartFile file, BorrowerDocumentRequest documentDto) {
         Attachment attachment = upload(file);
-
         var borrowerProfile = borrowerProfileRepository.findById(documentDto.getBorrowerProfileId())
                 .orElseThrow(() -> new ItemNotFoundException(BorrowerProfile.class, documentDto.getBorrowerProfileId()));
-
-        BorrowerDocument borrowerDocument = new BorrowerDocument().setAttachment(attachment)
-                .setDocumentType(documentDto.getDocumentType()).setBorrowerProfile(borrowerProfile);
+        BorrowerDocument borrowerDocument = new BorrowerDocument()
+                .setAttachment(attachment)
+                .setDocumentType(documentDto.getDocumentType())
+                .setBorrowerProfile(borrowerProfile);
         if (Objects.nonNull(documentDto.getBankId())) {
             borrowerDocument.setBank(bankRepository.findById(documentDto.getBankId())
                     .orElseThrow(() -> new ItemNotFoundException(Bank.class, documentDto.getBankId())));
         }
-
         return borrowerDocumentRepository.save(borrowerDocument);
     }
 
     @Override
     @Transactional
-    public BorrowerDocument saveBorrowerDocument (Attachment attachment, BorrowerDocumentRequest documentDto) {
+    public BorrowerDocument saveBorrowerDocument(Attachment attachment, BorrowerDocumentRequest documentDto) {
         var borrowerProfile = borrowerProfileRepository.findById(documentDto.getBorrowerProfileId())
                 .orElseThrow(() -> new ItemNotFoundException(BorrowerProfile.class, documentDto.getBorrowerProfileId()));
 
@@ -127,13 +124,6 @@ public class AttachmentServiceImpl implements AttachmentService {
     }
 
     public void markAttachmentAsDeleted(Long attachmentId) {
-        var borrower = borrowerProfileRepository.findBorrowerProfileBySignedFormId(attachmentId);
-        borrower.ifPresent(profile -> {
-                    profile.setBorrowerProfileStatus(BorrowerProfileStatus.DATA_ENTERED);
-                    borrowerProfileRepository.saveAndFlush(profile);
-                }
-        );
-
         var attachment = attachmentRepository.findAttachmentById(attachmentId)
                 .orElseThrow(() -> new ItemNotFoundException(Attachment.class, attachmentId));
         attachment.setActive(false);
@@ -143,13 +133,6 @@ public class AttachmentServiceImpl implements AttachmentService {
     public void markAttachmentsAsDeleted(List<Long> attachmentIds) {
         if (attachmentIds == null || attachmentIds.isEmpty()) {
             return;
-        }
-        List<BorrowerProfile> borrowerProfiles = borrowerProfileRepository.findAllBySignedFormIds(attachmentIds);
-        if (!borrowerProfiles.isEmpty()) {
-            borrowerProfileRepository.updateBorrowerProfilesStatus(
-                    borrowerProfiles.stream().map(BorrowerProfile::getId).collect(Collectors.toList()),
-                    BorrowerProfileStatus.DATA_ENTERED
-            );
         }
         attachmentRepository.setAttachmentsInactive(attachmentIds);
     }

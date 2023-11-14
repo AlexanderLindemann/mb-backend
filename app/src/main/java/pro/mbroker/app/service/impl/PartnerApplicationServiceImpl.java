@@ -182,10 +182,7 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
     @Override
     @Transactional(readOnly = true)
     public Optional<PartnerApplication> getPartnerApplicationByAttachmentId(Long attachmentId) {
-        Optional<PartnerApplication> partnerApplication = partnerApplicationRepository.findByAttachmentId(attachmentId);
-        return partnerApplicationRepository.findByAttachmentId(attachmentId).isPresent()
-                ? partnerApplication
-                : partnerApplicationRepository.findPartnerApplicationByGeneratedFormOrSignedForm(attachmentId);
+        return partnerApplicationRepository.findByAttachmentId(attachmentId);
     }
 
     @Override

@@ -98,3 +98,6 @@ databaseChangeLog:
   - include:
       file: 20231029_399-create_program_type.xml
       relativeToChangelogFile: true
+  - include:
+      file: 20231114_1500-delete-field-generatedform-signed_form.xml
+      relativeToChangelogFile: true

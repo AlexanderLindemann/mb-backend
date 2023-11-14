@@ -43,7 +43,6 @@ import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -311,16 +310,6 @@ public class BorrowerProfileServiceImpl implements BorrowerProfileService {
 
     @Override
     @Transactional
-    public void deleteSignatureForm(Long id) {
-        borrowerProfileRepository.findBorrowerProfileBySignedFormId(id)
-                .ifPresent(borrower -> {
-                    borrower.setSignedForm(null);
-                    borrowerProfileRepository.save(borrower);
-                });
-    }
-
-    @Override
-    @Transactional
     public BorrowerResponse createOrUpdateGenericBorrowerProfile(BorrowerRequest request) {
         PartnerApplication partnerApplication = partnerApplicationService.getPartnerApplication(request.getId());
         List<BorrowerProfile> borrowerProfilesToSave = new ArrayList<>();
@@ -403,13 +392,6 @@ public class BorrowerProfileServiceImpl implements BorrowerProfileService {
         List<Bank> banksToAdd = bankService.getAllBankByIds(dtoBankIds);
         updatedBanks.addAll(banksToAdd);
         employer.setSalaryBanks(updatedBanks);
-    }
-
-    @Override
-    public BorrowerProfile getBorrowerProfileBySignatureId(Long signatureId) {
-        return borrowerProfileRepository.findBorrowerProfileBySignedFormId(signatureId)
-                .orElseThrow(() ->
-                        new NoSuchElementException("BorrowerProfile not found for signatureId: " + signatureId));
     }
 
 }

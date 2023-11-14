@@ -21,18 +21,12 @@ public interface BorrowerProfileRepository extends JpaRepository<BorrowerProfile
             "WHERE b.id = :id")
     Optional<BorrowerProfile> findByIdWithRealEstateVehicleAndEmployer(@Param("id") UUID id);
 
-
-    Optional<BorrowerProfile> findBorrowerProfileBySignedFormId(Long id);
-
     List<BorrowerProfile> findAllByPhoneNumberAndIsActiveTrue(String phoneNumber);
 
     @Modifying
     @Transactional
     @Query("UPDATE BorrowerProfile bp SET bp.borrowerProfileStatus = :status WHERE bp.id = :profileId")
     void updateBorrowerProfileStatus(@Param("profileId") UUID profileId, @Param("status") BorrowerProfileStatus status);
-
-    @Query("SELECT bp FROM BorrowerProfile bp WHERE bp.signedForm.id IN :signedFormIds")
-    List<BorrowerProfile> findAllBySignedFormIds(@Param("ids") List<Long> signedFormIds);
 
     @Modifying
     @Query("UPDATE BorrowerProfile bp SET bp.borrowerProfileStatus = :status WHERE bp.id IN :profileIds")

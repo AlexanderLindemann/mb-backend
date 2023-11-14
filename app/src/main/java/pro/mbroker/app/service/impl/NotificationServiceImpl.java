@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import pro.mbroker.api.dto.request.BorrowerDocumentRequest;
+import pro.mbroker.api.dto.response.BorrowerDocumentResponse;
 import pro.mbroker.api.dto.response.BorrowerResponse;
 import pro.mbroker.api.dto.response.NotificationBankLetterResponse;
 import pro.mbroker.api.enums.BankApplicationStatus;
@@ -116,17 +116,17 @@ public class NotificationServiceImpl implements NotificationService {
         response.setBorrowerResponse(borrowers);
     }
 
-    private Set<Long> extractAllAttachmentsIds (BorrowerResponse borrowers) {
+    private Set<Long> extractAllAttachmentsIds(BorrowerResponse borrowers) {
         Set<Long> mainBorrowerDocIds = getAllAttachmentsIds(borrowers.getMainBorrower().getDocuments());
         Set<Long> ids = new HashSet<>(mainBorrowerDocIds);
         borrowers.getCoBorrower().forEach(d -> ids.addAll(getAllAttachmentsIds(d.getDocuments())));
 
-    return ids;
+        return ids;
     }
 
-    private Set<Long> getAllAttachmentsIds (List<BorrowerDocumentRequest> documents) {
+    private Set<Long> getAllAttachmentsIds(List<BorrowerDocumentResponse> documents) {
 
-        return documents.stream().map(BorrowerDocumentRequest::getAttachmentId).collect(Collectors.toSet());
+        return documents.stream().map(BorrowerDocumentResponse::getAttachmentId).collect(Collectors.toSet());
     }
 
 }

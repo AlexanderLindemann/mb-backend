@@ -3,9 +3,9 @@ package pro.mbroker.api.dto.response;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import pro.mbroker.api.enums.BorrowerProfileStatus;
 import pro.mbroker.api.enums.DocumentType;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Getter
@@ -15,14 +15,14 @@ public class BorrowerDocumentResponse {
 
     private UUID borrowerProfileId;
 
-    private String attachmentName;
-
     private Long attachmentId;
 
     private DocumentType documentType;
 
     private UUID bankId;
 
-    private BorrowerProfileStatus status;
+    private long sizeBytes;
+
+    private LocalDateTime updatedAt;
 
 }

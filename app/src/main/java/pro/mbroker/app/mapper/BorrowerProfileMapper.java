@@ -3,8 +3,8 @@ package pro.mbroker.app.mapper;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
-import pro.mbroker.api.dto.request.BorrowerDocumentRequest;
 import pro.mbroker.api.dto.request.BorrowerProfileRequest;
+import pro.mbroker.api.dto.response.BorrowerDocumentResponse;
 import pro.mbroker.api.dto.response.BorrowerEmployerResponse;
 import pro.mbroker.api.dto.response.BorrowerProfileDto;
 import pro.mbroker.api.dto.response.BorrowerProfileForUpdateResponse;
@@ -21,7 +21,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-@Mapper(uses = {BorrowerEmployerMapper.class, BankMapper.class})
+@Mapper(uses = {BorrowerEmployerMapper.class, BankMapper.class, BorrowerDocumentMapper.class})
 public interface BorrowerProfileMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
@@ -68,8 +68,6 @@ public interface BorrowerProfileMapper {
     @Mapping(target = "tin", ignore = true)
     @Mapping(target = "familyRelation", ignore = true)
     @Mapping(target = "relatedPublicOfficial", ignore = true)
-    @Mapping(target = "generatedForm", ignore = true)
-    @Mapping(target = "signedForm", ignore = true)
     @Mapping(target = "publicOfficialPosition", ignore = true)
     @Mapping(target = "tinForeign", ignore = true)
     @Mapping(target = "birthPlace", ignore = true)
@@ -130,8 +128,6 @@ public interface BorrowerProfileMapper {
     @Mapping(target = "tin", ignore = true)
     @Mapping(target = "familyRelation", ignore = true)
     @Mapping(target = "relatedPublicOfficial", ignore = true)
-    @Mapping(target = "generatedForm", ignore = true)
-    @Mapping(target = "signedForm", ignore = true)
     @Mapping(target = "publicOfficialPosition", ignore = true)
     @Mapping(target = "tinForeign", ignore = true)
     @Mapping(target = "birthPlace", ignore = true)
@@ -145,29 +141,29 @@ public interface BorrowerProfileMapper {
 
     @Mapping(source = "borrowerProfileStatus", target = "status", defaultValue = "DATA_NO_ENTERED")
     @Mapping(target = "documents", expression = "java(mapBorrowerDocuments(borrowerProfile.getBorrowerDocument()))")
-    @Mapping(target = "employer", expression = "java(toEmployerDto(borrowerProfile.getEmployer()))")
     BorrowerProfileForUpdateResponse toBorrowerProfileForUpdate(BorrowerProfile borrowerProfile);
 
 
-    default BorrowerDocumentRequest toBorrowerDocumentRequest(BorrowerDocument borrowerDocument) {
-        BorrowerDocumentRequest request = new BorrowerDocumentRequest();
-        request.setAttachmentId(borrowerDocument.getAttachment().getId());
-        request.setAttachmentName(borrowerDocument.getAttachment().getName());
+    default BorrowerDocumentResponse toBorrowerDocumentResponse(BorrowerDocument borrowerDocument) {
+        BorrowerDocumentResponse response = new BorrowerDocumentResponse();
+        response.setAttachmentId(borrowerDocument.getAttachment().getId());
         if (Objects.nonNull(borrowerDocument.getBank())) {
-            request.setBankId(borrowerDocument.getBank().getId());
+            response.setBankId(borrowerDocument.getBank().getId());
         }
-        request.setBorrowerProfileId(borrowerDocument.getBorrowerProfile().getId());
-        request.setDocumentType(borrowerDocument.getDocumentType());
-        return request;
+        response.setBorrowerProfileId(borrowerDocument.getBorrowerProfile().getId());
+        response.setDocumentType(borrowerDocument.getDocumentType());
+        response.setSizeBytes(borrowerDocument.getAttachment().getSizeBytes());
+        response.setUpdatedAt(borrowerDocument.getUpdatedAt());
+        return response;
     }
 
-    default List<BorrowerDocumentRequest> mapBorrowerDocuments(List<BorrowerDocument> borrowerDocuments) {
+    default List<BorrowerDocumentResponse> mapBorrowerDocuments(List<BorrowerDocument> borrowerDocuments) {
         if (borrowerDocuments == null) {
             return new ArrayList<>();
         }
         return borrowerDocuments.stream()
                 .filter(BorrowerDocument::isActive)
-                .map(this::toBorrowerDocumentRequest)
+                .map(this::toBorrowerDocumentResponse)
                 .collect(Collectors.toList());
     }
 

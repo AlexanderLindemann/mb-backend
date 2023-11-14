@@ -189,12 +189,4 @@ public class BorrowerProfile extends BaseEntity {
     @JoinColumn(name = "borrower_vehicle_id")
     private BorrowerVehicle vehicle;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "generated_form_id")
-    private Attachment generatedForm;
-
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "signed_form_id")
-    private Attachment signedForm;
-
 }

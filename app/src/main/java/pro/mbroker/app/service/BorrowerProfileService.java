@@ -27,9 +27,6 @@ public interface BorrowerProfileService {
 
     BorrowerProfile findByIdWithRealEstateVehicleAndEmployer(UUID borrowerProfileId);
 
-    void deleteSignatureForm(Long id);
-
     void updateBorrowerStatus(UUID borrowerProfileId, BorrowerProfileStatus status);
 
-    BorrowerProfile getBorrowerProfileBySignatureId(Long signatureId);
 }
