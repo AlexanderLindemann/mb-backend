@@ -26,3 +26,4 @@ DELETE
 FROM bank;
 DELETE
 FROM mortgage_calculation;
+

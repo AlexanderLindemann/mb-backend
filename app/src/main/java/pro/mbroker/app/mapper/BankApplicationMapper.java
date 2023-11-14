@@ -9,6 +9,7 @@ import pro.mbroker.api.dto.request.BankApplicationRequest;
 import pro.mbroker.api.dto.request.BankApplicationUpdateRequest;
 import pro.mbroker.api.dto.response.BankApplicationResponse;
 import pro.mbroker.app.entity.BankApplication;
+import pro.mbroker.app.mapper.underwriting.UnderwritingMapper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,7 +18,7 @@ import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-@Mapper(uses = {BorrowerProfileMapper.class, CreditParameterMapper.class})
+@Mapper(uses = {BorrowerProfileMapper.class, CreditParameterMapper.class, UnderwritingMapper.class})
 public interface BankApplicationMapper {
 
     @Mapping(source = "bankApplication.creditProgram.baseRate", target = "baseRate")
@@ -29,6 +30,7 @@ public interface BankApplicationMapper {
     @Mapping(source = "creditProgram.programName", target = "creditProgramName")
     @Mapping(source = "bankApplicationStatus", target = "status")
     @Mapping(target = "salaryClientCalculation", ignore = true)
+    @Mapping(source = "underwriting", target = "underwriting")
     BankApplicationResponse toBankApplicationResponse(BankApplication bankApplication);
 
     List<BankApplicationResponse> toBorrowerApplicationDtoList(List<BankApplication> bankApplications);
@@ -48,6 +50,7 @@ public interface BankApplicationMapper {
     @Mapping(target = "active", ignore = true)
     @Mapping(target = "mainBorrower", ignore = true)
     @Mapping(target = "applicationNumber", ignore = true)
+    @Mapping(target = "underwriting", ignore = true)
     BankApplication toBankApplication(BankApplicationRequest dto);
 
     @Mapping(source = "dto.creditProgramId", target = "creditProgram.id")
@@ -65,6 +68,7 @@ public interface BankApplicationMapper {
     @Mapping(target = "active", ignore = true)
     @Mapping(target = "mainBorrower", ignore = true)
     @Mapping(target = "applicationNumber", ignore = true)
+    @Mapping(target = "underwriting", ignore = true)
     BankApplication toBankApplication(BankApplicationUpdateRequest dto);
 
     @Named("toBankApplicationList")

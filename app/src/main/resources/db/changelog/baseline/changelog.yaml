@@ -101,3 +101,6 @@ databaseChangeLog:
   - include:
       file: 20231114_1500-delete-field-generatedform-signed_form.xml
       relativeToChangelogFile: true
+  - include:
+       file: 20231110_649-underwriting.xml
+       relativeToChangelogFile: true

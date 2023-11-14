@@ -5,9 +5,14 @@ spring:
     name: mbroker
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://sd-dev:20102/mortgage_broker
-    username: mortgage_broker
-    password: mortgage_broker
+    #url: jdbc:postgresql://sd-dev:20102/mortgage_broker
+    url: jdbc:postgresql://localhost:40002/mb_backend
+
+    username: mb_backend
+    password: mb_backend
+  liquibase:
+    change-log: classpath:db/changelog/db.changelog-master.yaml
+    enabled: false
   security:
     oauth2:
       resourceserver:

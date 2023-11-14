@@ -5,6 +5,7 @@ import lombok.Setter;
 import lombok.ToString;
 import pro.mbroker.api.dto.SalaryClientProgramCalculationDto;
 import pro.mbroker.api.dto.request.CreditParameterResponse;
+import pro.mbroker.api.dto.request.notification.UnderwritingResponse;
 import pro.mbroker.api.enums.BankApplicationStatus;
 
 import java.math.BigDecimal;
@@ -49,5 +50,7 @@ public class BankApplicationResponse {
     private String creditProgramName;
 
     private SalaryClientProgramCalculationDto salaryClientCalculation;
+
+    private UnderwritingResponse underwriting;
 
 }

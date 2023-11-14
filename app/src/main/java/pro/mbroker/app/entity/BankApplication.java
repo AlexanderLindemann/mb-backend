@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import pro.mbroker.api.enums.BankApplicationStatus;
+import pro.mbroker.app.entity.underwriting.Underwriting;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
@@ -53,4 +54,7 @@ public class BankApplication extends BaseEntity {
     @JoinColumn(name = "partner_application_id", nullable = false)
     private PartnerApplication partnerApplication;
 
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "underwriting_id", referencedColumnName = "id")
+    private Underwriting underwriting;
 }

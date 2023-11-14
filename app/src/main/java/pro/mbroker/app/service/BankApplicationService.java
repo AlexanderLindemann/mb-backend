@@ -4,8 +4,8 @@ import pro.mbroker.api.dto.request.BankApplicationRequest;
 import pro.mbroker.api.enums.BankApplicationStatus;
 import pro.mbroker.app.entity.BankApplication;
 
-import java.util.List;
 import java.util.Collection;
+import java.util.List;
 import java.util.UUID;
 
 public interface BankApplicationService {

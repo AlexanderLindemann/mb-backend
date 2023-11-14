@@ -43,6 +43,7 @@ INSERT INTO public.mortgage_calculation (id, real_estate_price, down_payment, mo
 VALUES ('5690400c-0f32-11ee-be56-0242ac120002', 50000000, 1000000, 100000, 360, '2023-06-20 14:18:19.000000', '2023-06-20 14:18:22.000000', 6666, null, true, true),
        ('9cc7641a-0f32-11ee-be56-0242ac120002', 50000000, 1000000, 100000, 360, '2023-06-20 14:18:19.000000', '2023-06-20 14:18:22.000000', 6666, null, true, true);
 
+
 INSERT INTO public.partner_application (id, credit_purpose_type, real_estate_type, real_estate_id, partner_id, created_at, updated_at, created_by, updated_by, is_active, mortgage_calculation_id)
 VALUES ('5ff4b32c-f967-4cb1-8705-7470a321fe34', 'PURCHASE_UNDER_CONSTRUCTION', 'APARTMENT', '2b8850b2-d930-11ed-afa1-0242ac120002', '5fec2326-d92e-11ed-afa1-0242ac120002', '2023-05-05 12:12:22.802637', '2023-05-05 12:12:22.802637', 2966, null, true, '5690400c-0f32-11ee-be56-0242ac120002'),
        ('7addcbef-c1e0-4de1-adeb-377f864efcfa', 'PURCHASE_UNDER_CONSTRUCTION', 'APARTMENT', '2b8850b2-d930-11ed-afa1-0242ac120002', 'dce73f3e-f2db-11ed-a05b-0242ac120003', '2023-05-05 12:12:22.802637', '2023-05-05 12:12:22.802637', 2962, null, true, '9cc7641a-0f32-11ee-be56-0242ac120002');
@@ -52,10 +53,10 @@ VALUES ('7cb535d6-f92e-11ed-be56-0242ac120002', '7addcbef-c1e0-4de1-adeb-377f864
        ('1348b508-f476-11ed-a05b-0242ac120003', '5ff4b32c-f967-4cb1-8705-7470a321fe34', 'Ivan', 'Ivanov', 'Ivanovich', '+90000000000', 'test@test.com', '2023-05-17 13:46:26.000000', null, 0, null, true, 'DATA_NO_ENTERED', 'Романов Петя', '2023-09-16', 30, 'MALE', 'SINGLE', 4, 'NO', 'HIGHER', '2222222222', '2023-09-22', '144009', 'ФМС РФ', 'Где-то в мире', 'Где-то в мире', null, '32532523523', true, 'SELF_EMPLOYED', 'FROM_3_TO_6', 144124, null, null, 'BANK_REFERENCE', null, null, null, null, null, null, null, null, null, null, null, null, null, null);
 
 
-INSERT INTO public.bank_application (id, credit_program_id, bank_application_status, monthly_payment, down_payment, credit_term, overpayment, partner_application_id, created_at, updated_at, created_by, updated_by, is_active, main_borrower)
-VALUES ('3b339aa4-5462-485a-9118-5922cd948566', 'bfda8d66-d926-11ed-afa1-0242ac120002', 'DATA_NO_ENTERED', 60000, 500000, 120, 6000000, '5ff4b32c-f967-4cb1-8705-7470a321fe34', '2023-05-09 14:35:58.039296', '2023-05-09 14:35:58.039296', 2929, null, true, '1348b508-f476-11ed-a05b-0242ac120003'),
-       ('f5cdbc9c-f53f-11ed-a05b-0242ac120003', '8222cb80-d928-11ed-afa1-0242ac120002', 'DATA_NO_ENTERED', 60000, 500000, 120, 6000000, '7addcbef-c1e0-4de1-adeb-377f864efcfa', '2023-05-09 14:35:58.039296', '2023-05-09 14:35:58.039296', 2929, null, true, '7cb535d6-f92e-11ed-be56-0242ac120002'),
-       ('22cdf786-0f33-11ee-be56-0242ac120002', '8222cb80-d928-11ed-afa1-0242ac120002', 'DATA_NO_ENTERED', 60000, 500000, 120, 6000000, '5ff4b32c-f967-4cb1-8705-7470a321fe34', '2023-05-09 14:35:58.039296', '2023-05-09 14:35:58.039296', 2929, null, true, '1348b508-f476-11ed-a05b-0242ac120003');
+INSERT INTO public.bank_application (id, credit_program_id, bank_application_status, monthly_payment, down_payment, credit_term, overpayment, partner_application_id, created_at, updated_at, created_by, updated_by, is_active, main_borrower, underwriting_id)
+VALUES ('3b339aa4-5462-485a-9118-5922cd948566', 'bfda8d66-d926-11ed-afa1-0242ac120002', 'DATA_NO_ENTERED', 60000, 500000, 120, 6000000, '5ff4b32c-f967-4cb1-8705-7470a321fe34', '2023-05-09 14:35:58.039296', '2023-05-09 14:35:58.039296', 2929, null, true, '1348b508-f476-11ed-a05b-0242ac120003', null),
+       ('f5cdbc9c-f53f-11ed-a05b-0242ac120003', '8222cb80-d928-11ed-afa1-0242ac120002', 'DATA_NO_ENTERED', 60000, 500000, 120, 6000000, '7addcbef-c1e0-4de1-adeb-377f864efcfa', '2023-05-09 14:35:58.039296', '2023-05-09 14:35:58.039296', 2929, null, true, '7cb535d6-f92e-11ed-be56-0242ac120002', null),
+       ('22cdf786-0f33-11ee-be56-0242ac120002', '8222cb80-d928-11ed-afa1-0242ac120002', 'DATA_NO_ENTERED', 60000, 500000, 120, 6000000, '5ff4b32c-f967-4cb1-8705-7470a321fe34', '2023-05-09 14:35:58.039296', '2023-05-09 14:35:58.039296', 2929, null, true, '1348b508-f476-11ed-a05b-0242ac120003', null);
 
 INSERT INTO public.attachment (id, name, size_bytes, mime_type, content_md5, created_at, created_by, updated_at, updated_by, is_active)
 VALUES (1, 'test1', 2041, 'text/csv', '42da2445c8bd86312f3bed333ebd3bca', null, null, null, null, true),

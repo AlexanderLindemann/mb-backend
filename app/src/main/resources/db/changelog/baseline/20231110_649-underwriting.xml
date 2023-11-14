@@ -1,0 +1,129 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+
+    <changeSet id="createUnderwritingDecisionTable" author="y.sedash">
+        <createTable tableName="underwriting_decision">
+            <column name="id" type="UUID">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="integration_id" type="VARCHAR(255)"/>
+            <column name="credit_amount" type="INT"/>
+            <column name="interest_rate" type="DOUBLE"/>
+            <column name="credit_term_years" type="INT"/>
+            <column name="status" type="INT"/>
+            <column name="description" type="VARCHAR(255)"/>
+            <column name="approved_sum" type="INT"/>
+            <column name="annuity" type="INT"/>
+            <column name="end_date" type="TIMESTAMP"/>
+            <column name="credit_program_name" type="VARCHAR(255)"/>
+            <column name="created_at" type="TIMESTAMP WITHOUT TIME ZONE" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="created_by" type="integer" defaultValueNumeric="0">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_by" type="integer"/>
+            <column name="is_active" type="BOOLEAN" defaultValueBoolean="true">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="createUnderwritingErrorsTable" author="y.sedash">
+        <createTable tableName="underwriting_error">
+            <column name="id" type="UUID">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="code" type="VARCHAR(255)"/>
+            <column name="message" type="VARCHAR(255)"/>
+            <column name="source" type="VARCHAR(255)"/>
+            <column name="source_description" type="VARCHAR(255)"/>
+            <column name="additional_info" type="VARCHAR(255)"/>
+            <column name="created_at" type="TIMESTAMP WITHOUT TIME ZONE" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="created_by" type="integer" defaultValueNumeric="0">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_by" type="integer"/>
+            <column name="is_active" type="BOOLEAN" defaultValueBoolean="true">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="createUnderwritingTable" author="y.sedash">
+        <createTable tableName="underwriting">
+            <column name="id" type="UUID">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="decision_id" type="uuid">
+                <constraints nullable="false" referencedTableName="underwriting_decision" referencedColumnNames="id"
+                             foreignKeyName="FK_UNDERWRITING_DECISION"/>
+            </column>
+            <column name="additional_conditions_step" type="VARCHAR(255)"/>
+            <column name="additional_conditions_description" type="VARCHAR(255)"/>
+            <column name="additional_conditions_responsible" type="VARCHAR(255)"/>
+            <column name="positive_decision_document_type" type="INTEGER"/>
+            <column name="positive_decision_document_name" type="VARCHAR(255)"/>
+            <column name="positive_decision_document_data" type="BYTEA"/>
+            <column name="positive_decision_extension" type="VARCHAR(255)"/>
+            <column name="underwriting_report_document_type" type="INTEGER"/>
+            <column name="underwriting_report_document_name" type="VARCHAR(255)"/>
+            <column name="underwriting_report_document_data" type="BYTEA"/>
+            <column name="underwriting_report_extension" type="VARCHAR(255)"/>
+            <column name="error_id" type="uuid">
+                <constraints nullable="false" referencedTableName="underwriting_error" referencedColumnNames="id"
+                             foreignKeyName="FK_UNDERWRITING_ERROR"/>fk_partner_application_real_estate
+            </column>
+            <column name="opportunity_id" type="VARCHAR(255)"/>
+            <column name="created_at" type="TIMESTAMP WITHOUT TIME ZONE" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="created_by" type="integer" defaultValueNumeric="0">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_by" type="integer"/>
+            <column name="is_active" type="BOOLEAN" defaultValueBoolean="true">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="add_column_underwriting_id" author="y.sedash">
+        <addColumn tableName="bank_application">
+            <column name="underwriting_id" type="UUID">
+                <constraints foreignKeyName="fk_bank_application_underwriting"
+                             referencedTableName="underwriting" referencedColumnNames="id"/>
+            </column>
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="add_FK_UNDERWRITING_DECISION" author="y.sedash">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <foreignKeyConstraintExists foreignKeyName="FK_UNDERWRITING_DECISION"/>
+            </not>
+        </preConditions>
+        <addForeignKeyConstraint baseTableName="underwriting" baseColumnNames="decision_id"
+                                 constraintName="FK_UNDERWRITING_DECISION" referencedTableName="underwriting_decision"
+                                 referencedColumnNames="id"/>
+    </changeSet>
+
+    <changeSet id="add_FK_UNDERWRITING_ERROR" author="y.sedash">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <foreignKeyConstraintExists foreignKeyName="FK_UNDERWRITING_ERROR"/>
+            </not>
+        </preConditions>
+        <addForeignKeyConstraint baseTableName="underwriting" baseColumnNames="underwriting_error_id"
+                                 constraintName="FK_UNDERWRITING_ERROR" referencedTableName="underwriting_error"
+                                 referencedColumnNames="id"/>
+    </changeSet>
+</databaseChangeLog>
