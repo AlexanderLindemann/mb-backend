@@ -71,14 +71,14 @@
             <column name="additional_conditions_responsible" type="VARCHAR(255)"/>
             <column name="positive_decision_document_type" type="INTEGER"/>
             <column name="positive_decision_document_name" type="VARCHAR(255)"/>
-            <column name="positive_decision_document_data" type="BYTEA"/>
+            <column name="positive_decision_document_data" type="VARCHAR(255)"/>
             <column name="positive_decision_extension" type="VARCHAR(255)"/>
             <column name="underwriting_report_document_type" type="INTEGER"/>
             <column name="underwriting_report_document_name" type="VARCHAR(255)"/>
-            <column name="underwriting_report_document_data" type="BYTEA"/>
+            <column name="underwriting_report_document_data" type="VARCHAR(255)"/>
             <column name="underwriting_report_extension" type="VARCHAR(255)"/>
-            <column name="error_id" type="uuid">
-                <constraints nullable="false" referencedTableName="underwriting_error" referencedColumnNames="id"
+            <column name="underwriting_error_id" type="uuid">
+                <constraints nullable="true" referencedTableName="underwriting_error" referencedColumnNames="id"
                              foreignKeyName="FK_UNDERWRITING_ERROR"/>fk_partner_application_real_estate
             </column>
             <column name="opportunity_id" type="VARCHAR(255)"/>
@@ -103,27 +103,5 @@
                              referencedTableName="underwriting" referencedColumnNames="id"/>
             </column>
         </addColumn>
-    </changeSet>
-
-    <changeSet id="add_FK_UNDERWRITING_DECISION" author="y.sedash">
-        <preConditions onFail="MARK_RAN">
-            <not>
-                <foreignKeyConstraintExists foreignKeyName="FK_UNDERWRITING_DECISION"/>
-            </not>
-        </preConditions>
-        <addForeignKeyConstraint baseTableName="underwriting" baseColumnNames="decision_id"
-                                 constraintName="FK_UNDERWRITING_DECISION" referencedTableName="underwriting_decision"
-                                 referencedColumnNames="id"/>
-    </changeSet>
-
-    <changeSet id="add_FK_UNDERWRITING_ERROR" author="y.sedash">
-        <preConditions onFail="MARK_RAN">
-            <not>
-                <foreignKeyConstraintExists foreignKeyName="FK_UNDERWRITING_ERROR"/>
-            </not>
-        </preConditions>
-        <addForeignKeyConstraint baseTableName="underwriting" baseColumnNames="underwriting_error_id"
-                                 constraintName="FK_UNDERWRITING_ERROR" referencedTableName="underwriting_error"
-                                 referencedColumnNames="id"/>
     </changeSet>
 </databaseChangeLog>

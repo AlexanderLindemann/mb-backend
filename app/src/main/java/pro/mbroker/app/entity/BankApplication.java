@@ -54,7 +54,7 @@ public class BankApplication extends BaseEntity {
     @JoinColumn(name = "partner_application_id", nullable = false)
     private PartnerApplication partnerApplication;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "underwriting_id", referencedColumnName = "id")
     private Underwriting underwriting;
 }

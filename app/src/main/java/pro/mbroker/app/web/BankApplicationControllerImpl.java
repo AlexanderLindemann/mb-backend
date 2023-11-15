@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 import pro.mbroker.api.controller.BankApplicationController;
 import pro.mbroker.api.dto.request.BankApplicationRequest;
 import pro.mbroker.api.dto.request.notification.NotificationStatusRequest;
@@ -50,6 +51,7 @@ public class BankApplicationControllerImpl implements BankApplicationController 
     }
 
     @Override
+    @Transactional
     public ResponseEntity<String> updateStatuses(NotificationStatusRequest notificationStatusRequest) {
         log.info("Начали обновление заявок. Количество: " + notificationStatusRequest.getApplications().size());
         StringBuilder result = new StringBuilder();
@@ -63,18 +65,18 @@ public class BankApplicationControllerImpl implements BankApplicationController 
                     .get(bankApplication.getApplicationNumber());
             try {
                 BankApplicationStatus newStatus = mappingRosBankStatus(underwritingResponse.getDecision().getStatus());
-                bankApplicationService.updateStatus(bankApplication.getId(), newStatus);
                 bankApplication.setBankApplicationStatus(newStatus);
                 bankApplication.setUnderwriting(underwritingMapper.toUnderwriting(underwritingResponse));
                 bankApplicationService.save(bankApplication);
 
             } catch (Exception e) {
                 fail.append(bankApplication.getId()).append(", ");
+                e.printStackTrace();
             }
 
         });
 
-        if (result.length() == 0) {
+        if (fail.length() == 0) {
             result.append("Обновлены статусы заявок в количестве ").append(bankApplicationByApplications.size());
             log.info(result.toString());
         }

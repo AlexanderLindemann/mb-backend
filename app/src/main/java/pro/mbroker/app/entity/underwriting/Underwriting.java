@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import pro.mbroker.app.entity.BaseEntity;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -21,7 +22,7 @@ import javax.persistence.Table;
 @Table(name = "underwriting")
 public class Underwriting extends BaseEntity {
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "decision_id", referencedColumnName = "id")
     private UnderwritingDecision underwritingDecision;
 
@@ -61,8 +62,8 @@ public class Underwriting extends BaseEntity {
     private String UnderwritingReportExtension;
 
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "error_id", referencedColumnName = "id")
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinColumn(name = "underwriting_error_id", referencedColumnName = "id")
     private UnderwritingError underwritingError;
 
     @Column(name = "opportunity_id")
