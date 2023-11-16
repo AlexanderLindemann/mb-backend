@@ -26,12 +26,11 @@ import pro.mbroker.app.service.BankApplicationService;
 import pro.mbroker.app.service.BorrowerDocumentService;
 import pro.mbroker.app.service.BorrowerProfileService;
 import pro.mbroker.app.service.PartnerApplicationService;
+import pro.mbroker.app.service.StatusService;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -43,6 +42,7 @@ public class AttachmentControllerImpl implements AttachmentController {
     private final BankApplicationService bankApplicationService;
     private final PartnerApplicationService partnerApplicationService;
     private final BorrowerDocumentService borrowerDocumentService;
+    private final StatusService statusService;
     private final BorrowerDocumentMapper borrowerDocumentMapper;
     private final BorrowerDocumentRepository borrowerDocumentRepository;
 
@@ -75,16 +75,18 @@ public class AttachmentControllerImpl implements AttachmentController {
             borrowerDocument = attachmentService.uploadDocument(file, borrowerDocumentRequest);
             borrowerDocument.setBorrowerProfile(borrowerProfile);
             borrowerDocument.setBankApplication(null);
+            borrowerProfile.getBorrowerDocument().add(borrowerDocument);
             borrowerDocumentRepository.save(borrowerDocument);
         } else {
             for (BankApplication bankApplication : bankApplications) {
                 borrowerDocument = attachmentService.uploadDocument(file, borrowerDocumentRequest);
                 borrowerDocument.setBankApplication(bankApplication);
                 borrowerDocument.setBorrowerProfile(borrowerProfile);
+                borrowerProfile.getBorrowerDocument().add(borrowerDocument);
                 borrowerDocumentRepository.save(borrowerDocument);
             }
         }
-        partnerApplicationService.statusChanger(borrowerProfile.getPartnerApplication());
+        statusService.statusChanger(borrowerProfile.getPartnerApplication());
         return borrowerDocument == null ? null : borrowerDocumentMapper.toBorrowerDocumentResponse(borrowerDocument);
     }
 

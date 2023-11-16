@@ -20,22 +20,20 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import pro.mbroker.api.dto.request.BorrowerDocumentRequest;
-import pro.mbroker.api.enums.BankApplicationStatus;
 import pro.mbroker.api.enums.BorrowerProfileStatus;
 import pro.mbroker.api.enums.DocumentType;
 import pro.mbroker.app.entity.Attachment;
-import pro.mbroker.app.entity.BankApplication;
 import pro.mbroker.app.entity.BaseEntity;
 import pro.mbroker.app.entity.BorrowerDocument;
 import pro.mbroker.app.entity.BorrowerProfile;
 import pro.mbroker.app.entity.PartnerApplication;
-import pro.mbroker.app.repository.BorrowerProfileRepository;
+import pro.mbroker.app.repository.PartnerApplicationRepository;
 import pro.mbroker.app.service.AttachmentService;
-import pro.mbroker.app.service.BankApplicationService;
 import pro.mbroker.app.service.BorrowerDocumentService;
 import pro.mbroker.app.service.BorrowerProfileService;
 import pro.mbroker.app.service.DocxFieldHandler;
 import pro.mbroker.app.service.FormService;
+import pro.mbroker.app.service.StatusService;
 import pro.mbroker.app.util.CustomMultipartFile;
 
 import javax.imageio.ImageIO;
@@ -62,10 +60,10 @@ public class FormServiceImpl implements FormService {
 
     private final AttachmentService attachmentService;
     private final BorrowerProfileService borrowerProfileService;
-    private final BorrowerProfileRepository borrowerProfileRepository;
-    private final DocxFieldHandler docxFieldHandler;
-    private final BankApplicationService bankApplicationService;
     private final BorrowerDocumentService borrowerDocumentService;
+    private final PartnerApplicationRepository partnerApplicationRepository;
+    private final StatusService statusService;
+    private final DocxFieldHandler docxFieldHandler;
     String filePath = "forms/form.docx";
 
     @Override
@@ -79,7 +77,6 @@ public class FormServiceImpl implements FormService {
                 partnerApplication,
                 borrowerProfile);
         ByteArrayResource byteAreaResource = matchReplacements(replacements, filePath);
-        borrowerProfileService.updateBorrowerStatus(borrowerProfileId, BorrowerProfileStatus.DATA_ENTERED);
         return processFormResponse(byteAreaResource);
     }
 
@@ -128,19 +125,26 @@ public class FormServiceImpl implements FormService {
                         getAttachmentIdsByDocumentType(borrowerProfile, DocumentType.GENERATED_FORM).stream(),
                         getAttachmentIdsByDocumentType(borrowerProfile, DocumentType.GENERATED_SIGNATURE_FORM).stream())
                 .collect(Collectors.toList());
-        attachmentService.markAttachmentsAsDeleted(generatedAndSignatureFormsAttachmentIds);
-        borrowerDocumentService.markDocumentsAsDeleted(generatedAndSignatureFormsAttachmentIds);
+
+        for (BorrowerDocument borrowerDocument : borrowerProfile.getBorrowerDocument()) {
+            if (generatedAndSignatureFormsAttachmentIds.contains(borrowerDocument.getAttachment().getId())) {
+                borrowerDocument.setActive(false);
+                borrowerDocument.getAttachment().setActive(false);
+            }
+        }
         BorrowerDocumentRequest borrowerDocumentRequest = new BorrowerDocumentRequest()
                 .setBorrowerProfileId(borrowerProfileId)
                 .setDocumentType(DocumentType.GENERATED_FORM);
-        attachmentService.uploadDocument(multipartFile, borrowerDocumentRequest);
+        borrowerProfile.getBorrowerDocument().add(attachmentService.uploadDocument(multipartFile, borrowerDocumentRequest));
+        PartnerApplication updatedPartnerApplication = borrowerProfileService.getBorrowerProfile(borrowerProfileId).getPartnerApplication();
+        statusService.statusChanger(updatedPartnerApplication);
+        partnerApplicationRepository.save(updatedPartnerApplication);
     }
 
     @Override
     @Transactional
     public void updateSignatureForm(UUID borrowerProfileId, byte[] form) {
         BorrowerProfile borrowerProfile = borrowerProfileService.getBorrowerProfile(borrowerProfileId);
-        BankApplication bankApplication = borrowerProfile.getPartnerApplication().getBankApplications().get(0);
 
         MultipartFile multipartFile = new CustomMultipartFile(
                 form,
@@ -148,24 +152,19 @@ public class FormServiceImpl implements FormService {
                 "application/pdf"
         );
         List<Long> signatureFormsAttachmentIds = getAttachmentIdsByDocumentType(borrowerProfile, DocumentType.GENERATED_SIGNATURE_FORM);
-        attachmentService.markAttachmentsAsDeleted(signatureFormsAttachmentIds);
-        borrowerDocumentService.markDocumentsAsDeleted(signatureFormsAttachmentIds);
-
+        for (BorrowerDocument borrowerDocument : borrowerProfile.getBorrowerDocument()) {
+            if (signatureFormsAttachmentIds.contains(borrowerDocument.getAttachment().getId())) {
+                borrowerDocument.setActive(false);
+                borrowerDocument.getAttachment().setActive(false);
+            }
+        }
         BorrowerDocumentRequest borrowerDocumentRequest = new BorrowerDocumentRequest()
                 .setBorrowerProfileId(borrowerProfileId)
                 .setDocumentType(DocumentType.GENERATED_SIGNATURE_FORM);
-        attachmentService.uploadDocument(multipartFile, borrowerDocumentRequest);
-
-        bankApplicationService.getBankApplicationByBorrowerId(borrowerProfile.getId())
-                .stream()
-                .findFirst()
-                .ifPresent(ba ->
-                        bankApplicationService.changeStatus(bankApplication.getId(),
-                                BankApplicationStatus.READY_TO_SENDING));
-        List<BankApplication> bankApplications = bankApplicationService.getBankApplicationByBorrowerId(borrowerProfile.getId());
-        if (Objects.nonNull(bankApplications)) {
-            bankApplications.forEach(ba -> bankApplicationService.changeStatus(ba.getId(), BankApplicationStatus.READY_TO_SENDING));
-        }
+        borrowerProfile.getBorrowerDocument().add(attachmentService.uploadDocument(multipartFile, borrowerDocumentRequest));
+        PartnerApplication updatedPartnerApplication = borrowerProfileService.getBorrowerProfile(borrowerProfileId).getPartnerApplication();
+        statusService.statusChanger(updatedPartnerApplication);
+        partnerApplicationRepository.save(updatedPartnerApplication);
     }
 
     private List<Long> getAttachmentIdsByDocumentType(BorrowerProfile borrowerProfile, DocumentType documentType) {

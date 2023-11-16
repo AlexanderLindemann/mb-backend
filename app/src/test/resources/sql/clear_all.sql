@@ -7,6 +7,10 @@ FROM borrower_documents;
 DELETE
 FROM borrower_profile;
 DELETE
+FROM employer_bank_relation;
+DELETE
+FROM borrower_employer;
+DELETE
 FROM attachment;
 DELETE
 FROM partner_application;

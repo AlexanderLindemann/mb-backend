@@ -27,10 +27,12 @@ import pro.mbroker.app.exception.ItemNotFoundException;
 import pro.mbroker.app.exception.ProfileUpdateException;
 import pro.mbroker.app.mapper.BorrowerProfileMapper;
 import pro.mbroker.app.repository.BorrowerProfileRepository;
+import pro.mbroker.app.repository.PartnerApplicationRepository;
 import pro.mbroker.app.service.BankApplicationService;
 import pro.mbroker.app.service.BankService;
 import pro.mbroker.app.service.BorrowerProfileService;
 import pro.mbroker.app.service.PartnerApplicationService;
+import pro.mbroker.app.service.StatusService;
 
 import javax.servlet.http.HttpServletRequest;
 import java.lang.reflect.Field;
@@ -54,7 +56,9 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class BorrowerProfileServiceImpl implements BorrowerProfileService {
     private final BorrowerProfileRepository borrowerProfileRepository;
+    private final PartnerApplicationRepository partnerApplicationRepository;
     private final BankApplicationService bankApplicationService;
+    private final StatusService statusService;
     private final BankService bankService;
     private final BorrowerProfileMapper borrowerProfileMapper;
     private final PartnerApplicationService partnerApplicationService;
@@ -183,7 +187,8 @@ public class BorrowerProfileServiceImpl implements BorrowerProfileService {
         }
 
         deleteBorrowerDocuments(borrowerProfile);
-        partnerApplicationService.statusChanger(borrowerProfile.getPartnerApplication());
+        statusService.statusChanger(borrowerProfile.getPartnerApplication());
+        partnerApplicationRepository.save(borrowerProfile.getPartnerApplication());
     }
 
     private void deleteBorrowerDocuments(BorrowerProfile profile) {
@@ -341,9 +346,8 @@ public class BorrowerProfileServiceImpl implements BorrowerProfileService {
                 .collect(Collectors.toList());
         if (!mainBorrowerIds.contains(borrowerProfile.getId())) {
             borrowerProfile.setActive(false);
-            borrowerProfileRepository.save(borrowerProfile);
-            borrowerProfileRepository.flush();
-            partnerApplicationService.statusChanger(partnerApplication);
+            statusService.statusChanger(partnerApplication);
+            partnerApplicationRepository.save(partnerApplication);
         } else {
             throw new ItemConflictException(BorrowerProfile.class, borrowerProfileId);
         }

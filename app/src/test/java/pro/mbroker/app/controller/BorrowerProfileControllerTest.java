@@ -69,7 +69,7 @@ public class BorrowerProfileControllerTest extends AbstractControllerTest {
         assertEquals("Ivan", JsonPath.read(responseBody, "$.mainBorrower.firstName"));
         assertEquals("Ivanov", JsonPath.read(responseBody, "$.mainBorrower.lastName"));
         assertEquals("Ivanovich", JsonPath.read(responseBody, "$.mainBorrower.middleName"));
-        assertEquals("+90000000000", JsonPath.read(responseBody, "$.mainBorrower.phoneNumber"));
+        assertEquals("9876543219", JsonPath.read(responseBody, "$.mainBorrower.phoneNumber"));
         assertEquals("test@test.com", JsonPath.read(responseBody, "$.mainBorrower.email"));
         List<Map<String, Object>> coBorrowerList = JsonPath.read(responseBody, "$.coBorrower");
         List<BorrowerProfileResponse> expectedCoBorrowers = List.of(
@@ -116,6 +116,7 @@ public class BorrowerProfileControllerTest extends AbstractControllerTest {
         updateField("{\"registrationAddress\": \"test_address\"}");
         updateField("{\"registrationType\": \"PERMANENT\"}");
         updateField("{\"residenceAddress\": \"test_address_residence\"}");
+        updateField("{\"employmentStatus\": \"MILITARY\"}");
         updateField("{\"residenceRF\": true}");
         updateField("{\"snils\": \"8877665544\"}");
         updateField("{\"tin\": \"4444333332\"}");
@@ -163,7 +164,7 @@ public class BorrowerProfileControllerTest extends AbstractControllerTest {
         assertEquals(2, borrowerProfile.getChildren());
         assertEquals(Education.INCOMPLETE_SECONDARY, borrowerProfile.getEducation());
         assertEquals("email@test.com", borrowerProfile.getEmail());
-        assertEquals(EmploymentStatus.EMPLOYEE, borrowerProfile.getEmploymentStatus());
+        assertEquals(EmploymentStatus.MILITARY, borrowerProfile.getEmploymentStatus());
         assertEquals("test_first_name", borrowerProfile.getFirstName());
         assertEquals(Gender.MALE, borrowerProfile.getGender());
         assertEquals("test_last_name", borrowerProfile.getLastName());

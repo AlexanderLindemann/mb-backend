@@ -11,6 +11,7 @@ import pro.smartdeal.common.enums.EnumWithValue;
 public enum PartnerApplicationStatus implements EnumWithValue<String> {
     UPLOADING_DOCS("UPLOADING_DOCS", "Загрузка документов"),
     SENDING_PREPERATION("SENDING_PREPERATION", "Отправка заявки в банки"),
+    REJECTED("REJECTED", "Отказано"),
     CREDIT_APPROVED("CREDIT_APPROVED", "Кредит выдан"),
     EXPIRED("EXPIRED", "Заявка просрочена");
 

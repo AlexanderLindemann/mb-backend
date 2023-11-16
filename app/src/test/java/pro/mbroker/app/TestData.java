@@ -1,5 +1,6 @@
 package pro.mbroker.app;
 
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.stereotype.Component;
 import pro.mbroker.api.dto.MortgageCalculationDto;
 import pro.mbroker.api.dto.request.BankApplicationRequest;
@@ -52,6 +53,15 @@ public class TestData {
                 .setFirstName("TestFirstName3")
                 .setLastName("TestLastName3");
         return new ArrayList<>(List.of(borrowerProfileRequest1, borrowerProfileRequest2, borrowerProfileRequest3));
+    }
+
+    public MockMultipartFile getMockMultipartFile() {
+        return new MockMultipartFile(
+                "file",
+                "filename.txt",
+                "text/plain",
+                "Тестовое содержимое файла".getBytes()
+        );
     }
 
     public MortgageCalculationDto getMortgageCalculation() {
