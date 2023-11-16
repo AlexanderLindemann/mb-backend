@@ -71,11 +71,11 @@
             <column name="additional_conditions_responsible" type="VARCHAR(255)"/>
             <column name="positive_decision_document_type" type="INTEGER"/>
             <column name="positive_decision_document_name" type="VARCHAR(255)"/>
-            <column name="positive_decision_document_data" type="VARCHAR(255)"/>
+            <column name="positive_decision_document_data" type="BYTEA"/>
             <column name="positive_decision_extension" type="VARCHAR(255)"/>
             <column name="underwriting_report_document_type" type="INTEGER"/>
             <column name="underwriting_report_document_name" type="VARCHAR(255)"/>
-            <column name="underwriting_report_document_data" type="VARCHAR(255)"/>
+            <column name="underwriting_report_document_data" type="BYTEA"/>
             <column name="underwriting_report_extension" type="VARCHAR(255)"/>
             <column name="underwriting_error_id" type="uuid">
                 <constraints nullable="true" referencedTableName="underwriting_error" referencedColumnNames="id"
