@@ -151,6 +151,7 @@ public interface BorrowerProfileMapper {
             response.setBankId(borrowerDocument.getBank().getId());
         }
         response.setBorrowerProfileId(borrowerDocument.getBorrowerProfile().getId());
+        response.setAttachmentName(borrowerDocument.getAttachment().getName());
         response.setDocumentType(borrowerDocument.getDocumentType());
         response.setSizeBytes(borrowerDocument.getAttachment().getSizeBytes());
         response.setUpdatedAt(borrowerDocument.getUpdatedAt());
