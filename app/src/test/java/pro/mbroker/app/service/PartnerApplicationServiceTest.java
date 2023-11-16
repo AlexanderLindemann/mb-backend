@@ -69,6 +69,12 @@ public class PartnerApplicationServiceTest extends AbstractServiceTest {
         partnerApplicationService.enableBankApplication(UUID.fromString("7addcbef-c1e0-4de1-adeb-377f864efcfa"), testData.getBankApplicationUpdateRequest());
         assertThat(partnerApplication.getBankApplications().get(0).isActive(), Matchers.is(true));
     }
-
-
+    @Test
+    public void testUpdatedAt_after_get_request() {
+        PartnerApplication partnerApplication = partnerApplicationService.getPartnerApplication((UUID.fromString("7addcbef-c1e0-4de1-adeb-377f864efcfa")));
+        var expect = partnerApplication.getUpdatedAt();
+        PartnerApplication partnerApplication2 = partnerApplicationService.getPartnerApplication((UUID.fromString("7addcbef-c1e0-4de1-adeb-377f864efcfa")));
+        var fact = partnerApplication2.getUpdatedAt();
+        assertEquals(expect, fact);
+    }
 }

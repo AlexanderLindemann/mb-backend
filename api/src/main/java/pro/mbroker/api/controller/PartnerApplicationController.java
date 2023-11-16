@@ -23,8 +23,6 @@ import java.util.UUID;
 @RequestMapping("/public/partner_application")
 @SuppressWarnings("PMD")
 public interface PartnerApplicationController {
-
-
     @ApiOperation("получить все заявки действующего партнера")
     @GetMapping()
     Page<PartnerApplicationResponse> getAllPartnerApplication(@RequestParam(defaultValue = "0") int page,
