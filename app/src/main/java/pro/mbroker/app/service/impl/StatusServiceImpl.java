@@ -209,15 +209,19 @@ public class StatusServiceImpl implements StatusService {
     }
 
     private boolean isBorrowerMainInfoComplete(BorrowerProfile profile) {
-
-        return profile.getEmployer() != null
-                && !StringUtils.isEmpty(profile.getFirstName())
-                && !StringUtils.isEmpty(profile.getLastName())
+        boolean isCommonInfoComplete = !Objects.requireNonNullElse(profile.getFirstName(), "").isBlank()
+                && !Objects.requireNonNullElse(profile.getLastName(), "").isBlank()
                 && profile.getPhoneNumber() != null
                 && profile.getPhoneNumber().length() == 10
                 && profile.getBirthdate() != null
                 && profile.getGender() != null
-                && !StringUtils.isEmpty(profile.getSnils());
+                && !Objects.requireNonNullElse(profile.getSnils(), "").isBlank();
+        if (profile.getEmploymentStatus() == null
+                || profile.getEmploymentStatus().equals(EmploymentStatus.UNEMPLOYED)) {
+            return isCommonInfoComplete;
+        } else {
+            return isCommonInfoComplete && profile.getEmployer() != null;
+        }
     }
 
     private boolean isPassportInfoComplete(BorrowerProfile profile) {
