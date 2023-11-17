@@ -227,7 +227,6 @@ public class StatusServiceImpl implements StatusService {
         boolean b = !StringUtils.isEmpty(profile.getPassportNumber())
                 && profile.getPassportIssuedDate() != null
                 && !StringUtils.isEmpty(profile.getPassportIssuedByName())
-                && !StringUtils.isEmpty(profile.getPassportIssuedByCode())
                 && !StringUtils.isEmpty(profile.getRegistrationAddress());
         return b;
     }

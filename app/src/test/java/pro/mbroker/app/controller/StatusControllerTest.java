@@ -49,7 +49,7 @@ public class StatusControllerTest extends AbstractControllerTest {
         updateField("{\"passportIssuedByName\": \"Отделение Тестового УВД\"}");
         assertEquals(BorrowerProfileStatus.DATA_ENTERED, getBorrowerProfile(TestConstants.BORROWER_PROFILE_ID).getBorrowerProfileStatus());
         updateField("{\"passportIssuedByCode\": null}");
-        assertEquals(BorrowerProfileStatus.DATA_NO_ENTERED, getBorrowerProfile(TestConstants.BORROWER_PROFILE_ID).getBorrowerProfileStatus());
+        assertEquals(BorrowerProfileStatus.DATA_ENTERED, getBorrowerProfile(TestConstants.BORROWER_PROFILE_ID).getBorrowerProfileStatus());
         updateField("{\"passportIssuedByCode\": \"123123\"}");
         assertEquals(BorrowerProfileStatus.DATA_ENTERED, getBorrowerProfile(TestConstants.BORROWER_PROFILE_ID).getBorrowerProfileStatus());
         updateField("{\"employmentStatus\": null}");
