@@ -486,6 +486,7 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
         EnumSet<DocumentType> typesToDelete = EnumSet.of(
                 DocumentType.APPLICATION_FORM,
                 DocumentType.GENERATED_FORM,
+                DocumentType.SIGNATURE_FORM,
                 DocumentType.GENERATED_SIGNATURE_FORM);
 
         application.getBorrowerProfiles().forEach(borrowerProfile -> {
