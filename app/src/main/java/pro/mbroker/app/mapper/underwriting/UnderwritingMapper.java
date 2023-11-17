@@ -2,11 +2,15 @@ package pro.mbroker.app.mapper.underwriting;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.Named;
 import pro.mbroker.api.dto.request.notification.AdditionalConditions;
 import pro.mbroker.api.dto.request.notification.PositiveDecision;
 import pro.mbroker.api.dto.request.notification.UnderwritingReport;
 import pro.mbroker.api.dto.request.notification.UnderwritingResponse;
 import pro.mbroker.app.entity.underwriting.Underwriting;
+
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 
 @Mapper(uses = {UnderwritingDecisionMapper.class, UnderwritingErrorMapper.class})
 public interface UnderwritingMapper {
@@ -27,12 +31,12 @@ public interface UnderwritingMapper {
 
     @Mapping(target = "positiveDecisionDocumentType", source = "positiveDecision.documentType")
     @Mapping(target = "positiveDecisionDocumentName", source = "positiveDecision.documentName")
-    @Mapping(target = "positiveDecisionDocumentData", source = "positiveDecision.documentData")
+    @Mapping(target = "positiveDecisionDocumentData", source = "positiveDecision.documentData", qualifiedByName = "stringToBytes")
     @Mapping(target = "positiveDecisionExtension", source = "positiveDecision.extension")
 
     @Mapping(target = "underwritingReportDocumentType", source = "underwritingReport.documentType")
     @Mapping(target = "underwritingReportDocumentName", source = "underwritingReport.documentName")
-    @Mapping(target = "underwritingReportDocumentData", source = "underwritingReport.documentData")
+    @Mapping(target = "underwritingReportDocumentData", source = "underwritingReport.documentData", qualifiedByName = "stringToBytes")
     @Mapping(target = "underwritingReportExtension", source = "underwritingReport.extension")
 
     @Mapping(target = "underwritingError", source = "error")
@@ -50,7 +54,7 @@ public interface UnderwritingMapper {
         positiveDecision.setDocumentType(underwriting.getPositiveDecisionDocumentType());
         positiveDecision.setDocumentName(underwriting.getPositiveDecisionDocumentName());
         positiveDecision.setExtension(underwriting.getPositiveDecisionExtension());
-        positiveDecision.setDocumentData(underwriting.getPositiveDecisionDocumentData());
+        positiveDecision.setDocumentData(Arrays.toString(underwriting.getPositiveDecisionDocumentData()));
 
         return positiveDecision;
     }
@@ -60,6 +64,7 @@ public interface UnderwritingMapper {
         underwritingReport.setExtension(underwriting.getUnderwritingReportExtension());
         underwritingReport.setDocumentType(underwriting.getUnderwritingReportDocumentType());
         underwritingReport.setDocumentName(underwriting.getUnderwritingReportDocumentName());
+        underwritingReport.setDocumentData(Arrays.toString(underwriting.getUnderwritingReportDocumentData()));
 
         return underwritingReport;
     }
@@ -71,5 +76,8 @@ public interface UnderwritingMapper {
         return additionalConditions;
     }
 
-
+    @Named("stringToBytes")
+    static byte[] stringToBytes(String value) {
+        return value != null ? value.getBytes(StandardCharsets.UTF_8) : null;
+    }
 }

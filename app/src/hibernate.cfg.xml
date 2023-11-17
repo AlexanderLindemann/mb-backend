@@ -1,0 +1,2 @@
+<property name="hibernate.show_sql">false</property>
+<property name="hibernate.use_sql_comments">false</property>

@@ -37,29 +37,28 @@ public class Underwriting extends BaseEntity {
 
 
     @Column(name = "positive_decision_document_type")
-    private Integer PositiveDecisionDocumentType;
+    private Integer positiveDecisionDocumentType;
 
     @Column(name = "positive_decision_document_name")
-    private String PositiveDecisionDocumentName;
+    private String positiveDecisionDocumentName;
 
     @Column(name = "positive_decision_document_data")
-    private String PositiveDecisionDocumentData;
+    private byte[] positiveDecisionDocumentData;
 
     @Column(name = "positive_decision_extension")
-    private String PositiveDecisionExtension;
-
+    private String positiveDecisionExtension;
 
     @Column(name = "underwriting_report_document_type")
-    private Integer UnderwritingReportDocumentType;
+    private Integer underwritingReportDocumentType;
 
     @Column(name = "underwriting_report_document_name")
-    private String UnderwritingReportDocumentName;
+    private String underwritingReportDocumentName;
 
     @Column(name = "underwriting_report_document_data")
-    private String UnderwritingReportDocumentData;
+    private byte[] underwritingReportDocumentData;
 
     @Column(name = "underwriting_report_extension")
-    private String UnderwritingReportExtension;
+    private String underwritingReportExtension;
 
 
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)

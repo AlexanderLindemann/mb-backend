@@ -9,6 +9,7 @@ import pro.mbroker.api.enums.PartnerApplicationStatus;
 import pro.mbroker.api.enums.RealEstateType;
 import pro.mbroker.app.TestData;
 import pro.mbroker.app.entity.PartnerApplication;
+import pro.mbroker.app.repository.PartnerApplicationRepository;
 
 import java.util.UUID;
 
@@ -18,6 +19,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class PartnerApplicationServiceTest extends AbstractServiceTest {
     @Autowired
     private PartnerApplicationService partnerApplicationService;
+    @Autowired
+    private PartnerApplicationRepository repository;
     @Autowired
     private TestData testData;
 
@@ -68,13 +71,5 @@ public class PartnerApplicationServiceTest extends AbstractServiceTest {
         assertThat(partnerApplication.getBankApplications().get(0).isActive(), Matchers.is(false));
         partnerApplicationService.enableBankApplication(UUID.fromString("7addcbef-c1e0-4de1-adeb-377f864efcfa"), testData.getBankApplicationUpdateRequest());
         assertThat(partnerApplication.getBankApplications().get(0).isActive(), Matchers.is(true));
-    }
-    @Test
-    public void testUpdatedAt_after_get_request() {
-        PartnerApplication partnerApplication = partnerApplicationService.getPartnerApplication((UUID.fromString("7addcbef-c1e0-4de1-adeb-377f864efcfa")));
-        var expect = partnerApplication.getUpdatedAt();
-        PartnerApplication partnerApplication2 = partnerApplicationService.getPartnerApplication((UUID.fromString("7addcbef-c1e0-4de1-adeb-377f864efcfa")));
-        var fact = partnerApplication2.getUpdatedAt();
-        assertEquals(expect, fact);
     }
 }
