@@ -152,6 +152,12 @@ public class StatusServiceTest extends AbstractServiceTest {
 
     }
 
+    //TODO написать тест на смену статуса в методе changeStatus в BankApplication
+    @Test
+    public void testStatusChangeStatusBankApplication() {
+
+    }
+
     private void uploadDocumentTest(MultipartFile multipartFile, DocumentType documentType) {
         attachmentController.uploadDocument(multipartFile,
                 TestConstants.BORROWER_PROFILE_ID,

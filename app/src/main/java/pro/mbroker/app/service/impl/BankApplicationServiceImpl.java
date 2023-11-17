@@ -13,6 +13,7 @@ import pro.mbroker.app.mapper.BankApplicationMapper;
 import pro.mbroker.app.repository.BankApplicationRepository;
 import pro.mbroker.app.repository.BorrowerProfileRepository;
 import pro.mbroker.app.service.BankApplicationService;
+import pro.mbroker.app.service.StatusService;
 
 import java.util.Collection;
 import java.util.List;
@@ -23,6 +24,7 @@ import java.util.UUID;
 @Slf4j
 @RequiredArgsConstructor
 public class BankApplicationServiceImpl implements BankApplicationService {
+    private final StatusService statusService;
     private final BankApplicationRepository bankApplicationRepository;
     private final BankApplicationMapper bankApplicationMapper;
     private final BorrowerProfileRepository borrowerProfileRepository;
@@ -60,6 +62,7 @@ public class BankApplicationServiceImpl implements BankApplicationService {
     public BankApplication changeStatus(UUID bankApplicationId, BankApplicationStatus status) {
         BankApplication bankApplication = getBankApplicationById(bankApplicationId)
                 .setBankApplicationStatus(status);
+        statusService.statusChanger(bankApplication.getPartnerApplication());
         return bankApplicationRepository.save(bankApplication);
     }
 

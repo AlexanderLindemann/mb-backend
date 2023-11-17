@@ -122,9 +122,7 @@ public class StatusServiceImpl implements StatusService {
                         bankApplication.setBankApplicationStatus(BankApplicationStatus.DATA_NO_ENTERED);
                         isChange = true;
                     } else {
-                        if (borrowersInSignedStatus
-                                && bankApplication.getBankApplicationStatus() != null
-                                && bankApplication.getBankApplicationStatus() == BankApplicationStatus.DATA_NO_ENTERED) {
+                        if (borrowersInSignedStatus) {
                             if (!currentStatus.equals(BankApplicationStatus.READY_TO_SENDING)) {
                                 bankApplication.setBankApplicationStatus(BankApplicationStatus.READY_TO_SENDING);
                                 isChange = true;
@@ -212,7 +210,7 @@ public class StatusServiceImpl implements StatusService {
 
     private boolean isBorrowerMainInfoComplete(BorrowerProfile profile) {
 
-        boolean b = profile.getEmployer() != null
+        return profile.getEmployer() != null
                 && !StringUtils.isEmpty(profile.getFirstName())
                 && !StringUtils.isEmpty(profile.getLastName())
                 && profile.getPhoneNumber() != null
@@ -220,15 +218,13 @@ public class StatusServiceImpl implements StatusService {
                 && profile.getBirthdate() != null
                 && profile.getGender() != null
                 && !StringUtils.isEmpty(profile.getSnils());
-        return b;
     }
 
     private boolean isPassportInfoComplete(BorrowerProfile profile) {
-        boolean b = !StringUtils.isEmpty(profile.getPassportNumber())
+        return !StringUtils.isEmpty(profile.getPassportNumber())
                 && profile.getPassportIssuedDate() != null
                 && !StringUtils.isEmpty(profile.getPassportIssuedByName())
                 && !StringUtils.isEmpty(profile.getRegistrationAddress());
-        return b;
     }
 
     private boolean allBorrowerInSignedStatus(List<BorrowerProfile> borrowers) {
