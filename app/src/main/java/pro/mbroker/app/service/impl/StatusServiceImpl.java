@@ -190,7 +190,9 @@ public class StatusServiceImpl implements StatusService {
 
     private boolean isEmployerInfoComplete(BorrowerProfile profile) {
         BorrowerEmployer employer = profile.getEmployer();
-        if (profile.getEmploymentStatus() != null && profile.getEmploymentStatus() == EmploymentStatus.UNEMPLOYED)
+        if (profile.getEmploymentStatus() != null
+                && profile.getEmploymentStatus() == EmploymentStatus.UNEMPLOYED
+                || profile.getEmploymentStatus() == EmploymentStatus.PENSIONER)
             return true;
         else {
             return profile.getEmploymentStatus() != null
@@ -218,7 +220,7 @@ public class StatusServiceImpl implements StatusService {
                 && !Objects.requireNonNullElse(profile.getSnils(), "").isBlank();
         if (profile.getEmploymentStatus() == null
                 || profile.getEmploymentStatus().equals(EmploymentStatus.UNEMPLOYED)
-        || profile.getEmploymentStatus().equals(EmploymentStatus.PENSIONER)) {
+                || profile.getEmploymentStatus().equals(EmploymentStatus.PENSIONER)) {
             return isCommonInfoComplete;
         } else {
             return isCommonInfoComplete && profile.getEmployer() != null;
