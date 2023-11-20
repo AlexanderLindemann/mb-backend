@@ -154,7 +154,6 @@ public interface BorrowerProfileMapper {
         response.setAttachmentName(borrowerDocument.getAttachment().getName());
         response.setDocumentType(borrowerDocument.getDocumentType());
         response.setSizeBytes(borrowerDocument.getAttachment().getSizeBytes());
-        response.setUpdatedAt(borrowerDocument.getUpdatedAt());
         return response;
     }
 
