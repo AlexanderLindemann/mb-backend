@@ -217,7 +217,8 @@ public class StatusServiceImpl implements StatusService {
                 && profile.getGender() != null
                 && !Objects.requireNonNullElse(profile.getSnils(), "").isBlank();
         if (profile.getEmploymentStatus() == null
-                || profile.getEmploymentStatus().equals(EmploymentStatus.UNEMPLOYED)) {
+                || profile.getEmploymentStatus().equals(EmploymentStatus.UNEMPLOYED)
+        || profile.getEmploymentStatus().equals(EmploymentStatus.PENSIONER)) {
             return isCommonInfoComplete;
         } else {
             return isCommonInfoComplete && profile.getEmployer() != null;
