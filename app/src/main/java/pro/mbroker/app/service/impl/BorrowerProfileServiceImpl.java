@@ -81,8 +81,9 @@ public class BorrowerProfileServiceImpl implements BorrowerProfileService {
             BorrowerProfile mainBorrowerProfile = prepareBorrowerProfile(partnerApplication, request.getMainBorrower());
             borrowerProfilesToSave.add(mainBorrowerProfile);
         }
-        borrowerProfileRepository.saveAll(borrowerProfilesToSave);
-        borrowerProfileRepository.flush();
+        partnerApplication.setBorrowerProfiles(borrowerProfilesToSave);
+        statusService.statusChanger(partnerApplication);
+        partnerApplicationRepository.save(partnerApplication);
         return getBorrowersByBankApplicationId(bankApplication.getId());
     }
 

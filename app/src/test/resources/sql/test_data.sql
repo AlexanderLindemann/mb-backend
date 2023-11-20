@@ -44,9 +44,9 @@ VALUES ('5690400c-0f32-11ee-be56-0242ac120002', 50000000, 1000000, 100000, 360, 
        ('9cc7641a-0f32-11ee-be56-0242ac120002', 50000000, 1000000, 100000, 360, '2023-06-20 14:18:19.000000', '2023-06-20 14:18:22.000000', 6666, null, true, true);
 
 
-INSERT INTO public.partner_application (id, credit_purpose_type, real_estate_type, real_estate_id, partner_id, created_at, updated_at, created_by, updated_by, is_active, mortgage_calculation_id)
-VALUES ('5ff4b32c-f967-4cb1-8705-7470a321fe34', 'PURCHASE_UNDER_CONSTRUCTION', 'APARTMENT', '2b8850b2-d930-11ed-afa1-0242ac120002', '5fec2326-d92e-11ed-afa1-0242ac120002', '2023-05-05 12:12:22.802637', '2023-05-05 12:12:22.802637', 2966, null, true, '5690400c-0f32-11ee-be56-0242ac120002'),
-       ('7addcbef-c1e0-4de1-adeb-377f864efcfa', 'PURCHASE_UNDER_CONSTRUCTION', 'APARTMENT', '2b8850b2-d930-11ed-afa1-0242ac120002', 'dce73f3e-f2db-11ed-a05b-0242ac120003', '2023-05-05 12:12:22.802637', '2023-05-05 12:12:22.802637', 2962, null, true, '9cc7641a-0f32-11ee-be56-0242ac120002');
+INSERT INTO public.partner_application (id, credit_purpose_type, real_estate_type, real_estate_id, partner_id, created_at, updated_at, created_by, updated_by, is_active, mortgage_calculation_id, partner_application_status, maternal_capital_amount, subsidy_amount, payment_source, insurance)
+VALUES ('5ff4b32c-f967-4cb1-8705-7470a321fe34', 'PURCHASE_UNDER_CONSTRUCTION', 'APARTMENT', '2b8850b2-d930-11ed-afa1-0242ac120002', '5fec2326-d92e-11ed-afa1-0242ac120002', '2023-05-05 12:12:22.802637', '2023-05-05 12:12:22.802637', 2966, null, true, '5690400c-0f32-11ee-be56-0242ac120002', 'UPLOADING_DOCS', null, null, null, null),
+       ('7addcbef-c1e0-4de1-adeb-377f864efcfa', 'PURCHASE_UNDER_CONSTRUCTION', 'APARTMENT', '2b8850b2-d930-11ed-afa1-0242ac120002', 'dce73f3e-f2db-11ed-a05b-0242ac120003', '2023-05-05 12:12:22.802637', '2023-05-05 12:12:22.802637', 2962, null, true, '9cc7641a-0f32-11ee-be56-0242ac120002', 'UPLOADING_DOCS', null, null, null, null);
 
 INSERT INTO public.borrower_employer (id, name, tin, branch, number_of_employees, organization_age, phone, site, work_experience, position, address, created_at, updated_at, created_by, updated_by, is_active, bank_details, manager, is_current_employer)
 VALUES ('b0c5a48e-0a2b-4659-b408-33295b6ea968', 'ООО Супер компани', '3453454555', 'IT', 'OVER_100', 'OVER_5', '4223444332', 'suoer_cc.com', 'FROM_6_TO_12', 'Менеджер по клинингу', 'Модный офис', '2023-10-18 12:07:33.619338', '2023-10-18 12:08:31.499206', 2222, 2222, true, null, null, null),

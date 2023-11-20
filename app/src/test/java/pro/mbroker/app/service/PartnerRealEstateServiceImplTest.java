@@ -11,7 +11,7 @@ import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static pro.mbroker.app.TestConstants.PARTNER_ID;
+import static pro.mbroker.app.TestConstants.PARTNER_ID_1;
 import static pro.mbroker.app.TestConstants.REAL_ESTATE_ID;
 
 public class PartnerRealEstateServiceImplTest extends AbstractServiceTest {
@@ -23,7 +23,7 @@ public class PartnerRealEstateServiceImplTest extends AbstractServiceTest {
     public void testAddRealEstate() {
         RealEstateRequest request = getRealEstateRequest();
 
-        RealEstate result = partnerRealEstateService.addRealEstate(PARTNER_ID, request);
+        RealEstate result = partnerRealEstateService.addRealEstate(PARTNER_ID_1, request);
         assertEquals(result.getAddress(), "Test Address");
         assertEquals(result.getRegion(), RegionType.MOSCOW);
         assertEquals(result.getResidentialComplexName(), "Test Complex Name");
@@ -41,7 +41,7 @@ public class PartnerRealEstateServiceImplTest extends AbstractServiceTest {
 
     @Test
     public void testGetRealEstateByPartnerId() {
-        List<RealEstate> result = partnerRealEstateService.getRealEstateByPartnerId(0, 2, "residentialComplexName", "asc", PARTNER_ID);
+        List<RealEstate> result = partnerRealEstateService.getRealEstateByPartnerId(0, 2, "residentialComplexName", "asc", PARTNER_ID_1);
         assertThat(result.size(), Matchers.is(2));
         assertEquals(result.get(0).getResidentialComplexName(), "testResidentialComplexName1");
         assertEquals(result.get(1).getResidentialComplexName(), "testResidentialComplexName2");
@@ -50,7 +50,7 @@ public class PartnerRealEstateServiceImplTest extends AbstractServiceTest {
     @Test
     public void testDeleteRealEstate() {
         partnerRealEstateService.deleteRealEstate(REAL_ESTATE_ID);
-        List<RealEstate> result = partnerRealEstateService.getRealEstateByPartnerId(0, 10, "residentialComplexName", "asc", PARTNER_ID);
+        List<RealEstate> result = partnerRealEstateService.getRealEstateByPartnerId(0, 10, "residentialComplexName", "asc", PARTNER_ID_1);
         assertThat(result.size(), Matchers.is(2));
         assertEquals(result.get(0).getResidentialComplexName(), "testResidentialComplexName2");
     }

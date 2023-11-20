@@ -2,9 +2,11 @@ package pro.mbroker.api.enums;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import pro.smartdeal.common.enums.DictionaryEnum;
 
 @Getter
 @RequiredArgsConstructor
+@DictionaryEnum(code = "PaymentSource", name = "Источник финансирования")
 public enum PaymentSource {
     SAVINGS("Savings", "Личные накопления"),
     MATERNAL_CAPITAL("maternalCapital", "Материнский капитал"),
