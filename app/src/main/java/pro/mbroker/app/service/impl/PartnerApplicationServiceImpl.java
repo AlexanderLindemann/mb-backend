@@ -388,6 +388,17 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
         }
     }
 
+    @Override
+    public List<PartnerApplication> getPartnerApplicationByIds(List<UUID> ids) {
+        return partnerApplicationRepository.findAllById(ids);
+    }
+
+    @Override
+    @Transactional
+    public void saveAll(Collection<PartnerApplication> partnerApplications) {
+        partnerApplicationRepository.saveAll(partnerApplications);
+    }
+
     private String formatPhoneNumber(String phoneNumber) {
         String cleanNumber = phoneNumber.startsWith("+") ? phoneNumber.substring(1) : phoneNumber;
         if (cleanNumber.length() > 10) {

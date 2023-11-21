@@ -10,6 +10,7 @@ import pro.mbroker.api.enums.RegionType;
 import pro.mbroker.app.entity.PartnerApplication;
 
 import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -51,4 +52,8 @@ public interface PartnerApplicationService {
     Optional<PartnerApplication> getPartnerApplicationByAttachmentId(Long attachmentId);
 
     void checkPermission(PartnerApplication partnerApplication);
+
+   List<PartnerApplication> getPartnerApplicationByIds (List<UUID> ids);
+
+    void saveAll(Collection<PartnerApplication> partnerApplications);
 }

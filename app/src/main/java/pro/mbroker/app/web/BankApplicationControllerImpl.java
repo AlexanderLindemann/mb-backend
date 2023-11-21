@@ -12,15 +12,19 @@ import pro.mbroker.api.dto.request.notification.UnderwritingResponse;
 import pro.mbroker.api.dto.response.BankApplicationResponse;
 import pro.mbroker.api.enums.BankApplicationStatus;
 import pro.mbroker.app.entity.BankApplication;
+import pro.mbroker.app.entity.PartnerApplication;
 import pro.mbroker.app.mapper.BankApplicationMapper;
 import pro.mbroker.app.mapper.underwriting.UnderwritingMapper;
 import pro.mbroker.app.service.BankApplicationService;
 import pro.mbroker.app.service.BorrowerProfileService;
 import pro.mbroker.app.service.CalculatorService;
+import pro.mbroker.app.service.PartnerApplicationService;
+import pro.mbroker.app.service.StatusService;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -31,6 +35,8 @@ public class BankApplicationControllerImpl implements BankApplicationController 
     private final CalculatorService calculatorService;
     private final BankApplicationMapper bankApplicationMapper;
     private final UnderwritingMapper underwritingMapper;
+    private final PartnerApplicationService partnerApplicationService;
+    private final StatusService statusService;
 
     @Override
     public BankApplicationResponse getBankApplicationById(UUID bankApplicationId) {
@@ -60,21 +66,34 @@ public class BankApplicationControllerImpl implements BankApplicationController 
         List<BankApplication> bankApplicationByApplications = bankApplicationService
                 .getBankApplicationByApplicationId(notificationStatusRequest.getApplications().keySet());
 
+        List<UUID> ids = bankApplicationByApplications.stream()
+                .map(ba -> ba.getPartnerApplication().getId())
+                .collect(Collectors.toList());
+        List<PartnerApplication> partnerApplications = partnerApplicationService.getPartnerApplicationByIds(ids);
+
         bankApplicationByApplications.forEach(bankApplication -> {
-            UnderwritingResponse underwritingResponse = notificationStatusRequest.getApplications()
-                    .get(bankApplication.getApplicationNumber());
-            try {
-                BankApplicationStatus newStatus = mappingRosBankStatus(underwritingResponse.getDecision().getStatus());
-                bankApplication.setBankApplicationStatus(newStatus);
-                bankApplication.setUnderwriting(underwritingMapper.toUnderwriting(underwritingResponse));
-                bankApplicationService.save(bankApplication);
-
-            } catch (Exception e) {
-                fail.append(bankApplication.getId()).append(", ");
-                e.printStackTrace();
+            for (PartnerApplication partnerApplication : partnerApplications) {
+                List<BankApplication> bankApplications = partnerApplication.getBankApplications();
+                for (BankApplication paBankApplication : bankApplications) {
+                    if (paBankApplication.equals(bankApplication)) {
+                        UnderwritingResponse underwritingResponse = notificationStatusRequest.getApplications()
+                                .get(bankApplication.getApplicationNumber());
+                        try {
+                            var newUnderwriting = underwritingMapper.toUnderwriting(underwritingResponse);
+                            if (!paBankApplication.getUnderwriting().equals(newUnderwriting)) {
+                                BankApplicationStatus newStatus = mappingRosBankStatus(underwritingResponse.getDecision().getStatus());
+                                paBankApplication.setBankApplicationStatus(newStatus);
+                                paBankApplication.setUnderwriting(underwritingMapper.toUnderwriting(underwritingResponse));
+                            }
+                        } catch (Exception e) {
+                            fail.append(bankApplication.getId()).append(", ");
+                        }
+                    }
+                }
             }
-
         });
+        partnerApplications.forEach(statusService::statusChanger);
+        partnerApplicationService.saveAll(partnerApplications);
 
         if (fail.length() == 0) {
             result.append("Обновлены статусы заявок в количестве ").append(bankApplicationByApplications.size());
