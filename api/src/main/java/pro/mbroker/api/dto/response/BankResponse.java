@@ -17,6 +17,8 @@ public class BankResponse {
 
     private Integer orderNumber;
 
+    private String logo;
+
     private List<BankContactResponse> contacts;
 
     private List<CreditProgramResponse> creditProgram;

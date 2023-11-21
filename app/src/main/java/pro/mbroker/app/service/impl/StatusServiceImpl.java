@@ -34,7 +34,7 @@ public class StatusServiceImpl implements StatusService {
     private static final List<DocumentType> REQUIRED_DOCUMENT_TYPES =
             Arrays.asList(DocumentType.BORROWER_PASSPORT, DocumentType.BORROWER_SNILS);
 
-    private static final Set<BankApplicationStatus> UNCHANGEABLE_STATUSES = Set.of(
+    private static final Set<BankApplicationStatus> UNCHANGEABLE_BANK_APPLICATION_STATUSES = Set.of(
             BankApplicationStatus.SENT_TO_BANK,
             BankApplicationStatus.SENDING_TO_BANK,
             BankApplicationStatus.APPLICATION_APPROVED,
@@ -43,6 +43,11 @@ public class StatusServiceImpl implements StatusService {
             BankApplicationStatus.REJECTED,
             BankApplicationStatus.SENDING_ERROR,
             BankApplicationStatus.EXPIRED
+    );
+
+    private static final Set<PartnerApplicationStatus> UNCHANGEABLE_PARTNER_APPLICATION_STATUSES = Set.of(
+            PartnerApplicationStatus.EXPIRED,
+            PartnerApplicationStatus.REJECTED
     );
 
     @Override
@@ -113,7 +118,7 @@ public class StatusServiceImpl implements StatusService {
             List<BankApplication> bankApplications = new ArrayList<>(partnerApplication.getBankApplications());
             bankApplications.removeIf(app -> !app.isActive() ||
                     (app.getBankApplicationStatus() != null &&
-                            UNCHANGEABLE_STATUSES.contains(app.getBankApplicationStatus())));
+                            UNCHANGEABLE_BANK_APPLICATION_STATUSES.contains(app.getBankApplicationStatus())));
             boolean borrowersInSignedStatus = allBorrowerInSignedStatus(partnerApplication.getBorrowerProfiles());
             for (BankApplication bankApplication : bankApplications) {
                 if (Objects.nonNull(bankApplication)) {
@@ -146,25 +151,27 @@ public class StatusServiceImpl implements StatusService {
             partnerApplication.setPartnerApplicationStatus(PartnerApplicationStatus.UPLOADING_DOCS);
             return true;
         }
-        if (partnerApplication.getBankApplications().stream()
-                .anyMatch(bankApplication -> bankApplication.getBankApplicationStatus().equals(BankApplicationStatus.CREDIT_APPROVED))) {
-            if (!partnerApplication.getPartnerApplicationStatus().equals(PartnerApplicationStatus.CREDIT_APPROVED)) {
-                partnerApplication.setPartnerApplicationStatus(PartnerApplicationStatus.CREDIT_APPROVED);
-                isChange = true;
+        if (!UNCHANGEABLE_PARTNER_APPLICATION_STATUSES.contains(partnerApplication.getPartnerApplicationStatus())) {
+            if (partnerApplication.getBankApplications().stream()
+                    .anyMatch(bankApplication -> bankApplication.getBankApplicationStatus().equals(BankApplicationStatus.CREDIT_APPROVED))) {
+                if (!partnerApplication.getPartnerApplicationStatus().equals(PartnerApplicationStatus.CREDIT_APPROVED)) {
+                    partnerApplication.setPartnerApplicationStatus(PartnerApplicationStatus.CREDIT_APPROVED);
+                    isChange = true;
+                }
             }
-        }
-        if (partnerApplication.getBankApplications().stream()
-                .allMatch(bankApplication -> bankApplication.getBankApplicationStatus().equals(BankApplicationStatus.EXPIRED))) {
-            if (!partnerApplication.getPartnerApplicationStatus().equals(PartnerApplicationStatus.EXPIRED)) {
-                partnerApplication.setPartnerApplicationStatus(PartnerApplicationStatus.EXPIRED);
-                isChange = true;
+            if (partnerApplication.getBankApplications().stream()
+                    .allMatch(bankApplication -> bankApplication.getBankApplicationStatus().equals(BankApplicationStatus.EXPIRED))) {
+                if (!partnerApplication.getPartnerApplicationStatus().equals(PartnerApplicationStatus.EXPIRED)) {
+                    partnerApplication.setPartnerApplicationStatus(PartnerApplicationStatus.EXPIRED);
+                    isChange = true;
+                }
             }
-        }
-        if (partnerApplication.getBankApplications().stream()
-                .allMatch(bankApplication -> bankApplication.getBankApplicationStatus().equals(BankApplicationStatus.REJECTED))) {
-            if (!partnerApplication.getPartnerApplicationStatus().equals(PartnerApplicationStatus.REJECTED)) {
-                partnerApplication.setPartnerApplicationStatus(PartnerApplicationStatus.REJECTED);
-                isChange = true;
+            if (partnerApplication.getBankApplications().stream()
+                    .allMatch(bankApplication -> bankApplication.getBankApplicationStatus().equals(BankApplicationStatus.REJECTED))) {
+                if (!partnerApplication.getPartnerApplicationStatus().equals(PartnerApplicationStatus.REJECTED)) {
+                    partnerApplication.setPartnerApplicationStatus(PartnerApplicationStatus.REJECTED);
+                    isChange = true;
+                }
             }
         }
         return isChange;

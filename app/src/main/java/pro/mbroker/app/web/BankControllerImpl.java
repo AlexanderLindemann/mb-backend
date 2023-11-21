@@ -10,10 +10,13 @@ import pro.mbroker.api.controller.CreditProgramController;
 import pro.mbroker.api.dto.request.BankRequest;
 import pro.mbroker.api.dto.response.AttachmentResponse;
 import pro.mbroker.api.dto.response.BankResponse;
+import pro.mbroker.app.entity.Attachment;
 import pro.mbroker.app.entity.Bank;
 import pro.mbroker.app.entity.BankContact;
 import pro.mbroker.app.mapper.BankMapper;
+import pro.mbroker.app.service.AttachmentService;
 import pro.mbroker.app.service.BankService;
+import pro.mbroker.app.util.Converter;
 
 import java.util.List;
 import java.util.UUID;
@@ -25,6 +28,7 @@ import java.util.stream.Collectors;
 public class BankControllerImpl implements BankController {
 
     private final BankService bankService;
+    private final AttachmentService attachmentService;
     private final BankMapper bankMapper;
     private final CreditProgramController creditProgramController;
 
@@ -43,14 +47,19 @@ public class BankControllerImpl implements BankController {
     }
 
     @Override
-    public List<BankResponse> getAllBank(int page, int size,
-                                         String sortBy, String sortOrder) {
+    public List<BankResponse> getAllBank(int page, int size, String sortBy, String sortOrder) {
         List<Bank> bankList = bankService.getAllBank(page, size, sortBy, sortOrder);
-        return bankList.stream()
-                .map(bankMapper::toBankResponseMapper)
-                .collect(Collectors.toList());
-    }
 
+        return bankList.stream().map(bank -> {
+            BankResponse bankResponse = bankMapper.toBankResponseMapper(bank);
+            Attachment attachment = bank.getAttachment();
+            if (attachment != null) {
+                String base64Logo = Converter.generateBase64FromFile(attachmentService.download(attachment.getId()));
+                bankResponse.setLogo(base64Logo);
+            }
+            return bankResponse;
+        }).collect(Collectors.toList());
+    }
 
     @Override
     public BankResponse getBankById(UUID bankId) {
