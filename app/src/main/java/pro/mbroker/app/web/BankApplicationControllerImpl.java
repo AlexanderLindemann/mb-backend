@@ -20,6 +20,7 @@ import pro.mbroker.app.service.BorrowerProfileService;
 import pro.mbroker.app.service.CalculatorService;
 import pro.mbroker.app.service.PartnerApplicationService;
 import pro.mbroker.app.service.StatusService;
+import pro.mbroker.app.util.UnderwritingComparator;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
@@ -75,15 +76,19 @@ public class BankApplicationControllerImpl implements BankApplicationController 
             for (PartnerApplication partnerApplication : partnerApplications) {
                 List<BankApplication> bankApplications = partnerApplication.getBankApplications();
                 for (BankApplication paBankApplication : bankApplications) {
-                    if (paBankApplication.equals(bankApplication)) {
+                    if (UnderwritingComparator.underwritingIsChanged(
+                            paBankApplication.getUnderwriting(),
+                            bankApplication.getUnderwriting())) {
                         UnderwritingResponse underwritingResponse = notificationStatusRequest.getApplications()
                                 .get(bankApplication.getApplicationNumber());
                         try {
                             var newUnderwriting = underwritingMapper.toUnderwriting(underwritingResponse);
                             if (!paBankApplication.getUnderwriting().equals(newUnderwriting)) {
-                                BankApplicationStatus newStatus = mappingRosBankStatus(underwritingResponse.getDecision().getStatus());
+                                BankApplicationStatus newStatus =
+                                        mappingRosBankStatus(underwritingResponse.getDecision().getStatus());
                                 paBankApplication.setBankApplicationStatus(newStatus);
-                                paBankApplication.setUnderwriting(underwritingMapper.toUnderwriting(underwritingResponse));
+                                paBankApplication.setUnderwriting(underwritingMapper
+                                        .toUnderwriting(underwritingResponse));
                             }
                         } catch (Exception e) {
                             fail.append(bankApplication.getId()).append(", ");
@@ -116,8 +121,11 @@ public class BankApplicationControllerImpl implements BankApplicationController 
 
     private BankApplicationResponse toResponse(BankApplication bankApplication) {
         return bankApplicationMapper.toBankApplicationResponse(bankApplication)
-                .setMortgageSum(calculatorService.getMortgageSum(bankApplication.getRealEstatePrice(), bankApplication.getDownPayment()))
-                .setCoBorrowers(borrowerProfileService.getBorrowersByBankApplicationId(bankApplication.getId()).getCoBorrower());
+                .setMortgageSum(calculatorService.getMortgageSum(
+                        bankApplication.getRealEstatePrice(),
+                        bankApplication.getDownPayment()))
+                .setCoBorrowers(borrowerProfileService.getBorrowersByBankApplicationId(bankApplication.getId())
+                        .getCoBorrower());
     }
 
     public static BankApplicationStatus mappingRosBankStatus(int creditStatusValue) {
