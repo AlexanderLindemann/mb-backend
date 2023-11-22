@@ -82,14 +82,11 @@ public class BankApplicationControllerImpl implements BankApplicationController 
                         UnderwritingResponse underwritingResponse = notificationStatusRequest.getApplications()
                                 .get(bankApplication.getApplicationNumber());
                         try {
-                            var newUnderwriting = underwritingMapper.toUnderwriting(underwritingResponse);
-                            if (!paBankApplication.getUnderwriting().equals(newUnderwriting)) {
-                                BankApplicationStatus newStatus =
-                                        mappingRosBankStatus(underwritingResponse.getDecision().getStatus());
-                                paBankApplication.setBankApplicationStatus(newStatus);
-                                paBankApplication.setUnderwriting(underwritingMapper
-                                        .toUnderwriting(underwritingResponse));
-                            }
+                            BankApplicationStatus newStatus =
+                                    mappingRosBankStatus(underwritingResponse.getDecision().getStatus());
+                            paBankApplication.setBankApplicationStatus(newStatus);
+                            paBankApplication.setUnderwriting(underwritingMapper
+                                    .toUnderwriting(underwritingResponse));
                         } catch (Exception e) {
                             fail.append(bankApplication.getId()).append(", ");
                         }
@@ -103,8 +100,7 @@ public class BankApplicationControllerImpl implements BankApplicationController 
         if (fail.length() == 0) {
             result.append("Обновлены статусы заявок в количестве ").append(bankApplicationByApplications.size());
             log.info(result.toString());
-        }
-        else {
+        } else {
             result.append("Не смогли обновить статус для bankApplications: ");
             result.append(fail);
             log.error(result.toString());
@@ -130,28 +126,28 @@ public class BankApplicationControllerImpl implements BankApplicationController 
 
     public static BankApplicationStatus mappingRosBankStatus(int creditStatusValue) {
         switch (creditStatusValue) {
-            case 1 : {
+            case 1: {
                 return BankApplicationStatus.SENT_TO_BANK;
             }
-            case 2 : {
+            case 2: {
                 return BankApplicationStatus.REFINEMENT;
             }
-            case 3 :
-            case 4 :
-            case 5 : {
+            case 3:
+            case 4:
+            case 5: {
                 return BankApplicationStatus.APPLICATION_APPROVED;
             }
-            case 6 :
-            case 7 :
-            case 10 : {
+            case 6:
+            case 7:
+            case 10: {
                 return BankApplicationStatus.CREDIT_APPROVED;
             }
-            case 8 :
-            case 11 :
-            case 9 : {
+            case 8:
+            case 11:
+            case 9: {
                 return BankApplicationStatus.REJECTED;
             }
-            default : {
+            default: {
                 return null;
             }
         }
