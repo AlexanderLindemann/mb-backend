@@ -36,8 +36,8 @@ public class BorrowerProfileControllerImpl implements BorrowerProfileController 
     }
 
     @Override
-    public BorrowerResponse createOrUpdateGenericBorrowerProfile(BorrowerRequest request) {
-        return borrowerProfileService.createOrUpdateGenericBorrowerProfile(request);
+    public BorrowerResponse createOrUpdateGenericBorrowerProfile(BorrowerRequest request, HttpServletRequest httpRequest) {
+        return borrowerProfileService.createOrUpdateGenericBorrowerProfile(request, httpRequest);
     }
 
     @Override
@@ -56,8 +56,8 @@ public class BorrowerProfileControllerImpl implements BorrowerProfileController 
     }
 
     @Override
-    public void updateBorrowerProfileField(UUID borrowerProfileId, BorrowerProfileUpdateRequest updateRequest, HttpServletRequest request) {
-        borrowerProfileService.updateBorrowerProfileField(borrowerProfileId, updateRequest, request);
+    public void updateBorrowerProfileField(UUID borrowerProfileId, BorrowerProfileUpdateRequest updateRequest, HttpServletRequest httpRequest) {
+        borrowerProfileService.updateBorrowerProfileField(borrowerProfileId, updateRequest, httpRequest);
     }
 
     @Override

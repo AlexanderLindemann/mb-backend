@@ -73,12 +73,14 @@ public interface BorrowerProfileMapper {
     @Mapping(target = "birthPlace", ignore = true)
     @Mapping(target = "citizenship", ignore = true)
     @Mapping(target = "taxResidencyCountries", ignore = true)
+    @Mapping(target = "link", ignore = true)
     BorrowerProfile toBorrowerProfile(BorrowerProfileRequest request);
 
     @Mapping(source = "request.firstName", target = "firstName")
     @Mapping(source = "request.lastName", target = "lastName")
     @Mapping(source = "request.middleName", target = "middleName")
     @Mapping(source = "request.phoneNumber", target = "phoneNumber")
+    @Mapping(source = "request.link.shortLink", target = "link")
     @Mapping(source = "borrowerProfileStatus", target = "status")
     @Mapping(target = "documents", expression = "java(mapBorrowerDocuments(request.getBorrowerDocument()))")
     BorrowerProfileResponse toBorrowerProfileResponse(BorrowerProfile request);
@@ -133,6 +135,7 @@ public interface BorrowerProfileMapper {
     @Mapping(target = "birthPlace", ignore = true)
     @Mapping(target = "citizenship", ignore = true)
     @Mapping(target = "taxResidencyCountries", ignore = true)
+    @Mapping(target = "link", ignore = true)
     void updateBorrowerProfile(BorrowerProfileRequest request, @MappingTarget BorrowerProfile profile);
 
     @Mapping(source = "borrowerProfileStatus", target = "status")

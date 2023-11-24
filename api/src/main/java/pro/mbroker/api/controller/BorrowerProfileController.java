@@ -33,7 +33,9 @@ public interface BorrowerProfileController {
 
     @ApiOperation("Дополнить или обновить обобщенную банковскую заявку")
     @PostMapping("/partner_application")
-    BorrowerResponse createOrUpdateGenericBorrowerProfile(@ApiParam(value = "Параметры заемщиков") @RequestBody BorrowerRequest request);
+    BorrowerResponse createOrUpdateGenericBorrowerProfile(@ApiParam(value = "Параметры заемщиков")
+                                                          @RequestBody BorrowerRequest request,
+                                                          HttpServletRequest httpRequest);
 
     @ApiOperation("получить обобщенный профиль клиента по id заявки партнера")
     @GetMapping("/{partnerApplicationId}")
@@ -53,7 +55,7 @@ public interface BorrowerProfileController {
     @PutMapping("/{borrowerProfileId}/updateField")
     void updateBorrowerProfileField(@ApiParam(value = "Идентификатор профиля") @PathVariable UUID borrowerProfileId,
                                     @RequestBody BorrowerProfileUpdateRequest updateRequest,
-                                    HttpServletRequest request);
+                                    HttpServletRequest httpRequest);
 
     @ApiOperation("получить полный профиль клиента")
     @GetMapping("/{borrowerProfileId}/full")

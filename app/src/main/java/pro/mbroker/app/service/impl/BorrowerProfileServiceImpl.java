@@ -31,6 +31,7 @@ import pro.mbroker.app.repository.PartnerApplicationRepository;
 import pro.mbroker.app.service.BankApplicationService;
 import pro.mbroker.app.service.BankService;
 import pro.mbroker.app.service.BorrowerProfileService;
+import pro.mbroker.app.service.LinkService;
 import pro.mbroker.app.service.PartnerApplicationService;
 import pro.mbroker.app.service.StatusService;
 
@@ -59,6 +60,7 @@ public class BorrowerProfileServiceImpl implements BorrowerProfileService {
     private final PartnerApplicationRepository partnerApplicationRepository;
     private final BankApplicationService bankApplicationService;
     private final StatusService statusService;
+    private final LinkService linkService;
     private final BankService bankService;
     private final BorrowerProfileMapper borrowerProfileMapper;
     private final PartnerApplicationService partnerApplicationService;
@@ -316,7 +318,7 @@ public class BorrowerProfileServiceImpl implements BorrowerProfileService {
 
     @Override
     @Transactional
-    public BorrowerResponse createOrUpdateGenericBorrowerProfile(BorrowerRequest request) {
+    public BorrowerResponse createOrUpdateGenericBorrowerProfile(BorrowerRequest request, HttpServletRequest httpRequest ) {
         PartnerApplication partnerApplication = partnerApplicationService.getPartnerApplication(request.getId());
         List<BorrowerProfile> borrowerProfilesToSave = new ArrayList<>();
         if (Objects.nonNull(request.getCoBorrower())) {
@@ -334,6 +336,7 @@ public class BorrowerProfileServiceImpl implements BorrowerProfileService {
 
         borrowerProfileRepository.saveAll(borrowerProfilesToSave);
         borrowerProfileRepository.flush();
+        linkService.addLinksByProfiles(borrowerProfilesToSave, httpRequest);
         return getBorrowersByPartnerApplicationId(request.getId());
     }
 

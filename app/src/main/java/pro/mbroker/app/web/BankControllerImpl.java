@@ -12,7 +12,6 @@ import pro.mbroker.api.dto.response.AttachmentResponse;
 import pro.mbroker.api.dto.response.BankResponse;
 import pro.mbroker.app.entity.Attachment;
 import pro.mbroker.app.entity.Bank;
-import pro.mbroker.app.entity.BankContact;
 import pro.mbroker.app.mapper.BankMapper;
 import pro.mbroker.app.service.AttachmentService;
 import pro.mbroker.app.service.BankService;
@@ -48,27 +47,14 @@ public class BankControllerImpl implements BankController {
 
     @Override
     public List<BankResponse> getAllBank(int page, int size, String sortBy, String sortOrder) {
-        List<Bank> bankList = bankService.getAllBank(page, size, sortBy, sortOrder);
-
-        return bankList.stream().map(bank -> {
-            BankResponse bankResponse = bankMapper.toBankResponseMapper(bank);
-            Attachment attachment = bank.getAttachment();
-            if (attachment != null) {
-                String base64Logo = Converter.generateBase64FromFile(attachmentService.download(attachment.getId()));
-                bankResponse.setLogo(base64Logo);
-            }
-            return bankResponse;
-        }).collect(Collectors.toList());
+        List<Bank> banks = bankService.getAllBank(page, size, sortBy, sortOrder);
+        return banks.stream().map(this::convertToBankResponse).collect(Collectors.toList());
     }
 
     @Override
     public BankResponse getBankById(UUID bankId) {
         Bank bank = bankService.getBankById(bankId);
-        List<BankContact> activeContacts = bank.getContacts().stream()
-                .filter(BankContact::isActive)
-                .collect(Collectors.toList());
-        bank.setContacts(activeContacts);
-        return bankMapper.toBankResponseMapper(bank)
+        return convertToBankResponse(bank)
                 .setCreditProgram(creditProgramController.getProgramsByBankId(bankId));
     }
 
@@ -82,17 +68,23 @@ public class BankControllerImpl implements BankController {
     @PreAuthorize("hasAuthority(T(pro.smartdeal.common.security.Permission$Code).MB_ADMIN_ACCESS)")
     public BankResponse updateBank(UUID bankId, BankRequest bankRequest) {
         Bank bank = bankService.updateBank(bankId, bankRequest);
-        List<BankContact> activeContacts = bank.getContacts().stream()
-                .filter(BankContact::isActive)
-                .collect(Collectors.toList());
-        bank.setContacts(activeContacts);
-        return bankMapper.toBankResponseMapper(bank);
+        return convertToBankResponse(bank);
     }
 
     @Override
     @PreAuthorize("hasAuthority(T(pro.smartdeal.common.security.Permission$Code).MB_ADMIN_ACCESS)")
     public void deleteBankById(UUID bankId) {
         bankService.deleteBankById(bankId);
+    }
+
+    private BankResponse convertToBankResponse(Bank bank) {
+        BankResponse bankResponse = bankMapper.toBankResponseMapper(bank);
+        Attachment attachment = bank.getAttachment();
+        if (attachment != null) {
+            String base64Logo = Converter.generateBase64FromFile(attachmentService.download(attachment.getId()));
+            bankResponse.setLogo(base64Logo);
+        }
+        return bankResponse;
     }
 
 }

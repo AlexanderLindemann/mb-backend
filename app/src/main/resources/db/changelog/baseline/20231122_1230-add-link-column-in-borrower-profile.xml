@@ -1,0 +1,27 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+
+    <changeSet id="create-link_table-with-uuid" author="a.lindemann">
+        <createTable tableName="url_mapping">
+            <column name="id" type="uuid">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="short_link" type="varchar(255)" />
+            <column name="full_link" type="varchar(2048)" />
+        </createTable>
+    </changeSet>
+
+    <changeSet id="add-link_table-reference-to-borrower_profile" author="a.lindemann">
+        <addColumn tableName="borrower_profile">
+            <column name="url_mapping_id" type="uuid">
+                <constraints nullable="true" unique="true"
+                             foreignKeyName="fk_borrower_profile_url_mapping"
+                             references="url_mapping(id)"/>
+            </column>
+        </addColumn>
+    </changeSet>
+
+</databaseChangeLog>

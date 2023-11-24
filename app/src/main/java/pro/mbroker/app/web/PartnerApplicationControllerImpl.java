@@ -13,8 +13,10 @@ import pro.mbroker.api.dto.response.RequiredDocumentResponse;
 import pro.mbroker.api.enums.BankApplicationStatus;
 import pro.mbroker.api.enums.RegionType;
 import pro.mbroker.app.entity.PartnerApplication;
+import pro.mbroker.app.service.LinkService;
 import pro.mbroker.app.service.PartnerApplicationService;
 
+import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -24,6 +26,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class PartnerApplicationControllerImpl implements PartnerApplicationController {
     private final PartnerApplicationService partnerApplicationService;
+    private final LinkService linkService;
 
     @Override
     @PreAuthorize("hasAuthority(T(pro.smartdeal.common.security.Permission$Code).MB_ADMIN_ACCESS) or " +
@@ -49,8 +52,9 @@ public class PartnerApplicationControllerImpl implements PartnerApplicationContr
     @PreAuthorize("hasAuthority(T(pro.smartdeal.common.security.Permission$Code).MB_ADMIN_ACCESS) or" +
             " hasAuthority(T(pro.smartdeal.common.security.Permission$Code).MB_REQUEST_READ_OWN) or" +
             " hasAnyAuthority(T(pro.smartdeal.common.security.Permission$Code).MB_REQUEST_READ_ORGANIZATION)")
-    public PartnerApplicationResponse createPartnerApplication(PartnerApplicationRequest request) {
+    public PartnerApplicationResponse createPartnerApplication(PartnerApplicationRequest request, HttpServletRequest httpRequest) {
         PartnerApplication partnerApplication = partnerApplicationService.createPartnerApplication(request);
+        linkService.addLinksByProfiles(partnerApplication.getBorrowerProfiles(), httpRequest);
         return partnerApplicationService.buildPartnerApplicationResponse(partnerApplication);
     }
 

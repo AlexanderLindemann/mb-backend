@@ -1,6 +1,7 @@
 package pro.mbroker.app.service;
 
 import org.hamcrest.Matchers;
+import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import pro.mbroker.api.dto.request.BorrowerRequest;
@@ -8,9 +9,13 @@ import pro.mbroker.api.dto.response.BorrowerProfileResponse;
 import pro.mbroker.api.dto.response.BorrowerResponse;
 import pro.mbroker.app.TestData;
 
+import javax.servlet.http.HttpServletRequest;
+import java.util.Objects;
 import java.util.UUID;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class BorrowerProfileServiceTest extends AbstractServiceTest {
     @Autowired
@@ -20,12 +25,15 @@ public class BorrowerProfileServiceTest extends AbstractServiceTest {
 
     @Test
     public void testUpdateGenericBorrowerProfile() {
+        HttpServletRequest mockRequest = mock(HttpServletRequest.class);
+        when(mockRequest.getRequestURL()).thenReturn(new StringBuffer("http://localhost:8080"));
         BorrowerRequest borrowerRequest = new BorrowerRequest()
                 .setMainBorrower(testData.getBorrowerProfileRequestList().get(0)
                         .setId(UUID.fromString("1348b508-f476-11ed-a05b-0242ac120003")))
                 .setId(UUID.fromString("5ff4b32c-f967-4cb1-8705-7470a321fe34"));
 
-        BorrowerResponse orUpdateGenericBorrowerApplication = borrowerProfileService.createOrUpdateGenericBorrowerProfile(borrowerRequest);
+        BorrowerResponse orUpdateGenericBorrowerApplication = borrowerProfileService.createOrUpdateGenericBorrowerProfile(borrowerRequest, mockRequest);
+        orUpdateGenericBorrowerApplication.getCoBorrower().forEach(profile -> Assert.assertTrue(Objects.nonNull(profile.getLink())));
         BorrowerProfileResponse mainBorrower = orUpdateGenericBorrowerApplication.getMainBorrower();
         assertThat(mainBorrower.getEmail(), Matchers.is("test@test.com"));
         assertThat(mainBorrower.getFirstName(), Matchers.is("TestFirstName"));

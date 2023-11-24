@@ -27,7 +27,6 @@ public class BaseEntityAuditAspect {
 
     @Before("execution(* pro.mbroker.app.repository.*.save(..)) && args(baseEntity, ..)")
     public void beforeSave(BaseEntity baseEntity) {
-      //  setAuditFields(baseEntity);
         if (baseEntity instanceof PartnerApplication) {
             PartnerApplication partnerApplication = (PartnerApplication) baseEntity;
             if (partnerApplication.getBankApplications() != null) {

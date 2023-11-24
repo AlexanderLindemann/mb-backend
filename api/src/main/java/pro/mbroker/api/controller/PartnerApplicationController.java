@@ -5,7 +5,15 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.springframework.data.domain.Page;
 import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import pro.mbroker.api.dto.request.BankApplicationUpdateRequest;
 import pro.mbroker.api.dto.request.PartnerApplicationRequest;
 import pro.mbroker.api.dto.response.PartnerApplicationResponse;
@@ -13,6 +21,7 @@ import pro.mbroker.api.dto.response.RequiredDocumentResponse;
 import pro.mbroker.api.enums.BankApplicationStatus;
 import pro.mbroker.api.enums.RegionType;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -39,8 +48,9 @@ public interface PartnerApplicationController {
 
     @ApiOperation("Создать заявку")
     @PostMapping()
-    PartnerApplicationResponse createPartnerApplication(@ApiParam(value = "Параметры кредитной заявки") @RequestBody PartnerApplicationRequest request);
-
+    PartnerApplicationResponse createPartnerApplication(@ApiParam(value = "Параметры кредитной заявки")
+                                                        @RequestBody PartnerApplicationRequest request,
+                                                        HttpServletRequest httpRequest);
 
     @ApiOperation("обновить заявку")
     @PutMapping("/{partnerApplicationId}")

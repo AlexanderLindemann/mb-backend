@@ -141,37 +141,43 @@ public class StatusServiceImpl implements StatusService {
     }
 
     private boolean checkPartnerApplicationStatus(PartnerApplication partnerApplication) {
-        boolean isChange = false;
         if (Objects.isNull(partnerApplication.getPartnerApplicationStatus())) {
             partnerApplication.setPartnerApplicationStatus(PartnerApplicationStatus.UPLOADING_DOCS);
             return true;
         }
-        if (partnerApplication.getBankApplications().stream()
+
+        boolean isChange = false;
+        List<BankApplication> activeBankApps = partnerApplication.getBankApplications().stream()
                 .filter(BaseEntity::isActive)
-                .anyMatch(bankApplication -> bankApplication.getBankApplicationStatus().equals(BankApplicationStatus.CREDIT_APPROVED))) {
-            if (!partnerApplication.getPartnerApplicationStatus().equals(PartnerApplicationStatus.CREDIT_APPROVED)) {
-                partnerApplication.setPartnerApplicationStatus(PartnerApplicationStatus.CREDIT_APPROVED);
-                isChange = true;
-            }
-        }
-        if (partnerApplication.getBankApplications().stream()
-                .filter(BaseEntity::isActive)
-                .allMatch(bankApplication -> bankApplication.getBankApplicationStatus().equals(BankApplicationStatus.EXPIRED))) {
-            if (!partnerApplication.getPartnerApplicationStatus().equals(PartnerApplicationStatus.EXPIRED)) {
-                partnerApplication.setPartnerApplicationStatus(PartnerApplicationStatus.EXPIRED);
-                isChange = true;
-            }
-        }
-        if (partnerApplication.getBankApplications().stream()
-                .filter(BaseEntity::isActive)
-                .allMatch(bankApplication -> bankApplication.getBankApplicationStatus().equals(BankApplicationStatus.REJECTED))) {
-            if (!partnerApplication.getPartnerApplicationStatus().equals(PartnerApplicationStatus.REJECTED)) {
-                partnerApplication.setPartnerApplicationStatus(PartnerApplicationStatus.REJECTED);
-                isChange = true;
-            }
+                .collect(Collectors.toList());
+
+        if (isStatusChangeRequired(partnerApplication, activeBankApps, PartnerApplicationStatus.EXPIRED, BankApplicationStatus.EXPIRED)
+                || isStatusChangeRequired(partnerApplication, activeBankApps, PartnerApplicationStatus.REJECTED, BankApplicationStatus.REJECTED)) {
+            partnerApplication.setPartnerApplicationStatus(PartnerApplicationStatus.UPLOADING_DOCS);
+            isChange = true;
+        } else if (activeBankApps.stream().anyMatch(app -> app.getBankApplicationStatus().equals(BankApplicationStatus.CREDIT_APPROVED))) {
+            isChange = updatePartnerApplicationStatus(partnerApplication, PartnerApplicationStatus.CREDIT_APPROVED);
+        } else if (activeBankApps.stream().allMatch(app -> app.getBankApplicationStatus().equals(BankApplicationStatus.EXPIRED))) {
+            isChange = updatePartnerApplicationStatus(partnerApplication, PartnerApplicationStatus.EXPIRED);
+        } else if (activeBankApps.stream().allMatch(app -> app.getBankApplicationStatus().equals(BankApplicationStatus.REJECTED))) {
+            isChange = updatePartnerApplicationStatus(partnerApplication, PartnerApplicationStatus.REJECTED);
         }
         return isChange;
     }
+
+    private boolean isStatusChangeRequired(PartnerApplication partnerApplication, List<BankApplication> activeBankApps, PartnerApplicationStatus targetStatus, BankApplicationStatus bankStatus) {
+        return partnerApplication.getPartnerApplicationStatus().equals(targetStatus)
+                && activeBankApps.stream().noneMatch(app -> app.getBankApplicationStatus().equals(bankStatus));
+    }
+
+    private boolean updatePartnerApplicationStatus(PartnerApplication partnerApplication, PartnerApplicationStatus newStatus) {
+        if (!partnerApplication.getPartnerApplicationStatus().equals(newStatus)) {
+            partnerApplication.setPartnerApplicationStatus(newStatus);
+            return true;
+        }
+        return false;
+    }
+
 
     private boolean checkRequiredDocuments(BorrowerProfile borrowerProfile) {
         List<BorrowerDocument> borrowerDocuments = borrowerProfile.getBorrowerDocument();

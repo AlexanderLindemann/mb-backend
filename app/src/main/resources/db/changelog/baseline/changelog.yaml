@@ -104,3 +104,6 @@ databaseChangeLog:
   - include:
       file: 20231114_1500-delete-field-generatedform-signed_form.xml
       relativeToChangelogFile: true
+  - include:
+      file: 20231122_1230-add-link-column-in-borrower-profile.xml
+      relativeToChangelogFile: true

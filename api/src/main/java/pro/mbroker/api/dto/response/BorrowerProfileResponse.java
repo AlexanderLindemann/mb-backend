@@ -27,6 +27,8 @@ public class BorrowerProfileResponse {
 
     private String email;
 
+    private String link;
+
     private BorrowerProfileStatus status;
 
     private List<BorrowerDocumentResponse> documents;

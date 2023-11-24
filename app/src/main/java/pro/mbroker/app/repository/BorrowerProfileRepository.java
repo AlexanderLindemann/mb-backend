@@ -23,6 +23,8 @@ public interface BorrowerProfileRepository extends JpaRepository<BorrowerProfile
 
     List<BorrowerProfile> findAllByPhoneNumberAndIsActiveTrue(String phoneNumber);
 
+    List<BorrowerProfile> findAllByIdIn(List<UUID> ids);
+
     @Modifying
     @Transactional
     @Query("UPDATE BorrowerProfile bp SET bp.borrowerProfileStatus = :status WHERE bp.id = :profileId")

@@ -7,6 +7,8 @@ FROM borrower_documents;
 DELETE
 FROM borrower_profile;
 DELETE
+FROM url_mapping;
+DELETE
 FROM employer_bank_relation;
 DELETE
 FROM borrower_employer;

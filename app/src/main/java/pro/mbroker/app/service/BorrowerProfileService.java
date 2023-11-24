@@ -17,7 +17,7 @@ public interface BorrowerProfileService {
 
     BorrowerProfile getBorrowerProfile(UUID borrowerProfileId);
 
-    BorrowerResponse createOrUpdateGenericBorrowerProfile(BorrowerRequest request);
+    BorrowerResponse createOrUpdateGenericBorrowerProfile(BorrowerRequest request, HttpServletRequest httpRequest);
 
     void deleteBorrowerProfileById(UUID borrowerProfileId);
 

@@ -189,4 +189,8 @@ public class BorrowerProfile extends BaseEntity {
     @JoinColumn(name = "borrower_vehicle_id")
     private BorrowerVehicle vehicle;
 
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "url_mapping_id")
+    private UrlMappings link;
+
 }
