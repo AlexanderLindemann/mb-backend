@@ -67,8 +67,8 @@ public class BorrowerProfileControllerImpl implements BorrowerProfileController 
     }
 
     @Override
-    public ResponseEntity<ByteArrayResource> generateFormFile(UUID borrowerProfileId) {
-        return formService.generateFormFile(borrowerProfileId);
+    public ResponseEntity<ByteArrayResource> generateFormFileDocx(UUID borrowerProfileId) {
+        return formService.generateFormFileDocx(borrowerProfileId);
     }
 
     //todo удалить после тестов

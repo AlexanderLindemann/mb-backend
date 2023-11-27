@@ -2,10 +2,6 @@ package pro.mbroker.app.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.docx4j.TraversalUtil;
-import org.docx4j.openpackaging.exceptions.Docx4JException;
-import org.docx4j.openpackaging.packages.WordprocessingMLPackage;
-import org.docx4j.openpackaging.parts.WordprocessingML.MainDocumentPart;
 import org.springframework.stereotype.Service;
 import pro.mbroker.api.enums.BasisOfOwnership;
 import pro.mbroker.api.enums.Branch;
@@ -25,16 +21,13 @@ import pro.mbroker.app.entity.CreditProgramDetail;
 import pro.mbroker.app.entity.PartnerApplication;
 import pro.mbroker.app.service.DocxFieldHandler;
 import pro.mbroker.app.util.Converter;
-import pro.mbroker.app.util.DocxFieldExtractor;
 
-import java.io.ByteArrayInputStream;
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.OptionalInt;
-import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -43,7 +36,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class DocxFieldHandlerImpl implements DocxFieldHandler {
 
-    public Map<String, String> replaceFieldValue(byte[] file, PartnerApplication partnerApplication, BorrowerProfile borrowerProfile) {
+    public Map<String, String> replaceFieldValue(PartnerApplication partnerApplication, BorrowerProfile borrowerProfile) {
         BorrowerProfile mainBorrower;
         BankApplication bankApplication;
         OptionalInt maxMonthCreditTerm;
@@ -521,19 +514,6 @@ public class DocxFieldHandlerImpl implements DocxFieldHandler {
             replaceFields.put(key, value);
         }
         return replaceFields;
-    }
-
-    public Set<String> extractFieldsFromDocx(byte[] file) {
-        WordprocessingMLPackage wordMLPackage;
-        try {
-            wordMLPackage = WordprocessingMLPackage.load(new ByteArrayInputStream(file));
-        } catch (Docx4JException e) {
-            throw new RuntimeException(e);
-        }
-        MainDocumentPart documentPart = wordMLPackage.getMainDocumentPart();
-        DocxFieldExtractor extractor = new DocxFieldExtractor();
-        new TraversalUtil(documentPart.getContent(), extractor);
-        return extractor.getFields();
     }
 }
 

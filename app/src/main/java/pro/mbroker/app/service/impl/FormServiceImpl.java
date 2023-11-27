@@ -1,5 +1,10 @@
 package pro.mbroker.app.service.impl;
 
+import com.itextpdf.html2pdf.HtmlConverter;
+import com.itextpdf.styledxmlparser.jsoup.Jsoup;
+import com.itextpdf.styledxmlparser.jsoup.nodes.Document;
+import com.itextpdf.styledxmlparser.jsoup.nodes.Element;
+import com.itextpdf.styledxmlparser.jsoup.select.Elements;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -29,7 +34,6 @@ import pro.mbroker.app.entity.BorrowerProfile;
 import pro.mbroker.app.entity.PartnerApplication;
 import pro.mbroker.app.repository.PartnerApplicationRepository;
 import pro.mbroker.app.service.AttachmentService;
-import pro.mbroker.app.service.BorrowerDocumentService;
 import pro.mbroker.app.service.BorrowerProfileService;
 import pro.mbroker.app.service.DocxFieldHandler;
 import pro.mbroker.app.service.FormService;
@@ -60,7 +64,6 @@ public class FormServiceImpl implements FormService {
 
     private final AttachmentService attachmentService;
     private final BorrowerProfileService borrowerProfileService;
-    private final BorrowerDocumentService borrowerDocumentService;
     private final PartnerApplicationRepository partnerApplicationRepository;
     private final StatusService statusService;
     private final DocxFieldHandler docxFieldHandler;
@@ -68,12 +71,11 @@ public class FormServiceImpl implements FormService {
 
     @Override
     @Transactional
-    public ResponseEntity<ByteArrayResource> generateFormFile(UUID borrowerProfileId) {
+    public ResponseEntity<ByteArrayResource> generateFormFileDocx(UUID borrowerProfileId) {
         BorrowerProfile borrowerProfile = borrowerProfileService.findByIdWithRealEstateVehicleAndEmployer(borrowerProfileId);
         PartnerApplication partnerApplication = borrowerProfile.getPartnerApplication();
 
         Map<String, String> replacements = docxFieldHandler.replaceFieldValue(
-                getFileFromPath(filePath),
                 partnerApplication,
                 borrowerProfile);
         ByteArrayResource byteAreaResource = matchReplacements(replacements, filePath);
@@ -87,7 +89,6 @@ public class FormServiceImpl implements FormService {
         PartnerApplication partnerApplication = borrowerProfile.getPartnerApplication();
         String encodedImage = Base64.getEncoder().encodeToString(signature);
         Map<String, String> replacements = docxFieldHandler.replaceFieldValue(
-                getFileFromPath(filePath),
                 partnerApplication, borrowerProfile);
         replacements.put("borrowerSign", encodedImage);
 
@@ -102,7 +103,6 @@ public class FormServiceImpl implements FormService {
         BorrowerProfile borrowerProfile = borrowerProfileService.findByIdWithRealEstateVehicleAndEmployer(borrowerProfileId);
         PartnerApplication partnerApplication = borrowerProfile.getPartnerApplication();
         Map<String, String> replacements = docxFieldHandler.replaceFieldValue(
-                file,
                 partnerApplication,
                 borrowerProfile);
         ByteArrayResource byteAreaResource = matchReplacementsTest(replacements, file);
@@ -165,6 +165,30 @@ public class FormServiceImpl implements FormService {
         PartnerApplication updatedPartnerApplication = borrowerProfileService.getBorrowerProfile(borrowerProfileId).getPartnerApplication();
         statusService.statusChanger(updatedPartnerApplication);
         partnerApplicationRepository.save(updatedPartnerApplication);
+    }
+
+    @Override
+    public ResponseEntity<ByteArrayResource> generateFormFileHtml(UUID borrowerProfileId, byte[] file) {
+        BorrowerProfile borrowerProfile = borrowerProfileService.findByIdWithRealEstateVehicleAndEmployer(borrowerProfileId);
+        PartnerApplication partnerApplication = borrowerProfile.getPartnerApplication();
+        Map<String, String> replacements = docxFieldHandler.replaceFieldValue(
+                partnerApplication,
+                borrowerProfile);
+        Document document = Jsoup.parse(new String(file));
+        replaceDataInHtml(document, replacements);
+        ByteArrayOutputStream pdfOutputStream = new ByteArrayOutputStream();
+        HtmlConverter.convertToPdf(document.toString(), pdfOutputStream);
+        ByteArrayResource pdfResource = new ByteArrayResource(pdfOutputStream.toByteArray());
+        return processFormResponse(pdfResource);
+    }
+
+    private void replaceDataInHtml(Document document, Map<String, String> replacements) {
+        for (Map.Entry<String, String> entry : replacements.entrySet()) {
+            Elements elements = document.select("[data-replace-key='" + entry.getKey() + "']");
+            for (Element element : elements) {
+                element.text(entry.getValue());
+            }
+        }
     }
 
     private List<Long> getAttachmentIdsByDocumentType(BorrowerProfile borrowerProfile, DocumentType documentType) {

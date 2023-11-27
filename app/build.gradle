@@ -33,6 +33,7 @@ dependencies {
     implementation 'com.itextpdf:itext7-core:8.0.1'
     implementation 'org.docx4j:docx4j-export-fo:11.3.2'
     implementation 'org.apache.poi:poi-ooxml:5.0.0'
+    implementation 'com.itextpdf:html2pdf:5.0.2'
 
     implementation 'org.liquibase:liquibase-core'
     runtimeOnly 'org.postgresql:postgresql'

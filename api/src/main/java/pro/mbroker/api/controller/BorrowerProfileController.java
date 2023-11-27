@@ -61,9 +61,9 @@ public interface BorrowerProfileController {
     @GetMapping("/{borrowerProfileId}/full")
     BorrowerProfileForUpdateResponse getBorrower(@PathVariable UUID borrowerProfileId);
 
-    @ApiOperation("сгенерировать анкету")
+    @ApiOperation("сгенерировать анкету из docx в pdf")
     @PostMapping("/generate-borrower-form")
-    ResponseEntity<ByteArrayResource> generateFormFile(@RequestParam UUID borrowerProfileId);
+    ResponseEntity<ByteArrayResource> generateFormFileDocx(@RequestParam UUID borrowerProfileId);
 
     //todo удалить после тестов
     @ApiOperation("сгенерировать анкету (тестова api для Сани)")
