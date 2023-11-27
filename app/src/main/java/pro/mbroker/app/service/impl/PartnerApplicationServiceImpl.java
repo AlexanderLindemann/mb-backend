@@ -197,28 +197,35 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
     @Transactional
     public PartnerApplication updatePartnerApplication(UUID partnerApplicationId, PartnerApplicationRequest request) {
         PartnerApplication existingPartnerApplication = getPartnerApplicationByIdCheckPermission(partnerApplicationId);
+        LocalDateTime updatedAt = LocalDateTime.now();
         if (isBorrowerProfileChanged(request, existingPartnerApplication)) {
+            existingPartnerApplication.setUpdatedAt(updatedAt);
             deleteBorrowerDocuments(existingPartnerApplication);
         }
         partnerApplicationMapper.updatePartnerApplicationFromRequest(request, existingPartnerApplication);
         if (Objects.isNull(request.getInsurance())) {
             existingPartnerApplication.setInsurance(null);
+            existingPartnerApplication.setUpdatedAt(updatedAt);
         }
         mortgageCalculationMapper.updateMortgageCalculationFromRequest(request.getMortgageCalculation(),
                 existingPartnerApplication.getMortgageCalculation());
-        existingPartnerApplication.setPaymentSource(Objects.nonNull(request.getPaymentSource())
-                ? Converter.convertEnumListToStringList(request.getPaymentSource())
-                : null);
+
+        if (Objects.nonNull(request.getPaymentSource())) {
+            existingPartnerApplication.setPaymentSource(
+                    Converter.convertEnumListToStringList(request.getPaymentSource()));
+            existingPartnerApplication.setUpdatedAt(updatedAt);
+        }
         setSalaryBank(request, existingPartnerApplication);
         if (Objects.nonNull(request.getRealEstateId())) {
             existingPartnerApplication.setRealEstate(realEstateService.findById(request.getRealEstateId()));
+            existingPartnerApplication.setUpdatedAt(updatedAt);
         }
         if (Objects.nonNull(request.getBankApplications())) {
             List<BankApplication> updatedBorrowerApplications = buildBankApplications(request, existingPartnerApplication);
             existingPartnerApplication.setBankApplications(updatedBorrowerApplications);
+            existingPartnerApplication.setUpdatedAt(updatedAt);
         }
         statusService.statusChanger(existingPartnerApplication);
-        existingPartnerApplication.setUpdatedAt(LocalDateTime.now());
         return partnerApplicationRepository.save(existingPartnerApplication);
     }
 
@@ -438,6 +445,7 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
         if (Objects.nonNull(request.getMortgageCalculation()) && Objects.nonNull(request.getMortgageCalculation().getSalaryBanks())) {
             List<Bank> banks = bankRepository.findAllById(request.getMortgageCalculation().getSalaryBanks());
             existingPartnerApplication.getMortgageCalculation().setSalaryBanks(banks);
+            existingPartnerApplication.setUpdatedAt(LocalDateTime.now());
         }
     }
 

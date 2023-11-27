@@ -60,9 +60,10 @@ public class PartnerApplicationServiceTest extends AbstractServiceTest {
 
     @Test
     public void testGetPartnerApplication() {
+        LocalDateTime now = LocalDateTime.now();
         PartnerApplication partnerApplication =
                 partnerApplicationService.getPartnerApplication(UUID.fromString("7addcbef-c1e0-4de1-adeb-377f864efcfa"));
-        assertTrue(partnerApplication.getUpdatedAt().isBefore(LocalDateTime.now()));
+        assertTrue(partnerApplication.getUpdatedAt().isBefore(now));
         assertEquals(partnerApplication.getPartner().getId(), UUID.fromString("dce73f3e-f2db-11ed-a05b-0242ac120003"));
         assertEquals(partnerApplication.getCreditPurposeType(), CreditPurposeType.PURCHASE_UNDER_CONSTRUCTION);
         assertEquals(partnerApplication.getRealEstateType(), RealEstateType.APARTMENT);
