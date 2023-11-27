@@ -295,17 +295,15 @@ public class FormServiceImpl implements FormService {
 
     private void addImageToParagraph(XWPFParagraph paragraph, byte[] imageBytes, int imageFormat) {
         try {
-            BufferedImage image = ImageIO.read(new ByteArrayInputStream(imageBytes));
-            double ratio = (double) image.getHeight() / image.getWidth();
-            int fixedWidth = Units.toEMU(180);
-            int calculatedHeight = (int) (fixedWidth * ratio);
+            int fixedWidth = Units.toEMU(400);
+            int fixedHeight = Units.toEMU(200);
+
             XWPFRun run = paragraph.createRun();
-            run.addPicture(new ByteArrayInputStream(imageBytes), imageFormat, "signature.png", fixedWidth, calculatedHeight);
+            run.addPicture(new ByteArrayInputStream(imageBytes), imageFormat, "signature.png", fixedWidth, fixedHeight);
         } catch (Exception e) {
             throw new RuntimeException("Could not add image to paragraph", e);
         }
     }
-
 
     public static class ReplacementPosition implements Comparable<ReplacementPosition> {
         int start;
