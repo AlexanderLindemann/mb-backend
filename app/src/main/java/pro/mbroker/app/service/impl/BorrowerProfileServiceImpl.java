@@ -39,6 +39,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.lang.reflect.Field;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -85,6 +86,7 @@ public class BorrowerProfileServiceImpl implements BorrowerProfileService {
         }
         partnerApplication.setBorrowerProfiles(borrowerProfilesToSave);
         statusService.statusChanger(partnerApplication);
+        partnerApplication.setUpdatedAt(LocalDateTime.now());
         partnerApplicationRepository.save(partnerApplication);
         return getBorrowersByBankApplicationId(bankApplication.getId());
     }
@@ -351,6 +353,7 @@ public class BorrowerProfileServiceImpl implements BorrowerProfileService {
         if (!mainBorrowerIds.contains(borrowerProfile.getId())) {
             borrowerProfile.setActive(false);
             statusService.statusChanger(partnerApplication);
+            partnerApplication.setUpdatedAt(LocalDateTime.now());
             partnerApplicationRepository.save(partnerApplication);
         } else {
             throw new ItemConflictException(BorrowerProfile.class, borrowerProfileId);

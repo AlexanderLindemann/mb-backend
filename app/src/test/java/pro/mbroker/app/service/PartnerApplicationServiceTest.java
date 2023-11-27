@@ -11,10 +11,12 @@ import pro.mbroker.app.TestData;
 import pro.mbroker.app.entity.PartnerApplication;
 import pro.mbroker.app.repository.PartnerApplicationRepository;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class PartnerApplicationServiceTest extends AbstractServiceTest {
     @Autowired
@@ -38,6 +40,9 @@ public class PartnerApplicationServiceTest extends AbstractServiceTest {
 
     @Test
     public void testUpdatePartnerApplication() {
+        PartnerApplication partnerApplicationBefore =
+                partnerApplicationService.getPartnerApplication(UUID.fromString("5ff4b32c-f967-4cb1-8705-7470a321fe34"));
+        LocalDateTime updateAtBefore = partnerApplicationBefore.getUpdatedAt();
         PartnerApplicationRequest partnerApplication1 = testData.getPartnerApplicationRequest();
         partnerApplication1.getMainBorrower()
                 .setId(UUID.fromString("1348b508-f476-11ed-a05b-0242ac120003"));
@@ -50,12 +55,14 @@ public class PartnerApplicationServiceTest extends AbstractServiceTest {
         assertEquals(partnerApplication.getRealEstate().getId(), UUID.fromString("2b8850b2-d930-11ed-afa1-0242ac120002"));
         assertThat(partnerApplication.getBankApplications().size(), Matchers.is(2));
         assertThat(partnerApplication.getBorrowerProfiles().size(), Matchers.is(1));
+        assertTrue(partnerApplication.getUpdatedAt().isAfter(updateAtBefore));
     }
 
     @Test
     public void testGetPartnerApplication() {
         PartnerApplication partnerApplication =
                 partnerApplicationService.getPartnerApplication(UUID.fromString("7addcbef-c1e0-4de1-adeb-377f864efcfa"));
+        assertTrue(partnerApplication.getUpdatedAt().isBefore(LocalDateTime.now()));
         assertEquals(partnerApplication.getPartner().getId(), UUID.fromString("dce73f3e-f2db-11ed-a05b-0242ac120003"));
         assertEquals(partnerApplication.getCreditPurposeType(), CreditPurposeType.PURCHASE_UNDER_CONSTRUCTION);
         assertEquals(partnerApplication.getRealEstateType(), RealEstateType.APARTMENT);

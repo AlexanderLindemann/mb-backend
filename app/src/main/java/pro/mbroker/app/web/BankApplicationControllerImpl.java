@@ -76,38 +76,47 @@ public class BankApplicationControllerImpl implements BankApplicationController 
             for (PartnerApplication partnerApplication : partnerApplications) {
                 List<BankApplication> bankApplications = partnerApplication.getBankApplications();
                 for (BankApplication paBankApplication : bankApplications) {
-                    if (UnderwritingComparator.underwritingIsChanged(
-                            paBankApplication.getUnderwriting(),
-                            bankApplication.getUnderwriting())) {
-                        UnderwritingResponse underwritingResponse = notificationStatusRequest.getApplications()
-                                .get(bankApplication.getApplicationNumber());
-                        try {
-                            BankApplicationStatus newStatus =
-                                    mappingRosBankStatus(underwritingResponse.getDecision().getStatus());
-                            paBankApplication.setBankApplicationStatus(newStatus);
-                            paBankApplication.setUnderwriting(underwritingMapper
-                                    .toUnderwriting(underwritingResponse));
-                        } catch (Exception e) {
-                            fail.append(bankApplication.getId()).append(", ");
+                    if (paBankApplication.getId().equals(bankApplication.getId())) {
+                        if (UnderwritingComparator.underwritingIsChanged(
+                                paBankApplication.getUnderwriting(),
+                                bankApplication.getUnderwriting())) {
+                            UnderwritingResponse underwritingResponse = notificationStatusRequest.getApplications()
+                                    .get(bankApplication.getApplicationNumber());
+                            try {
+                                BankApplicationStatus newStatus =
+                                        mappingRosBankStatus(underwritingResponse.getDecision().getStatus());
+                                paBankApplication.setBankApplicationStatus(newStatus);
+                                paBankApplication.setUnderwriting(underwritingMapper
+                                        .toUnderwriting(underwritingResponse));
+                            } catch (Exception e) {
+                                fail.append(bankApplication.getId()).append(", ");
+                            }
                         }
                     }
                 }
             }
-        });
+
+    });
         partnerApplications.forEach(statusService::statusChanger);
         partnerApplicationService.saveAll(partnerApplications);
 
-        if (fail.length() == 0) {
-            result.append("Обновлены статусы заявок в количестве ").append(bankApplicationByApplications.size());
-            log.info(result.toString());
-        } else {
-            result.append("Не смогли обновить статус для bankApplications: ");
-            result.append(fail);
-            log.error(result.toString());
-        }
+        if(fail.length()==0)
 
-        return ResponseEntity.ok().body(result.toString());
+    {
+        result.append("Обновлены статусы заявок в количестве ").append(bankApplicationByApplications.size());
+        log.info(result.toString());
+    } else
+
+    {
+        result.append("Не смогли обновить статус для bankApplications: ");
+        result.append(fail);
+        log.error(result.toString());
     }
+
+        return ResponseEntity.ok().
+
+    body(result.toString());
+}
 
     @Override
     public BankApplicationResponse updateBankApplication(BankApplicationRequest request) {

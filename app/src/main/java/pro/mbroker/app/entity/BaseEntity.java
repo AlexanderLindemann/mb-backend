@@ -50,7 +50,7 @@ public abstract class BaseEntity implements Serializable {
     private Integer createdBy;
 
     @LastModifiedBy
-    @Column(name = "updated_by")
+    @Column(name = "updated_by", updatable=false)
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private Integer updatedBy;
 

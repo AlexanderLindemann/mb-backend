@@ -20,6 +20,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -73,4 +74,7 @@ public class PartnerApplication extends BaseEntity {
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "mortgage_calculation_id", referencedColumnName = "id")
     private MortgageCalculation mortgageCalculation;
+
+    @Column(name = "updated_at", updatable=false)
+    private LocalDateTime updatedAt;
 }

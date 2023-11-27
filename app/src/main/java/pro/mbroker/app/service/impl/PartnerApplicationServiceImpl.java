@@ -131,15 +131,15 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
             Session hibernateSession = entityManager.unwrap(Session.class);
             if (auth.getAuthorities().contains(new SimpleGrantedAuthority(Permission.Code.MB_ADMIN_ACCESS))) {
                 result = partnerApplicationRepository.findAllByIsActiveTrue(start, end, pageable);
-                hibernateSession.evict(result);
+               // hibernateSession.evict(result);
             } else if (auth.getAuthorities().contains(new SimpleGrantedAuthority(Permission.Code.MB_REQUEST_READ_ORGANIZATION))) {
                 UUID partnerId = partnerService.getCurrentPartner().getId();
                 result = partnerApplicationRepository.findAllIsActiveByPartnerId(start, end, partnerId, pageable);
-                hibernateSession.evict(result);
+               // hibernateSession.evict(result);
             } else if (auth.getAuthorities().contains(new SimpleGrantedAuthority(Permission.Code.MB_REQUEST_READ_OWN))) {
                 Integer createdBy = TokenExtractor.extractSdId(currentUserService.getCurrentUserToken());
                 result = partnerApplicationRepository.findAllByCreatedByAndIsActiveTrue(start, end, createdBy, pageable);
-                hibernateSession.evict(result);
+                //hibernateSession.evict(result);
             } else if (auth.getAuthorities().contains(new SimpleGrantedAuthority("MB_CABINET_ACCESS"))) {
                 String phoneNumber = formatPhoneNumber(TokenExtractor.extractPhoneNumber(currentUserService.getCurrentUserToken()));
                 List<PartnerApplication> partnerApplications = getPartnerApplicationsByPhoneNumber(phoneNumber);
@@ -172,6 +172,7 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
                     if (!UNCHANGEABLE_STATUSES.contains(bankApplication.getBankApplicationStatus()))
                         bankApplication.setMainBorrower(borrowerProfile);
                 });
+        partnerApplication.setUpdatedAt(LocalDateTime.now());
         return partnerApplicationRepository.save(partnerApplication);
     }
 
@@ -217,6 +218,7 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
             existingPartnerApplication.setBankApplications(updatedBorrowerApplications);
         }
         statusService.statusChanger(existingPartnerApplication);
+        existingPartnerApplication.setUpdatedAt(LocalDateTime.now());
         return partnerApplicationRepository.save(existingPartnerApplication);
     }
 
@@ -225,6 +227,7 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
     public void deletePartnerApplication(UUID partnerApplicationId) {
         PartnerApplication partnerApplication = getPartnerApplicationById(partnerApplicationId);
         partnerApplication.setActive(false);
+        partnerApplication.setUpdatedAt(LocalDateTime.now());
         partnerApplicationRepository.save(partnerApplication);
     }
 
@@ -314,6 +317,7 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
             currentBankApplications.put(request.getCreditProgramId(), newBankApplication);
         }
         partnerApplication.setBankApplications(new ArrayList<>(currentBankApplications.values()));
+        partnerApplication.setUpdatedAt(LocalDateTime.now());
         return partnerApplicationRepository.save(partnerApplication);
     }
 
@@ -330,6 +334,7 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
         }
         disabledBankApplication.setActive(false);
         partnerApplication.setBankApplications(new ArrayList<>(currentBankApplications.values()));
+        partnerApplication.setUpdatedAt(LocalDateTime.now());
         return partnerApplicationRepository.save(partnerApplication);
     }
 
