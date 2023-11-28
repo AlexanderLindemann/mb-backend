@@ -330,8 +330,8 @@ public class FormServiceImpl implements FormService {
 
     private void addImageToParagraph(XWPFParagraph paragraph, byte[] imageBytes, int imageFormat) {
         try {
-            int fixedWidth = Units.toEMU(400);
-            int fixedHeight = Units.toEMU(200);
+            int fixedWidth = Units.toEMU(100);
+            int fixedHeight = Units.toEMU(50);
 
             XWPFRun run = paragraph.createRun();
             run.addPicture(new ByteArrayInputStream(imageBytes), imageFormat, "signature.png", fixedWidth, fixedHeight);
