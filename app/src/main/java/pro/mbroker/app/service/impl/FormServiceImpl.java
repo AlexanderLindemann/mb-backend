@@ -79,7 +79,7 @@ public class FormServiceImpl implements FormService {
                 partnerApplication,
                 borrowerProfile);
         ByteArrayResource byteAreaResource = matchReplacements(replacements, filePath);
-        return processFormResponse(byteAreaResource);
+        return processFormDocxResponse(byteAreaResource);
     }
 
 
@@ -93,7 +93,7 @@ public class FormServiceImpl implements FormService {
         replacements.put("borrowerSign", encodedImage);
 
         ByteArrayResource byteAreaResource = matchReplacements(replacements, filePath);
-        return processFormResponse(byteAreaResource);
+        return processFormDocxResponse(byteAreaResource);
     }
 
     //TODO - тестовое апи, удалить после Саниных тестов
@@ -107,7 +107,7 @@ public class FormServiceImpl implements FormService {
                 borrowerProfile);
         ByteArrayResource byteAreaResource = matchReplacementsTest(replacements, file);
         borrowerProfileService.updateBorrowerStatus(borrowerProfileId, BorrowerProfileStatus.DATA_ENTERED);
-        return processFormResponse(byteAreaResource);
+        return processFormDocxResponse(byteAreaResource);
     }
 
     @SneakyThrows
@@ -179,7 +179,7 @@ public class FormServiceImpl implements FormService {
         ByteArrayOutputStream pdfOutputStream = new ByteArrayOutputStream();
         HtmlConverter.convertToPdf(document.toString(), pdfOutputStream);
         ByteArrayResource pdfResource = new ByteArrayResource(pdfOutputStream.toByteArray());
-        return processFormResponse(pdfResource);
+        return processFormHtmlResponse(pdfResource);
     }
 
     private void replaceDataInHtml(Document document, Map<String, String> replacements) {
@@ -200,7 +200,7 @@ public class FormServiceImpl implements FormService {
                 .collect(Collectors.toList());
     }
 
-    private ResponseEntity<ByteArrayResource> processFormResponse(ByteArrayResource resource) {
+    private ResponseEntity<ByteArrayResource> processFormDocxResponse(ByteArrayResource resource) {
         HttpHeaders headers = new HttpHeaders();
         headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=example.docx");
 
@@ -208,6 +208,17 @@ public class FormServiceImpl implements FormService {
                 .headers(headers)
                 .contentLength(resource.contentLength())
                 .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                .body(resource);
+    }
+
+    private ResponseEntity<ByteArrayResource> processFormHtmlResponse(ByteArrayResource resource) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=example.pdf");
+
+        return ResponseEntity.ok()
+                .headers(headers)
+                .contentLength(resource.contentLength())
+                .contentType(MediaType.APPLICATION_PDF)
                 .body(resource);
     }
 
