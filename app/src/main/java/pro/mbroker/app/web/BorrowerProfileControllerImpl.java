@@ -62,7 +62,7 @@ public class BorrowerProfileControllerImpl implements BorrowerProfileController 
 
     @Override
     public BorrowerProfileForUpdateResponse getBorrower(UUID borrowerProfileId) {
-        BorrowerProfile borrowerProfile = borrowerProfileService.findByIdWithRealEstateVehicleAndEmployer(borrowerProfileId);
+        BorrowerProfile borrowerProfile = borrowerProfileService.getFullBorrower(borrowerProfileId);
         return borrowerProfileMapper.toBorrowerProfileForUpdate(borrowerProfile);
     }
 

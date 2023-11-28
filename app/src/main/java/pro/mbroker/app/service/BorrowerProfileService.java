@@ -29,4 +29,5 @@ public interface BorrowerProfileService {
 
     void updateBorrowerStatus(UUID borrowerProfileId, BorrowerProfileStatus status);
 
+    BorrowerProfile getFullBorrower(UUID borrowerProfileId);
 }

@@ -320,7 +320,7 @@ public class BorrowerProfileServiceImpl implements BorrowerProfileService {
 
     @Override
     @Transactional
-    public BorrowerResponse createOrUpdateGenericBorrowerProfile(BorrowerRequest request, HttpServletRequest httpRequest ) {
+    public BorrowerResponse createOrUpdateGenericBorrowerProfile(BorrowerRequest request, HttpServletRequest httpRequest) {
         PartnerApplication partnerApplication = partnerApplicationService.getPartnerApplication(request.getId());
         List<BorrowerProfile> borrowerProfilesToSave = new ArrayList<>();
         if (Objects.nonNull(request.getCoBorrower())) {
@@ -364,6 +364,14 @@ public class BorrowerProfileServiceImpl implements BorrowerProfileService {
     @Transactional
     public void updateBorrowerStatus(UUID borrowerProfileId, BorrowerProfileStatus status) {
         borrowerProfileRepository.updateBorrowerProfileStatus(borrowerProfileId, status);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public BorrowerProfile getFullBorrower(UUID borrowerProfileId) {
+        BorrowerProfile borrowerProfile = findByIdWithRealEstateVehicleAndEmployer(borrowerProfileId);
+        partnerApplicationService.checkPermission(borrowerProfile.getPartnerApplication());
+        return borrowerProfile;
     }
 
     private BorrowerProfile prepareBorrowerProfile(PartnerApplication partnerApplication, BorrowerProfileRequest borrower) {
