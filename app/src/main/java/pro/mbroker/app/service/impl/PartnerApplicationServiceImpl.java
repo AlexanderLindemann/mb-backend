@@ -70,6 +70,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.EnumSet;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -196,37 +197,49 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
     @Override
     @Transactional
     public PartnerApplication updatePartnerApplication(UUID partnerApplicationId, PartnerApplicationRequest request) {
-        PartnerApplication existingPartnerApplication = getPartnerApplicationByIdCheckPermission(partnerApplicationId);
+        PartnerApplication partnerApplication = getPartnerApplicationByIdCheckPermission(partnerApplicationId);
         LocalDateTime updatedAt = LocalDateTime.now();
-        if (isBorrowerProfileChanged(request, existingPartnerApplication)) {
-            existingPartnerApplication.setUpdatedAt(updatedAt);
-            deleteBorrowerDocuments(existingPartnerApplication);
+        if (isBorrowerProfileChanged(request, partnerApplication)) {
+            partnerApplication.setUpdatedAt(updatedAt);
+            deleteBorrowerDocuments(partnerApplication);
         }
-        partnerApplicationMapper.updatePartnerApplicationFromRequest(request, existingPartnerApplication);
-        if (Objects.isNull(request.getInsurance())) {
-            existingPartnerApplication.setInsurance(null);
-            existingPartnerApplication.setUpdatedAt(updatedAt);
-        }
+        partnerApplicationMapper.updatePartnerApplicationFromRequest(request, partnerApplication);
+
         mortgageCalculationMapper.updateMortgageCalculationFromRequest(request.getMortgageCalculation(),
-                existingPartnerApplication.getMortgageCalculation());
+                partnerApplication.getMortgageCalculation());
 
         if (Objects.nonNull(request.getPaymentSource())) {
-            existingPartnerApplication.setPaymentSource(
-                    Converter.convertEnumListToStringList(request.getPaymentSource()));
-            existingPartnerApplication.setUpdatedAt(updatedAt);
+            String requestPaymentSource = Converter.convertEnumListToStringList(request.getPaymentSource());
+            String existPaymentSource = partnerApplication.getPaymentSource();
+            if (existPaymentSource != null
+                    && !partnerApplication.getPaymentSource().equals(requestPaymentSource)) {
+                partnerApplication.setPaymentSource(requestPaymentSource);
+                partnerApplication.setUpdatedAt(updatedAt);
+            }
         }
-        setSalaryBank(request, existingPartnerApplication);
+
+        setSalaryBank(request, partnerApplication);
+
         if (Objects.nonNull(request.getRealEstateId())) {
-            existingPartnerApplication.setRealEstate(realEstateService.findById(request.getRealEstateId()));
-            existingPartnerApplication.setUpdatedAt(updatedAt);
+            if (partnerApplication.getRealEstate() != null
+                    && !partnerApplication.getRealEstate().getId().equals(request.getRealEstateId())) {
+                partnerApplication.setRealEstate(realEstateService.findById(request.getRealEstateId()));
+                partnerApplication.setUpdatedAt(updatedAt);
+            }
+
         }
         if (Objects.nonNull(request.getBankApplications())) {
-            List<BankApplication> updatedBorrowerApplications = buildBankApplications(request, existingPartnerApplication);
-            existingPartnerApplication.setBankApplications(updatedBorrowerApplications);
-            existingPartnerApplication.setUpdatedAt(updatedAt);
+            List<BankApplication> updatedBorrowerApplications = buildBankApplications(request, partnerApplication);
+            List<BankApplication> existBankApplication = partnerApplication.getBankApplications();
+
+            if (existBankApplication!= null
+                    && !new HashSet<>(existBankApplication).containsAll(updatedBorrowerApplications)) {
+                partnerApplication.setBankApplications(updatedBorrowerApplications);
+                partnerApplication.setUpdatedAt(updatedAt);
+            }
         }
-        statusService.statusChanger(existingPartnerApplication);
-        return partnerApplicationRepository.save(existingPartnerApplication);
+        statusService.statusChanger(partnerApplication);
+        return partnerApplicationRepository.save(partnerApplication);
     }
 
     @Override
@@ -441,11 +454,16 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
         return partnerApplications;
     }
 
-    private void setSalaryBank(PartnerApplicationRequest request, PartnerApplication existingPartnerApplication) {
+    private void setSalaryBank(PartnerApplicationRequest request, PartnerApplication partnerApplication) {
         if (Objects.nonNull(request.getMortgageCalculation()) && Objects.nonNull(request.getMortgageCalculation().getSalaryBanks())) {
             List<Bank> banks = bankRepository.findAllById(request.getMortgageCalculation().getSalaryBanks());
-            existingPartnerApplication.getMortgageCalculation().setSalaryBanks(banks);
-            existingPartnerApplication.setUpdatedAt(LocalDateTime.now());
+            List<Bank> existBanks = partnerApplication.getMortgageCalculation().getSalaryBanks();
+
+            if (existBanks != null
+                    && !new HashSet<>(existBanks).containsAll(banks)) {
+                partnerApplication.getMortgageCalculation().setSalaryBanks(banks);
+                partnerApplication.setUpdatedAt(LocalDateTime.now());
+            }
         }
     }
 
