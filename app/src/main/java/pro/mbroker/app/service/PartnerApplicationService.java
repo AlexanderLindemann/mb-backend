@@ -56,4 +56,6 @@ public interface PartnerApplicationService {
    List<PartnerApplication> getPartnerApplicationByIds (List<UUID> ids);
 
     void saveAll(Collection<PartnerApplication> partnerApplications);
+
+    PartnerApplication save(PartnerApplication partnerApplication);
 }

@@ -27,7 +27,6 @@ import pro.mbroker.app.exception.ItemNotFoundException;
 import pro.mbroker.app.exception.ProfileUpdateException;
 import pro.mbroker.app.mapper.BorrowerProfileMapper;
 import pro.mbroker.app.repository.BorrowerProfileRepository;
-import pro.mbroker.app.repository.PartnerApplicationRepository;
 import pro.mbroker.app.service.BankApplicationService;
 import pro.mbroker.app.service.BankService;
 import pro.mbroker.app.service.BorrowerProfileService;
@@ -39,7 +38,6 @@ import javax.servlet.http.HttpServletRequest;
 import java.lang.reflect.Field;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -58,7 +56,6 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class BorrowerProfileServiceImpl implements BorrowerProfileService {
     private final BorrowerProfileRepository borrowerProfileRepository;
-    private final PartnerApplicationRepository partnerApplicationRepository;
     private final BankApplicationService bankApplicationService;
     private final StatusService statusService;
     private final LinkService linkService;
@@ -86,8 +83,7 @@ public class BorrowerProfileServiceImpl implements BorrowerProfileService {
         }
         partnerApplication.setBorrowerProfiles(borrowerProfilesToSave);
         statusService.statusChanger(partnerApplication);
-        partnerApplication.setUpdatedAt(LocalDateTime.now());
-        partnerApplicationRepository.save(partnerApplication);
+        partnerApplicationService.save(partnerApplication);
         return getBorrowersByBankApplicationId(bankApplication.getId());
     }
 
@@ -193,7 +189,7 @@ public class BorrowerProfileServiceImpl implements BorrowerProfileService {
 
         deleteBorrowerDocuments(borrowerProfile);
         statusService.statusChanger(borrowerProfile.getPartnerApplication());
-        partnerApplicationRepository.save(borrowerProfile.getPartnerApplication());
+        partnerApplicationService.save(borrowerProfile.getPartnerApplication());
     }
 
     private void deleteBorrowerDocuments(BorrowerProfile profile) {
@@ -339,6 +335,7 @@ public class BorrowerProfileServiceImpl implements BorrowerProfileService {
         borrowerProfileRepository.saveAll(borrowerProfilesToSave);
         borrowerProfileRepository.flush();
         linkService.addLinksByProfiles(borrowerProfilesToSave, httpRequest);
+        partnerApplicationService.save(partnerApplication);
         return getBorrowersByPartnerApplicationId(request.getId());
     }
 
@@ -353,8 +350,7 @@ public class BorrowerProfileServiceImpl implements BorrowerProfileService {
         if (!mainBorrowerIds.contains(borrowerProfile.getId())) {
             borrowerProfile.setActive(false);
             statusService.statusChanger(partnerApplication);
-            partnerApplication.setUpdatedAt(LocalDateTime.now());
-            partnerApplicationRepository.save(partnerApplication);
+            partnerApplicationService.save(partnerApplication);
         } else {
             throw new ItemConflictException(BorrowerProfile.class, borrowerProfileId);
         }

@@ -32,16 +32,14 @@ import pro.mbroker.app.entity.BaseEntity;
 import pro.mbroker.app.entity.BorrowerDocument;
 import pro.mbroker.app.entity.BorrowerProfile;
 import pro.mbroker.app.entity.PartnerApplication;
-import pro.mbroker.app.repository.PartnerApplicationRepository;
 import pro.mbroker.app.service.AttachmentService;
 import pro.mbroker.app.service.BorrowerProfileService;
 import pro.mbroker.app.service.DocxFieldHandler;
 import pro.mbroker.app.service.FormService;
+import pro.mbroker.app.service.PartnerApplicationService;
 import pro.mbroker.app.service.StatusService;
 import pro.mbroker.app.util.CustomMultipartFile;
 
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -64,9 +62,9 @@ public class FormServiceImpl implements FormService {
 
     private final AttachmentService attachmentService;
     private final BorrowerProfileService borrowerProfileService;
-    private final PartnerApplicationRepository partnerApplicationRepository;
     private final StatusService statusService;
     private final DocxFieldHandler docxFieldHandler;
+    private final PartnerApplicationService partnerApplicationService;
     String filePath = "forms/form.docx";
 
     @Override
@@ -136,9 +134,9 @@ public class FormServiceImpl implements FormService {
                 .setBorrowerProfileId(borrowerProfileId)
                 .setDocumentType(DocumentType.GENERATED_FORM);
         borrowerProfile.getBorrowerDocument().add(attachmentService.uploadDocument(multipartFile, borrowerDocumentRequest));
-        PartnerApplication updatedPartnerApplication = borrowerProfileService.getBorrowerProfile(borrowerProfileId).getPartnerApplication();
-        statusService.statusChanger(updatedPartnerApplication);
-        partnerApplicationRepository.save(updatedPartnerApplication);
+        PartnerApplication partnerApplication = borrowerProfileService.getBorrowerProfile(borrowerProfileId).getPartnerApplication();
+        statusService.statusChanger(partnerApplication);
+        partnerApplicationService.save(partnerApplication);
     }
 
     @Override
@@ -162,9 +160,9 @@ public class FormServiceImpl implements FormService {
                 .setBorrowerProfileId(borrowerProfileId)
                 .setDocumentType(DocumentType.GENERATED_SIGNATURE_FORM);
         borrowerProfile.getBorrowerDocument().add(attachmentService.uploadDocument(multipartFile, borrowerDocumentRequest));
-        PartnerApplication updatedPartnerApplication = borrowerProfileService.getBorrowerProfile(borrowerProfileId).getPartnerApplication();
-        statusService.statusChanger(updatedPartnerApplication);
-        partnerApplicationRepository.save(updatedPartnerApplication);
+        PartnerApplication partnerApplication = borrowerProfileService.getBorrowerProfile(borrowerProfileId).getPartnerApplication();
+        statusService.statusChanger(partnerApplication);
+        partnerApplicationService.save(partnerApplication);
     }
 
     @Override

@@ -173,8 +173,8 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
                     if (!UNCHANGEABLE_STATUSES.contains(bankApplication.getBankApplicationStatus()))
                         bankApplication.setMainBorrower(borrowerProfile);
                 });
-        partnerApplication.setUpdatedAt(LocalDateTime.now());
-        return partnerApplicationRepository.save(partnerApplication);
+
+        return save(partnerApplication);
     }
 
     @Override
@@ -191,17 +191,17 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
         partnerApplication.setBankApplications(bankApplications);
         updateMainBorrower(partnerApplication, request.getMainBorrower());
         statusService.statusChanger(partnerApplication);
-        return partnerApplicationRepository.save(partnerApplication);
+        return save(partnerApplication);
     }
 
     @Override
     @Transactional
     public PartnerApplication updatePartnerApplication(UUID partnerApplicationId, PartnerApplicationRequest request) {
         PartnerApplication partnerApplication = getPartnerApplicationByIdCheckPermission(partnerApplicationId);
-        LocalDateTime updatedAt = LocalDateTime.now();
+        boolean isChanged = false;
         if (isBorrowerProfileChanged(request, partnerApplication)) {
-            partnerApplication.setUpdatedAt(updatedAt);
             deleteBorrowerDocuments(partnerApplication);
+            isChanged = true;
         }
         partnerApplicationMapper.updatePartnerApplicationFromRequest(request, partnerApplication);
 
@@ -214,7 +214,7 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
             if (existPaymentSource != null
                     && !partnerApplication.getPaymentSource().equals(requestPaymentSource)) {
                 partnerApplication.setPaymentSource(requestPaymentSource);
-                partnerApplication.setUpdatedAt(updatedAt);
+                isChanged = true;
             }
         }
 
@@ -224,7 +224,7 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
             if (partnerApplication.getRealEstate() != null
                     && !partnerApplication.getRealEstate().getId().equals(request.getRealEstateId())) {
                 partnerApplication.setRealEstate(realEstateService.findById(request.getRealEstateId()));
-                partnerApplication.setUpdatedAt(updatedAt);
+                isChanged = true;
             }
 
         }
@@ -235,11 +235,11 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
             if (existBankApplication!= null
                     && !new HashSet<>(existBankApplication).containsAll(updatedBorrowerApplications)) {
                 partnerApplication.setBankApplications(updatedBorrowerApplications);
-                partnerApplication.setUpdatedAt(updatedAt);
+                isChanged = true;
             }
         }
         statusService.statusChanger(partnerApplication);
-        return partnerApplicationRepository.save(partnerApplication);
+        return isChanged ? save(partnerApplication) : partnerApplication;
     }
 
     @Override
@@ -247,8 +247,7 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
     public void deletePartnerApplication(UUID partnerApplicationId) {
         PartnerApplication partnerApplication = getPartnerApplicationById(partnerApplicationId);
         partnerApplication.setActive(false);
-        partnerApplication.setUpdatedAt(LocalDateTime.now());
-        partnerApplicationRepository.save(partnerApplication);
+        save(partnerApplication);
     }
 
     @Override
@@ -337,8 +336,8 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
             currentBankApplications.put(request.getCreditProgramId(), newBankApplication);
         }
         partnerApplication.setBankApplications(new ArrayList<>(currentBankApplications.values()));
-        partnerApplication.setUpdatedAt(LocalDateTime.now());
-        return partnerApplicationRepository.save(partnerApplication);
+
+        return save(partnerApplication);
     }
 
     @Override
@@ -354,8 +353,7 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
         }
         disabledBankApplication.setActive(false);
         partnerApplication.setBankApplications(new ArrayList<>(currentBankApplications.values()));
-        partnerApplication.setUpdatedAt(LocalDateTime.now());
-        return partnerApplicationRepository.save(partnerApplication);
+        return save(partnerApplication);
     }
 
     @Override
@@ -424,6 +422,12 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
         partnerApplicationRepository.saveAll(partnerApplications);
     }
 
+    @Override
+    public PartnerApplication save(PartnerApplication partnerApplication) {
+        partnerApplication.setUpdatedAt(LocalDateTime.now());
+        return partnerApplicationRepository.save(partnerApplication);
+    }
+
     private String formatPhoneNumber(String phoneNumber) {
         String cleanNumber = phoneNumber.startsWith("+") ? phoneNumber.substring(1) : phoneNumber;
         if (cleanNumber.length() > 10) {
@@ -462,7 +466,6 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
             if (existBanks != null
                     && !new HashSet<>(existBanks).containsAll(banks)) {
                 partnerApplication.getMortgageCalculation().setSalaryBanks(banks);
-                partnerApplication.setUpdatedAt(LocalDateTime.now());
             }
         }
     }

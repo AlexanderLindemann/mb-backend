@@ -8,11 +8,13 @@ import pro.mbroker.api.dto.request.BankApplicationRequest;
 import pro.mbroker.api.enums.BankApplicationStatus;
 import pro.mbroker.app.entity.BankApplication;
 import pro.mbroker.app.entity.BorrowerProfile;
+import pro.mbroker.app.entity.PartnerApplication;
 import pro.mbroker.app.exception.ItemNotFoundException;
 import pro.mbroker.app.mapper.BankApplicationMapper;
 import pro.mbroker.app.repository.BankApplicationRepository;
 import pro.mbroker.app.repository.BorrowerProfileRepository;
 import pro.mbroker.app.service.BankApplicationService;
+import pro.mbroker.app.service.PartnerApplicationService;
 import pro.mbroker.app.service.StatusService;
 
 import java.util.Collection;
@@ -28,6 +30,7 @@ public class BankApplicationServiceImpl implements BankApplicationService {
     private final BankApplicationRepository bankApplicationRepository;
     private final BankApplicationMapper bankApplicationMapper;
     private final BorrowerProfileRepository borrowerProfileRepository;
+    private final PartnerApplicationService partnerApplicationService;
 
     private static final Set<BankApplicationStatus> UNCHANGEABLE_STATUSES = Set.of(
             BankApplicationStatus.SENT_TO_BANK,
@@ -62,7 +65,9 @@ public class BankApplicationServiceImpl implements BankApplicationService {
     public BankApplication changeStatus(UUID bankApplicationId, BankApplicationStatus status) {
         BankApplication bankApplication = getBankApplicationById(bankApplicationId)
                 .setBankApplicationStatus(status);
-        statusService.statusChanger(bankApplication.getPartnerApplication());
+        PartnerApplication partnerApplication = bankApplication.getPartnerApplication();
+        statusService.statusChanger(partnerApplication);
+        partnerApplicationService.save(partnerApplication);
         return bankApplicationRepository.save(bankApplication);
     }
 

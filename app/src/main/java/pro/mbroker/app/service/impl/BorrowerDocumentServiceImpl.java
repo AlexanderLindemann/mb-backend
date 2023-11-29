@@ -6,10 +6,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pro.mbroker.api.enums.DocumentType;
 import pro.mbroker.app.entity.BorrowerDocument;
+import pro.mbroker.app.entity.PartnerApplication;
 import pro.mbroker.app.exception.ItemNotFoundException;
 import pro.mbroker.app.repository.BorrowerDocumentRepository;
-import pro.mbroker.app.repository.PartnerApplicationRepository;
 import pro.mbroker.app.service.BorrowerDocumentService;
+import pro.mbroker.app.service.PartnerApplicationService;
 import pro.mbroker.app.service.StatusService;
 
 import java.util.List;
@@ -22,7 +23,7 @@ import java.util.stream.Collectors;
 public class BorrowerDocumentServiceImpl implements BorrowerDocumentService {
     private final StatusService statusService;
     private final BorrowerDocumentRepository borrowerDocumentRepository;
-    private final PartnerApplicationRepository partnerApplicationRepository;
+    private final PartnerApplicationService partnerApplicationService;
 
     @Override
     @Transactional
@@ -30,7 +31,8 @@ public class BorrowerDocumentServiceImpl implements BorrowerDocumentService {
         BorrowerDocument borrowerDocument = getBorrowerDocumentByAttachmentId(attachmentId);
         borrowerDocument.setActive(false);
         statusService.statusChanger(borrowerDocument.getBorrowerProfile().getPartnerApplication());
-        partnerApplicationRepository.save(borrowerDocument.getBorrowerProfile().getPartnerApplication());
+        PartnerApplication partnerApplication = borrowerDocument.getBorrowerProfile().getPartnerApplication();
+        partnerApplicationService.save(partnerApplication);
     }
 
     @Override
@@ -52,7 +54,6 @@ public class BorrowerDocumentServiceImpl implements BorrowerDocumentService {
                     .collect(Collectors.toList()));
         }
     }
-
 
     @Override
     public BorrowerDocument getBorrowerDocumentByAttachmentId(Long attachmentId) {

@@ -21,7 +21,6 @@ import pro.mbroker.app.entity.PartnerApplication;
 import pro.mbroker.app.exception.AccessDeniedException;
 import pro.mbroker.app.mapper.BorrowerDocumentMapper;
 import pro.mbroker.app.repository.BorrowerDocumentRepository;
-import pro.mbroker.app.repository.PartnerApplicationRepository;
 import pro.mbroker.app.service.AttachmentService;
 import pro.mbroker.app.service.BankApplicationService;
 import pro.mbroker.app.service.BorrowerDocumentService;
@@ -46,7 +45,6 @@ public class AttachmentControllerImpl implements AttachmentController {
     private final StatusService statusService;
     private final BorrowerDocumentMapper borrowerDocumentMapper;
     private final BorrowerDocumentRepository borrowerDocumentRepository;
-    private final PartnerApplicationRepository partnerApplicationRepository;
 
     @Override
     public Long upload(MultipartFile file) {
@@ -89,7 +87,7 @@ public class AttachmentControllerImpl implements AttachmentController {
             }
         }
         statusService.statusChanger(borrowerProfile.getPartnerApplication());
-        partnerApplicationRepository.save(borrowerProfile.getPartnerApplication());
+        partnerApplicationService.save(borrowerProfile.getPartnerApplication());
         return borrowerDocument == null ? null : borrowerDocumentMapper.toBorrowerDocumentResponse(borrowerDocument);
     }
 
