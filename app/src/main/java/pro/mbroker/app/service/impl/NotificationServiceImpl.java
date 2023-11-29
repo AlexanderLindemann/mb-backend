@@ -8,6 +8,7 @@ import pro.mbroker.api.dto.response.BorrowerDocumentResponse;
 import pro.mbroker.api.dto.response.BorrowerResponse;
 import pro.mbroker.api.dto.response.NotificationBankLetterResponse;
 import pro.mbroker.api.enums.BankApplicationStatus;
+import pro.mbroker.api.enums.DocumentType;
 import pro.mbroker.app.entity.Bank;
 import pro.mbroker.app.entity.BankApplication;
 import pro.mbroker.app.entity.BorrowerProfile;
@@ -126,7 +127,8 @@ public class NotificationServiceImpl implements NotificationService {
 
     private Set<Long> getAllAttachmentsIds(List<BorrowerDocumentResponse> documents) {
 
-        return documents.stream().map(BorrowerDocumentResponse::getAttachmentId).collect(Collectors.toSet());
+        return documents.stream()
+                .filter(d -> d.getDocumentType() != DocumentType.GENERATED_FORM)
+                .map(BorrowerDocumentResponse::getAttachmentId).collect(Collectors.toSet());
     }
-
 }
