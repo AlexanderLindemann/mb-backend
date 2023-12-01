@@ -19,8 +19,8 @@ public class CalculatorRequest {
     private UUID realEstateId;
     @NotNull
     private CreditPurposeType creditPurposeType;
-    @NotNull
-    private RealEstateType realEstateType;
+
+    private List<RealEstateType> realEstateTypes;
 
     private BigDecimal realEstatePrice;
 

@@ -31,7 +31,7 @@ public class PartnerApplicationRequest {
 
     private CreditProgramType creditProgramType;
 
-    private RealEstateType realEstateType;
+    private List<RealEstateType> realEstateTypes;
 
     private UUID realEstateId;
 

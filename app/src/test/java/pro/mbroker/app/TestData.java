@@ -88,7 +88,7 @@ public class TestData {
                 .setBankApplications(getBankApplication())
                 .setMainBorrower(getBorrowerProfileRequestList().get(0))
                 .setCreditPurposeType(CreditPurposeType.PURCHASE_UNDER_CONSTRUCTION)
-                .setRealEstateType(RealEstateType.APARTMENT)
+                .setRealEstateTypes(List.of(RealEstateType.APARTMENT))
                 .setRealEstateId(UUID.fromString("2b8850b2-d930-11ed-afa1-0242ac120002"))
                 .setMortgageCalculation(getMortgageCalculation());
     }
@@ -133,7 +133,7 @@ public class TestData {
                 .setCreditPurposeType(CreditPurposeType.PURCHASE_UNDER_CONSTRUCTION)
                 .setDownPayment(BigDecimal.valueOf(10000000))
                 .setRealEstatePrice(BigDecimal.valueOf(20000000))
-                .setRealEstateType(RealEstateType.APARTMENT)
+                .setRealEstateTypes(List.of(RealEstateType.APARTMENT))
                 .setIsMaternalCapital(true);
     }
 }

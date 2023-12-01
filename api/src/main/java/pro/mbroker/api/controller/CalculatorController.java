@@ -2,7 +2,11 @@ package pro.mbroker.api.controller;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import pro.mbroker.api.dto.LoanProgramCalculationDto;
 import pro.mbroker.api.dto.PropertyMortgageDTO;
 import pro.mbroker.api.enums.CreditPurposeType;
@@ -22,7 +26,7 @@ public interface CalculatorController {
     @GetMapping()
     PropertyMortgageDTO getCreditOffer(@RequestParam UUID realEstateId,
                                        @RequestParam CreditPurposeType creditPurposeType,
-                                       @RequestParam RealEstateType realEstateType,
+                                       @RequestParam(required = false) List<RealEstateType> realEstateTypes,
                                        @RequestParam(required = false) BigDecimal realEstatePrice,
                                        @RequestParam(required = false) BigDecimal downPayment,
                                        @RequestParam(required = false) BigDecimal maxMonthlyPayment,
@@ -35,7 +39,7 @@ public interface CalculatorController {
     LoanProgramCalculationDto getCreditOfferByCreditProgramId(@NotNull @PathVariable(value = "creditProgramId") UUID creditProgramId,
                                                               @RequestParam UUID realEstateId,
                                                               @RequestParam CreditPurposeType creditPurposeType,
-                                                              @RequestParam RealEstateType realEstateType,
+                                                              @RequestParam List<RealEstateType> realEstateTypes,
                                                               @RequestParam(required = false) BigDecimal realEstatePrice,
                                                               @RequestParam(required = false) BigDecimal downPayment,
                                                               @RequestParam(required = false) BigDecimal maxMonthlyPayment,

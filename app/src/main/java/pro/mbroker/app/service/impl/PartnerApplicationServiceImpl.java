@@ -28,6 +28,7 @@ import pro.mbroker.api.enums.BankApplicationStatus;
 import pro.mbroker.api.enums.DocumentType;
 import pro.mbroker.api.enums.PaymentSource;
 import pro.mbroker.api.enums.ProofOfIncome;
+import pro.mbroker.api.enums.RealEstateType;
 import pro.mbroker.api.enums.RegionType;
 import pro.mbroker.app.entity.Bank;
 import pro.mbroker.app.entity.BankApplication;
@@ -132,11 +133,11 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
             Session hibernateSession = entityManager.unwrap(Session.class);
             if (auth.getAuthorities().contains(new SimpleGrantedAuthority(Permission.Code.MB_ADMIN_ACCESS))) {
                 result = partnerApplicationRepository.findAllByIsActiveTrue(start, end, pageable);
-               // hibernateSession.evict(result);
+                // hibernateSession.evict(result);
             } else if (auth.getAuthorities().contains(new SimpleGrantedAuthority(Permission.Code.MB_REQUEST_READ_ORGANIZATION))) {
                 UUID partnerId = partnerService.getCurrentPartner().getId();
                 result = partnerApplicationRepository.findAllIsActiveByPartnerId(start, end, partnerId, pageable);
-               // hibernateSession.evict(result);
+                // hibernateSession.evict(result);
             } else if (auth.getAuthorities().contains(new SimpleGrantedAuthority(Permission.Code.MB_REQUEST_READ_OWN))) {
                 Integer createdBy = TokenExtractor.extractSdId(currentUserService.getCurrentUserToken());
                 result = partnerApplicationRepository.findAllByCreatedByAndIsActiveTrue(start, end, createdBy, pageable);
@@ -232,12 +233,13 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
             List<BankApplication> updatedBorrowerApplications = buildBankApplications(request, partnerApplication);
             List<BankApplication> existBankApplication = partnerApplication.getBankApplications();
 
-            if (existBankApplication!= null
+            if (existBankApplication != null
                     && !new HashSet<>(existBankApplication).containsAll(updatedBorrowerApplications)) {
                 partnerApplication.setBankApplications(updatedBorrowerApplications);
                 isChanged = true;
             }
         }
+        partnerApplication.setRealEstateTypes(Converter.convertEnumListToStringList(request.getRealEstateTypes()));
         statusService.statusChanger(partnerApplication);
         return isChanged ? save(partnerApplication) : partnerApplication;
     }
@@ -253,6 +255,7 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
     @Override
     public PartnerApplicationResponse buildPartnerApplicationResponse(PartnerApplication partnerApplication) {
         PartnerApplicationResponse response = partnerApplicationMapper.toPartnerApplicationResponse(partnerApplication);
+        response.setRealEstateTypes(Converter.convertStringListToEnumList(partnerApplication.getRealEstateTypes(), RealEstateType.class));
         Map<UUID, BorrowerProfile> borrowerProfileMap = getActiveBorrowerProfilesMap(partnerApplication);
         List<BankApplicationResponse> activeBankApplicationResponses = getActiveBankApplicationResponses(partnerApplication, borrowerProfileMap);
         List<BankWithBankApplicationDto> bankWithBankApplicationDtos = getGroupBankApplication(activeBankApplicationResponses);
@@ -498,9 +501,9 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
                 && !Objects.equals(request.getCreditPurposeType(), existingApplication.getCreditPurposeType())) {
             return true;
         }
-        if (Objects.nonNull(request.getRealEstateType())
-                && Objects.nonNull(existingApplication.getRealEstateType())
-                && !Objects.equals(request.getRealEstateType(), existingApplication.getRealEstateType())) {
+        if (Objects.nonNull(request.getRealEstateTypes())
+                && Objects.nonNull(existingApplication.getRealEstateTypes())
+                && !Objects.equals(request.getRealEstateTypes(), Converter.convertStringListToEnumList(existingApplication.getRealEstateTypes(), RealEstateType.class))) {
             return true;
         }
         UUID existingRealEstateId = existingApplication.getRealEstate() != null ? existingApplication.getRealEstate().getId() : null;
@@ -725,6 +728,7 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
         Partner partner = realEstate.getPartner();
         PartnerApplication partnerApplication = partnerApplicationMapper.toPartnerApplication(request)
                 .setPartner(partner)
+                .setRealEstateTypes(Converter.convertEnumListToStringList(request.getRealEstateTypes()))
                 .setRealEstate(realEstate)
                 .setMortgageCalculation(mortgageCalculationMapper.toMortgageCalculation(request.getMortgageCalculation()));
         if (Objects.nonNull(request.getPaymentSource())) {

@@ -28,7 +28,7 @@ public class CalculatorControllerImpl implements CalculatorController {
             "or hasAuthority(T(pro.smartdeal.common.security.Permission$Code).MB_REQUEST_READ_ORGANIZATION)")
     public PropertyMortgageDTO getCreditOffer(UUID realEstateId,
                                               CreditPurposeType creditPurposeType,
-                                              RealEstateType realEstateType,
+                                              List<RealEstateType> realEstateTypes,
                                               BigDecimal realEstatePrice,
                                               BigDecimal downPayment,
                                               BigDecimal maxMonthlyPayment,
@@ -38,7 +38,7 @@ public class CalculatorControllerImpl implements CalculatorController {
         return calculatorService.getCreditOffer(new CalculatorRequest()
                 .setRealEstateId(realEstateId)
                 .setCreditPurposeType(creditPurposeType)
-                .setRealEstateType(realEstateType)
+                .setRealEstateTypes(realEstateTypes)
                 .setRealEstatePrice(realEstatePrice)
                 .setDownPayment(downPayment)
                 .setMaxMonthlyPayment(maxMonthlyPayment)
@@ -54,7 +54,7 @@ public class CalculatorControllerImpl implements CalculatorController {
     public LoanProgramCalculationDto getCreditOfferByCreditProgramId(UUID creditProgramId,
                                                                      UUID realEstateId,
                                                                      CreditPurposeType creditPurposeType,
-                                                                     RealEstateType realEstateType,
+                                                                     List<RealEstateType> realEstateTypes,
                                                                      BigDecimal realEstatePrice,
                                                                      BigDecimal downPayment,
                                                                      BigDecimal maxMonthlyPayment,
@@ -63,7 +63,7 @@ public class CalculatorControllerImpl implements CalculatorController {
         return calculatorService.getCreditOfferByCreditProgramId(creditProgramId, new CalculatorRequest()
                 .setRealEstateId(realEstateId)
                 .setCreditPurposeType(creditPurposeType)
-                .setRealEstateType(realEstateType)
+                .setRealEstateTypes(realEstateTypes)
                 .setRealEstatePrice(realEstatePrice)
                 .setDownPayment(downPayment)
                 .setMaxMonthlyPayment(maxMonthlyPayment)

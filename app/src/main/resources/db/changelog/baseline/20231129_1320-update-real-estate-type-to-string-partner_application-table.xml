@@ -1,0 +1,23 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+
+    <changeSet id="update-real-estate-type-to-string" author="a.lindemann">
+        <preConditions onFail="MARK_RAN">
+            <columnExists tableName="partner_application" columnName="real_estate_type"/>
+        </preConditions>
+
+        <modifyDataType tableName="partner_application"
+                        columnName="real_estate_type"
+                        newDataType="VARCHAR(255)"/>
+
+        <renameColumn tableName="partner_application"
+                      oldColumnName="real_estate_type"
+                      newColumnName="real_estate_types"
+                      columnDataType="VARCHAR(255)"/>
+    </changeSet>
+
+
+</databaseChangeLog>

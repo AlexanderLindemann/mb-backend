@@ -34,7 +34,7 @@ public class NotificationBankLetterResponse implements Serializable {
     private RegionType regionType;
     private String residentialComplexName;
     private String address;
-    private RealEstateType realEstateType;
+    private List<RealEstateType> realEstateTypes;
     private String realEstateTypeName;
     private CreditPurposeType creditPurposeType;
     private String programName;
@@ -56,6 +56,7 @@ public class NotificationBankLetterResponse implements Serializable {
 
     public NotificationBankLetterResponse() {}
 
+    //TODO надо вынести это в наш конвертер Converter (util)
     public String convertCreditPurposeTypeToString(List<CreditPurposeType> creditPurposeTypes) {
         StringBuilder stringBuilder = new StringBuilder();
         creditPurposeTypes.forEach(el -> stringBuilder.append(el.getName()).append(", "));

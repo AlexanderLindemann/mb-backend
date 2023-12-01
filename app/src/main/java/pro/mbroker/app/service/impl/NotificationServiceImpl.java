@@ -8,6 +8,7 @@ import pro.mbroker.api.dto.response.BorrowerDocumentResponse;
 import pro.mbroker.api.dto.response.BorrowerResponse;
 import pro.mbroker.api.dto.response.NotificationBankLetterResponse;
 import pro.mbroker.api.enums.BankApplicationStatus;
+import pro.mbroker.api.enums.RealEstateType;
 import pro.mbroker.api.enums.DocumentType;
 import pro.mbroker.app.entity.Bank;
 import pro.mbroker.app.entity.BankApplication;
@@ -20,6 +21,7 @@ import pro.mbroker.app.repository.BankApplicationRepository;
 import pro.mbroker.app.service.BankApplicationService;
 import pro.mbroker.app.service.BorrowerProfileService;
 import pro.mbroker.app.service.NotificationService;
+import pro.mbroker.app.util.Converter;
 
 import java.util.HashSet;
 import java.util.List;
@@ -68,10 +70,12 @@ public class NotificationServiceImpl implements NotificationService {
                         response.setRegionType(realEstate.getRegion());
                         response.setResidentialComplexName(realEstate.getResidentialComplexName());
                         response.setAddress(realEstate.getAddress());
-                        response.setRealEstateTypeName(partnerApplication.getRealEstateType().getName());
+                        response.setRealEstateTypeName(Converter.convertStringListToEnumList(partnerApplication.getRealEstateTypes(), RealEstateType.class).stream()
+                                .map(RealEstateType::getName)
+                                .collect(Collectors.joining(", ")));
 
                     }
-                    response.setRealEstateType(partnerApplication.getRealEstateType());
+                    response.setRealEstateTypes(Converter.convertStringListToEnumList(partnerApplication.getRealEstateTypes(), RealEstateType.class));
                     response.setCreditPurposeType(partnerApplication.getCreditPurposeType());
                     response.setProgramName(bankApplication.getCreditProgram().getProgramName());
                     if (mortgageCalculation != null) {
@@ -131,4 +135,5 @@ public class NotificationServiceImpl implements NotificationService {
                 .filter(d -> d.getDocumentType() != DocumentType.GENERATED_FORM)
                 .map(BorrowerDocumentResponse::getAttachmentId).collect(Collectors.toSet());
     }
+
 }

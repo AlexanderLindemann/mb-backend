@@ -23,12 +23,14 @@ import pro.mbroker.app.repository.CreditProgramRepository;
 import pro.mbroker.app.repository.RealEstateRepository;
 import pro.mbroker.app.service.CalculatorService;
 import pro.mbroker.app.service.DirectoryService;
+import pro.mbroker.app.service.RealEstateService;
 import pro.mbroker.app.util.Converter;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -45,6 +47,7 @@ public class CalculatorServiceImpl implements CalculatorService {
     private static final int MONTHS_IN_YEAR = 12;
     private static final int PERCENTAGE_MAX = 100;
     private final RealEstateRepository realEstateRepository;
+    private final RealEstateService realEstateService;
     private final CreditProgramRepository creditProgramRepository;
     private final DirectoryService directoryService;
     private final AttachmentServiceImpl attachmentService;
@@ -52,6 +55,7 @@ public class CalculatorServiceImpl implements CalculatorService {
     @Override
     @Transactional
     public PropertyMortgageDTO getCreditOffer(CalculatorRequest request) {
+        getRealEstateType(request);
         List<CreditProgram> creditPrograms = filterCreditPrograms(request);
         Map<UUID, BankLoanProgramDto> bankLoanProgramDtoMap = new HashMap<>();
         List<LoanProgramCalculationDto> loanProgramCalculationDto = new ArrayList<>();
@@ -70,7 +74,6 @@ public class CalculatorServiceImpl implements CalculatorService {
                 .setLoanProgramCalculationDto(sortLoanProgramsByOverpayment(loanProgramCalculationDto))
                 .setBankLoanProgramDto(bankLoanProgramDtos);
     }
-
 
     @Override
     @Transactional
@@ -122,6 +125,14 @@ public class CalculatorServiceImpl implements CalculatorService {
         return overpayment.setScale(2, RoundingMode.HALF_EVEN);
     }
 
+    private void getRealEstateType(CalculatorRequest request) {
+        if (Objects.isNull(request.getRealEstateTypes())) {
+            RealEstate realEstate = realEstateService.findById(request.getRealEstateId());
+            String realEstateType = realEstate.getPartner().getRealEstateType();
+            request.setRealEstateTypes(Converter.convertStringListToEnumList(realEstateType, RealEstateType.class));
+        }
+    }
+
     public List<LoanProgramCalculationDto> sortLoanProgramsByOverpayment(List<LoanProgramCalculationDto> loanProgramCalculationDtos) {
         loanProgramCalculationDtos.sort(Comparator.comparing(LoanProgramCalculationDto::getOverpayment));
         return loanProgramCalculationDtos;
@@ -143,6 +154,7 @@ public class CalculatorServiceImpl implements CalculatorService {
         }
         return bankLoanProgramDtoBuilder;
     }
+
     private int getCreditTermMonths(CreditProgram creditProgram, CalculatorRequest request) {
         return Optional.ofNullable(request.getMaxMonthlyPayment())
                 .map(maxMonthlyPayment -> {
@@ -165,10 +177,16 @@ public class CalculatorServiceImpl implements CalculatorService {
         BigDecimal downPayment = Optional.ofNullable(request.getDownPayment()).orElse(BigDecimal.ZERO);
         int creditTermMonths = getCreditTermMonths(creditProgram, request);
         BigDecimal calculateMonthlyPayment = calculateMonthlyPayment(mortgageSum, creditProgram.getBaseRate(), creditTermMonths);
+        List<RealEstateType> realEstateTypes = Converter.convertStringListToEnumList(
+                        creditProgram.getCreditProgramDetail().getRealEstateType(), RealEstateType.class).stream()
+                .filter(request.getRealEstateTypes()::contains)
+                .collect(Collectors.toList());
+
         LoanProgramCalculationDto loanProgramCalculationDto = new LoanProgramCalculationDto()
                 .setBankId(creditProgram.getBank().getId())
                 .setCreditProgramId(creditProgram.getId())
                 .setCreditProgramName(creditProgram.getProgramName())
+                .setRealEstateTypes(realEstateTypes)
                 .setCreditTerm((int) Math.ceil(creditTermMonths / 12.0))
                 .setBaseRate(creditProgram.getBaseRate())
                 .setMonthlyPayment(calculateMonthlyPayment)
@@ -206,7 +224,7 @@ public class CalculatorServiceImpl implements CalculatorService {
 
         int creditTermMonths = getCreditTermMonths(creditProgram, request);
         return creditPurposeTypes.contains(request.getCreditPurposeType()) &&
-                realEstateTypes.contains(request.getRealEstateType()) &&
+                !Collections.disjoint(realEstateTypes, request.getRealEstateTypes()) &&
                 mortgageSum.compareTo(creditProgram.getCreditParameter().getMinMortgageSum()) >= 0 &&
                 mortgageSum.compareTo(creditProgram.getCreditParameter().getMaxMortgageSum()) <= 0 &&
                 creditProgram.getCreditParameter().getMinCreditTerm() <= creditTermMonths &&

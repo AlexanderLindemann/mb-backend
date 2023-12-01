@@ -8,6 +8,7 @@ import java.math.BigDecimal;
 import java.util.UUID;
 
 public interface CalculatorService {
+
     PropertyMortgageDTO getCreditOffer(CalculatorRequest request);
 
     BigDecimal calculateMonthlyPayment(BigDecimal mortgageSum, double annualInterestRate, int loanTermInMonths);

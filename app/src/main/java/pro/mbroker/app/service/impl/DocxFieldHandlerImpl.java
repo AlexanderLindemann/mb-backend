@@ -88,12 +88,10 @@ public class DocxFieldHandlerImpl implements DocxFieldHandler {
                         return "-";
                     }
                 });
-
-                put("realEstateType", (v) -> Optional.ofNullable(partnerApplication)
-                        .map(PartnerApplication::getRealEstateType)
+                put("realEstateType", (v) -> Converter.convertStringListToEnumList(
+                        partnerApplication.getRealEstateTypes(), RealEstateType.class).stream()
                         .map(RealEstateType::getName)
-                        .orElse("-"));
-
+                        .collect(Collectors.joining(", ")));
                 put("creditPurposeType", (v) -> Objects.nonNull(partnerApplication.getCreditPurposeType()) ? partnerApplication.getCreditPurposeType().getName() : "-");
                 put("creditProgramType", (v) -> {
                     CreditProgram creditProgram = bankApplication.getCreditProgram();

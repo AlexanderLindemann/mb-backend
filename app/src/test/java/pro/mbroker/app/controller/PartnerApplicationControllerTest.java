@@ -3,6 +3,7 @@ package pro.mbroker.app.controller;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
 
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -19,7 +20,7 @@ public class PartnerApplicationControllerTest extends AbstractControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(PARTNER_APPLICATION_ID)))
                 .andExpect(jsonPath("$.creditPurposeType", is("PURCHASE_UNDER_CONSTRUCTION")))
-                .andExpect(jsonPath("$.realEstateType", is("APARTMENT")))
+                .andExpect(jsonPath("$.realEstateTypes", containsInAnyOrder("APARTMENT")))
                 .andExpect(jsonPath("$.realEstate.id", is("2b8850b2-d930-11ed-afa1-0242ac120002")));
 
     }

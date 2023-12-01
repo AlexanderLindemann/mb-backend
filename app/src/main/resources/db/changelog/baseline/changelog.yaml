@@ -107,3 +107,6 @@ databaseChangeLog:
   - include:
       file: 20231122_1230-add-link-column-in-borrower-profile.xml
       relativeToChangelogFile: true
+  - include:
+      file: 20231129_1320-update-real-estate-type-to-string-partner_application-table.xml
+      relativeToChangelogFile: true

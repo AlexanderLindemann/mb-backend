@@ -32,7 +32,7 @@ public class PartnerApplicationResponse {
 
     private CreditPurposeType creditPurposeType;
 
-    private RealEstateType realEstateType;
+    private List<RealEstateType> realEstateTypes;
 
     private RealEstateResponse realEstate;
 

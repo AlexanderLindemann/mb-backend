@@ -10,8 +10,10 @@ import pro.mbroker.api.enums.RealEstateType;
 import pro.mbroker.app.TestData;
 import pro.mbroker.app.entity.PartnerApplication;
 import pro.mbroker.app.repository.PartnerApplicationRepository;
+import pro.mbroker.app.util.Converter;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -22,8 +24,6 @@ public class PartnerApplicationServiceTest extends AbstractServiceTest {
     @Autowired
     private PartnerApplicationService partnerApplicationService;
     @Autowired
-    private PartnerApplicationRepository repository;
-    @Autowired
     private TestData testData;
 
     @Test
@@ -32,7 +32,7 @@ public class PartnerApplicationServiceTest extends AbstractServiceTest {
         assertEquals(partnerApplication.getPartner().getId(), UUID.fromString("5fec2326-d92e-11ed-afa1-0242ac120002"));
         assertEquals(partnerApplication.getCreditPurposeType(), CreditPurposeType.PURCHASE_UNDER_CONSTRUCTION);
         assertEquals(partnerApplication.getPartnerApplicationStatus(), PartnerApplicationStatus.UPLOADING_DOCS);
-        assertEquals(partnerApplication.getRealEstateType(), RealEstateType.APARTMENT);
+        assertEquals(Converter.convertStringListToEnumList(partnerApplication.getRealEstateTypes(), RealEstateType.class), List.of(RealEstateType.APARTMENT));
         assertEquals(partnerApplication.getRealEstate().getId(), UUID.fromString("2b8850b2-d930-11ed-afa1-0242ac120002"));
         assertThat(partnerApplication.getBankApplications().size(), Matchers.is(2));
         assertThat(partnerApplication.getBorrowerProfiles().size(), Matchers.is(1));
@@ -51,7 +51,7 @@ public class PartnerApplicationServiceTest extends AbstractServiceTest {
         assertEquals(partnerApplication.getPartner().getId(), UUID.fromString("5fec2326-d92e-11ed-afa1-0242ac120002"));
         assertEquals(partnerApplication.getCreditPurposeType(), CreditPurposeType.PURCHASE_UNDER_CONSTRUCTION);
         assertEquals(partnerApplication.getPartnerApplicationStatus(), PartnerApplicationStatus.UPLOADING_DOCS);
-        assertEquals(partnerApplication.getRealEstateType(), RealEstateType.APARTMENT);
+        assertEquals(Converter.convertStringListToEnumList(partnerApplication.getRealEstateTypes(), RealEstateType.class), List.of(RealEstateType.APARTMENT));
         assertEquals(partnerApplication.getRealEstate().getId(), UUID.fromString("2b8850b2-d930-11ed-afa1-0242ac120002"));
         assertThat(partnerApplication.getBankApplications().size(), Matchers.is(2));
         assertThat(partnerApplication.getBorrowerProfiles().size(), Matchers.is(1));
@@ -66,7 +66,7 @@ public class PartnerApplicationServiceTest extends AbstractServiceTest {
         assertTrue(partnerApplication.getUpdatedAt().isBefore(now));
         assertEquals(partnerApplication.getPartner().getId(), UUID.fromString("dce73f3e-f2db-11ed-a05b-0242ac120003"));
         assertEquals(partnerApplication.getCreditPurposeType(), CreditPurposeType.PURCHASE_UNDER_CONSTRUCTION);
-        assertEquals(partnerApplication.getRealEstateType(), RealEstateType.APARTMENT);
+        assertEquals(Converter.convertStringListToEnumList(partnerApplication.getRealEstateTypes(), RealEstateType.class), List.of(RealEstateType.APARTMENT));
         assertEquals(partnerApplication.getRealEstate().getId(), UUID.fromString("2b8850b2-d930-11ed-afa1-0242ac120002"));
         assertThat(partnerApplication.getBankApplications().size(), Matchers.is(1));
         assertThat(partnerApplication.getBorrowerProfiles().size(), Matchers.is(1));

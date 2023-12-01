@@ -7,7 +7,6 @@ import lombok.Setter;
 import pro.mbroker.api.enums.CreditPurposeType;
 import pro.mbroker.api.enums.Insurance;
 import pro.mbroker.api.enums.PartnerApplicationStatus;
-import pro.mbroker.api.enums.RealEstateType;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -57,9 +56,8 @@ public class PartnerApplication extends BaseEntity {
     @Column(name = "partner_application_status")
     private PartnerApplicationStatus partnerApplicationStatus;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "real_estate_type", nullable = false)
-    private RealEstateType realEstateType;
+    @Column(name = "real_estate_types", nullable = false)
+    private String realEstateTypes;
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "real_estate_id", referencedColumnName = "id")
@@ -75,6 +73,6 @@ public class PartnerApplication extends BaseEntity {
     @JoinColumn(name = "mortgage_calculation_id", referencedColumnName = "id")
     private MortgageCalculation mortgageCalculation;
 
-    @Column(name = "updated_at", updatable=false)
+    @Column(name = "updated_at", updatable = false)
     private LocalDateTime updatedAt;
 }
