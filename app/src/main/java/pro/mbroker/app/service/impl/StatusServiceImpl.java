@@ -151,10 +151,14 @@ public class StatusServiceImpl implements StatusService {
                 .filter(BaseEntity::isActive)
                 .collect(Collectors.toList());
 
-        if (isStatusChangeRequired(partnerApplication, activeBankApps, PartnerApplicationStatus.EXPIRED, BankApplicationStatus.EXPIRED)
-                || isStatusChangeRequired(partnerApplication, activeBankApps, PartnerApplicationStatus.REJECTED, BankApplicationStatus.REJECTED)) {
-            partnerApplication.setPartnerApplicationStatus(PartnerApplicationStatus.UPLOADING_DOCS);
-            isChange = true;
+        if (partnerApplication.getPartnerApplicationStatus().equals(PartnerApplicationStatus.REJECTED)) {
+            if (!partnerApplication.getBankApplications().stream().allMatch(ba -> ba.getBankApplicationStatus().equals(BankApplicationStatus.REJECTED))) {
+                isChange = updatePartnerApplicationStatus(partnerApplication, PartnerApplicationStatus.UPLOADING_DOCS);
+            }
+        } else if (partnerApplication.getPartnerApplicationStatus().equals(PartnerApplicationStatus.EXPIRED)) {
+            if (!partnerApplication.getBankApplications().stream().allMatch(ba -> ba.getBankApplicationStatus().equals(BankApplicationStatus.EXPIRED))) {
+                isChange = updatePartnerApplicationStatus(partnerApplication, PartnerApplicationStatus.UPLOADING_DOCS);
+            }
         } else if (activeBankApps.stream().anyMatch(app -> app.getBankApplicationStatus().equals(BankApplicationStatus.CREDIT_APPROVED))) {
             isChange = updatePartnerApplicationStatus(partnerApplication, PartnerApplicationStatus.CREDIT_APPROVED);
         } else if (activeBankApps.stream().allMatch(app -> app.getBankApplicationStatus().equals(BankApplicationStatus.EXPIRED))) {
@@ -163,11 +167,6 @@ public class StatusServiceImpl implements StatusService {
             isChange = updatePartnerApplicationStatus(partnerApplication, PartnerApplicationStatus.REJECTED);
         }
         return isChange;
-    }
-
-    private boolean isStatusChangeRequired(PartnerApplication partnerApplication, List<BankApplication> activeBankApps, PartnerApplicationStatus targetStatus, BankApplicationStatus bankStatus) {
-        return partnerApplication.getPartnerApplicationStatus().equals(targetStatus)
-                && activeBankApps.stream().noneMatch(app -> app.getBankApplicationStatus().equals(bankStatus));
     }
 
     private boolean updatePartnerApplicationStatus(PartnerApplication partnerApplication, PartnerApplicationStatus newStatus) {

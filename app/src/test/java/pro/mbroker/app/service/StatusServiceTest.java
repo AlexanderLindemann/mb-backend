@@ -7,6 +7,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
 import pro.mbroker.api.controller.AttachmentController;
+import pro.mbroker.api.dto.request.BankApplicationRequest;
 import pro.mbroker.api.dto.request.BorrowerRequest;
 import pro.mbroker.api.enums.BankApplicationStatus;
 import pro.mbroker.api.enums.BorrowerProfileStatus;
@@ -190,6 +191,28 @@ public class StatusServiceTest extends AbstractServiceTest {
         bankApplicationService.changeStatus(BANK_APPLICATION_2, BankApplicationStatus.REJECTED);
         PartnerApplication partnerApplication = partnerApplicationService.getPartnerApplication(PARTNER_APPLICATION_1);
         assertEquals(PartnerApplicationStatus.REJECTED, partnerApplication.getPartnerApplicationStatus());
+    }
+
+    @Test
+    public void testUPLOADING_DOCStatusChangeStatusBankApplication1() {
+        bankApplicationService.changeStatus(BANK_APPLICATION_1, BankApplicationStatus.REJECTED);
+        bankApplicationService.changeStatus(BANK_APPLICATION_2, BankApplicationStatus.REJECTED);
+        List<BankApplicationRequest> bankApplications = testData.getPartnerApplicationRequest().getBankApplications();
+        bankApplications.add(testData.getBankApplicationRequest());
+        partnerApplicationService.updatePartnerApplication(UUID.fromString("5ff4b32c-f967-4cb1-8705-7470a321fe34"), testData.getPartnerApplicationRequest().setBankApplications(bankApplications));
+        PartnerApplication partnerApplication = partnerApplicationService.getPartnerApplication(PARTNER_APPLICATION_1);
+        assertEquals(PartnerApplicationStatus.UPLOADING_DOCS, partnerApplication.getPartnerApplicationStatus());
+    }
+
+    @Test
+    public void testUPLOADING_DOCStatusChangeStatusBankApplication2() {
+        bankApplicationService.changeStatus(BANK_APPLICATION_1, BankApplicationStatus.EXPIRED);
+        bankApplicationService.changeStatus(BANK_APPLICATION_2, BankApplicationStatus.EXPIRED);
+        List<BankApplicationRequest> bankApplications = testData.getPartnerApplicationRequest().getBankApplications();
+        bankApplications.add(testData.getBankApplicationRequest());
+        partnerApplicationService.updatePartnerApplication(UUID.fromString("5ff4b32c-f967-4cb1-8705-7470a321fe34"), testData.getPartnerApplicationRequest().setBankApplications(bankApplications));
+        PartnerApplication partnerApplication = partnerApplicationService.getPartnerApplication(PARTNER_APPLICATION_1);
+        assertEquals(PartnerApplicationStatus.UPLOADING_DOCS, partnerApplication.getPartnerApplicationStatus());
     }
 
     //TODO написать тест который удаляет созаемщика и это афектит на статус
