@@ -28,6 +28,8 @@ public class CalculatorRequest {
 
     private BigDecimal maxMonthlyPayment;
 
+    private UUID partnerApplicationId;
+
     private Integer creditTerm;
 
     private Boolean isMaternalCapital;

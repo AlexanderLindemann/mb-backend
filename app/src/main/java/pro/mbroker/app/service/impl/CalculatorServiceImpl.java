@@ -16,11 +16,14 @@ import pro.mbroker.api.enums.RealEstateType;
 import pro.mbroker.api.enums.RegionType;
 import pro.mbroker.app.entity.Attachment;
 import pro.mbroker.app.entity.Bank;
+import pro.mbroker.app.entity.BankApplication;
+import pro.mbroker.app.entity.BaseEntity;
 import pro.mbroker.app.entity.CreditProgram;
 import pro.mbroker.app.entity.RealEstate;
 import pro.mbroker.app.exception.ItemNotFoundException;
 import pro.mbroker.app.repository.CreditProgramRepository;
 import pro.mbroker.app.repository.RealEstateRepository;
+import pro.mbroker.app.service.BankApplicationService;
 import pro.mbroker.app.service.CalculatorService;
 import pro.mbroker.app.service.DirectoryService;
 import pro.mbroker.app.service.RealEstateService;
@@ -40,16 +43,20 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import static pro.mbroker.app.service.impl.BankApplicationServiceImpl.UNCHANGEABLE_STATUSES;
+
 @Service
 @Slf4j
 @RequiredArgsConstructor
 public class CalculatorServiceImpl implements CalculatorService {
     private static final int MONTHS_IN_YEAR = 12;
+    private static final int DAYS_IN_YEAR = 360;
     private static final int PERCENTAGE_MAX = 100;
     private final RealEstateRepository realEstateRepository;
     private final RealEstateService realEstateService;
     private final CreditProgramRepository creditProgramRepository;
     private final DirectoryService directoryService;
+    private final BankApplicationService bankApplicationService;
     private final AttachmentServiceImpl attachmentService;
 
     @Override
@@ -66,6 +73,8 @@ public class CalculatorServiceImpl implements CalculatorService {
             loanProgramCalculationDto.add(createLoanProgramCalculationDto(request, creditProgram));
         }
         List<BankLoanProgramDto> bankLoanProgramDtos = new ArrayList<>(bankLoanProgramDtoMap.values());
+        List<BankApplication> unchangeableBankApplication = getUnchangeableBankApplication(request.getPartnerApplicationId());
+        loanProgramCalculationDto.addAll(convertBankApplicationToLoanProgramCalculationDto(unchangeableBankApplication));
         return new PropertyMortgageDTO()
                 .setRealEstatePrice(request.getRealEstatePrice())
                 .setMonthCreditTerm(Optional.ofNullable(request.getCreditTerm())
@@ -73,6 +82,31 @@ public class CalculatorServiceImpl implements CalculatorService {
                 .setDownPayment(request.getDownPayment())
                 .setLoanProgramCalculationDto(sortLoanProgramsByOverpayment(loanProgramCalculationDto))
                 .setBankLoanProgramDto(bankLoanProgramDtos);
+    }
+
+    private List<BankApplication> getUnchangeableBankApplication(UUID partnerApplicationId) {
+        return Optional.ofNullable(partnerApplicationId)
+                .map(id -> bankApplicationService
+                        .getBankApplicationsByPartnerApplicationId(partnerApplicationId).stream()
+                        .filter(BaseEntity::isActive)
+                        .filter(ba -> UNCHANGEABLE_STATUSES.contains(ba.getBankApplicationStatus()))
+                        .collect(Collectors.toList()))
+                .orElse(Collections.emptyList());
+    }
+
+    private List<LoanProgramCalculationDto> convertBankApplicationToLoanProgramCalculationDto(List<BankApplication> unchangeableBankApplication) {
+        return unchangeableBankApplication.stream()
+                .map(ba -> new LoanProgramCalculationDto()
+                        .setStatus(ba.getBankApplicationStatus())
+                        .setCreditProgramId(ba.getCreditProgram().getId())
+                        .setCreditTerm((int) Math.ceil(ba.getMonthCreditTerm() / (double) MONTHS_IN_YEAR))
+                        .setOverpayment(ba.getOverpayment())
+                        .setBankId(ba.getCreditProgram().getBank().getId())
+                        .setMonthlyPayment(ba.getMonthlyPayment())
+                        .setCreditProgramName(ba.getCreditProgram().getProgramName())
+                        .setBaseRate(ba.getCreditProgram().getBaseRate())
+                        .setRealEstateTypes(Converter.convertStringListToEnumList(ba.getPartnerApplication().getRealEstateTypes(), RealEstateType.class)))
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -160,16 +194,16 @@ public class CalculatorServiceImpl implements CalculatorService {
                 .map(maxMonthlyPayment -> {
                     BigDecimal mortgageSum = getMortgageSum(request.getRealEstatePrice(), request.getDownPayment());
                     double monthlyPayment = maxMonthlyPayment.doubleValue();
-                    double monthlyBaseRate = creditProgram.getBaseRate() / 100 / 12;
+                    double monthlyBaseRate = creditProgram.getBaseRate() / PERCENTAGE_MAX / MONTHS_IN_YEAR;
                     double creditTermDouble = Math.log10(-monthlyPayment /
                             (monthlyBaseRate * mortgageSum.doubleValue() - monthlyPayment)) / Math.log10(monthlyBaseRate + 1);
                     if (Double.isNaN(creditTermDouble)) {
-                        return 360;
+                        return DAYS_IN_YEAR;
                     }
                     int creditTermMonths = (int) Math.ceil(creditTermDouble);
-                    return Math.min(creditTermMonths, 360);
+                    return Math.min(creditTermMonths, DAYS_IN_YEAR);
                 })
-                .orElseGet(() -> request.getCreditTerm() * 12);
+                .orElseGet(() -> request.getCreditTerm() * MONTHS_IN_YEAR);
     }
 
     private LoanProgramCalculationDto createLoanProgramCalculationDto(CalculatorRequest request, CreditProgram creditProgram) {

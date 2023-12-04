@@ -22,9 +22,11 @@ public interface BankApplicationService {
 
     List<BankApplication> getBankApplicationByApplicationId(Collection<Integer> applicationNumbers);
 
+    List<BankApplication> getBankApplicationsByPartnerApplicationId(UUID partnerApplicationId);
+
     void saveAll(Collection<BankApplication> bankApplications);
 
     void save(BankApplication bankApplication);
 
-    int updateStatus (UUID bankApplicationId, BankApplicationStatus statu);
+    int updateStatus(UUID bankApplicationId, BankApplicationStatus statu);
 }

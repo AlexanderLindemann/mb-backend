@@ -32,11 +32,14 @@ public final class Converter {
     }
 
     public static String generateBase64FromFile(MultipartFile multipartFile) {
+        if (multipartFile == null) {
+            return null;
+        }
         try {
             byte[] logoBytes = multipartFile.getBytes();
             return Base64.getEncoder().encodeToString(logoBytes);
         } catch (IOException e) {
-            log.error("Ошибка при обработке логотипа: {}", e.getMessage());
+            log.error("Ошибка при обработке файла: {}", e.getMessage());
         }
         return null;
     }

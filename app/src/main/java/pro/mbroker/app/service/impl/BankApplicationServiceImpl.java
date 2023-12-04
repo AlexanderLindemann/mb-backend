@@ -14,7 +14,6 @@ import pro.mbroker.app.mapper.BankApplicationMapper;
 import pro.mbroker.app.repository.BankApplicationRepository;
 import pro.mbroker.app.repository.BorrowerProfileRepository;
 import pro.mbroker.app.service.BankApplicationService;
-import pro.mbroker.app.service.PartnerApplicationService;
 import pro.mbroker.app.service.StatusService;
 
 import java.util.Collection;
@@ -30,9 +29,8 @@ public class BankApplicationServiceImpl implements BankApplicationService {
     private final BankApplicationRepository bankApplicationRepository;
     private final BankApplicationMapper bankApplicationMapper;
     private final BorrowerProfileRepository borrowerProfileRepository;
-    private final PartnerApplicationService partnerApplicationService;
 
-    private static final Set<BankApplicationStatus> UNCHANGEABLE_STATUSES = Set.of(
+    public static final Set<BankApplicationStatus> UNCHANGEABLE_STATUSES = Set.of(
             BankApplicationStatus.SENT_TO_BANK,
             BankApplicationStatus.SENDING_TO_BANK,
             BankApplicationStatus.APPLICATION_APPROVED,
@@ -67,13 +65,17 @@ public class BankApplicationServiceImpl implements BankApplicationService {
                 .setBankApplicationStatus(status);
         PartnerApplication partnerApplication = bankApplication.getPartnerApplication();
         statusService.statusChanger(partnerApplication);
-        partnerApplicationService.save(partnerApplication);
         return bankApplicationRepository.save(bankApplication);
     }
 
     @Override
     public List<BankApplication> getBankApplicationByApplicationId(Collection<Integer> applicationNumbers) {
         return bankApplicationRepository.findAllByApplicationNumberIn(applicationNumbers);
+    }
+
+    @Override
+    public List<BankApplication> getBankApplicationsByPartnerApplicationId(UUID partnerApplicationId) {
+        return bankApplicationRepository.findAllByPartnerApplicationId(partnerApplicationId);
     }
 
     @Transactional

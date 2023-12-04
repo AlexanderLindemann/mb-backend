@@ -30,6 +30,7 @@ public interface CalculatorController {
                                        @RequestParam(required = false) BigDecimal realEstatePrice,
                                        @RequestParam(required = false) BigDecimal downPayment,
                                        @RequestParam(required = false) BigDecimal maxMonthlyPayment,
+                                       @RequestParam(required = false) UUID partnerApplicationId,
                                        @RequestParam(required = false) Integer creditTerm,
                                        @RequestParam(required = false) Boolean isMaternalCapital,
                                        @RequestParam(required = false) List<UUID> salaryBanks);

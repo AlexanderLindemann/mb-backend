@@ -32,6 +32,7 @@ public class CalculatorControllerImpl implements CalculatorController {
                                               BigDecimal realEstatePrice,
                                               BigDecimal downPayment,
                                               BigDecimal maxMonthlyPayment,
+                                              UUID partnerApplicationId,
                                               Integer creditTerm,
                                               Boolean isMaternalCapital,
                                               List<UUID> salaryBanks) {
@@ -41,6 +42,7 @@ public class CalculatorControllerImpl implements CalculatorController {
                 .setRealEstateTypes(realEstateTypes)
                 .setRealEstatePrice(realEstatePrice)
                 .setDownPayment(downPayment)
+                .setPartnerApplicationId(partnerApplicationId)
                 .setMaxMonthlyPayment(maxMonthlyPayment)
                 .setCreditTerm(creditTerm)
                 .setIsMaternalCapital(isMaternalCapital)

@@ -1,8 +1,10 @@
 package pro.mbroker.api.dto;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import pro.mbroker.api.enums.BankApplicationStatus;
 import pro.mbroker.api.enums.RealEstateType;
 
 import java.math.BigDecimal;
@@ -14,13 +16,13 @@ import java.util.UUID;
 @ToString
 public class LoanProgramCalculationDto {
 
+    private int creditTerm;
+
     private UUID bankId;
 
     private UUID creditProgramId;
 
     private String creditProgramName;
-
-    private List<RealEstateType> realEstateTypes;
 
     private Double baseRate;
 
@@ -28,7 +30,10 @@ public class LoanProgramCalculationDto {
 
     private BigDecimal overpayment;
 
-    private int creditTerm;
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private BankApplicationStatus status;
+
+    private List<RealEstateType> realEstateTypes;
 
     private SalaryClientProgramCalculationDto salaryClientCalculation;
 
