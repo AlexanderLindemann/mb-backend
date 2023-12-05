@@ -89,7 +89,7 @@ public class DocxFieldHandlerImpl implements DocxFieldHandler {
                     }
                 });
                 put("realEstateType", (v) -> Converter.convertStringListToEnumList(
-                        partnerApplication.getRealEstateTypes(), RealEstateType.class).stream()
+                                partnerApplication.getRealEstateTypes(), RealEstateType.class).stream()
                         .map(RealEstateType::getName)
                         .collect(Collectors.joining(", ")));
                 put("creditPurposeType", (v) -> Objects.nonNull(partnerApplication.getCreditPurposeType()) ? partnerApplication.getCreditPurposeType().getName() : "-");
@@ -279,25 +279,23 @@ public class DocxFieldHandlerImpl implements DocxFieldHandler {
                                 .orElse("-"))
                         .orElse("-"));
 
-                put("borrowerRealEstateBasisOfOwnership", (v) -> (Objects.nonNull(borrowerProfile)
-                        && Objects.nonNull(borrowerProfile.getRealEstate())
-                        && Objects.nonNull(borrowerProfile.getRealEstate().getBasisOfOwnership()))
+                put("borrowerRealEstateBasisOfOwnership", (v) -> Objects.nonNull(borrowerProfile.getRealEstate())
+                        && Objects.nonNull(borrowerProfile.getRealEstate().getBasisOfOwnership())
                         ? borrowerProfile.getRealEstate().getBasisOfOwnership().getName()
                         : "-");
 
-                put("borrowerRealEstateShare", (v) -> (Objects.nonNull(borrowerProfile)
-                        && Objects.nonNull(borrowerProfile.getRealEstate())
-                        && Objects.nonNull(borrowerProfile.getRealEstate().getShare()))
+                put("borrowerRealEstateShare", (v) -> Objects.nonNull(borrowerProfile.getRealEstate())
+                        && Objects.nonNull(borrowerProfile.getRealEstate().getShare())
                         ? borrowerProfile.getRealEstate().getShare().toString()
                         : "-");
 
-                put("borrowerRealEstateAddress", (v) -> Objects.nonNull(borrowerProfile)
-                        && Objects.nonNull(borrowerProfile.getRealEstate())
+                put("borrowerRealEstateAddress", (v) -> Objects.nonNull(borrowerProfile.getRealEstate())
+                        && Objects.nonNull(borrowerProfile.getRealEstate().getAddress())
                         ? borrowerProfile.getRealEstate().getAddress()
                         : "-");
 
-                put("borrowerRealEstateIsCollateral", (v) -> Objects.nonNull(borrowerProfile)
-                        && Objects.nonNull(borrowerProfile.getRealEstate())
+                put("borrowerRealEstateIsCollateral", (v) -> Objects.nonNull(borrowerProfile.getRealEstate())
+                        && Objects.nonNull(borrowerProfile.getRealEstate().getIsCollateral())
                         ? (borrowerProfile.getRealEstate().getIsCollateral()
                         ? "да" : "нет") : "-");
 
@@ -324,6 +322,7 @@ public class DocxFieldHandlerImpl implements DocxFieldHandler {
                         : "-");
 
                 put("realEstateResidentialComplexName", (v) -> Objects.nonNull(partnerApplication.getRealEstate())
+                        && Objects.nonNull(partnerApplication.getRealEstate().getResidentialComplexName())
                         ? partnerApplication.getRealEstate().getResidentialComplexName()
                         : "-");
 
@@ -352,14 +351,12 @@ public class DocxFieldHandlerImpl implements DocxFieldHandler {
                         ? borrowerProfile.getPension().toString()
                         : "-");
 
-                put("borrowerRealEstateArea", (v) -> Objects.nonNull(borrowerProfile)
-                        && Objects.nonNull(borrowerProfile.getRealEstate())
+                put("borrowerRealEstateArea", (v) -> Objects.nonNull(borrowerProfile.getRealEstate())
                         && Objects.nonNull(borrowerProfile.getRealEstate().getArea())
                         ? borrowerProfile.getRealEstate().getArea().toString()
                         : "-");
 
-                put("borrowerRealEstatePrice", (v) -> Objects.nonNull(borrowerProfile)
-                        && Objects.nonNull(borrowerProfile.getRealEstate())
+                put("borrowerRealEstatePrice", (v) -> Objects.nonNull(borrowerProfile.getRealEstate())
                         && Objects.nonNull(borrowerProfile.getRealEstate().getPrice())
                         ? borrowerProfile.getRealEstate().getPrice().toString()
                         : "-");
