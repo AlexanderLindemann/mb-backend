@@ -45,3 +45,14 @@ management:
   endpoint:
     health:
       show-details: always
+
+font_path: "/forms/ru_Arial.ttf"
+form_path_docx: "forms/form.docx"
+footer_path: "/forms/image/smartDeal.jpg"
+fit_width_image: 100
+fit_height_image: 100
+left_position_image: 35
+bottom_position_image: 18
+page_number_front_size: 8
+page_number_right_offset: 38
+page_number_bottom_offset: 21

@@ -1,6 +1,15 @@
 package pro.mbroker.app.service.impl;
 
+import com.itextpdf.html2pdf.ConverterProperties;
 import com.itextpdf.html2pdf.HtmlConverter;
+import com.itextpdf.io.image.ImageData;
+import com.itextpdf.io.image.ImageDataFactory;
+import com.itextpdf.kernel.events.IEventHandler;
+import com.itextpdf.kernel.events.PdfDocumentEvent;
+import com.itextpdf.kernel.font.PdfFont;
+import com.itextpdf.kernel.font.PdfFontFactory;
+import com.itextpdf.kernel.pdf.PdfDocument;
+import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.styledxmlparser.jsoup.Jsoup;
 import com.itextpdf.styledxmlparser.jsoup.nodes.Document;
 import com.itextpdf.styledxmlparser.jsoup.nodes.Element;
@@ -8,6 +17,7 @@ import com.itextpdf.styledxmlparser.jsoup.select.Elements;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.IOUtils;
 import org.apache.poi.util.Units;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.apache.poi.xwpf.usermodel.XWPFParagraph;
@@ -15,12 +25,13 @@ import org.apache.poi.xwpf.usermodel.XWPFRun;
 import org.apache.poi.xwpf.usermodel.XWPFTable;
 import org.apache.poi.xwpf.usermodel.XWPFTableCell;
 import org.apache.poi.xwpf.usermodel.XWPFTableRow;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -39,6 +50,8 @@ import pro.mbroker.app.service.FormService;
 import pro.mbroker.app.service.PartnerApplicationService;
 import pro.mbroker.app.service.StatusService;
 import pro.mbroker.app.util.CustomMultipartFile;
+import pro.mbroker.app.util.FooterHandler;
+import pro.mbroker.app.util.PageNumeratorHandler;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -57,7 +70,7 @@ import java.util.stream.Stream;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-@Component
+@PropertySource("classpath:application.yaml")
 public class FormServiceImpl implements FormService {
 
     private final AttachmentService attachmentService;
@@ -65,7 +78,44 @@ public class FormServiceImpl implements FormService {
     private final StatusService statusService;
     private final DocxFieldHandler docxFieldHandler;
     private final PartnerApplicationService partnerApplicationService;
-    String filePath = "forms/form.docx";
+
+    @Value("${form_path_docx}")
+    private String FORM_PATH_DOCX;
+    @Value("${font_path}")
+    private static String FONT_PATH;
+    @Value("${footer_path}")
+    private String FOOTER_PATH;
+    @Value("${fit_width_image}")
+    private float FIT_WIDTH_IMAGE;
+    @Value("${fit_height_image}")
+    private float FIT_HEIGHT_IMAGE;
+    @Value("${left_position_image}")
+    private float LEFT_POSITION_IMAGE;
+    @Value("${bottom_position_image}")
+    private float BOTTOM_POSITION_IMAGE;
+    @Value("${page_number_front_size}")
+    private float PAGE_NUMBER_FRONT_SIZE;
+    @Value("${page_number_right_offset}")
+    private float PAGE_NUMBER_RIGHT_OFFSET;
+    @Value("${page_number_bottom_offset}")
+    private float PAGE_NUMBER_BOTTOM_OFFSET;
+
+    @Value("${font_path}")
+    public void setFontPath(String fontPath) {
+        FONT_PATH = fontPath;
+        initFont();
+    }
+
+    private static PdfFont ARIAL_FONT;
+
+    private static void initFont() {
+        try {
+            ARIAL_FONT = PdfFontFactory.createFont(FONT_PATH, "Cp1251");
+        } catch (IOException e) {
+            log.error("Не удалось загрузить шрифт: " + e.getMessage(), e);
+            throw new RuntimeException("Не удалось загрузить шрифт: " + e.getMessage(), e);
+        }
+    }
 
     @Override
     @Transactional
@@ -76,7 +126,7 @@ public class FormServiceImpl implements FormService {
         Map<String, String> replacements = docxFieldHandler.replaceFieldValue(
                 partnerApplication,
                 borrowerProfile);
-        ByteArrayResource byteAreaResource = matchReplacements(replacements, filePath);
+        ByteArrayResource byteAreaResource = matchReplacements(replacements, FORM_PATH_DOCX);
         return processFormDocxResponse(byteAreaResource);
     }
 
@@ -90,7 +140,7 @@ public class FormServiceImpl implements FormService {
                 partnerApplication, borrowerProfile);
         replacements.put("borrowerSign", encodedImage);
 
-        ByteArrayResource byteAreaResource = matchReplacements(replacements, filePath);
+        ByteArrayResource byteAreaResource = matchReplacements(replacements, FORM_PATH_DOCX);
         return processFormDocxResponse(byteAreaResource);
     }
 
@@ -168,16 +218,42 @@ public class FormServiceImpl implements FormService {
     @Override
     public ResponseEntity<ByteArrayResource> generateFormFileHtml(UUID borrowerProfileId, byte[] file) {
         BorrowerProfile borrowerProfile = borrowerProfileService.findByIdWithRealEstateVehicleAndEmployer(borrowerProfileId);
-        PartnerApplication partnerApplication = borrowerProfile.getPartnerApplication();
+        Document document = modifyHtmlDocument(borrowerProfile, file);
+        ByteArrayOutputStream pdfOutputStream = generatePdf(document);
+        return processFormHtmlResponse(new ByteArrayResource(pdfOutputStream.toByteArray()));
+    }
+
+    private Document modifyHtmlDocument(BorrowerProfile borrowerProfile, byte[] file) {
         Map<String, String> replacements = docxFieldHandler.replaceFieldValue(
-                partnerApplication,
-                borrowerProfile);
+                borrowerProfile.getPartnerApplication(), borrowerProfile);
         Document document = Jsoup.parse(new String(file));
         replaceDataInHtml(document, replacements);
+        return document;
+    }
+
+    private ByteArrayOutputStream generatePdf(Document document) {
         ByteArrayOutputStream pdfOutputStream = new ByteArrayOutputStream();
-        HtmlConverter.convertToPdf(document.toString(), pdfOutputStream);
-        ByteArrayResource pdfResource = new ByteArrayResource(pdfOutputStream.toByteArray());
-        return processFormHtmlResponse(pdfResource);
+        PdfDocument pdf = new PdfDocument(new PdfWriter(pdfOutputStream));
+        pdf.addEventHandler(PdfDocumentEvent.END_PAGE, createFooterHandler());
+        pdf.addEventHandler(PdfDocumentEvent.END_PAGE, createPageNumberHandler());
+        HtmlConverter.convertToPdf(document.toString(), pdf, new ConverterProperties());
+        pdf.close();
+        return pdfOutputStream;
+    }
+
+    private IEventHandler createFooterHandler() {
+        try {
+            InputStream footerImageStream = new ClassPathResource(FOOTER_PATH).getInputStream();
+            ImageData footerImgData = ImageDataFactory.create(IOUtils.toByteArray(footerImageStream));
+            return new FooterHandler(footerImgData, FIT_WIDTH_IMAGE, FIT_HEIGHT_IMAGE, LEFT_POSITION_IMAGE, BOTTOM_POSITION_IMAGE);
+        } catch (IOException e) {
+            log.error("Ошибка при загрузке изображения для футера: {}", e.getMessage(), e);
+            throw new RuntimeException("Не удалось загрузить изображение футера", e);
+        }
+    }
+
+    private IEventHandler createPageNumberHandler() {
+        return new PageNumeratorHandler(ARIAL_FONT, PAGE_NUMBER_FRONT_SIZE, PAGE_NUMBER_RIGHT_OFFSET, PAGE_NUMBER_BOTTOM_OFFSET);
     }
 
     private void replaceDataInHtml(Document document, Map<String, String> replacements) {
