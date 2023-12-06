@@ -166,6 +166,9 @@ public class BorrowerProfile extends BaseEntity {
     @Column(name = "pension")
     private Integer pension;
 
+    @Column(name = "cian_user_id")
+    private Integer cianUserId;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "proof_of_income")
     private ProofOfIncome proofOfIncome;

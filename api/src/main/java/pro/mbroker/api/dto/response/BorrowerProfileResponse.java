@@ -29,6 +29,8 @@ public class BorrowerProfileResponse {
 
     private String link;
 
+    private Integer cianUserId;
+
     private BorrowerProfileStatus status;
 
     private List<BorrowerDocumentResponse> documents;

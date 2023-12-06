@@ -30,6 +30,10 @@ public class LoanProgramCalculationDto {
 
     private BigDecimal overpayment;
 
+    private String description;
+
+    private String fullDescription;
+
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private BankApplicationStatus status;
 

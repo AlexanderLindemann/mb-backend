@@ -17,5 +17,5 @@ public interface FormService {
 
     void updateSignatureForm(UUID borrowerProfileId, byte[] form);
 
-    ResponseEntity<ByteArrayResource> generateFormFileHtml(UUID borrowerProfileId, byte[] form);
+    ResponseEntity<ByteArrayResource> generateFormFileHtml(UUID borrowerProfileId);
 }

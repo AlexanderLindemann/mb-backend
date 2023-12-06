@@ -81,6 +81,8 @@ public class FormServiceImpl implements FormService {
 
     @Value("${form_path_docx}")
     private String FORM_PATH_DOCX;
+    @Value("${form_path_html}")
+    private String FORM_PATH_HTML;
     @Value("${font_path}")
     private String FONT_PATH;
     @Value("${footer_path}")
@@ -199,9 +201,9 @@ public class FormServiceImpl implements FormService {
     }
 
     @Override
-    public ResponseEntity<ByteArrayResource> generateFormFileHtml(UUID borrowerProfileId, byte[] file) {
+    public ResponseEntity<ByteArrayResource> generateFormFileHtml(UUID borrowerProfileId) {
         BorrowerProfile borrowerProfile = borrowerProfileService.findByIdWithRealEstateVehicleAndEmployer(borrowerProfileId);
-        Document document = modifyHtmlDocument(borrowerProfile, file);
+        Document document = modifyHtmlDocument(borrowerProfile, getFileFromPath(FORM_PATH_HTML));
         ByteArrayOutputStream pdfOutputStream = generatePdf(document);
         return processFormHtmlResponse(new ByteArrayResource(pdfOutputStream.toByteArray()));
     }

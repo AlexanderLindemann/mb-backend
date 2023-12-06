@@ -43,7 +43,7 @@ public class GenerateFormControllerImpl implements GenerateFormController {
     }
 
     @Override
-    public ResponseEntity<ByteArrayResource> generateFormFileHtml(UUID borrowerProfileId, byte[] file) {
-        return formService.generateFormFileHtml(borrowerProfileId, file);
+    public ResponseEntity<ByteArrayResource> generateFormFileHtml(UUID borrowerProfileId) {
+        return formService.generateFormFileHtml(borrowerProfileId);
     }
 }

@@ -46,8 +46,9 @@ management:
     health:
       show-details: always
 
-font_path: "/forms/ru_Arial.ttf"
+font_path: "/forms/calibri.ttf"
 form_path_docx: "forms/form.docx"
+form_path_html: "forms/form.html"
 footer_path: "/forms/image/smartDeal.jpg"
 fit_width_image: 100
 fit_height_image: 100

@@ -24,6 +24,8 @@ public class BorrowerProfileRequest {
 
     private String email;
 
+    private Integer cianUserId;
+
     private BorrowerProfileStatus status = BorrowerProfileStatus.DATA_NO_ENTERED;
 
 }

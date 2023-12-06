@@ -47,7 +47,6 @@ public interface GenerateFormController {
 
     @ApiOperation("сгенерировать анкету из html в pdf")
     @PostMapping("/generate-borrower-form-html")
-    ResponseEntity<ByteArrayResource> generateFormFileHtml(@RequestParam UUID borrowerProfileId,
-                                                           @RequestBody byte[] file);
+    ResponseEntity<ByteArrayResource> generateFormFileHtml(@RequestParam UUID borrowerProfileId);
 
 }

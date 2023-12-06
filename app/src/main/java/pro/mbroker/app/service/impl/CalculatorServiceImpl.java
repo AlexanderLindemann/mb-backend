@@ -220,6 +220,8 @@ public class CalculatorServiceImpl implements CalculatorService {
                 .setBankId(creditProgram.getBank().getId())
                 .setCreditProgramId(creditProgram.getId())
                 .setCreditProgramName(creditProgram.getProgramName())
+                .setDescription(creditProgram.getDescription())
+                .setFullDescription(creditProgram.getFullDescription())
                 .setRealEstateTypes(realEstateTypes)
                 .setCreditTerm((int) Math.ceil(creditTermMonths / 12.0))
                 .setBaseRate(creditProgram.getBaseRate())
