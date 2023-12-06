@@ -82,7 +82,7 @@ public class FormServiceImpl implements FormService {
     @Value("${form_path_docx}")
     private String FORM_PATH_DOCX;
     @Value("${font_path}")
-    private static String FONT_PATH;
+    private String FONT_PATH;
     @Value("${footer_path}")
     private String FOOTER_PATH;
     @Value("${fit_width_image}")
@@ -99,23 +99,6 @@ public class FormServiceImpl implements FormService {
     private float PAGE_NUMBER_RIGHT_OFFSET;
     @Value("${page_number_bottom_offset}")
     private float PAGE_NUMBER_BOTTOM_OFFSET;
-
-    @Value("${font_path}")
-    public void setFontPath(String fontPath) {
-        FONT_PATH = fontPath;
-        initFont();
-    }
-
-    private static PdfFont ARIAL_FONT;
-
-    private static void initFont() {
-        try {
-            ARIAL_FONT = PdfFontFactory.createFont(FONT_PATH, "Cp1251");
-        } catch (IOException e) {
-            log.error("Не удалось загрузить шрифт: " + e.getMessage(), e);
-            throw new RuntimeException("Не удалось загрузить шрифт: " + e.getMessage(), e);
-        }
-    }
 
     @Override
     @Transactional
@@ -253,7 +236,13 @@ public class FormServiceImpl implements FormService {
     }
 
     private IEventHandler createPageNumberHandler() {
-        return new PageNumeratorHandler(ARIAL_FONT, PAGE_NUMBER_FRONT_SIZE, PAGE_NUMBER_RIGHT_OFFSET, PAGE_NUMBER_BOTTOM_OFFSET);
+        try {
+            PdfFont font = PdfFontFactory.createFont(FONT_PATH, "Cp1251");
+            return new PageNumeratorHandler(font, PAGE_NUMBER_FRONT_SIZE, PAGE_NUMBER_RIGHT_OFFSET, PAGE_NUMBER_BOTTOM_OFFSET);
+        } catch (IOException e) {
+            log.error("Ошибка при загрузке шрифта: {}", e.getMessage(), e);
+            throw new RuntimeException("Не удалось загрузить шрифт", e);
+        }
     }
 
     private void replaceDataInHtml(Document document, Map<String, String> replacements) {
