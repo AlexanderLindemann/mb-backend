@@ -205,10 +205,8 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
             isChanged = true;
         }
         partnerApplicationMapper.updatePartnerApplicationFromRequest(request, partnerApplication);
-
         mortgageCalculationMapper.updateMortgageCalculationFromRequest(request.getMortgageCalculation(),
                 partnerApplication.getMortgageCalculation());
-
         if (Objects.nonNull(request.getPaymentSource())) {
             String requestPaymentSource = Converter.convertEnumListToStringList(request.getPaymentSource());
             String existPaymentSource = partnerApplication.getPaymentSource();
@@ -218,16 +216,13 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
                 isChanged = true;
             }
         }
-
         setSalaryBank(request, partnerApplication);
-
         if (Objects.nonNull(request.getRealEstateId())) {
             if (partnerApplication.getRealEstate() != null
                     && !partnerApplication.getRealEstate().getId().equals(request.getRealEstateId())) {
                 partnerApplication.setRealEstate(realEstateService.findById(request.getRealEstateId()));
                 isChanged = true;
             }
-
         }
         if (Objects.nonNull(request.getBankApplications())) {
             List<BankApplication> updatedBorrowerApplications = buildBankApplications(request, partnerApplication);
@@ -239,7 +234,11 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
                 isChanged = true;
             }
         }
-        partnerApplication.setRealEstateTypes(Converter.convertEnumListToStringList(request.getRealEstateTypes()));
+        if (Objects.nonNull(request.getRealEstateTypes())) {
+            partnerApplication.setRealEstateTypes(Converter.convertEnumListToStringList(request.getRealEstateTypes()));
+        } else {
+            partnerApplication.setRealEstateTypes("");
+        }
         statusService.statusChanger(partnerApplication);
         return isChanged ? save(partnerApplication) : partnerApplication;
     }
