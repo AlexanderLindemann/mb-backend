@@ -13,6 +13,7 @@ import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.styledxmlparser.jsoup.Jsoup;
 import com.itextpdf.styledxmlparser.jsoup.nodes.Document;
 import com.itextpdf.styledxmlparser.jsoup.nodes.Element;
+import com.itextpdf.styledxmlparser.jsoup.parser.Tag;
 import com.itextpdf.styledxmlparser.jsoup.select.Elements;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
@@ -221,7 +222,7 @@ public class FormServiceImpl implements FormService {
         Map<String, String> replacements = docxFieldHandler.replaceFieldValue(
                 borrowerProfile.getPartnerApplication(), borrowerProfile);
         Document document = Jsoup.parse(new String(file));
-        replaceDataInHtml(document, replacements);
+        replaceDataInHtml(document, replacements, null);
         return document;
     }
 
@@ -230,7 +231,7 @@ public class FormServiceImpl implements FormService {
                 borrowerProfile.getPartnerApplication(), borrowerProfile);
         replacements.put("borrowerSign", encodedImage);
         Document document = Jsoup.parse(new String(file));
-        replaceDataInHtml(document, replacements);
+        replaceDataInHtml(document, replacements, encodedImage);
         return document;
     }
 
@@ -266,12 +267,16 @@ public class FormServiceImpl implements FormService {
         }
     }
 
-    private void replaceDataInHtml(Document document, Map<String, String> replacements) {
+    private void replaceDataInHtml(Document document, Map<String, String> replacements, String encodedSignatureImage) {
         for (Map.Entry<String, String> entry : replacements.entrySet()) {
             Elements elements = document.select("[data-replace-key='" + entry.getKey() + "']");
             for (Element element : elements) {
                 if ("borrowerSign".equals(entry.getKey())) {
-                    element.attr("src", "data:image/png;base64," + entry.getValue());
+                    element.empty();
+                    Element img = new Element(Tag.valueOf("img"), "");
+                    img.attr("src", "data:image/png;base64," + encodedSignatureImage);
+                    img.attr("style", "width: 200px; height: 100px; display: block; margin: 0 auto;");
+                    element.appendChild(img);
                 } else {
                     element.text(entry.getValue());
                 }
