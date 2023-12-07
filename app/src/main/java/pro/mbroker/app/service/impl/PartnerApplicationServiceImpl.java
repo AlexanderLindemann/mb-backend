@@ -236,8 +236,6 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
         }
         if (Objects.nonNull(request.getRealEstateTypes())) {
             partnerApplication.setRealEstateTypes(Converter.convertEnumListToStringList(request.getRealEstateTypes()));
-        } else {
-            partnerApplication.setRealEstateTypes("");
         }
         statusService.statusChanger(partnerApplication);
         return isChanged ? save(partnerApplication) : partnerApplication;
