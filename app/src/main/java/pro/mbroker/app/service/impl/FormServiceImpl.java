@@ -208,6 +208,15 @@ public class FormServiceImpl implements FormService {
         return processFormHtmlResponse(new ByteArrayResource(pdfOutputStream.toByteArray()));
     }
 
+    @Override
+    public ResponseEntity<ByteArrayResource> signatureFormFileHtml(UUID borrowerProfileId, byte[] signature) {
+        BorrowerProfile borrowerProfile = borrowerProfileService.findByIdWithRealEstateVehicleAndEmployer(borrowerProfileId);
+        String encodedImage = Base64.getEncoder().encodeToString(signature);
+        Document document = modifyHtmlDocument(borrowerProfile, getFileFromPath(FORM_PATH_HTML), encodedImage);
+        ByteArrayOutputStream pdfOutputStream = generatePdf(document);
+        return processFormHtmlResponse(new ByteArrayResource(pdfOutputStream.toByteArray()));
+    }
+
     private Document modifyHtmlDocument(BorrowerProfile borrowerProfile, byte[] file) {
         Map<String, String> replacements = docxFieldHandler.replaceFieldValue(
                 borrowerProfile.getPartnerApplication(), borrowerProfile);
@@ -215,6 +224,16 @@ public class FormServiceImpl implements FormService {
         replaceDataInHtml(document, replacements);
         return document;
     }
+
+    private Document modifyHtmlDocument(BorrowerProfile borrowerProfile, byte[] file, String encodedImage) {
+        Map<String, String> replacements = docxFieldHandler.replaceFieldValue(
+                borrowerProfile.getPartnerApplication(), borrowerProfile);
+        replacements.put("borrowerSign", encodedImage);
+        Document document = Jsoup.parse(new String(file));
+        replaceDataInHtml(document, replacements);
+        return document;
+    }
+
 
     private ByteArrayOutputStream generatePdf(Document document) {
         ByteArrayOutputStream pdfOutputStream = new ByteArrayOutputStream();
@@ -251,7 +270,11 @@ public class FormServiceImpl implements FormService {
         for (Map.Entry<String, String> entry : replacements.entrySet()) {
             Elements elements = document.select("[data-replace-key='" + entry.getKey() + "']");
             for (Element element : elements) {
-                element.text(entry.getValue());
+                if ("borrowerSign".equals(entry.getKey())) {
+                    element.attr("src", "data:image/png;base64," + entry.getValue());
+                } else {
+                    element.text(entry.getValue());
+                }
             }
         }
     }
@@ -399,7 +422,7 @@ public class FormServiceImpl implements FormService {
             int fixedHeight = Units.toEMU(50);
 
             XWPFRun run = paragraph.createRun();
-            run.addPicture(new ByteArrayInputStream(imageBytes), imageFormat, "signature.png", fixedWidth, fixedHeight);
+            run.addPicture(new ByteArrayInputStream(imageBytes), imageFormat, "forms/signature.png", fixedWidth, fixedHeight);
         } catch (Exception e) {
             throw new RuntimeException("Could not add image to paragraph", e);
         }

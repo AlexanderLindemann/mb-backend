@@ -49,4 +49,8 @@ public interface GenerateFormController {
     @PostMapping("/generate-borrower-form-html")
     ResponseEntity<ByteArrayResource> generateFormFileHtml(@RequestParam UUID borrowerProfileId);
 
+    @ApiOperation("подписать анкету html")
+    @PostMapping("/signature-borrower-form-html")
+    ResponseEntity<ByteArrayResource> signatureFormFileHtml(@RequestParam UUID borrowerProfileId,
+                                                            @RequestBody byte[] signature);
 }
