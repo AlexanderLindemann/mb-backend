@@ -103,6 +103,13 @@ public class PartnerServiceImpl implements PartnerService {
     }
 
     @Override
+    public Partner getPartnerByCianIdOrName(Integer cianId, String name) {
+        Specification<Partner> specification = PartnerSpecification.partnerByCianIdOrName(cianId, name);
+        return partnerRepository.findOne(specification)
+                .orElseThrow(() -> new ItemNotFoundException(Partner.class, List.of(cianId, name)));
+    }
+
+    @Override
     @Transactional(readOnly = true)
     public Partner getIsActivePartner(UUID partnerId) {
         Specification<Partner> specification = PartnerSpecification.partnerByIdAndIsActive(partnerId);
@@ -153,4 +160,7 @@ public class PartnerServiceImpl implements PartnerService {
         partner.getCreditPrograms().addAll(programsToAdd);
     }
 
+    public Optional<Partner> findPartnerByCianId(Integer cianId) {
+        return partnerRepository.findByCianId(cianId);
+    }
 }

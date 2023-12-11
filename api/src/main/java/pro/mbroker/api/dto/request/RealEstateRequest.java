@@ -19,4 +19,6 @@ public class RealEstateRequest {
 
     private String address;
 
+    private Integer cianId;
+
 }

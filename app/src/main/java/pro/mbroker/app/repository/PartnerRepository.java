@@ -16,4 +16,5 @@ public interface PartnerRepository extends JpaRepository<Partner, UUID>, JpaSpec
 
     Optional<Partner> findBySmartDealOrganizationId(Integer id);
 
+    Optional<Partner> findByCianId(Integer cianId);
 }

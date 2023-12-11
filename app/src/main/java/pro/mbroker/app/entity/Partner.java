@@ -44,4 +44,6 @@ public class Partner extends BaseEntity {
     @OneToMany(mappedBy = "partner", cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH})
     private List<RealEstate> realEstates = new ArrayList<>();
 
+    @Column (name = "cian_id")
+    private Integer cianId;
 }

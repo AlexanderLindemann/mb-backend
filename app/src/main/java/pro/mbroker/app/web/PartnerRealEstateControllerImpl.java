@@ -66,6 +66,9 @@ public class PartnerRealEstateControllerImpl implements PartnerRealEstateControl
         return realEstateMapper.toRealEstateAddressResponseList(currentRealEstates);
     }
 
+    @Override
+    public void loadRealEstatesFromCian() {partnerRealEstateService.loadRealEstatesFromCian();}
+
     private PartnerResponse buildPartnerResponse(Partner partner) {
         List<CreditProgramResponse> creditProgramResponses = programMapper.convertCreditProgramsToResponses(partner.getCreditPrograms());
         List<RealEstateResponse> realEstateResponse = partner.getRealEstates().stream()

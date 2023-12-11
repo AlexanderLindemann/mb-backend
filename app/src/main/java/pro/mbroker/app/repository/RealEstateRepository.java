@@ -30,4 +30,15 @@ public interface RealEstateRepository extends JpaRepository<RealEstate, UUID>, J
     List<CreditProgram> findCreditProgramsWithDetailsAndParametersByRealEstateId(@Param("id") UUID id, @Param("currentTime") LocalDateTime currentTime);
 
     Page<RealEstate> findAllByPartnerId(UUID partnerId, Pageable pageable);
+
+
+    @Query("SELECT r FROM RealEstate r " +
+            "JOIN r.partner p " +
+            "WHERE r.residentialComplexName = :residentialComplexName " +
+            "AND p.id = :partnerId " +
+            "AND r.address = :address")
+    RealEstate findByResidentialComplexNameAndPartnerId(
+            @Param("partnerId") UUID partnerId,
+            @Param("residentialComplexName") String residentialComplexName,
+            @Param("address") String address);
 }

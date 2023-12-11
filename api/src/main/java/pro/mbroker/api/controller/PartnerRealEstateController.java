@@ -47,4 +47,7 @@ public interface PartnerRealEstateController {
                                                   @RequestParam(defaultValue = "10") int size,
                                                   @RequestParam(defaultValue = "residentialComplexName") String sortBy,
                                                   @RequestParam(defaultValue = "asc") String sortOrder);
+    @ApiOperation("получить все ЖК из Циан")
+    @GetMapping("/update_real_estates_from_cian")
+    void loadRealEstatesFromCian();
 }

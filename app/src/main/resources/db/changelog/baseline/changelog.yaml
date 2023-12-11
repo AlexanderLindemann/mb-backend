@@ -113,3 +113,7 @@ databaseChangeLog:
   - include:
       file: 20231206_1305-add-column-cian_user_id-in_borrower_profile-table.xml
       relativeToChangelogFile: true
+
+  - include:
+      file: 20231206_690-add-column-cian-id.xml
+      relativeToChangelogFile: true

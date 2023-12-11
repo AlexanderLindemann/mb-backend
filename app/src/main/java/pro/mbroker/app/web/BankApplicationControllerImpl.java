@@ -113,9 +113,7 @@ public class BankApplicationControllerImpl implements BankApplicationController 
         log.error(result.toString());
     }
 
-        return ResponseEntity.ok().
-
-    body(result.toString());
+        return ResponseEntity.ok().body(result.toString());
 }
 
     @Override

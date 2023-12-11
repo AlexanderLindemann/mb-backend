@@ -99,4 +99,13 @@ public enum RegionType implements EnumWithValue<String> {
 
     private final String value;
     private final String name;
+
+    public static RegionType getByName(String name) {
+        for (RegionType regionType : RegionType.values()) {
+            if (regionType.getName().equalsIgnoreCase(name)) {
+                return regionType;
+            }
+        }
+        throw new IllegalArgumentException("No such region for Russian name: " + name);
+    }
 }

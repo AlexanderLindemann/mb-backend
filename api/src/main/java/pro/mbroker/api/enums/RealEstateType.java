@@ -5,6 +5,10 @@ import lombok.RequiredArgsConstructor;
 import pro.smartdeal.common.enums.DictionaryEnum;
 import pro.smartdeal.common.enums.EnumWithValue;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Getter
 @RequiredArgsConstructor
 @DictionaryEnum(code = "RealEstateType", name = "Тип недвижимости")
@@ -21,5 +25,14 @@ public enum RealEstateType implements EnumWithValue<String> {
 
     private final String value;
     private final String name;
+
+    public static List<RealEstateType> getAll() {
+        return Arrays.asList(RealEstateType.values());
+    }
+    public static List<String> getAllNames() {
+        return Arrays.stream(RealEstateType.values())
+                .map(RealEstateType::getName)
+                .collect(Collectors.toList());
+    }
 }
 

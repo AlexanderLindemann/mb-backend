@@ -30,4 +30,5 @@ public class PartnerRequest {
     @NonNull
     private List<UUID> bankCreditProgram;
 
+    private Integer cianId;
 }

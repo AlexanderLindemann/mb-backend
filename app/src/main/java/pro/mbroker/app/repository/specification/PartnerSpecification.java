@@ -21,5 +21,16 @@ public class PartnerSpecification {
                 criteriaBuilder.and(criteriaBuilder.equal(root.get("smartDealOrganizationId"), organizationId),
                         criteriaBuilder.isTrue(root.get("isActive")));
     }
+
+    public static Specification<Partner> partnerByCianIdOrName(Integer cianId, String name) {
+        return (root, query, criteriaBuilder) ->
+                criteriaBuilder.and(
+                        criteriaBuilder.or(
+                                criteriaBuilder.equal(root.get("cianId"), cianId),
+                                criteriaBuilder.equal(root.get("name"), name)
+                        ),
+                        criteriaBuilder.isTrue(root.get("isActive"))
+                );
+    }
 }
 

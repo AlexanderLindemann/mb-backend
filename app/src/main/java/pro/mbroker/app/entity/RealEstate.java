@@ -35,4 +35,8 @@ public class RealEstate extends BaseEntity {
     @JoinColumn(name = "partner_id")
     private Partner partner;
 
+    //id в циане
+    @Column (name = "cian_id")
+    private Integer cianId;
+
 }

@@ -17,4 +17,6 @@ public interface PartnerRealEstateService {
     List<RealEstate> getRealEstateByPartnerId(int page, int size, String sortBy, String sortOrder, UUID partnerId);
 
     List<RealEstate> getCurrentRealEstate(int page, int size, String sortBy, String sortOrder);
+
+    void loadRealEstatesFromCian();
 }

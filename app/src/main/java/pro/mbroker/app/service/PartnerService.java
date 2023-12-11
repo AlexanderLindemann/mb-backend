@@ -4,6 +4,7 @@ import pro.mbroker.api.dto.request.PartnerRequest;
 import pro.mbroker.app.entity.Partner;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public interface PartnerService {
@@ -23,4 +24,8 @@ public interface PartnerService {
     void deletePartner(UUID partnerId);
 
     Partner getPartnerByPartnerApplicationId(UUID partnerApplicationId);
+
+    Partner getPartnerByCianIdOrName (Integer cianId, String name);
+
+    Optional<Partner> findPartnerByCianId(Integer cianId);
 }
