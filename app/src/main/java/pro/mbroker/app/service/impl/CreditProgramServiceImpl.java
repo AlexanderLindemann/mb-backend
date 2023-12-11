@@ -116,4 +116,9 @@ public class CreditProgramServiceImpl implements CreditProgramService {
     public List<CreditProgram> getProgramsWithDetail(List<UUID> creditProgramIds) {
         return creditProgramRepository.findByIdInWithCreditProgramDetail(creditProgramIds);
     }
+
+    @Override
+    public List<UUID> getAllCreditProgramIds() {
+        return creditProgramRepository.findAllCreditProgramIds();
+    }
 }

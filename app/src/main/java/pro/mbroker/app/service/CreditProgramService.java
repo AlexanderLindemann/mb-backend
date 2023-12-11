@@ -25,4 +25,6 @@ public interface CreditProgramService {
     void deleteCreditProgram(UUID creditProgramId);
 
     List<CreditProgram> getProgramsWithDetail(List<UUID> creditProgramIds);
+
+    List<UUID> getAllCreditProgramIds();
 }

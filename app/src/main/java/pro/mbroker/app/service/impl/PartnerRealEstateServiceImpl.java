@@ -24,13 +24,13 @@ import pro.mbroker.app.mapper.RealEstateMapper;
 import pro.mbroker.app.repository.PartnerRepository;
 import pro.mbroker.app.repository.RealEstateRepository;
 import pro.mbroker.app.repository.specification.RealEstateSpecification;
+import pro.mbroker.app.service.CreditProgramService;
 import pro.mbroker.app.service.PartnerRealEstateService;
 import pro.mbroker.app.service.PartnerService;
 import pro.mbroker.app.util.Pagination;
 import pro.mbroker.app.util.TokenExtractor;
 import pro.smartdeal.ng.common.security.service.CurrentUserService;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -45,6 +45,7 @@ public class PartnerRealEstateServiceImpl implements PartnerRealEstateService {
     private final CurrentUserService currentUserService;
     private final PartnerRepository partnerRepository;
     private final CianAPIClient cianAPIClient;
+    private final CreditProgramService creditProgramService;
 
     @Override
     @Transactional
@@ -162,7 +163,7 @@ public class PartnerRealEstateServiceImpl implements PartnerRealEstateService {
         partnerRequest.setRealEstateRequest(buildRealEstateRequest(response));
         partnerRequest.setRealEstateType(RealEstateType.getAll());
         partnerRequest.setType(PartnerType.DEVELOPER);
-        partnerRequest.setBankCreditProgram(Collections.emptyList());
+        partnerRequest.setBankCreditProgram(getAllCreditProgramIds());
         partnerRequest.setSmartDealOrganizationId(0);
         partnerRequest.setCreditPurposeType(CreditPurposeType.getAll());
 
@@ -170,6 +171,10 @@ public class PartnerRealEstateServiceImpl implements PartnerRealEstateService {
     }
 
     private RealEstate getRealEstateByNameByPartnerId(UUID partnerId, String name, String address) {
-       return realEstateRepository.findByResidentialComplexNameAndPartnerId(partnerId, name, address);
+        return realEstateRepository.findByResidentialComplexNameAndPartnerId(partnerId, name, address);
+    }
+
+    private List<UUID> getAllCreditProgramIds() {
+        return creditProgramService.getAllCreditProgramIds();
     }
 }
