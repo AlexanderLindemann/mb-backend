@@ -12,5 +12,6 @@ public interface BorrowerDocumentMapper {
     @Mapping(source = "borrowerDocument.attachment.id", target = "attachmentId")
     @Mapping(source = "borrowerDocument.attachment.sizeBytes", target = "sizeBytes")
     @Mapping(source = "borrowerDocument.attachment.name", target = "attachmentName")
+    @Mapping(source = "borrowerDocument.updatedAt", target = "updatedAt", dateFormat = "yyyy-MM-dd HH:mm:ss")
     BorrowerDocumentResponse toBorrowerDocumentResponse(BorrowerDocument borrowerDocument);
 }

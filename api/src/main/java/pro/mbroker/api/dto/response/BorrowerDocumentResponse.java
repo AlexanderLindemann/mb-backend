@@ -22,6 +22,8 @@ public class BorrowerDocumentResponse {
 
     private long sizeBytes;
 
+    private String updatedAt; //не использовать LocalDateTime иначе Rabit будет ругатья
+
     private String attachmentName;
 
 }
