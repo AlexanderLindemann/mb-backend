@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+    http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <changeSet id="add_real_estate_type_to_bank_application" author="a.lindemann">
+        <addColumn tableName="bank_application">
+            <column name="real_estate_type" type="VARCHAR(255)">
+                <constraints nullable="true"/>
+            </column>
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="update_real_estate_type_in_bank_application" author="a.lindemann">
+        <sql>
+            UPDATE bank_application ba
+            SET real_estate_type =
+                    CASE
+                        WHEN pa.real_estate_types IS NULL OR pa.real_estate_types = '' OR
+                             position(',' in pa.real_estate_types) > 0 THEN 'APARTMENT'
+                        ELSE pa.real_estate_types
+                        END FROM partner_application pa
+            WHERE ba.partner_application_id = pa.id;
+        </sql>
+    </changeSet>
+
+    <changeSet id="make_real_estate_type_not_null" author="a.lindemann">
+        <addNotNullConstraint tableName="bank_application"
+                              columnName="real_estate_type"
+                              columnDataType="VARCHAR(255)"/>
+    </changeSet>
+
+</databaseChangeLog>

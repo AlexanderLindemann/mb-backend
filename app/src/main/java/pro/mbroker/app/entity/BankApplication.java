@@ -5,9 +5,22 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import pro.mbroker.api.enums.BankApplicationStatus;
+import pro.mbroker.api.enums.RealEstateType;
 import pro.mbroker.app.entity.underwriting.Underwriting;
 
-import javax.persistence.*;
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
+import javax.persistence.SequenceGenerator;
+import javax.persistence.Table;
 import java.math.BigDecimal;
 
 @Entity
@@ -44,6 +57,10 @@ public class BankApplication extends BaseEntity {
 
     @Column(name = "overpayment")
     private BigDecimal overpayment;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "real_estate_type", nullable = false)
+    private RealEstateType realEstateType;
 
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "application_number_seq")
     @SequenceGenerator(name = "application_number_seq", sequenceName = "application_number_seq", allocationSize = 1)

@@ -37,7 +37,7 @@ public class LoanProgramCalculationDto {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private BankApplicationStatus status;
 
-    private List<RealEstateType> realEstateTypes;
+    private RealEstateType realEstateType;
 
     private SalaryClientProgramCalculationDto salaryClientCalculation;
 

@@ -7,6 +7,7 @@ import pro.mbroker.api.dto.SalaryClientProgramCalculationDto;
 import pro.mbroker.api.dto.request.CreditParameterResponse;
 import pro.mbroker.api.dto.request.notification.UnderwritingResponse;
 import pro.mbroker.api.enums.BankApplicationStatus;
+import pro.mbroker.api.enums.RealEstateType;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -17,19 +18,14 @@ import java.util.UUID;
 @Setter
 @ToString
 public class BankApplicationResponse {
-    private UUID id;
-
-    private UUID creditProgramId;
-
-    private CreditParameterResponse creditParameter;
 
     private Integer applicationNumber;
 
-    private BorrowerProfileResponse mainBorrower;
+    private Double baseRate;
 
-    private List<BorrowerProfileResponse> coBorrowers;
+    private String creditProgramName;
 
-    private BankApplicationStatus status;
+    private Integer creditTerm;
 
     private LocalDateTime createdAt;
 
@@ -41,16 +37,24 @@ public class BankApplicationResponse {
 
     private BigDecimal downPayment;
 
-    private Integer creditTerm;
-
     private BigDecimal overpayment;
 
-    private Double baseRate;
+    private UUID id;
 
-    private String creditProgramName;
+    private UUID creditProgramId;
+
+    private RealEstateType realEstateType;
+
+    private CreditParameterResponse creditParameter;
+
+    private BorrowerProfileResponse mainBorrower;
+
+    private BankApplicationStatus status;
 
     private SalaryClientProgramCalculationDto salaryClientCalculation;
 
     private UnderwritingResponse underwriting;
+
+    private List<BorrowerProfileResponse> coBorrowers;
 
 }

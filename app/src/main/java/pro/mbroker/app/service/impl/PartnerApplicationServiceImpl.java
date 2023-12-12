@@ -13,6 +13,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import pro.mbroker.api.dto.BankApplicationKey;
 import pro.mbroker.api.dto.BankWithBankApplicationDto;
 import pro.mbroker.api.dto.MortgageCalculationDto;
 import pro.mbroker.api.dto.SalaryClientProgramCalculationDto;
@@ -32,6 +33,7 @@ import pro.mbroker.api.enums.RealEstateType;
 import pro.mbroker.api.enums.RegionType;
 import pro.mbroker.app.entity.Bank;
 import pro.mbroker.app.entity.BankApplication;
+import pro.mbroker.app.entity.BaseEntity;
 import pro.mbroker.app.entity.BorrowerDocument;
 import pro.mbroker.app.entity.BorrowerProfile;
 import pro.mbroker.app.entity.CreditProgram;
@@ -69,6 +71,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.HashSet;
@@ -592,51 +595,39 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
         bankApplicationResponse.setCoBorrowers(coBorrowers);
     }
 
-
     private List<BankWithBankApplicationDto> getGroupBankApplication(List<BankApplicationResponse> activeBankApplicationResponses) {
-        Map<UUID, BankApplicationResponse> creditProgramMap = activeBankApplicationResponses.stream()
-                .collect(Collectors.toMap(
-                        BankApplicationResponse::getCreditProgramId,
-                        Function.identity(),
-                        (existingValue, newValue) -> existingValue));
-        List<CreditProgram> programByCreditProgramIds = creditProgramService.getProgramByCreditProgramIds(new ArrayList<>(creditProgramMap.keySet()));
-        Map<UUID, Bank> bankMap = programByCreditProgramIds.stream()
+        Map<UUID, List<BankApplicationResponse>> bankApplicationMap = activeBankApplicationResponses.stream()
+                .collect(Collectors.groupingBy(BankApplicationResponse::getCreditProgramId));
+        Set<Bank> banks = creditProgramService.getProgramByCreditProgramIds(new ArrayList<>(bankApplicationMap.keySet()))
+                .stream()
                 .map(CreditProgram::getBank)
-                .collect(Collectors.toMap(Bank::getId, Function.identity(), (oldValue, newValue) -> oldValue));
-        Map<UUID, List<BankApplicationResponse>> grouped = programByCreditProgramIds.stream()
-                .collect(Collectors.groupingBy(creditProgram -> creditProgram.getBank().getId(),
-                        Collectors.mapping(creditProgram -> creditProgramMap.get(creditProgram.getId()), Collectors.toList())));
-        List<BankWithBankApplicationDto> result = new ArrayList<>();
-        for (Map.Entry<UUID, List<BankApplicationResponse>> entry : grouped.entrySet()) {
-            BankWithBankApplicationDto dto = new BankWithBankApplicationDto();
-            Bank bank = bankMap.get(entry.getKey());
-            dto.setBankId(entry.getKey());
-            dto.setBankName(bank.getName());
-            if (Objects.nonNull(bank.getAttachment()) && Objects.nonNull(bank.getAttachment().getId())) {
-                Long logoId = bank.getAttachment().getId();
-                try {
-                    dto.setLogo(Converter.generateBase64FromFile(attachmentService.download(logoId)));
-                } catch (Exception e) {
-                    log.error("Error loading logo: " + e.getMessage());
-                }
-            }
-            dto.setBankApplications(entry.getValue());
-            result.add(dto);
-        }
-        sortBankWithBankApplicationDto(result);
-        return result;
+                .collect(Collectors.toSet());
+        return banks.stream()
+                .map(bank -> createBankWithBankApplicationDto(bank, bankApplicationMap))
+                .peek(dto -> dto.getBankApplications().sort(Comparator.comparing(BankApplicationResponse::getMonthlyPayment)))
+                .sorted(Comparator.comparing(bankWithBankApplicationDto ->
+                        bankWithBankApplicationDto.getBankApplications().stream()
+                                .min(Comparator.comparing(BankApplicationResponse::getMonthlyPayment))
+                                .orElseThrow(NoSuchElementException::new)
+                                .getMonthlyPayment()))
+                .collect(Collectors.toList());
     }
 
-    private static void sortBankWithBankApplicationDto(List<BankWithBankApplicationDto> result) {
-        result.forEach(bankWithBankApplicationDto ->
-                bankWithBankApplicationDto.getBankApplications()
-                        .sort(Comparator.comparing(BankApplicationResponse::getMonthlyPayment))
-        );
-        result.sort(Comparator.comparing(bankWithBankApplicationDto ->
-                bankWithBankApplicationDto.getBankApplications().stream()
-                        .min(Comparator.comparing(BankApplicationResponse::getMonthlyPayment))
-                        .orElseThrow(NoSuchElementException::new)
-                        .getMonthlyPayment()));
+    private BankWithBankApplicationDto createBankWithBankApplicationDto(Bank bank, Map<UUID, List<BankApplicationResponse>> bankApplicationMap) {
+        BankWithBankApplicationDto dto = new BankWithBankApplicationDto();
+        dto.setBankName(bank.getName());
+        dto.setBankId(bank.getId());
+        if (Objects.nonNull(bank.getAttachment()) && Objects.nonNull(bank.getAttachment().getId()))
+            dto.setLogo(Converter.generateBase64FromFile(attachmentService.download(bank.getAttachment().getId())));
+        List<UUID> creditProgramIds = bank.getCreditPrograms().stream()
+                .filter(BaseEntity::isActive)
+                .map(CreditProgram::getId)
+                .collect(Collectors.toList());
+        List<BankApplicationResponse> applications = creditProgramIds.stream()
+                .flatMap(id -> bankApplicationMap.getOrDefault(id, Collections.emptyList()).stream())
+                .collect(Collectors.toList());
+        dto.setBankApplications(applications);
+        return dto;
     }
 
     private void updateMainBorrower(PartnerApplication partnerApplication, BorrowerProfileRequest borrowerProfileRequest) {
@@ -668,25 +659,31 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
                 .map(borrower -> getBorrowerProfile(borrower.getId()))
                 .orElseGet(() -> borrowerProfileMapper.toBorrowerProfile(optionalBorrower.orElse(null)));
         List<BankApplicationRequest> bankApplicationRequests = requests.getBankApplications();
-        List<UUID> updateCreditProgramIds = bankApplicationRequests.stream()
-                .map(BankApplicationRequest::getCreditProgramId)
+        List<BankApplicationKey> updateCreditProgramIds = bankApplicationRequests.stream()
+                .map(request -> new BankApplicationKey(request.getCreditProgramId(), request.getRealEstateType()))
                 .collect(Collectors.toList());
         MortgageCalculation mortgageCalculation = partnerApplication.getMortgageCalculation();
         if (mortgageCalculation.getIsMaternalCapital() == null) {
             mortgageCalculation.setIsMaternalCapital(false);
         }
-        Map<UUID, BankApplication> currentBankApplications = partnerApplication.getBankApplications()
+        Map<BankApplicationKey, BankApplication> currentBankApplications = partnerApplication.getBankApplications()
                 .stream()
-                .collect(Collectors.toMap(bankApplication -> bankApplication.getCreditProgram().getId(), Function.identity()));
+                .collect(Collectors.toMap(
+                        bankApplication -> new BankApplicationKey(bankApplication.getCreditProgram().getId(), bankApplication.getRealEstateType()),
+                        Function.identity()
+                ));
         bankApplicationRequests.forEach(bankApplicationRequest -> {
-            BankApplication currentBankApplication = currentBankApplications.get(bankApplicationRequest.getCreditProgramId());
+            BankApplication currentBankApplication = currentBankApplications.get(new BankApplicationKey(bankApplicationRequest.getCreditProgramId(),
+                    bankApplicationRequest.getRealEstateType()));
             if (currentBankApplication != null) {
                 bankApplicationMapper.updateBankApplicationFromRequest(currentBankApplication, bankApplicationRequest);
             } else {
                 BankApplication newBankApplication = bankApplicationMapper.toBankApplication(bankApplicationRequest)
                         .setMainBorrower(mainBorrower)
                         .setPartnerApplication(partnerApplication);
-                currentBankApplications.put(bankApplicationRequest.getCreditProgramId(), newBankApplication);
+                currentBankApplications.put(new BankApplicationKey(bankApplicationRequest.getCreditProgramId(),
+                                bankApplicationRequest.getRealEstateType())
+                        , newBankApplication);
             }
         });
         currentBankApplications.forEach((key, value) -> {

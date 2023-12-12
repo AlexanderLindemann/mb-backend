@@ -70,7 +70,7 @@ public class CalculatorServiceImpl implements CalculatorService {
             bankLoanProgramDtoMap.computeIfAbsent(creditProgram.getBank().getId(),
                     bankLoanProgram ->
                             createBankLoanProgramDto(creditProgram));
-            loanProgramCalculationDto.add(createLoanProgramCalculationDto(request, creditProgram));
+            loanProgramCalculationDto.addAll(createLoanProgramCalculationDto(request, creditProgram));
         }
         List<BankLoanProgramDto> bankLoanProgramDtos = new ArrayList<>(bankLoanProgramDtoMap.values());
         List<BankApplication> unchangeableBankApplication = getUnchangeableBankApplication(request.getPartnerApplicationId());
@@ -105,7 +105,7 @@ public class CalculatorServiceImpl implements CalculatorService {
                         .setMonthlyPayment(ba.getMonthlyPayment())
                         .setCreditProgramName(ba.getCreditProgram().getProgramName())
                         .setBaseRate(ba.getCreditProgram().getBaseRate())
-                        .setRealEstateTypes(Converter.convertStringListToEnumList(ba.getPartnerApplication().getRealEstateTypes(), RealEstateType.class)))
+                        .setRealEstateType(ba.getRealEstateType()))
                 .collect(Collectors.toList());
     }
 
@@ -206,7 +206,7 @@ public class CalculatorServiceImpl implements CalculatorService {
                 .orElseGet(() -> request.getCreditTerm() * MONTHS_IN_YEAR);
     }
 
-    private LoanProgramCalculationDto createLoanProgramCalculationDto(CalculatorRequest request, CreditProgram creditProgram) {
+    private List<LoanProgramCalculationDto> createLoanProgramCalculationDto(CalculatorRequest request, CreditProgram creditProgram) {
         BigDecimal mortgageSum = getMortgageSum(request.getRealEstatePrice(), request.getDownPayment());
         BigDecimal downPayment = Optional.ofNullable(request.getDownPayment()).orElse(BigDecimal.ZERO);
         int creditTermMonths = getCreditTermMonths(creditProgram, request);
@@ -215,29 +215,33 @@ public class CalculatorServiceImpl implements CalculatorService {
                         creditProgram.getCreditProgramDetail().getRealEstateType(), RealEstateType.class).stream()
                 .filter(request.getRealEstateTypes()::contains)
                 .collect(Collectors.toList());
+        List<LoanProgramCalculationDto> loanProgramCalculationDtos = new ArrayList<>();
+        realEstateTypes.forEach(realEstateType -> {
+            LoanProgramCalculationDto loanProgramCalculationDto = new LoanProgramCalculationDto()
+                    .setBankId(creditProgram.getBank().getId())
+                    .setCreditProgramId(creditProgram.getId())
+                    .setCreditProgramName(creditProgram.getProgramName())
+                    .setDescription(creditProgram.getDescription())
+                    .setFullDescription(creditProgram.getFullDescription())
+                    .setRealEstateType(realEstateType)
+                    .setCreditTerm((int) Math.ceil(creditTermMonths / 12.0))
+                    .setBaseRate(creditProgram.getBaseRate())
+                    .setMonthlyPayment(calculateMonthlyPayment)
+                    .setOverpayment(calculateOverpayment(calculateMonthlyPayment, creditTermMonths, request.getRealEstatePrice(), downPayment));
+            if (creditProgram.getSalaryClientInterestRate() != null) {
+                double modifiedRate = creditProgram.getBaseRate() + creditProgram.getSalaryClientInterestRate();
+                BigDecimal salaryClientMonthlyPayment = calculateMonthlyPayment(mortgageSum, modifiedRate, creditTermMonths);
+                SalaryClientProgramCalculationDto salaryClientProgramCalculation = new SalaryClientProgramCalculationDto()
+                        .setCalculatedRate(modifiedRate)
+                        .setMonthlyPayment(salaryClientMonthlyPayment)
+                        .setOverpayment(calculateOverpayment(salaryClientMonthlyPayment, creditTermMonths, request.getRealEstatePrice(), downPayment))
+                        .setSalaryBankRate(creditProgram.getSalaryClientInterestRate());
+                loanProgramCalculationDto.setSalaryClientCalculation(salaryClientProgramCalculation);
+            }
+            loanProgramCalculationDtos.add(loanProgramCalculationDto);
+        });
 
-        LoanProgramCalculationDto loanProgramCalculationDto = new LoanProgramCalculationDto()
-                .setBankId(creditProgram.getBank().getId())
-                .setCreditProgramId(creditProgram.getId())
-                .setCreditProgramName(creditProgram.getProgramName())
-                .setDescription(creditProgram.getDescription())
-                .setFullDescription(creditProgram.getFullDescription())
-                .setRealEstateTypes(realEstateTypes)
-                .setCreditTerm((int) Math.ceil(creditTermMonths / 12.0))
-                .setBaseRate(creditProgram.getBaseRate())
-                .setMonthlyPayment(calculateMonthlyPayment)
-                .setOverpayment(calculateOverpayment(calculateMonthlyPayment, creditTermMonths, request.getRealEstatePrice(), downPayment));
-        if (creditProgram.getSalaryClientInterestRate() != null) {
-            double modifiedRate = creditProgram.getBaseRate() + creditProgram.getSalaryClientInterestRate();
-            BigDecimal salaryClientMonthlyPayment = calculateMonthlyPayment(mortgageSum, modifiedRate, creditTermMonths);
-            SalaryClientProgramCalculationDto salaryClientProgramCalculation = new SalaryClientProgramCalculationDto()
-                    .setCalculatedRate(modifiedRate)
-                    .setMonthlyPayment(salaryClientMonthlyPayment)
-                    .setOverpayment(calculateOverpayment(salaryClientMonthlyPayment, creditTermMonths, request.getRealEstatePrice(), downPayment))
-                    .setSalaryBankRate(creditProgram.getSalaryClientInterestRate());
-            loanProgramCalculationDto.setSalaryClientCalculation(salaryClientProgramCalculation);
-        }
-        return loanProgramCalculationDto;
+        return loanProgramCalculationDtos;
     }
 
 

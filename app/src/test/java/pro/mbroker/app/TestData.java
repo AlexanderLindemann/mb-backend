@@ -28,6 +28,7 @@ public class TestData {
                 .setCreditTerm(20)
                 .setDownPayment(BigDecimal.valueOf(1000000))
                 .setMonthlyPayment(BigDecimal.valueOf(100000))
+                .setRealEstateType(RealEstateType.APARTMENT)
                 .setRealEstatePrice(BigDecimal.valueOf(50000000));
         BankApplicationRequest bankApplicationRequest2 = new BankApplicationRequest()
                 .setCreditProgramId(UUID.fromString("8222cb80-d928-11ed-afa1-0242ac120002"))
@@ -35,6 +36,7 @@ public class TestData {
                 .setCreditTerm(20)
                 .setDownPayment(BigDecimal.valueOf(1000000))
                 .setMonthlyPayment(BigDecimal.valueOf(100000))
+                .setRealEstateType(RealEstateType.APARTMENT)
                 .setRealEstatePrice(BigDecimal.valueOf(50000000));
         return new ArrayList<>(List.of(bankApplicationRequest1, bankApplicationRequest2));
     }

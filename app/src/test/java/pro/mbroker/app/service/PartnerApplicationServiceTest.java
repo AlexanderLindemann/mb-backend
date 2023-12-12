@@ -9,7 +9,6 @@ import pro.mbroker.api.enums.PartnerApplicationStatus;
 import pro.mbroker.api.enums.RealEstateType;
 import pro.mbroker.app.TestData;
 import pro.mbroker.app.entity.PartnerApplication;
-import pro.mbroker.app.repository.PartnerApplicationRepository;
 import pro.mbroker.app.util.Converter;
 
 import java.time.LocalDateTime;
@@ -43,11 +42,11 @@ public class PartnerApplicationServiceTest extends AbstractServiceTest {
         PartnerApplication partnerApplicationBefore =
                 partnerApplicationService.getPartnerApplication(UUID.fromString("5ff4b32c-f967-4cb1-8705-7470a321fe34"));
         LocalDateTime updateAtBefore = partnerApplicationBefore.getUpdatedAt();
-        PartnerApplicationRequest partnerApplication1 = testData.getPartnerApplicationRequest();
-        partnerApplication1.getMainBorrower()
+        PartnerApplicationRequest partnerApplicationNew = testData.getPartnerApplicationRequest();
+        partnerApplicationNew.getMainBorrower()
                 .setId(UUID.fromString("1348b508-f476-11ed-a05b-0242ac120003"));
         PartnerApplication partnerApplication =
-                partnerApplicationService.updatePartnerApplication(UUID.fromString("5ff4b32c-f967-4cb1-8705-7470a321fe34"), partnerApplication1);
+                partnerApplicationService.updatePartnerApplication(UUID.fromString("5ff4b32c-f967-4cb1-8705-7470a321fe34"), partnerApplicationNew);
         assertEquals(partnerApplication.getPartner().getId(), UUID.fromString("5fec2326-d92e-11ed-afa1-0242ac120002"));
         assertEquals(partnerApplication.getCreditPurposeType(), CreditPurposeType.PURCHASE_UNDER_CONSTRUCTION);
         assertEquals(partnerApplication.getPartnerApplicationStatus(), PartnerApplicationStatus.UPLOADING_DOCS);
