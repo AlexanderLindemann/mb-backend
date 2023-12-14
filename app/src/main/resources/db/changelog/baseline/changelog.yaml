@@ -119,3 +119,6 @@ databaseChangeLog:
   - include:
       file: 20231211_1600-move-real_estate_type-column.xml
       relativeToChangelogFile: true
+  - include:
+      file: 20231212_690-change-column-smart_deal_organisation_id.xml
+      relativeToChangelogFile: true

@@ -8,8 +8,9 @@ import pro.mbroker.api.dto.request.RealEstateRequest;
 import pro.mbroker.api.enums.RegionType;
 import pro.mbroker.app.entity.RealEstate;
 import pro.mbroker.app.integration.cian.CianAPIClient;
-import pro.mbroker.app.integration.cian.RealEstateCianResponse;
+import pro.mbroker.app.integration.cian.CiansRealEstate;
 import pro.mbroker.app.integration.cian.response.BuilderDto;
+import pro.mbroker.app.integration.cian.response.RealEstateCianResponse;
 import pro.mbroker.app.integration.cian.response.RegionDto;
 import pro.mbroker.app.repository.PartnerRepository;
 
@@ -76,7 +77,9 @@ public class PartnerRealEstateServiceImplTest extends AbstractServiceTest {
 
     @Test
     public void testGetRealEstatesCian() {
-        RealEstateCianResponse cianResponse = new RealEstateCianResponse();
+        RealEstateCianResponse response = new RealEstateCianResponse();
+
+        CiansRealEstate realEstate = new CiansRealEstate();
         RegionDto regionDto = new RegionDto();
         regionDto.setName("Москва");
         regionDto.setId(123);
@@ -85,17 +88,20 @@ public class PartnerRealEstateServiceImplTest extends AbstractServiceTest {
         builderDto.setId(4444);
         builderDto.setName("Застройщик года");
 
+        realEstate.setRegion(regionDto);
+        realEstate.setName("ЖК Самолет");
+        realEstate.setFullAddress("Москва ул.Строителей 9");
+        realEstate.setId(3456);
+        realEstate.setBuilders(List.of(builderDto));
 
-        cianResponse.setRegion(regionDto);
-        cianResponse.setName("ЖК Самолет");
-        cianResponse.setFullAddress("Москва ул.Строителей 9");
-        cianResponse.setId(3456);
-        cianResponse.setBuilders(List.of(builderDto));
+        List<CiansRealEstate> list = List.of(realEstate);
 
-        when(cianAPIClient.getRealEstate()).thenReturn(cianResponse);
+        response.setNewBuildings(list);
+
+        when(cianAPIClient.getRealEstate()).thenReturn(response);
 
         partnerRealEstateService.loadRealEstatesFromCian();
-        var result = partnerRepository.findByCianId(cianResponse.getBuilders().get(0).getId());
-        assertEquals(result.get().getName(), cianResponse.getBuilders().get(0).getName());
+        var result = partnerRepository.findByCianId(realEstate.getBuilders().get(0).getId());
+        assertEquals(result.get().getName(), realEstate.getBuilders().get(0).getName());
     }
 }

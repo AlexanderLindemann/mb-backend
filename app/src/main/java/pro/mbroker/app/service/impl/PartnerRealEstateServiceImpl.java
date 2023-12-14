@@ -18,8 +18,9 @@ import pro.mbroker.app.entity.Partner;
 import pro.mbroker.app.entity.RealEstate;
 import pro.mbroker.app.exception.ItemNotFoundException;
 import pro.mbroker.app.integration.cian.CianAPIClient;
-import pro.mbroker.app.integration.cian.RealEstateCianResponse;
+import pro.mbroker.app.integration.cian.CiansRealEstate;
 import pro.mbroker.app.integration.cian.response.BuilderDto;
+import pro.mbroker.app.integration.cian.response.RealEstateCianResponse;
 import pro.mbroker.app.mapper.RealEstateMapper;
 import pro.mbroker.app.repository.PartnerRepository;
 import pro.mbroker.app.repository.RealEstateRepository;
@@ -104,14 +105,21 @@ public class PartnerRealEstateServiceImpl implements PartnerRealEstateService {
     @Override
     public void loadRealEstatesFromCian() {
         try {
+            log.info("Запускаем выгрузку жк из циан ");
             RealEstateCianResponse response = cianAPIClient.getRealEstate();
-            checkAndSavePartner(response);
+            if (response != null) {
+                log.info("Загружено жк в количестве: " + response.getNewBuildings().size());
+            }
+
+            response.getNewBuildings().forEach(this::checkAndSavePartner);
+
         } catch (Exception e) {
+            log.error("Не смогли загрузить данные из циан ");
             e.printStackTrace();
         }
     }
 
-    private void checkAndSavePartner(RealEstateCianResponse cianResponse) {
+    private void checkAndSavePartner(CiansRealEstate cianResponse) {
         if (Objects.nonNull(cianResponse.getBuilders())) {
             BuilderDto builder = cianResponse.getBuilders().get(0);//договорились с цианом что пока будем вытаскивать первого.
 
@@ -131,7 +139,7 @@ public class PartnerRealEstateServiceImpl implements PartnerRealEstateService {
         }
     }
 
-    private void checkAndSaveRealEstate(RealEstateCianResponse response, UUID partnerId) {
+    private void checkAndSaveRealEstate(CiansRealEstate response, UUID partnerId) {
         buildRealEstateRequest(response).forEach(cianRealEstate -> {
             RealEstate realEstate = getRealEstateByNameByPartnerId(partnerId,
                     cianRealEstate.getResidentialComplexName(),
@@ -144,7 +152,7 @@ public class PartnerRealEstateServiceImpl implements PartnerRealEstateService {
         });
     }
 
-    private List<RealEstateRequest> buildRealEstateRequest(RealEstateCianResponse response) {
+    private List<RealEstateRequest> buildRealEstateRequest(CiansRealEstate response) {
         RealEstateRequest request = new RealEstateRequest();
         request.setAddress(response.getFullAddress());
         request.setCianId(response.getId());
@@ -154,7 +162,7 @@ public class PartnerRealEstateServiceImpl implements PartnerRealEstateService {
         return List.of(request);
     }
 
-    private PartnerRequest buildPartnerRequest(RealEstateCianResponse response) {
+    private PartnerRequest buildPartnerRequest(CiansRealEstate response) {
         BuilderDto builder = response.getBuilders().get(0);//договорились с цианом брать 1го застройщика
         PartnerRequest partnerRequest = new PartnerRequest();
         partnerRequest.setName(builder.getName());
@@ -164,7 +172,6 @@ public class PartnerRealEstateServiceImpl implements PartnerRealEstateService {
         partnerRequest.setRealEstateType(RealEstateType.getAll());
         partnerRequest.setType(PartnerType.DEVELOPER);
         partnerRequest.setBankCreditProgram(getAllCreditProgramIds());
-        partnerRequest.setSmartDealOrganizationId(0);
         partnerRequest.setCreditPurposeType(CreditPurposeType.getAll());
 
         return partnerRequest;

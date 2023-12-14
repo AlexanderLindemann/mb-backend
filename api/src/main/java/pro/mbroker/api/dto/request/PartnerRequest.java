@@ -15,7 +15,6 @@ import java.util.UUID;
 @Setter
 @ToString
 public class PartnerRequest {
-    @NonNull
     private Integer smartDealOrganizationId;
     @NonNull
     private String name;

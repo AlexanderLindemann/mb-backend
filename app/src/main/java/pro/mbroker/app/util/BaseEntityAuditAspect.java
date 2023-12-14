@@ -25,6 +25,9 @@ public class BaseEntityAuditAspect {
     @NonNull
     private final CurrentUserService currentUserService;
 
+    @org.springframework.beans.factory.annotation.Value("${token_with_admin_permission}")
+    protected String currentUserToken;
+
     @Before("execution(* pro.mbroker.app.repository.*.save(..)) && args(baseEntity, ..)")
     public void beforeSave(BaseEntity baseEntity) {
         if (baseEntity instanceof PartnerApplication) {
@@ -68,7 +71,8 @@ public class BaseEntityAuditAspect {
     }
 
     private void setAuditFields(BaseEntity baseEntity) {
-        String currentUserToken = currentUserService.getCurrentUserToken();
+        setCurrentUserToken();
+
         int sdId = extractSdIdFromToken(currentUserToken);
         if (baseEntity.getCreatedBy() == null) {
             baseEntity.setCreatedBy(sdId);
@@ -79,6 +83,14 @@ public class BaseEntityAuditAspect {
 
     private int extractSdIdFromToken(String token) {
         return TokenExtractor.extractSdId(token);
+    }
+
+    private void setCurrentUserToken() {
+        try {
+            currentUserToken = currentUserService.getCurrentUserToken();
+        } catch (NullPointerException e) {
+
+        }
     }
 }
 
