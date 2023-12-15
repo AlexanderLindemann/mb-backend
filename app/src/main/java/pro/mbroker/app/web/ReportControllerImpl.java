@@ -22,7 +22,7 @@ public class ReportControllerImpl implements ReportController {
 
     @Override
     public void getReport(HttpServletResponse response, int page, int size, String sortBy, String sortOrder, LocalDateTime startDate, LocalDateTime endDate) {
-        List<PartnerApplicationResponse> partnerApplicationResponses = partnerApplicationService.getAllPartnerApplication(page, size, sortBy, sortOrder, startDate, endDate)
+        List<PartnerApplicationResponse> partnerApplicationResponses = partnerApplicationService.getAllPartnerApplication(page, size, sortBy, sortOrder, startDate, endDate, null, null, null, null, null, null, null, null)
                 .stream()
                 .map(partnerApplicationService::buildPartnerApplicationResponse)
                 .collect(Collectors.toList());

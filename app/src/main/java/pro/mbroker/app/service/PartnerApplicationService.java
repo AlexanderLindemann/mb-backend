@@ -16,7 +16,20 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface PartnerApplicationService {
-    Page<PartnerApplication> getAllPartnerApplication(int page, int size, String sortBy, String sortOrder, LocalDateTime startDate, LocalDateTime endDate);
+    Page<PartnerApplication> getAllPartnerApplication(int page,
+                                                      int size,
+                                                      String sortBy,
+                                                      String sortOrder,
+                                                      LocalDateTime startDate,
+                                                      LocalDateTime endDate,
+                                                      String phoneNumber,
+                                                      String fullName,
+                                                      Integer applicationNumber,
+                                                      UUID realEstateId,
+                                                      RegionType region,
+                                                      UUID bankId,
+                                                      BankApplicationStatus applicationStatus,
+                                                      Boolean isActive);
 
     PartnerApplication createPartnerApplication(PartnerApplicationRequest request);
 
@@ -26,20 +39,11 @@ public interface PartnerApplicationService {
 
     PartnerApplicationResponse buildPartnerApplicationResponse(PartnerApplication partnerApplication);
 
+    List<PartnerApplicationResponse> buildPartnerApplicationResponse(List<PartnerApplication> partnerApplications);
+
     PartnerApplication getPartnerApplicationByIdCheckPermission(UUID partnerApplicationId);
 
     PartnerApplication getPartnerApplication(UUID partnerApplicationId);
-
-    List<PartnerApplicationResponse> search(String firstName,
-                                            String middleName,
-                                            String lastName,
-                                            String phoneNumber,
-                                            String residentialComplexName,
-                                            RegionType region,
-                                            String bankName,
-                                            BankApplicationStatus applicationStatus,
-                                            String sortBy,
-                                            String sortDirection);
 
     PartnerApplication enableBankApplication(UUID partnerApplicationId, BankApplicationUpdateRequest request);
 
@@ -53,7 +57,7 @@ public interface PartnerApplicationService {
 
     void checkPermission(PartnerApplication partnerApplication);
 
-   List<PartnerApplication> getPartnerApplicationByIds (List<UUID> ids);
+    List<PartnerApplication> getPartnerApplicationByIds(List<UUID> ids);
 
     void saveAll(Collection<PartnerApplication> partnerApplications);
 

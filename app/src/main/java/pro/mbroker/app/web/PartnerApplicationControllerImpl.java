@@ -3,6 +3,7 @@ package pro.mbroker.app.web;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 import pro.mbroker.api.controller.PartnerApplicationController;
@@ -33,9 +34,24 @@ public class PartnerApplicationControllerImpl implements PartnerApplicationContr
             "hasAuthority(T(pro.smartdeal.common.security.Permission$Code).MB_REQUEST_READ_OWN) or " +
             "hasAuthority('MB_CABINET_ACCESS') or " +
             "hasAnyAuthority(T(pro.smartdeal.common.security.Permission$Code).MB_REQUEST_READ_ORGANIZATION)")
-    public Page<PartnerApplicationResponse> getAllPartnerApplication(int page, int size, String sortBy, String sortOrder, LocalDateTime startDate, LocalDateTime endDate) {
-        Page<PartnerApplication> partnerApplications = partnerApplicationService.getAllPartnerApplication(page, size, sortBy, sortOrder, startDate, endDate);
-        return partnerApplications.map(partnerApplicationService::buildPartnerApplicationResponse);
+    public Page<PartnerApplicationResponse> getAllPartnerApplication(int page,
+                                                                     int size,
+                                                                     String sortBy,
+                                                                     String sortOrder,
+                                                                     String phoneNumber,
+                                                                     String fullName,
+                                                                     Integer applicationNumber,
+                                                                     UUID realEstateId,
+                                                                     RegionType region,
+                                                                     UUID bankId,
+                                                                     BankApplicationStatus applicationStatus,
+                                                                     Boolean isActive,
+                                                                     LocalDateTime startDate,
+                                                                     LocalDateTime endDate) {
+        Page<PartnerApplication> partnerApplications = partnerApplicationService.getAllPartnerApplication(page, size, sortBy, sortOrder,
+                startDate, endDate, phoneNumber, fullName, applicationNumber, realEstateId, region, bankId, applicationStatus, isActive);
+        List<PartnerApplicationResponse> responses = partnerApplicationService.buildPartnerApplicationResponse(partnerApplications.getContent());
+        return new PageImpl<>(responses, partnerApplications.getPageable(), partnerApplications.getTotalElements());
     }
 
     @Override
@@ -72,29 +88,6 @@ public class PartnerApplicationControllerImpl implements PartnerApplicationContr
     @PreAuthorize("hasAuthority(T(pro.smartdeal.common.security.Permission$Code).MB_ADMIN_ACCESS)")
     public void deletePartnerApplication(UUID partnerApplicationId) {
         partnerApplicationService.deletePartnerApplication(partnerApplicationId);
-    }
-
-    @Override
-    public List<PartnerApplicationResponse> filter(String firstName,
-                                                   String middleName,
-                                                   String lastName,
-                                                   String phoneNumber,
-                                                   String residentialComplexName,
-                                                   RegionType region,
-                                                   String bankName,
-                                                   BankApplicationStatus applicationStatus,
-                                                   String sortBy,
-                                                   String sortDirection) {
-        return partnerApplicationService.search(firstName,
-                middleName,
-                lastName,
-                phoneNumber,
-                residentialComplexName,
-                region,
-                bankName,
-                applicationStatus,
-                sortBy,
-                sortDirection);
     }
 
     @Override

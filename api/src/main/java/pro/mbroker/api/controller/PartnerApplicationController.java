@@ -38,6 +38,14 @@ public interface PartnerApplicationController {
                                                               @RequestParam(defaultValue = "10") int size,
                                                               @RequestParam(defaultValue = "updatedAt") String sortBy,
                                                               @RequestParam(defaultValue = "asc") String sortOrder,
+                                                              @RequestParam(required = false) String fullName,
+                                                              @RequestParam(required = false) String phoneNumber,
+                                                              @RequestParam(required = false) Integer applicationNumber,
+                                                              @RequestParam(required = false) UUID realEstateId,
+                                                              @RequestParam(required = false) RegionType region,
+                                                              @RequestParam(required = false) UUID bankId,
+                                                              @RequestParam(required = false) BankApplicationStatus applicationStatus,
+                                                              @RequestParam(defaultValue = "true") Boolean isActive,
                                                               @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
                                                               @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate);
 
@@ -62,20 +70,6 @@ public interface PartnerApplicationController {
     @DeleteMapping("/{partnerApplicationId}")
     void deletePartnerApplication(
             @PathVariable(value = "partnerApplicationId") UUID partnerApplicationId
-    );
-
-    @GetMapping("search")
-    List<PartnerApplicationResponse> filter(
-            @RequestParam(required = false) String firstName,
-            @RequestParam(required = false) String middleName,
-            @RequestParam(required = false) String lastName,
-            @RequestParam(required = false) String phoneNumber,
-            @RequestParam(required = false) String residentialComplexName,
-            @RequestParam(required = false) RegionType region,
-            @RequestParam(required = false) String bankName,
-            @RequestParam(required = false) BankApplicationStatus applicationStatus,
-            @RequestParam(required = false) String sortBy,
-            @RequestParam(required = false) String sortDirection
     );
 
     @ApiOperation("включить программу банка")

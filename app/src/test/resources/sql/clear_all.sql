@@ -31,5 +31,7 @@ FROM employer_bank_relation;
 DELETE
 FROM bank;
 DELETE
+FROM borrower_real_estate;
+DELETE
 FROM mortgage_calculation;
 

@@ -2,11 +2,10 @@ package pro.mbroker.app.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.hibernate.Session;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -28,7 +27,6 @@ import pro.mbroker.api.dto.response.RequiredDocumentResponse;
 import pro.mbroker.api.enums.BankApplicationStatus;
 import pro.mbroker.api.enums.DocumentType;
 import pro.mbroker.api.enums.PaymentSource;
-import pro.mbroker.api.enums.ProofOfIncome;
 import pro.mbroker.api.enums.RealEstateType;
 import pro.mbroker.api.enums.RegionType;
 import pro.mbroker.app.entity.Bank;
@@ -65,11 +63,9 @@ import pro.mbroker.app.util.TokenExtractor;
 import pro.smartdeal.common.security.Permission;
 import pro.smartdeal.ng.common.security.service.CurrentUserService;
 
-import javax.persistence.EntityManager;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -77,7 +73,6 @@ import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -90,8 +85,6 @@ import java.util.stream.Stream;
 @Slf4j
 @RequiredArgsConstructor
 public class PartnerApplicationServiceImpl implements PartnerApplicationService {
-
-    private static final String CREATED_AT = "createdAt";
 
     private final CalculatorService calculatorService;
     private final CurrentUserService currentUserService;
@@ -107,10 +100,6 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
     private final BorrowerProfileMapper borrowerProfileMapper;
     private final BankApplicationMapper bankApplicationMapper;
     private final MortgageCalculationMapper mortgageCalculationMapper;
-    private final EntityManager entityManager;
-
-    private static final List<DocumentType> REQUIRED_DOCUMENT_TYPES =
-            Arrays.asList(DocumentType.BORROWER_PASSPORT, DocumentType.BORROWER_SNILS);
 
     private static final Set<BankApplicationStatus> UNCHANGEABLE_STATUSES = Set.of(
             BankApplicationStatus.SENT_TO_BANK,
@@ -125,45 +114,52 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
 
     @Override
     @Transactional(readOnly = true)
-    public Page<PartnerApplication> getAllPartnerApplication(int page, int size, String sortBy, String sortOrder, LocalDateTime startDate, LocalDateTime endDate) {
-        Optional<LocalDateTime> start = Optional.ofNullable(startDate);
-        Optional<LocalDateTime> end = Optional.ofNullable(endDate);
+    public Page<PartnerApplication> getAllPartnerApplication(int page, int size, String sortBy, String sortOrder,
+                                                             LocalDateTime startDate, LocalDateTime endDate,
+                                                             String phoneNumber, String fullName, Integer applicationNumber,
+                                                             UUID realEstateId, RegionType region, UUID bankId,
+                                                             BankApplicationStatus applicationStatus, Boolean isActive) {
         log.info("Getting all partner applications with pagination: page={}, size={}, sortBy={}, sortOrder={}", page, size, sortBy, sortOrder);
         Pageable pageable = Pagination.createPageable(page, size, sortBy, sortOrder);
-        Page<PartnerApplication> result = Page.empty(pageable);
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        try {
-            Session hibernateSession = entityManager.unwrap(Session.class);
-            if (auth.getAuthorities().contains(new SimpleGrantedAuthority(Permission.Code.MB_ADMIN_ACCESS))) {
-                result = partnerApplicationRepository.findAllByIsActiveTrue(start, end, pageable);
-                // hibernateSession.evict(result);
-            } else if (auth.getAuthorities().contains(new SimpleGrantedAuthority(Permission.Code.MB_REQUEST_READ_ORGANIZATION))) {
-                UUID partnerId = partnerService.getCurrentPartner().getId();
-                result = partnerApplicationRepository.findAllIsActiveByPartnerId(start, end, partnerId, pageable);
-                // hibernateSession.evict(result);
-            } else if (auth.getAuthorities().contains(new SimpleGrantedAuthority(Permission.Code.MB_REQUEST_READ_OWN))) {
-                Integer createdBy = TokenExtractor.extractSdId(currentUserService.getCurrentUserToken());
-                result = partnerApplicationRepository.findAllByCreatedByAndIsActiveTrue(start, end, createdBy, pageable);
-                //hibernateSession.evict(result);
-            } else if (auth.getAuthorities().contains(new SimpleGrantedAuthority("MB_CABINET_ACCESS"))) {
-                String phoneNumber = formatPhoneNumber(TokenExtractor.extractPhoneNumber(currentUserService.getCurrentUserToken()));
-                List<PartnerApplication> partnerApplications = getPartnerApplicationsByPhoneNumber(phoneNumber);
-                result = new PageImpl<>(partnerApplications, PageRequest.of(page, size), partnerApplications.size());
-            } else {
-                log.warn("User does not have any valid permission to fetch partner applications");
-            }
-            result.getContent().forEach(partnerApplication -> {
-                List<BorrowerProfile> sortedBorrowerProfiles = partnerApplication.getBorrowerProfiles()
-                        .stream()
-                        .sorted(Comparator.comparing(BorrowerProfile::getCreatedAt))
-                        .collect(Collectors.toList());
-                partnerApplication.setBorrowerProfiles(sortedBorrowerProfiles);
-            });
 
+        Specification<PartnerApplication> specification = PartnerApplicationSpecification.buildSearchSpecification(startDate, endDate, phoneNumber, fullName, applicationNumber, realEstateId, region, bankId, applicationStatus, isActive);
+
+        if (auth.getAuthorities().contains(new SimpleGrantedAuthority(Permission.Code.MB_ADMIN_ACCESS))) {
+            return fetchPartnerApplications(specification, pageable);
+        } else if (auth.getAuthorities().contains(new SimpleGrantedAuthority(Permission.Code.MB_REQUEST_READ_ORGANIZATION))) {
+            UUID partnerId = partnerService.getCurrentPartner().getId();
+            return fetchPartnerApplications(specification.and(PartnerApplicationSpecification.partnerIdEquals(partnerId)), pageable);
+        } else if (auth.getAuthorities().contains(new SimpleGrantedAuthority(Permission.Code.MB_REQUEST_READ_OWN))) {
+            Integer createdBy = TokenExtractor.extractSdId(currentUserService.getCurrentUserToken());
+            return fetchPartnerApplications(specification.and(PartnerApplicationSpecification.createdByEquals(createdBy)), pageable);
+        } else if (auth.getAuthorities().contains(new SimpleGrantedAuthority("MB_CABINET_ACCESS"))) {
+            String tokenPhoneNumber = formatPhoneNumber(TokenExtractor.extractPhoneNumber(currentUserService.getCurrentUserToken()));
+            List<PartnerApplication> partnerApplications = getPartnerApplicationsByPhoneNumber(tokenPhoneNumber);
+            return new PageImpl<>(getPartnerApplicationsByPhoneNumber(tokenPhoneNumber), pageable, partnerApplications.size());
+        } else {
+            log.warn("User does not have any valid permission to fetch partner applications");
+            return Page.empty(pageable);
+        }
+    }
+
+    private Page<PartnerApplication> fetchPartnerApplications(Specification<PartnerApplication> specification, Pageable pageable) {
+        try {
+            Page<PartnerApplication> result = partnerApplicationRepository.findAll(specification, pageable);
+            return result.map(this::sortBorrowerProfilesInApplication);
         } catch (Exception e) {
             log.error("Error while fetching partner applications", e);
+            return Page.empty(pageable);
         }
-        return result;
+    }
+
+    private PartnerApplication sortBorrowerProfilesInApplication(PartnerApplication partnerApplication) {
+        List<BorrowerProfile> sortedBorrowerProfiles = partnerApplication.getBorrowerProfiles()
+                .stream()
+                .sorted(Comparator.comparing(BorrowerProfile::getCreatedAt))
+                .collect(Collectors.toList());
+        partnerApplication.setBorrowerProfiles(sortedBorrowerProfiles);
+        return partnerApplication;
     }
 
     @Override
@@ -272,6 +268,42 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
     }
 
     @Override
+    public List<PartnerApplicationResponse> buildPartnerApplicationResponse(List<PartnerApplication> partnerApplications) {
+        Map<UUID, PartnerApplicationResponse> partnerResponseMap = partnerApplications.stream()
+                .map(partnerApplicationMapper::toPartnerApplicationResponse)
+                .collect(Collectors.toMap(PartnerApplicationResponse::getId, Function.identity()));
+        Set<UUID> creditProgramIds = partnerApplications.stream()
+                .flatMap(pa -> pa.getBankApplications().stream())
+                .map(BankApplication::getCreditProgram)
+                .map(CreditProgram::getId)
+                .collect(Collectors.toSet());
+        Map<UUID, Bank> bankMap = creditProgramService.getProgramByCreditProgramIds(new ArrayList<>(creditProgramIds)).stream()
+                .collect(Collectors.toMap(CreditProgram::getId, CreditProgram::getBank));
+        for (PartnerApplication partnerApplication : partnerApplications) {
+            UUID id = partnerApplication.getId();
+            PartnerApplicationResponse response = partnerResponseMap.get(id);
+            response.setRealEstateTypes(Converter.convertStringListToEnumList(partnerApplication.getRealEstateTypes(), RealEstateType.class));
+            Map<UUID, BorrowerProfile> borrowerProfileMap = getActiveBorrowerProfilesMap(partnerApplication);
+            List<BankApplicationResponse> activeBankApplicationResponses = getActiveBankApplicationResponses(partnerApplication, borrowerProfileMap);
+            Set<Bank> banks = new HashSet<>();
+            for (BankApplication bankApplication : partnerApplication.getBankApplications()) {
+                Bank bank = bankMap.get(bankApplication.getCreditProgram().getId());
+                banks.add(bank);
+            }
+            List<BankWithBankApplicationDto> bankWithBankApplicationDtos = getGroupBankApplication(activeBankApplicationResponses, banks);
+            response.setBankWithBankApplicationDto(bankWithBankApplicationDtos);
+            response.setPaymentSource(Converter.convertStringListToEnumList(partnerApplication.getPaymentSource(), PaymentSource.class));
+            response.setBorrowerProfiles(
+                    borrowerProfileMap.values()
+                            .stream()
+                            .map(borrowerProfileMapper::toBorrowerProfileResponse)
+                            .sorted(Comparator.comparing(BorrowerProfileResponse::getCreatedAt)) // Сортировка по дате создания
+                            .collect(Collectors.toList()));
+        }
+        return new ArrayList<>(partnerResponseMap.values());
+    }
+
+    @Override
     @Transactional(readOnly = true)
     public PartnerApplication getPartnerApplicationByIdCheckPermission(UUID partnerApplicationId) {
         PartnerApplication partnerApplication = getPartnerApplication(partnerApplicationId);
@@ -289,37 +321,6 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
     public PartnerApplication getPartnerApplication(UUID partnerApplicationId) {
         return partnerApplicationRepository.findById(partnerApplicationId)
                 .orElseThrow(() -> new ItemNotFoundException(PartnerApplication.class, partnerApplicationId));
-    }
-
-    @Override
-    public List<PartnerApplicationResponse> search(String firstName,
-                                                   String middleName,
-                                                   String lastName,
-                                                   String phoneNumber,
-                                                   String residentialComplexName,
-                                                   RegionType region,
-                                                   String bankName,
-                                                   BankApplicationStatus applicationStatus,
-                                                   String sortBy,
-                                                   String sortDirection) {
-
-        List<PartnerApplication> bankApplications = partnerApplicationRepository
-                .findAll(PartnerApplicationSpecification
-                        .combineSearch(firstName,
-                                middleName,
-                                lastName,
-                                phoneNumber,
-                                residentialComplexName,
-                                region,
-                                bankName,
-                                applicationStatus)
-                );
-
-        sortBankApplicationList(sortBy, sortDirection, bankApplications);
-
-        return bankApplications.stream()
-                .map(this::buildPartnerApplicationResponse)
-                .collect(Collectors.toList());
     }
 
     @Override
@@ -595,6 +596,20 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
         bankApplicationResponse.setCoBorrowers(coBorrowers);
     }
 
+    private List<BankWithBankApplicationDto> getGroupBankApplication(List<BankApplicationResponse> activeBankApplicationResponses, Set<Bank> banks) {
+        Map<UUID, List<BankApplicationResponse>> bankApplicationMap = activeBankApplicationResponses.stream()
+                .collect(Collectors.groupingBy(BankApplicationResponse::getCreditProgramId));
+        return banks.stream()
+                .map(bank -> createBankWithBankApplicationDto(bank, bankApplicationMap))
+                .peek(dto -> dto.getBankApplications().sort(Comparator.comparing(BankApplicationResponse::getMonthlyPayment)))
+                .sorted(Comparator.comparing(bankWithBankApplicationDto ->
+                        bankWithBankApplicationDto.getBankApplications().stream()
+                                .min(Comparator.comparing(BankApplicationResponse::getMonthlyPayment))
+                                .map(BankApplicationResponse::getMonthlyPayment)
+                                .orElse(BigDecimal.ZERO)))
+                .collect(Collectors.toList());
+    }
+
     private List<BankWithBankApplicationDto> getGroupBankApplication(List<BankApplicationResponse> activeBankApplicationResponses) {
         Map<UUID, List<BankApplicationResponse>> bankApplicationMap = activeBankApplicationResponses.stream()
                 .collect(Collectors.groupingBy(BankApplicationResponse::getCreditProgramId));
@@ -608,8 +623,8 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
                 .sorted(Comparator.comparing(bankWithBankApplicationDto ->
                         bankWithBankApplicationDto.getBankApplications().stream()
                                 .min(Comparator.comparing(BankApplicationResponse::getMonthlyPayment))
-                                .orElseThrow(NoSuchElementException::new)
-                                .getMonthlyPayment()))
+                                .map(BankApplicationResponse::getMonthlyPayment)
+                                .orElse(BigDecimal.ZERO)))
                 .collect(Collectors.toList());
     }
 
@@ -694,27 +709,8 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
         return new ArrayList<>(currentBankApplications.values());
     }
 
-
-    private void sortBankApplicationList(String sortBy, String sortDirection, List<PartnerApplication> bankApplications) {
-        Comparator<PartnerApplication> comparator;
-        if (sortBy != null) {
-            if (sortBy.equals(CREATED_AT)) {
-                comparator = Comparator.comparing(pa -> pa.getCreatedAt());
-            } else {
-                comparator = Comparator.comparing(pa -> pa.getCreatedAt());
-            }
-
-            if (sortDirection != null && sortDirection.equals("DESC")) {
-                comparator = comparator.reversed();
-            }
-
-            bankApplications.sort(comparator);
-        }
-    }
-
     private List<PartnerApplication> findPartnerApplicationByPhoneNumber(String phoneNumber) {
-        List<PartnerApplication> partnerApplication = partnerApplicationRepository.findByBorrowerPhoneNumber(phoneNumber);
-        return partnerApplication;
+        return partnerApplicationRepository.findByBorrowerPhoneNumber(phoneNumber);
     }
 
     private PartnerApplication getPartnerApplication(PartnerApplicationRequest request) {
@@ -735,19 +731,5 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
     private PartnerApplication getPartnerApplicationById(UUID partnerApplicationId) {
         return partnerApplicationRepository.findById(partnerApplicationId)
                 .orElseThrow(() -> new ItemNotFoundException(PartnerApplication.class, String.valueOf(partnerApplicationId)));
-    }
-
-    private boolean checkRequiredDocuments(BorrowerProfile borrowerProfile) {
-        List<BorrowerDocument> borrowerDocuments = borrowerProfile.getBorrowerDocument();
-        Set<DocumentType> documentTypes = borrowerDocuments.stream()
-                .filter(BorrowerDocument::isActive)
-                .map(BorrowerDocument::getDocumentType)
-                .collect(Collectors.toSet());
-        boolean majorDocumentIsPresent = documentTypes.containsAll(REQUIRED_DOCUMENT_TYPES);
-
-        boolean proofOfIncomeIsPresent = (borrowerProfile.getProofOfIncome() == ProofOfIncome.NO_CONFIRMATION)
-                || (borrowerProfile.getProofOfIncome() != null
-                && documentTypes.contains(DocumentType.INCOME_CERTIFICATE));
-        return majorDocumentIsPresent && proofOfIncomeIsPresent;
     }
 }
