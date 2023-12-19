@@ -35,6 +35,18 @@ public interface CalculatorController {
                                        @RequestParam(required = false) Boolean isMaternalCapital,
                                        @RequestParam(required = false) List<UUID> salaryBanks);
 
+    @ApiOperation("Получить количество предложений от банков")
+    @GetMapping("/count")
+    Integer getCreditOfferCount(@RequestParam UUID realEstateId,
+                                       @RequestParam CreditPurposeType creditPurposeType,
+                                       @RequestParam(required = false) List<RealEstateType> realEstateTypes,
+                                       @RequestParam(required = false) BigDecimal realEstatePrice,
+                                       @RequestParam(required = false) BigDecimal downPayment,
+                                       @RequestParam(required = false) BigDecimal maxMonthlyPayment,
+                                       @RequestParam(required = false) UUID partnerApplicationId,
+                                       @RequestParam(required = false) Integer creditTerm,
+                                       @RequestParam(required = false) Boolean isMaternalCapital);
+
     @ApiOperation("Получить предложение банка")
     @GetMapping("/{creditProgramId}")
     LoanProgramCalculationDto getCreditOfferByCreditProgramId(@NotNull @PathVariable(value = "creditProgramId") UUID creditProgramId,

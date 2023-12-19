@@ -18,4 +18,6 @@ public interface CalculatorService {
     BigDecimal getMortgageSum(BigDecimal realEstatePrice, BigDecimal downPayment);
 
     LoanProgramCalculationDto getCreditOfferByCreditProgramId(UUID creditProgramId, CalculatorRequest request);
+
+    Integer getCreditOfferCount(CalculatorRequest calculatorRequest);
 }

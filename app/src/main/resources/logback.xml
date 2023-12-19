@@ -24,7 +24,6 @@
         </encoder>
     </appender>
 
-
     <!-- ***** Joining loggers to files ***** -->
     <root level="DEBUG">
         <appender-ref ref="STDOUT"/>

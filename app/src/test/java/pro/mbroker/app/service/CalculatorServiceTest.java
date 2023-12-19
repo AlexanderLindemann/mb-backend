@@ -66,6 +66,11 @@ public class CalculatorServiceTest extends AbstractServiceTest {
         assertEquals(loanProgramCalculationDto.get(1).getSalaryClientCalculation().getSalaryBankRate(), -3.0);
         assertEquals(loanProgramCalculationDto.get(1).getSalaryClientCalculation().getMonthlyPayment(), new BigDecimal("248525.80"));
         assertEquals(loanProgramCalculationDto.get(1).getSalaryClientCalculation().getOverpayment(), new BigDecimal("4911548.00"));
+    }
 
+    @Test
+    public void testCreditOfferCount() {
+        Integer count = calculatorService.getCreditOfferCount(testData.getCalculatorRequest());
+        assertEquals(count, 2);
     }
 }

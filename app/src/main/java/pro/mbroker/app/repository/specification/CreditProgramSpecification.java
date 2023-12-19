@@ -8,8 +8,9 @@ import javax.persistence.criteria.Join;
 import java.util.UUID;
 
 public class CreditProgramSpecification {
-    public static Specification<CreditProgram> isActive() {
-        return ((root, query, criteriaBuilder) -> criteriaBuilder.isTrue(root.get("isActive")));
+    public static Specification<CreditProgram> isActive(Boolean isActive) {
+        return (root, query, criteriaBuilder) ->
+                criteriaBuilder.equal(root.get("isActive"), isActive);
     }
 
     public static Specification<CreditProgram> creditProgramByBankIdAndIsActive(UUID bankId) {

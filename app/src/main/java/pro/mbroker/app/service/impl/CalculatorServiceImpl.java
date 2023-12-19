@@ -131,6 +131,18 @@ public class CalculatorServiceImpl implements CalculatorService {
     }
 
     @Override
+    public Integer getCreditOfferCount(CalculatorRequest calculatorRequest) {
+        getRealEstateType(calculatorRequest);
+        List<CreditProgram> creditPrograms = filterCreditPrograms(calculatorRequest);
+        return creditPrograms.stream()
+                .mapToInt(creditProgram -> (int) Converter.convertStringListToEnumList(
+                                creditProgram.getCreditProgramDetail().getRealEstateType(), RealEstateType.class)
+                        .stream()
+                        .filter(calculatorRequest.getRealEstateTypes()::contains).count())
+                .sum();
+    }
+
+    @Override
     public BigDecimal getMortgageSum(BigDecimal realEstatePrice, BigDecimal downPayment) {
         if (realEstatePrice == null || realEstatePrice.compareTo(BigDecimal.ZERO) == 0) {
             return BigDecimal.ZERO;
@@ -243,7 +255,6 @@ public class CalculatorServiceImpl implements CalculatorService {
 
         return loanProgramCalculationDtos;
     }
-
 
     private List<CreditProgram> filterCreditPrograms(CalculatorRequest request) {
         List<CreditProgram> creditPrograms = realEstateRepository

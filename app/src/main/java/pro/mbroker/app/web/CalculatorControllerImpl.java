@@ -50,6 +50,20 @@ public class CalculatorControllerImpl implements CalculatorController {
     }
 
     @Override
+    public Integer getCreditOfferCount(UUID realEstateId, CreditPurposeType creditPurposeType, List<RealEstateType> realEstateTypes, BigDecimal realEstatePrice, BigDecimal downPayment, BigDecimal maxMonthlyPayment, UUID partnerApplicationId, Integer creditTerm, Boolean isMaternalCapital) {
+        return calculatorService.getCreditOfferCount(new CalculatorRequest()
+                .setRealEstateId(realEstateId)
+                .setCreditPurposeType(creditPurposeType)
+                .setRealEstateTypes(realEstateTypes)
+                .setRealEstatePrice(realEstatePrice)
+                .setDownPayment(downPayment)
+                .setPartnerApplicationId(partnerApplicationId)
+                .setMaxMonthlyPayment(maxMonthlyPayment)
+                .setCreditTerm(creditTerm)
+                .setIsMaternalCapital(isMaternalCapital));
+    }
+
+    @Override
     @PreAuthorize("hasAuthority(T(pro.smartdeal.common.security.Permission$Code).MB_ADMIN_ACCESS) " +
             "or hasAuthority(T(pro.smartdeal.common.security.Permission$Code).MB_REQUEST_READ_OWN)" +
             "or hasAuthority(T(pro.smartdeal.common.security.Permission$Code).MB_REQUEST_READ_ORGANIZATION)")
