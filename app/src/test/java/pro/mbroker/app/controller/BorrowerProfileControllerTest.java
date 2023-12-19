@@ -67,7 +67,7 @@ public class BorrowerProfileControllerTest extends AbstractControllerTest {
 
         assertEquals("1348b508-f476-11ed-a05b-0242ac120003", JsonPath.read(responseBody, "$.mainBorrower.id"));
         assertEquals("Ivan", JsonPath.read(responseBody, "$.mainBorrower.firstName"));
-        assertEquals("Ivanov", JsonPath.read(responseBody, "$.mainBorrower.lastName"));
+        assertEquals("Ivanov Perviy", JsonPath.read(responseBody, "$.mainBorrower.lastName"));
         assertEquals("Ivanovich", JsonPath.read(responseBody, "$.mainBorrower.middleName"));
         assertEquals("9876543219", JsonPath.read(responseBody, "$.mainBorrower.phoneNumber"));
         assertEquals("test@test.com", JsonPath.read(responseBody, "$.mainBorrower.email"));

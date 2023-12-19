@@ -28,23 +28,18 @@ public class PartnerApplicationSpecification {
 
     public static Specification<PartnerApplication> fullNameLike(String fullName) {
         return (root, query, criteriaBuilder) -> {
-            if (fullName == null || fullName.trim().isEmpty()) {
-                return criteriaBuilder.conjunction();
-            }
-
             String[] nameParts = fullName.trim().toLowerCase().split("\\s+");
-            List<Predicate> predicates = new ArrayList<>();
-
             Join<PartnerApplication, BorrowerProfile> borrowerProfileJoin = root.join("borrowerProfiles", JoinType.INNER);
-
+            List<Predicate> predicates = new ArrayList<>();
             for (String part : nameParts) {
                 String likePattern = "%" + part + "%";
-                predicates.add(criteriaBuilder.like(criteriaBuilder.lower(borrowerProfileJoin.get("firstName")), likePattern));
-                predicates.add(criteriaBuilder.like(criteriaBuilder.lower(borrowerProfileJoin.get("lastName")), likePattern));
-                predicates.add(criteriaBuilder.like(criteriaBuilder.lower(borrowerProfileJoin.get("middleName")), likePattern));
+                Predicate firstNamePredicate = criteriaBuilder.like(criteriaBuilder.lower(borrowerProfileJoin.get("firstName")), likePattern);
+                Predicate lastNamePredicate = criteriaBuilder.like(criteriaBuilder.lower(borrowerProfileJoin.get("lastName")), likePattern);
+                Predicate middleNamePredicate = criteriaBuilder.like(criteriaBuilder.lower(borrowerProfileJoin.get("middleName")), likePattern);
+                predicates.add(criteriaBuilder.or(firstNamePredicate, lastNamePredicate, middleNamePredicate));
             }
-
-            return criteriaBuilder.or(predicates.toArray(new Predicate[0]));
+            Predicate finalPredicate = criteriaBuilder.and(predicates.toArray(new Predicate[0]));
+            return finalPredicate;
         };
     }
 

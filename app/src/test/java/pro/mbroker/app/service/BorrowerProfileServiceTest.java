@@ -59,7 +59,7 @@ public class BorrowerProfileServiceTest extends AbstractServiceTest {
         BorrowerProfileResponse mainBorrower = orUpdateGenericBorrowerApplication.getMainBorrower();
         assertThat(mainBorrower.getEmail(), Matchers.is("test@test.com"));
         assertThat(mainBorrower.getFirstName(), Matchers.is("Ivan"));
-        assertThat(mainBorrower.getLastName(), Matchers.is("Ivanov"));
+        assertThat(mainBorrower.getLastName(), Matchers.is("Ivanov Perviy"));
         assertThat(mainBorrower.getMiddleName(), Matchers.is("Ivanovich"));
         assertThat(mainBorrower.getPhoneNumber(), Matchers.is("9876543219"));
     }
