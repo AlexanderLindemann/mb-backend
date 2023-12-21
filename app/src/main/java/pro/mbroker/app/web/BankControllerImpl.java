@@ -18,6 +18,7 @@ import pro.mbroker.app.service.BankService;
 import pro.mbroker.app.util.Converter;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -80,7 +81,11 @@ public class BankControllerImpl implements BankController {
     private BankResponse convertToBankResponse(Bank bank) {
         BankResponse bankResponse = bankMapper.toBankResponseMapper(bank);
         Attachment attachment = bank.getAttachment();
-        if (attachment != null) {
+        if (Objects.nonNull(bank.getLogoAttachmentId())) {
+            Long logoAttachmentId = bank.getLogoAttachmentId().longValue();
+            Attachment attachmentById = attachmentService.getAttachmentById(logoAttachmentId);
+            bankResponse.setLogo(attachmentById.getContentMd5());
+        } else if (attachment != null) {
             String base64Logo = Converter.generateBase64FromFile(attachmentService.download(attachment.getId()));
             bankResponse.setLogo(base64Logo);
         }
