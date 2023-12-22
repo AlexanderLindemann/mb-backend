@@ -46,7 +46,7 @@ public class AttachmentServiceImpl implements AttachmentService {
         AttachmentMeta upload = attachmentService.upload(file);
         return attachmentRepository.save(new Attachment()
                 .setId(upload.getId())
-                .setName(upload.getName())
+                .setName(replaceFileNameDots(upload.getName()))
                 .setMimeType(upload.getMimeType())
                 .setSizeBytes(upload.getSizeBytes())
                 .setContentMd5(upload.getMd5Hash()));
@@ -177,5 +177,13 @@ public class AttachmentServiceImpl implements AttachmentService {
                     "Будет возвращено null. Ошибка: {}", e.getMessage());
             return null;
         }
+    }
+
+    private String replaceFileNameDots(String fileName) {
+        int lastDotIndex = fileName.lastIndexOf(".");
+        String fileNameWithoutExtension = lastDotIndex != -1 ? fileName.substring(0, lastDotIndex) : fileName;
+        String extension = lastDotIndex != -1 ? fileName.substring(lastDotIndex) : "";
+
+        return fileNameWithoutExtension.replace(".", "_") + extension;
     }
 }
