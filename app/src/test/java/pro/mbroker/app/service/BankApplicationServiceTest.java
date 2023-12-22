@@ -1,10 +1,15 @@
 package pro.mbroker.app.service;
 
 import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
 import org.springframework.beans.factory.annotation.Autowired;
 import pro.mbroker.api.enums.BankApplicationStatus;
 import pro.mbroker.app.TestData;
 import pro.mbroker.app.entity.BankApplication;
+import pro.mbroker.app.entity.underwriting.Underwriting;
+import pro.mbroker.app.entity.underwriting.UnderwritingDecision;
+import pro.mbroker.app.entity.underwriting.UnderwritingError;
+import pro.mbroker.app.util.UnderwritingComparator;
 
 import java.math.BigDecimal;
 import java.util.UUID;
@@ -75,6 +80,58 @@ public class BankApplicationServiceTest extends AbstractServiceTest {
         assertEquals(bankApplication.getPartnerApplication().getId(), UUID.fromString("5ff4b32c-f967-4cb1-8705-7470a321fe34"));
         assertEquals(bankApplication.getId(), UUID.fromString("3b339aa4-5462-485a-9118-5922cd948566"));
         assertTrue(bankApplication.isActive());
+    }
+
+    @Test
+    public void testUnderwritingIsChanged() {
+        Underwriting oldUnderwriting = new Underwriting();
+        Underwriting updatedUnderwriting = new Underwriting();
+
+        Assertions.assertFalse(UnderwritingComparator.underwritingIsChanged(oldUnderwriting, updatedUnderwriting));
+
+        UnderwritingDecision decision = new UnderwritingDecision();
+        decision.setDescription("Одобрен");
+        decision.setStatus(3);
+        updatedUnderwriting.setAdditionalConditionsStep("New Step");
+        updatedUnderwriting.setUnderwritingDecision(decision);
+        Assertions.assertTrue(UnderwritingComparator.underwritingIsChanged(oldUnderwriting, updatedUnderwriting));
+    }
+
+    @Test
+    public void testUnderwritingIsChanged_with_error() {
+        Underwriting oldUnderwriting = new Underwriting();
+        Underwriting updatedUnderwriting = new Underwriting();
+
+        UnderwritingDecision decision = new UnderwritingDecision();
+        decision.setDescription("Отказ");
+        decision.setStatus(2);
+
+        oldUnderwriting.setUnderwritingDecision(decision);
+
+        UnderwritingError error = new UnderwritingError();
+        error.setMessage("Низкий доход");
+        updatedUnderwriting.setUnderwritingDecision(decision);
+        updatedUnderwriting.setUnderwritingError(error);
+
+        Assertions.assertTrue(UnderwritingComparator.underwritingIsChanged(oldUnderwriting, updatedUnderwriting));
+    }
+
+    @Test
+    public void testUnderwritingIsChanged_with_old_decision_and_new_decision() {
+        Underwriting oldUnderwriting = new Underwriting();
+        Underwriting updatedUnderwriting = new Underwriting();
+
+        UnderwritingDecision decisionOld = new UnderwritingDecision();
+        decisionOld.setDescription("В работе");
+        decisionOld.setStatus(1);
+        updatedUnderwriting.setUnderwritingDecision(decisionOld);
+
+        UnderwritingDecision decisionNew = new UnderwritingDecision();
+        decisionNew.setDescription("Одобрено");
+        decisionNew.setStatus(3);
+        updatedUnderwriting.setUnderwritingDecision(decisionNew);
+
+        Assertions.assertTrue(UnderwritingComparator.underwritingIsChanged(oldUnderwriting, updatedUnderwriting));
     }
 
 }

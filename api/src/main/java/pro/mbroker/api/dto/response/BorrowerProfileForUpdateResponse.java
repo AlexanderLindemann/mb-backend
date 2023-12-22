@@ -98,7 +98,7 @@ public class BorrowerProfileForUpdateResponse {
 
     private MarriageContract marriageContract;
 
-    private Education education;
+    private List<Education> educations;
 
     private EmploymentStatus employmentStatus;
 

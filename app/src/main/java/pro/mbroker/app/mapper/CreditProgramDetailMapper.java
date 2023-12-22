@@ -37,11 +37,11 @@ public interface CreditProgramDetailMapper {
 
     @Named("realEstateTypeListToString")
     default String realEstateTypeListToString(List<RealEstateType> realEstateTypes) {
-        return Converter.convertEnumListToStringList(realEstateTypes);
+        return Converter.convertEnumListToString(realEstateTypes);
     }
 
     @Named("creditPurposeTypeListToString")
     default String creditPurposeTypeListToString(List<CreditPurposeType> creditPurposeTypes) {
-        return Converter.convertEnumListToStringList(creditPurposeTypes);
+        return Converter.convertEnumListToString(creditPurposeTypes);
     }
 }

@@ -10,11 +10,13 @@ import pro.mbroker.api.dto.request.BorrowerProfileUpdateRequest;
 import pro.mbroker.api.dto.request.BorrowerRequest;
 import pro.mbroker.api.dto.response.BorrowerProfileForUpdateResponse;
 import pro.mbroker.api.dto.response.BorrowerResponse;
+import pro.mbroker.api.enums.Education;
 import pro.mbroker.app.entity.BorrowerProfile;
 import pro.mbroker.app.mapper.BorrowerProfileMapper;
 import pro.mbroker.app.service.BorrowerDocumentService;
 import pro.mbroker.app.service.BorrowerProfileService;
 import pro.mbroker.app.service.FormService;
+import pro.mbroker.app.util.Converter;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.UUID;
@@ -63,7 +65,11 @@ public class BorrowerProfileControllerImpl implements BorrowerProfileController 
     @Override
     public BorrowerProfileForUpdateResponse getBorrower(UUID borrowerProfileId) {
         BorrowerProfile borrowerProfile = borrowerProfileService.getFullBorrower(borrowerProfileId);
-        return borrowerProfileMapper.toBorrowerProfileForUpdate(borrowerProfile);
+        BorrowerProfileForUpdateResponse borrowerProfileForUpdate = borrowerProfileMapper.toBorrowerProfileForUpdate(borrowerProfile);
+        if (borrowerProfile.getEducations() != null) {
+            borrowerProfileForUpdate.setEducations(Converter.convertStringListToEnumList(borrowerProfile.getEducations(), Education.class));
+        }
+        return borrowerProfileForUpdate;
     }
 
     @Override

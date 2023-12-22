@@ -26,6 +26,7 @@ import pro.mbroker.api.dto.response.PartnerApplicationResponse;
 import pro.mbroker.api.dto.response.RequiredDocumentResponse;
 import pro.mbroker.api.enums.BankApplicationStatus;
 import pro.mbroker.api.enums.DocumentType;
+import pro.mbroker.api.enums.Insurance;
 import pro.mbroker.api.enums.PaymentSource;
 import pro.mbroker.api.enums.RealEstateType;
 import pro.mbroker.api.enums.RegionType;
@@ -194,6 +195,7 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
         return save(partnerApplication);
     }
 
+    //TODO переделать на подобии обновления BorrowerProfile
     @Override
     @Transactional
     public PartnerApplication updatePartnerApplication(UUID partnerApplicationId, PartnerApplicationRequest request) {
@@ -207,13 +209,32 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
         mortgageCalculationMapper.updateMortgageCalculationFromRequest(request.getMortgageCalculation(),
                 partnerApplication.getMortgageCalculation());
         if (Objects.nonNull(request.getPaymentSource())) {
-            String requestPaymentSource = Converter.convertEnumListToStringList(request.getPaymentSource());
+            String requestPaymentSource = Converter.convertEnumListToString(request.getPaymentSource());
             String existPaymentSource = partnerApplication.getPaymentSource();
             if (existPaymentSource != null
-                    && !partnerApplication.getPaymentSource().equals(requestPaymentSource)) {
+                    && !existPaymentSource.equals(requestPaymentSource) ||
+                    existPaymentSource == null && requestPaymentSource != null) {
                 partnerApplication.setPaymentSource(requestPaymentSource);
                 isChanged = true;
             }
+        }
+        if (Objects.isNull(request.getPaymentSource()) && Objects.nonNull(partnerApplication.getPaymentSource())) {
+            partnerApplication.setPaymentSource(null);
+            isChanged = true;
+        }
+        if (Objects.nonNull(request.getInsurances())) {
+            String requestInsurances = Converter.convertEnumListToString(request.getInsurances());
+            String existInsurances = partnerApplication.getInsurances();
+            if (existInsurances != null
+                    && !existInsurances.equals(requestInsurances) ||
+                    existInsurances == null && requestInsurances != null) {
+                partnerApplication.setInsurances(requestInsurances);
+                isChanged = true;
+            }
+        }
+        if (Objects.isNull(request.getInsurances()) && Objects.nonNull(partnerApplication.getInsurances())) {
+            partnerApplication.setInsurances(null);
+            isChanged = true;
         }
         setSalaryBank(request, partnerApplication);
         if (Objects.nonNull(request.getRealEstateId())) {
@@ -234,7 +255,7 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
             }
         }
         if (Objects.nonNull(request.getRealEstateTypes())) {
-            partnerApplication.setRealEstateTypes(Converter.convertEnumListToStringList(request.getRealEstateTypes()));
+            partnerApplication.setRealEstateTypes(Converter.convertEnumListToString(request.getRealEstateTypes()));
         }
         statusService.statusChanger(partnerApplication);
         return isChanged ? save(partnerApplication) : partnerApplication;
@@ -252,6 +273,7 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
     public PartnerApplicationResponse buildPartnerApplicationResponse(PartnerApplication partnerApplication) {
         PartnerApplicationResponse response = partnerApplicationMapper.toPartnerApplicationResponse(partnerApplication);
         response.setRealEstateTypes(Converter.convertStringListToEnumList(partnerApplication.getRealEstateTypes(), RealEstateType.class));
+        response.setInsurances(Converter.convertStringListToEnumList(partnerApplication.getInsurances(), Insurance.class));
         Map<UUID, BorrowerProfile> borrowerProfileMap = getActiveBorrowerProfilesMap(partnerApplication);
         List<BankApplicationResponse> activeBankApplicationResponses = getActiveBankApplicationResponses(partnerApplication, borrowerProfileMap);
         List<BankWithBankApplicationDto> bankWithBankApplicationDtos = getGroupBankApplication(activeBankApplicationResponses);
@@ -493,8 +515,8 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
                 }
             }
         }
-        if (Objects.nonNull(request.getInsurance())
-                && !Objects.equals(request.getInsurance(), existingApplication.getInsurance())) {
+        if (Objects.nonNull(request.getInsurances())
+                && !Objects.equals(Converter.convertEnumListToString(request.getInsurances()), existingApplication.getInsurances())) {
             return true;
         }
         if (Objects.nonNull(request.getCreditPurposeType())
@@ -718,11 +740,14 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
         Partner partner = realEstate.getPartner();
         PartnerApplication partnerApplication = partnerApplicationMapper.toPartnerApplication(request)
                 .setPartner(partner)
-                .setRealEstateTypes(Converter.convertEnumListToStringList(request.getRealEstateTypes()))
+                .setRealEstateTypes(Converter.convertEnumListToString(request.getRealEstateTypes()))
                 .setRealEstate(realEstate)
                 .setMortgageCalculation(mortgageCalculationMapper.toMortgageCalculation(request.getMortgageCalculation()));
         if (Objects.nonNull(request.getPaymentSource())) {
-            partnerApplication.setPaymentSource(Converter.convertEnumListToStringList(request.getPaymentSource()));
+            partnerApplication.setPaymentSource(Converter.convertEnumListToString(request.getPaymentSource()));
+        }
+        if (Objects.nonNull(request.getInsurances())) {
+            partnerApplication.setInsurances(Converter.convertEnumListToString(request.getInsurances()));
         }
         setSalaryBank(request, partnerApplication);
         return partnerApplication;

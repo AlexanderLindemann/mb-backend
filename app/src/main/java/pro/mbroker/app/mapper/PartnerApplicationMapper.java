@@ -15,6 +15,7 @@ public interface PartnerApplicationMapper {
     @Mapping(target = "bankWithBankApplicationDto", ignore = true)
     @Mapping(target = "paymentSource", ignore = true)
     @Mapping(target = "realEstateTypes", ignore = true)
+    @Mapping(target = "insurances", ignore = true)
     @Mapping(source = "partnerApplicationStatus", target = "status")
     PartnerApplicationResponse toPartnerApplicationResponse(PartnerApplication partnerApplication);
 
@@ -34,6 +35,7 @@ public interface PartnerApplicationMapper {
     @Mapping(target = "bankApplications", ignore = true)
     @Mapping(target = "paymentSource", ignore = true)
     @Mapping(target = "realEstateTypes", ignore = true)
+    @Mapping(target = "insurances", ignore = true)
     PartnerApplication toPartnerApplication(PartnerApplicationRequest request);
 
     @Mapping(target = "id", ignore = true)
@@ -53,6 +55,7 @@ public interface PartnerApplicationMapper {
     @Mapping(target = "mortgageCalculation", ignore = true)
     @Mapping(target = "paymentSource", ignore = true)
     @Mapping(target = "realEstateTypes", ignore = true)
+    @Mapping(target = "insurances", ignore = true)
     void updatePartnerApplicationFromRequest(PartnerApplicationRequest request, @MappingTarget PartnerApplication partnerApplication);
 
 }

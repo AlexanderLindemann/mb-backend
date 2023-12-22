@@ -12,6 +12,8 @@ import pro.mbroker.api.dto.request.BorrowerRequest;
 import pro.mbroker.api.dto.request.CalculatorRequest;
 import pro.mbroker.api.dto.request.PartnerApplicationRequest;
 import pro.mbroker.api.enums.CreditPurposeType;
+import pro.mbroker.api.enums.Insurance;
+import pro.mbroker.api.enums.PaymentSource;
 import pro.mbroker.api.enums.RealEstateType;
 
 import java.math.BigDecimal;
@@ -90,9 +92,24 @@ public class TestData {
                 .setBankApplications(getBankApplication())
                 .setMainBorrower(getBorrowerProfileRequestList().get(0))
                 .setCreditPurposeType(CreditPurposeType.PURCHASE_UNDER_CONSTRUCTION)
-                .setRealEstateTypes(List.of(RealEstateType.APARTMENT))
+                .setRealEstateTypes(List.of(RealEstateType.APARTMENT, RealEstateType.ROOM))
                 .setRealEstateId(UUID.fromString("2b8850b2-d930-11ed-afa1-0242ac120002"))
                 .setMortgageCalculation(getMortgageCalculation());
+    }
+    public PartnerApplicationRequest getShortPartnerApplicationRequest() {
+        return new PartnerApplicationRequest()
+                .setInsurances(List.of(Insurance.LIFE_INSURANCE, Insurance.TITLE_INSURANCE))
+                .setPaymentSource(List.of(PaymentSource.APARTMENT_SALE, PaymentSource.MILITARY_MORTGAGE))
+                .setMaternalCapitalAmount(BigDecimal.valueOf(120000))
+                .setSubsidyAmount(BigDecimal.valueOf(30000));
+    }
+
+    public PartnerApplicationRequest getShortPartnerApplicationRequestWithNullValues() {
+        return new PartnerApplicationRequest()
+                .setInsurances(null)
+                .setPaymentSource(null)
+                .setMaternalCapitalAmount(BigDecimal.valueOf(0))
+                .setSubsidyAmount(BigDecimal.valueOf(0));
     }
 
     public BankApplicationRequest getBankApplicationRequest() {

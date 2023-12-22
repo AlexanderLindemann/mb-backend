@@ -14,6 +14,7 @@ import pro.mbroker.api.dto.response.BorrowerProfileResponse;
 import pro.mbroker.api.dto.response.BorrowerResponse;
 import pro.mbroker.api.enums.BorrowerProfileStatus;
 import pro.mbroker.api.enums.DocumentType;
+import pro.mbroker.api.enums.Education;
 import pro.mbroker.app.entity.Bank;
 import pro.mbroker.app.entity.BankApplication;
 import pro.mbroker.app.entity.BorrowerDocument;
@@ -33,6 +34,7 @@ import pro.mbroker.app.service.BorrowerProfileService;
 import pro.mbroker.app.service.LinkService;
 import pro.mbroker.app.service.PartnerApplicationService;
 import pro.mbroker.app.service.StatusService;
+import pro.mbroker.app.util.Converter;
 
 import javax.servlet.http.HttpServletRequest;
 import java.lang.reflect.Field;
@@ -164,6 +166,8 @@ public class BorrowerProfileServiceImpl implements BorrowerProfileService {
                 field.setAccessible(true);
                 if (field.getType().isEnum()) {
                     updateEnumField(borrowerProfile, field, fieldsMap);
+                } else if (List.class.isAssignableFrom(field.getType())) {
+                    updateArrayField(borrowerProfile, field, fieldsMap);
                 } else {
                     Field borrowerProfileField = BorrowerProfile.class.getDeclaredField(field.getName());
                     borrowerProfileField.setAccessible(true);
@@ -186,10 +190,29 @@ public class BorrowerProfileServiceImpl implements BorrowerProfileService {
                 throw new ProfileUpdateException(fieldName, "Ошибка при обновлении профиля заемщика");
             }
         }
-
         deleteBorrowerDocuments(borrowerProfile);
         statusService.statusChanger(borrowerProfile.getPartnerApplication());
         partnerApplicationService.save(borrowerProfile.getPartnerApplication());
+    }
+
+    private void updateArrayField(BorrowerProfile borrowerProfile, Field field, Map<String, Object> fieldsMap) throws NoSuchFieldException, IllegalAccessException {
+        if ("educations".equals(field.getName())) {
+            @SuppressWarnings("unchecked")
+            List<String> educationStrings = (List<String>) fieldsMap.get(field.getName());
+            if (educationStrings != null) {
+                List<Education> educationEnums = educationStrings.stream()
+                        .map(Education::valueOf)
+                        .collect(Collectors.toList());
+                String educationsAsString = Converter.convertEnumListToString(educationEnums);
+                Field borrowerProfileField = BorrowerProfile.class.getDeclaredField(field.getName());
+                borrowerProfileField.setAccessible(true);
+                borrowerProfileField.set(borrowerProfile, educationsAsString);
+            } else {
+                Field borrowerProfileField = BorrowerProfile.class.getDeclaredField(field.getName());
+                borrowerProfileField.setAccessible(true);
+                borrowerProfileField.set(borrowerProfile, null);
+            }
+        }
     }
 
     private void deleteBorrowerDocuments(BorrowerProfile profile) {
@@ -212,7 +235,6 @@ public class BorrowerProfileServiceImpl implements BorrowerProfileService {
             Object updatedEnum = Enum.valueOf((Class<Enum>) field.getType(), enumValue);
             borrowerProfileField.set(borrowerProfile, updatedEnum);
         } else borrowerProfileField.set(borrowerProfile, null);
-
     }
 
     private void updateEmployerField(BorrowerProfile borrowerProfile, Map<String, Object> fieldsMap, Object value) {

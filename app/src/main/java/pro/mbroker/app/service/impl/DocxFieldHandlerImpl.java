@@ -8,6 +8,7 @@ import pro.mbroker.api.enums.Branch;
 import pro.mbroker.api.enums.CreditProgramType;
 import pro.mbroker.api.enums.Education;
 import pro.mbroker.api.enums.Gender;
+import pro.mbroker.api.enums.Insurance;
 import pro.mbroker.api.enums.NumberOfEmployees;
 import pro.mbroker.api.enums.PaymentSource;
 import pro.mbroker.api.enums.RealEstateType;
@@ -56,13 +57,20 @@ public class DocxFieldHandlerImpl implements DocxFieldHandler {
                 put("borrowerPassportNumber", (v) -> (Objects.nonNull(borrowerProfile.getPassportNumber())
                         ? borrowerProfile.getPassportNumber()
                         : "-"));
+
                 put("borrowerType", (v) -> (Objects.nonNull(mainBorrower))
                         ? mainBorrower.getId().equals(borrowerProfile.getId())
                         ? "Заемщик" : "Созаемщик" : "-");
-                put("borrowerEducation", (v) -> Optional.ofNullable(borrowerProfile)
-                        .map(BorrowerProfile::getEducation)
-                        .map(Education::getName)
-                        .orElse("-"));
+
+                put("borrowerEducation", (v) -> {
+                    if (Objects.nonNull(borrowerProfile.getEducations())) {
+                        return Converter.convertStringListToEnumList(borrowerProfile.getEducations(), Education.class).stream()
+                                .map(Education::getName)
+                                .collect(Collectors.joining(", "));
+                    } else {
+                        return "-";
+                    }
+                });
 
                 put("borrowerTotalWorkExperience", (v) -> Optional.ofNullable(borrowerProfile)
                         .map(BorrowerProfile::getTotalWorkExperience)
@@ -407,10 +415,15 @@ public class DocxFieldHandlerImpl implements DocxFieldHandler {
                     }
                 });
 
-                put("insurance", (v) -> Objects.nonNull(partnerApplication)
-                        && Objects.nonNull(partnerApplication.getInsurance())
-                        ? partnerApplication.getInsurance().getName()
-                        : "-");
+                put("insurance", (v) -> {
+                    if (Objects.nonNull(partnerApplication.getInsurances())) {
+                        return Converter.convertStringListToEnumList(partnerApplication.getInsurances(), Insurance.class).stream()
+                                .map(Insurance::getName)
+                                .collect(Collectors.joining(", "));
+                    } else {
+                        return "-";
+                    }
+                });
 
                 put("borrowerFamilyRelation", (v) -> Objects.nonNull(borrowerProfile)
                         && Objects.nonNull(borrowerProfile.getFamilyRelation())

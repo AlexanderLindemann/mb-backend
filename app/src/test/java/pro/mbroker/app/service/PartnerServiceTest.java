@@ -39,18 +39,6 @@ public class PartnerServiceTest extends AbstractServiceTest {
         assertEquals(partner.getName(), foundPartner.getName());
     }
 
-//    @Test
-//    public void testGetAllPartner() {
-//        PartnerRequest request = createPartnerRequest();
-//        Partner partner = partnerService.createPartner(request);
-//        List<Partner> allPartner = partnerService.getAllPartner(0, 10, "name", "asc");
-//        assertNotNull(allPartner);
-//        assertEquals(3, allPartner.size());
-//        assertEquals(request.getName(), allPartner.get(0).getName());
-//        assertEquals("testName", allPartner.get(1).getName());
-//        asserPartner(request, partner);
-//    }
-
     @Test
     public void testDeletePartner() {
         partnerService.deletePartner(UUID.fromString("5fec2326-d92e-11ed-afa1-0242ac120002"));
@@ -64,8 +52,8 @@ public class PartnerServiceTest extends AbstractServiceTest {
         assertEquals(request.getSmartDealOrganizationId(), partner.getSmartDealOrganizationId());
         assertEquals(request.getName(), partner.getName());
         assertEquals(request.getType(), partner.getType());
-        assertEquals(Converter.convertEnumListToStringList(request.getRealEstateType()), partner.getRealEstateType());
-        assertEquals(Converter.convertEnumListToStringList(request.getCreditPurposeType()), partner.getCreditPurposeType());
+        assertEquals(Converter.convertEnumListToString(request.getRealEstateType()), partner.getRealEstateType());
+        assertEquals(Converter.convertEnumListToString(request.getCreditPurposeType()), partner.getCreditPurposeType());
         assertEquals(request.getBankCreditProgram().size(), partner.getCreditPrograms().size());
         assertEquals(request.getRealEstateRequest().size(), partner.getRealEstates().size());
     }

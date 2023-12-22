@@ -26,19 +26,19 @@ public class CreditProgramConverter {
         return new CreditProgramDetail()
                 .setCreditPurposeType(
                         createCreditParameter.getCreditPurposeType() != null
-                                ? Converter.convertEnumListToStringList(createCreditParameter.getCreditPurposeType())
+                                ? Converter.convertEnumListToString(createCreditParameter.getCreditPurposeType())
                                 : null)
                 .setInclude(
                         createCreditParameter.getInclude() != null
-                                ? Converter.convertEnumListToStringList(createCreditParameter.getInclude())
+                                ? Converter.convertEnumListToString(createCreditParameter.getInclude())
                                 : null)
                 .setExclude(
                         createCreditParameter.getExclude() != null
-                                ? Converter.convertEnumListToStringList(createCreditParameter.getExclude())
+                                ? Converter.convertEnumListToString(createCreditParameter.getExclude())
                                 : null)
                 .setRealEstateType(
                         createCreditParameter.getRealEstateType() != null
-                                ? Converter.convertEnumListToStringList(createCreditParameter.getRealEstateType())
+                                ? Converter.convertEnumListToString(createCreditParameter.getRealEstateType())
                                 : null)
                 .setCreditProgramType(
                         createCreditParameter.getCreditProgramType() != null

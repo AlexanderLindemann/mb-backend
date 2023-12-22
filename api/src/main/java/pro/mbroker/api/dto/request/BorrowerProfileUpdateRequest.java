@@ -16,6 +16,7 @@ import pro.mbroker.api.enums.RegistrationType;
 import pro.mbroker.api.enums.TotalWorkExperience;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Getter
 @Setter
@@ -85,7 +86,7 @@ public class BorrowerProfileUpdateRequest {
 
     private MarriageContract marriageContract;
 
-    private Education education;
+    private List<Education> educations;
 
     private EmploymentStatus employmentStatus;
 

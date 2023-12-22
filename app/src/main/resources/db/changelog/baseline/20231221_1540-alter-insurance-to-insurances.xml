@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+    http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+
+    <changeSet id="alter-insurance-to-insurances" author="a.lindemann">
+        <renameColumn tableName="partner_application"
+                      oldColumnName="insurance"
+                      newColumnName="insurances"/>
+    </changeSet>
+
+    <changeSet id="modify-insurances-data-type" author="a.lindemann">
+        <modifyDataType tableName="partner_application"
+                        columnName="insurances"
+                        newDataType="VARCHAR(255)" />
+    </changeSet>
+
+    <changeSet id="rename-education-to-educations" author="a.lindemann">
+        <renameColumn tableName="borrower_profile"
+                      oldColumnName="education"
+                      newColumnName="educations" />
+    </changeSet>
+
+    <changeSet id="modify-educations-data-type" author="a.lindemann">
+        <modifyDataType tableName="borrower_profile"
+                        columnName="educations"
+                        newDataType="VARCHAR(255)" />
+    </changeSet>
+
+</databaseChangeLog>

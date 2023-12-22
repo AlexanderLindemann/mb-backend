@@ -5,7 +5,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import pro.mbroker.api.enums.CreditPurposeType;
-import pro.mbroker.api.enums.Insurance;
 import pro.mbroker.api.enums.PartnerApplicationStatus;
 
 import javax.persistence.CascadeType;
@@ -44,9 +43,8 @@ public class PartnerApplication extends BaseEntity {
     @Column(name = "payment_source")
     private String paymentSource;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "insurance")
-    private Insurance insurance;
+    @Column(name = "insurances")
+    private String insurances;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "credit_purpose_type", nullable = false)

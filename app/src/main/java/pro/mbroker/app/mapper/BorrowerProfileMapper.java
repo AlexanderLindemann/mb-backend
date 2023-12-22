@@ -6,7 +6,6 @@ import org.mapstruct.MappingTarget;
 import pro.mbroker.api.dto.request.BorrowerProfileRequest;
 import pro.mbroker.api.dto.response.BorrowerDocumentResponse;
 import pro.mbroker.api.dto.response.BorrowerEmployerResponse;
-import pro.mbroker.api.dto.response.BorrowerProfileDto;
 import pro.mbroker.api.dto.response.BorrowerProfileForUpdateResponse;
 import pro.mbroker.api.dto.response.BorrowerProfileResponse;
 import pro.mbroker.app.entity.Bank;
@@ -46,7 +45,6 @@ public interface BorrowerProfileMapper {
     @Mapping(target = "maritalStatus", ignore = true)
     @Mapping(target = "children", ignore = true)
     @Mapping(target = "marriageContract", ignore = true)
-    @Mapping(target = "education", ignore = true)
     @Mapping(target = "passportNumber", ignore = true)
     @Mapping(target = "passportIssuedDate", ignore = true)
     @Mapping(target = "passportIssuedByCode", ignore = true)
@@ -74,6 +72,7 @@ public interface BorrowerProfileMapper {
     @Mapping(target = "citizenship", ignore = true)
     @Mapping(target = "taxResidencyCountries", ignore = true)
     @Mapping(target = "link", ignore = true)
+    @Mapping(target = "educations", ignore = true)
     BorrowerProfile toBorrowerProfile(BorrowerProfileRequest request);
 
     @Mapping(source = "request.firstName", target = "firstName")
@@ -108,7 +107,7 @@ public interface BorrowerProfileMapper {
     @Mapping(target = "maritalStatus", ignore = true)
     @Mapping(target = "children", ignore = true)
     @Mapping(target = "marriageContract", ignore = true)
-    @Mapping(target = "education", ignore = true)
+    @Mapping(target = "educations", ignore = true)
     @Mapping(target = "passportNumber", ignore = true)
     @Mapping(target = "passportIssuedDate", ignore = true)
     @Mapping(target = "passportIssuedByCode", ignore = true)
@@ -138,12 +137,9 @@ public interface BorrowerProfileMapper {
     @Mapping(target = "link", ignore = true)
     void updateBorrowerProfile(BorrowerProfileRequest request, @MappingTarget BorrowerProfile profile);
 
-    @Mapping(source = "borrowerProfileStatus", target = "status")
-    @Mapping(target = "documents", expression = "java(mapBorrowerDocuments(borrowerProfile.getBorrowerDocument()))")
-    BorrowerProfileDto toBorrowerProfileDto(BorrowerProfile borrowerProfile);
-
     @Mapping(source = "borrowerProfileStatus", target = "status", defaultValue = "DATA_NO_ENTERED")
     @Mapping(target = "documents", expression = "java(mapBorrowerDocuments(borrowerProfile.getBorrowerDocument()))")
+    @Mapping(target = "educations", ignore = true)
     BorrowerProfileForUpdateResponse toBorrowerProfileForUpdate(BorrowerProfile borrowerProfile);
 
 

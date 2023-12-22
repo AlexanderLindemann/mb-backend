@@ -6,7 +6,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.ColumnDefault;
 import pro.mbroker.api.enums.BorrowerProfileStatus;
-import pro.mbroker.api.enums.Education;
 import pro.mbroker.api.enums.EmploymentStatus;
 import pro.mbroker.api.enums.FamilyRelation;
 import pro.mbroker.api.enums.Gender;
@@ -82,9 +81,8 @@ public class BorrowerProfile extends BaseEntity {
     @Column(name = "marriage_contract")
     private MarriageContract marriageContract;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "education")
-    private Education education;
+    @Column(name = "educations")
+    private String educations;
 
     @Column(name = "passport_number")
     private String passportNumber;
@@ -195,5 +193,4 @@ public class BorrowerProfile extends BaseEntity {
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "url_mapping_id")
     private UrlMappings link;
-
 }

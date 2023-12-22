@@ -28,7 +28,7 @@ public class PartnerApplicationResponse {
 
     private List<PaymentSource> paymentSource;
 
-    private Insurance insurance;
+    private List<Insurance> insurances;
 
     private CreditPurposeType creditPurposeType;
 

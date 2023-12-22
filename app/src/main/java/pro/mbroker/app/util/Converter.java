@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 @NoArgsConstructor
 public final class Converter {
 
-    public static String convertEnumListToStringList(List<? extends Enum<?>> enums) {
+    public static String convertEnumListToString(List<? extends Enum<?>> enums) {
         return enums.stream()
                 .map(Enum::name)
                 .collect(Collectors.joining(","));

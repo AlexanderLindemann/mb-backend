@@ -26,6 +26,7 @@ import pro.mbroker.app.TestData;
 import pro.mbroker.app.entity.Bank;
 import pro.mbroker.app.entity.BorrowerProfile;
 import pro.mbroker.app.service.BorrowerProfileService;
+import pro.mbroker.app.util.Converter;
 
 import java.time.LocalDate;
 import java.util.HashSet;
@@ -95,7 +96,7 @@ public class BorrowerProfileControllerTest extends AbstractControllerTest {
         updateField("{\"age\": 35}");
         updateField("{\"birthdate\": \"1990-01-01\"}");
         updateField("{\"children\": 2}");
-        updateField("{\"education\": \"INCOMPLETE_SECONDARY\"}");
+        updateField("{\"educations\": [\"INCOMPLETE_SECONDARY\", \"AVERAGE\"]}");
         updateField("{\"email\": \"email@test.com\"}");
         updateField("{\"employmentStatus\": \"EMPLOYEE\"}");
         updateField("{\"firstName\": \"test_first_name\"}");
@@ -162,7 +163,7 @@ public class BorrowerProfileControllerTest extends AbstractControllerTest {
         assertEquals(35, borrowerProfile.getAge());
         assertEquals(LocalDate.of(1990, 1, 1), borrowerProfile.getBirthdate());
         assertEquals(2, borrowerProfile.getChildren());
-        assertEquals(Education.INCOMPLETE_SECONDARY, borrowerProfile.getEducation());
+        assertEquals(Converter.convertStringListToEnumList(borrowerProfile.getEducations(), Education.class), List.of(Education.INCOMPLETE_SECONDARY, Education.AVERAGE));
         assertEquals("email@test.com", borrowerProfile.getEmail());
         assertEquals(EmploymentStatus.MILITARY, borrowerProfile.getEmploymentStatus());
         assertEquals("test_first_name", borrowerProfile.getFirstName());
@@ -230,7 +231,7 @@ public class BorrowerProfileControllerTest extends AbstractControllerTest {
         updateField("{\"age\": null}");
         updateField("{\"birthdate\": null}");
         updateField("{\"children\": null}");
-        updateField("{\"education\": null}");
+        updateField("{\"educations\": null}");
         updateField("{\"email\": null}");
         updateField("{\"employmentStatus\": null}");
         updateField("{\"firstName\":null}");
@@ -296,7 +297,7 @@ public class BorrowerProfileControllerTest extends AbstractControllerTest {
         assertNull(borrowerProfile.getAge());
         assertNull(borrowerProfile.getBirthdate());
         assertNull(borrowerProfile.getChildren());
-        assertNull(borrowerProfile.getEducation());
+        assertNull(borrowerProfile.getEducations());
         assertNull(borrowerProfile.getEmail());
         assertNull(borrowerProfile.getEmploymentStatus());
         assertNull(borrowerProfile.getFirstName());
