@@ -8,17 +8,12 @@ import pro.mbroker.api.dto.request.RealEstateRequest;
 import pro.mbroker.api.enums.RegionType;
 import pro.mbroker.app.entity.RealEstate;
 import pro.mbroker.app.integration.cian.CianAPIClient;
-import pro.mbroker.app.integration.cian.CiansRealEstate;
-import pro.mbroker.app.integration.cian.response.BuilderDto;
-import pro.mbroker.app.integration.cian.response.RealEstateCianResponse;
-import pro.mbroker.app.integration.cian.response.RegionDto;
 import pro.mbroker.app.repository.PartnerRepository;
 
 import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.when;
 import static pro.mbroker.app.TestConstants.PARTNER_ID_1;
 import static pro.mbroker.app.TestConstants.REAL_ESTATE_ID;
 
@@ -75,34 +70,35 @@ public class PartnerRealEstateServiceImplTest extends AbstractServiceTest {
         return request;
     }
 
-    //TODO нужно мокнуть обращение к другому сервису
-//    @Test
-//    public void testGetRealEstatesCian() {
-//        RealEstateCianResponse response = new RealEstateCianResponse();
-//
-//        CiansRealEstate realEstate = new CiansRealEstate();
-//        RegionDto regionDto = new RegionDto();
-//        regionDto.setName("Москва");
-//        regionDto.setId(123);
-//
-//        BuilderDto builderDto = new BuilderDto();
-//        builderDto.setId(4444);
-//        builderDto.setName("Застройщик года");
-//
-//        realEstate.setRegion(regionDto);
-//        realEstate.setName("ЖК Самолет");
-//        realEstate.setFullAddress("Москва ул.Строителей 9");
-//        realEstate.setId(3456);
-//        realEstate.setBuilders(List.of(builderDto));
-//
-//        List<CiansRealEstate> list = List.of(realEstate);
-//
-//        response.setNewBuildings(list);
-//
-//        when(cianAPIClient.getRealEstate()).thenReturn(response);
-//
-//        partnerRealEstateService.loadRealEstatesFromCian();
-//        var result = partnerRepository.findByCianId(realEstate.getBuilders().get(0).getId());
-//        assertEquals(result.get().getName(), realEstate.getBuilders().get(0).getName());
-//    }
+//НЕ удалять!!! Нужно для теста интеграции. Потому что с впн не работает. А без впн не запустить приложение локально
+// Сделать еще один замоикрованный тест. Нужно мокнуть обращение к другому сервису
+   /* @Test
+    public void testGetRealEstatesCian() {
+        RealEstateCianResponse response = new RealEstateCianResponse();
+
+        CiansRealEstate realEstate = new CiansRealEstate();
+        RegionDto regionDto = new RegionDto();
+        regionDto.setName("Москва");
+        regionDto.setId(123);
+
+        BuilderDto builderDto = new BuilderDto();
+        builderDto.setId(4444);
+        builderDto.setName("Застройщик года");
+
+        realEstate.setRegion(regionDto);
+        realEstate.setName("ЖК Самолет");
+        realEstate.setFullAddress("Москва ул.Строителей 9");
+        realEstate.setId(3456);
+        realEstate.setBuilders(List.of(builderDto));
+
+        List<CiansRealEstate> list = List.of(realEstate);
+
+        response.setNewBuildings(list);
+
+        when(cianAPIClient.getRealEstate()).thenReturn(response);
+
+        partnerRealEstateService.loadRealEstatesFromCian();
+        var result = partnerRepository.findByCianId(realEstate.getBuilders().get(0).getId());
+        assertEquals(result.get().getName(), realEstate.getBuilders().get(0).getName());
+    }*/
 }

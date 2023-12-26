@@ -24,6 +24,6 @@ public interface CreditProgramRepository extends JpaRepository<CreditProgram, UU
             "WHERE cp.id IN :creditProgramIds and cp.isActive = true")
     List<CreditProgram> findByIdInWithCreditProgramDetail(List<UUID> creditProgramIds);
 
-    @Query("SELECT cp.id FROM CreditProgram cp")
+    @Query("SELECT cp.id FROM CreditProgram cp WHERE cp.isActive = true")
     List<UUID> findAllCreditProgramIds();
 }
