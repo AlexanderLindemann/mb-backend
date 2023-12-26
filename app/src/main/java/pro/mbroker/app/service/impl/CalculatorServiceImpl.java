@@ -173,7 +173,7 @@ public class CalculatorServiceImpl implements CalculatorService {
 
     private void getRealEstateType(CalculatorRequest request) {
         if (Objects.isNull(request.getRealEstateTypes())) {
-            RealEstate realEstate = realEstateService.findById(request.getRealEstateId());
+            RealEstate realEstate = realEstateService.findByRealEstateId(request.getRealEstateId());
             String realEstateType = realEstate.getPartner().getRealEstateType();
             request.setRealEstateTypes(Converter.convertStringListToEnumList(realEstateType, RealEstateType.class));
         }
@@ -257,8 +257,9 @@ public class CalculatorServiceImpl implements CalculatorService {
     }
 
     private List<CreditProgram> filterCreditPrograms(CalculatorRequest request) {
+        UUID realEstateId = realEstateService.findByRealEstateId(request.getRealEstateId()).getId();
         List<CreditProgram> creditPrograms = realEstateRepository
-                .findCreditProgramsWithDetailsAndParametersByRealEstateId(request.getRealEstateId(),
+                .findCreditProgramsWithDetailsAndParametersByRealEstateId(realEstateId,
                         LocalDateTime.now());
         return creditPrograms.stream()
                 .filter(creditProgram -> isProgramEligible(request, creditProgram))
@@ -286,7 +287,6 @@ public class CalculatorServiceImpl implements CalculatorService {
                 isMaternalCapital(request, creditProgram);
     }
 
-
     private int calculateDownPaymentPercentage(BigDecimal downPayment, BigDecimal realEstatePrice) {
         if (realEstatePrice == null || realEstatePrice.compareTo(BigDecimal.ZERO) == 0) {
             throw new IllegalArgumentException("Real estate price must be non-null and non-zero.");
@@ -300,8 +300,7 @@ public class CalculatorServiceImpl implements CalculatorService {
     }
 
     private boolean isRegionEligible(CalculatorRequest request, CreditProgram creditProgram) {
-        RealEstate realEstate = realEstateRepository.findById(request.getRealEstateId())
-                .orElseThrow(() -> new ItemNotFoundException(RealEstate.class, request.getRealEstateId()));
+        RealEstate realEstate = realEstateService.findByRealEstateId(request.getRealEstateId());
         List<RegionType> creditProgramIncludeRegionTypes = Converter.convertStringListToEnumList(creditProgram.getCreditProgramDetail().getInclude(), RegionType.class);
         List<RegionType> creditProgramExcludeRegionTypes = Converter.convertStringListToEnumList(creditProgram.getCreditProgramDetail().getExclude(), RegionType.class);
         List<EnumDescription> filteredRegion = directoryService.getFilteredRegion(creditProgramIncludeRegionTypes, creditProgramExcludeRegionTypes);

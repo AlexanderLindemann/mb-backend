@@ -12,4 +12,8 @@ public class ItemConflictException extends RestException {
     public ItemConflictException(@NonNull Class<?> itemClass, @NonNull String msg) {
         super(itemClass.getSimpleName() + msg);
     }
+
+    public ItemConflictException(@NonNull String msg) {
+        super(msg);
+    }
 }

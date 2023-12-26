@@ -16,7 +16,7 @@ import java.util.UUID;
 @ToString
 public class CalculatorRequest {
     @NotNull
-    private UUID realEstateId;
+    private String realEstateId;
     @NotNull
     private CreditPurposeType creditPurposeType;
 

@@ -26,7 +26,7 @@ public class CalculatorControllerImpl implements CalculatorController {
     @PreAuthorize("hasAuthority(T(pro.smartdeal.common.security.Permission$Code).MB_ADMIN_ACCESS) " +
             "or hasAuthority(T(pro.smartdeal.common.security.Permission$Code).MB_REQUEST_READ_OWN)" +
             "or hasAuthority(T(pro.smartdeal.common.security.Permission$Code).MB_REQUEST_READ_ORGANIZATION)")
-    public PropertyMortgageDTO getCreditOffer(UUID realEstateId,
+    public PropertyMortgageDTO getCreditOffer(String realEstateId,
                                               CreditPurposeType creditPurposeType,
                                               List<RealEstateType> realEstateTypes,
                                               BigDecimal realEstatePrice,
@@ -50,7 +50,7 @@ public class CalculatorControllerImpl implements CalculatorController {
     }
 
     @Override
-    public Integer getCreditOfferCount(UUID realEstateId, CreditPurposeType creditPurposeType, List<RealEstateType> realEstateTypes, BigDecimal realEstatePrice, BigDecimal downPayment, BigDecimal maxMonthlyPayment, UUID partnerApplicationId, Integer creditTerm, Boolean isMaternalCapital) {
+    public Integer getCreditOfferCount(String realEstateId, CreditPurposeType creditPurposeType, List<RealEstateType> realEstateTypes, BigDecimal realEstatePrice, BigDecimal downPayment, BigDecimal maxMonthlyPayment, UUID partnerApplicationId, Integer creditTerm, Boolean isMaternalCapital) {
         return calculatorService.getCreditOfferCount(new CalculatorRequest()
                 .setRealEstateId(realEstateId)
                 .setCreditPurposeType(creditPurposeType)
@@ -68,7 +68,7 @@ public class CalculatorControllerImpl implements CalculatorController {
             "or hasAuthority(T(pro.smartdeal.common.security.Permission$Code).MB_REQUEST_READ_OWN)" +
             "or hasAuthority(T(pro.smartdeal.common.security.Permission$Code).MB_REQUEST_READ_ORGANIZATION)")
     public LoanProgramCalculationDto getCreditOfferByCreditProgramId(UUID creditProgramId,
-                                                                     UUID realEstateId,
+                                                                     String realEstateId,
                                                                      CreditPurposeType creditPurposeType,
                                                                      List<RealEstateType> realEstateTypes,
                                                                      BigDecimal realEstatePrice,

@@ -17,8 +17,30 @@ public class RealEstateServiceImpl implements RealEstateService {
     private final RealEstateRepository realEstateRepository;
 
     @Override
-    public RealEstate findById(UUID realEstateId) {
-        return realEstateRepository.findById(realEstateId)
-                .orElseThrow(() -> new ItemNotFoundException(RealEstate.class, realEstateId));
+    public RealEstate findByRealEstateId(String realEstateId) {
+        Object realEstateIdParsed = parseStringToUUIDOrInteger(realEstateId);
+        RealEstate realEstate = null;
+        if (realEstateIdParsed instanceof UUID) {
+            realEstate = realEstateRepository.findById((UUID) realEstateIdParsed)
+                    .orElseThrow(() -> new ItemNotFoundException(RealEstate.class, realEstateId));
+        } else if (realEstateIdParsed instanceof Integer) {
+            realEstate = realEstateRepository.findAllByCianId((Integer) realEstateIdParsed)
+                    //TODO убрать когда будет cianId уникальным в БД
+                    .stream().findFirst()
+                    .orElseThrow(() -> new ItemNotFoundException(RealEstate.class, realEstateId));
+        }
+        return realEstate;
+    }
+
+    private Object parseStringToUUIDOrInteger(String str) {
+        try {
+            return UUID.fromString(str);
+        } catch (IllegalArgumentException e) {
+            try {
+                return Integer.parseInt(str);
+            } catch (NumberFormatException ex) {
+                return null;
+            }
+        }
     }
 }

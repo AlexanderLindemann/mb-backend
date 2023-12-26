@@ -24,7 +24,7 @@ public interface CalculatorController {
 
     @ApiOperation("Получить предложения от банков")
     @GetMapping()
-    PropertyMortgageDTO getCreditOffer(@RequestParam UUID realEstateId,
+    PropertyMortgageDTO getCreditOffer(@RequestParam String realEstateId,
                                        @RequestParam CreditPurposeType creditPurposeType,
                                        @RequestParam(required = false) List<RealEstateType> realEstateTypes,
                                        @RequestParam(required = false) BigDecimal realEstatePrice,
@@ -37,7 +37,7 @@ public interface CalculatorController {
 
     @ApiOperation("Получить количество предложений от банков")
     @GetMapping("/count")
-    Integer getCreditOfferCount(@RequestParam UUID realEstateId,
+    Integer getCreditOfferCount(@RequestParam String realEstateId,
                                        @RequestParam CreditPurposeType creditPurposeType,
                                        @RequestParam(required = false) List<RealEstateType> realEstateTypes,
                                        @RequestParam(required = false) BigDecimal realEstatePrice,
@@ -50,7 +50,7 @@ public interface CalculatorController {
     @ApiOperation("Получить предложение банка")
     @GetMapping("/{creditProgramId}")
     LoanProgramCalculationDto getCreditOfferByCreditProgramId(@NotNull @PathVariable(value = "creditProgramId") UUID creditProgramId,
-                                                              @RequestParam UUID realEstateId,
+                                                              @RequestParam String realEstateId,
                                                               @RequestParam CreditPurposeType creditPurposeType,
                                                               @RequestParam List<RealEstateType> realEstateTypes,
                                                               @RequestParam(required = false) BigDecimal realEstatePrice,

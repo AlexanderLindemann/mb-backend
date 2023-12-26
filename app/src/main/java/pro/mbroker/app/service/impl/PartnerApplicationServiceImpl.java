@@ -239,8 +239,8 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
         setSalaryBank(request, partnerApplication);
         if (Objects.nonNull(request.getRealEstateId())) {
             if (partnerApplication.getRealEstate() != null
-                    && !partnerApplication.getRealEstate().getId().equals(request.getRealEstateId())) {
-                partnerApplication.setRealEstate(realEstateService.findById(request.getRealEstateId()));
+                    && !partnerApplication.getRealEstate().getId().toString().equals(request.getRealEstateId())) {
+                partnerApplication.setRealEstate(realEstateService.findByRealEstateId(request.getRealEstateId()));
                 isChanged = true;
             }
         }
@@ -591,9 +591,10 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
     }
 
     private void setSalaryApplicationPropertiesIfApplicable(PartnerApplication partnerApplication, BankApplication bankApplication, BankApplicationResponse bankApplicationResponse, BigDecimal mortgageSum) {
-        if (Objects.nonNull(partnerApplication.getMortgageCalculation().getSalaryBanks()) &&
-                partnerApplication.getMortgageCalculation().getSalaryBanks()
-                        .contains(bankApplication.getCreditProgram().getBank())) {
+        if (Objects.nonNull(partnerApplication.getMortgageCalculation())
+                && Objects.nonNull(partnerApplication.getMortgageCalculation().getSalaryBanks())
+                && partnerApplication.getMortgageCalculation().getSalaryBanks()
+                .contains(bankApplication.getCreditProgram().getBank())) {
             CreditProgram creditProgram = bankApplication.getCreditProgram();
             Optional.ofNullable(creditProgram.getSalaryClientInterestRate())
                     .ifPresent(salaryClientInterestRate -> {
@@ -668,6 +669,9 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
     }
 
     private void updateMainBorrower(PartnerApplication partnerApplication, BorrowerProfileRequest borrowerProfileRequest) {
+        if (Objects.isNull(borrowerProfileRequest)) {
+            throw new ItemConflictException("A main borrower is required for creating an application.");
+        }
         BorrowerProfile borrowerProfile;
         if (borrowerProfileRequest.getId() != null) {
             borrowerProfile = getBorrowerProfile(borrowerProfileRequest.getId());
@@ -700,7 +704,7 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
                 .map(request -> new BankApplicationKey(request.getCreditProgramId(), request.getRealEstateType()))
                 .collect(Collectors.toList());
         MortgageCalculation mortgageCalculation = partnerApplication.getMortgageCalculation();
-        if (mortgageCalculation.getIsMaternalCapital() == null) {
+        if (Objects.nonNull(mortgageCalculation) && mortgageCalculation.getIsMaternalCapital() == null) {
             mortgageCalculation.setIsMaternalCapital(false);
         }
         Map<BankApplicationKey, BankApplication> currentBankApplications = partnerApplication.getBankApplications()
@@ -736,13 +740,23 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
     }
 
     private PartnerApplication getPartnerApplication(PartnerApplicationRequest request) {
-        RealEstate realEstate = realEstateService.findById(request.getRealEstateId());
+        RealEstate realEstate = realEstateService.findByRealEstateId(request.getRealEstateId());
         Partner partner = realEstate.getPartner();
         PartnerApplication partnerApplication = partnerApplicationMapper.toPartnerApplication(request)
                 .setPartner(partner)
-                .setRealEstateTypes(Converter.convertEnumListToString(request.getRealEstateTypes()))
-                .setRealEstate(realEstate)
-                .setMortgageCalculation(mortgageCalculationMapper.toMortgageCalculation(request.getMortgageCalculation()));
+                .setRealEstate(realEstate);
+        if (Objects.nonNull(request.getRealEstateTypes())) {
+            partnerApplication.setRealEstateTypes(Converter.convertEnumListToString(request.getRealEstateTypes()));
+        } else {
+            List<RealEstateType> realEstateTypes = request.getBankApplications().stream()
+                    .map(BankApplicationRequest::getRealEstateType)
+                    .distinct()
+                    .collect(Collectors.toList());
+            partnerApplication.setRealEstateTypes(Converter.convertEnumListToString(realEstateTypes));
+        }
+        if (Objects.nonNull(request.getMortgageCalculation())) {
+            partnerApplication.setMortgageCalculation(mortgageCalculationMapper.toMortgageCalculation(request.getMortgageCalculation()));
+        }
         if (Objects.nonNull(request.getPaymentSource())) {
             partnerApplication.setPaymentSource(Converter.convertEnumListToString(request.getPaymentSource()));
         }

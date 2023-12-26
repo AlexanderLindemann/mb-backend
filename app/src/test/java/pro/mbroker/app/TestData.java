@@ -93,9 +93,10 @@ public class TestData {
                 .setMainBorrower(getBorrowerProfileRequestList().get(0))
                 .setCreditPurposeType(CreditPurposeType.PURCHASE_UNDER_CONSTRUCTION)
                 .setRealEstateTypes(List.of(RealEstateType.APARTMENT, RealEstateType.ROOM))
-                .setRealEstateId(UUID.fromString("2b8850b2-d930-11ed-afa1-0242ac120002"))
+                .setRealEstateId("2b8850b2-d930-11ed-afa1-0242ac120002")
                 .setMortgageCalculation(getMortgageCalculation());
     }
+
     public PartnerApplicationRequest getShortPartnerApplicationRequest() {
         return new PartnerApplicationRequest()
                 .setInsurances(List.of(Insurance.LIFE_INSURANCE, Insurance.TITLE_INSURANCE))
@@ -147,7 +148,7 @@ public class TestData {
 
     public CalculatorRequest getCalculatorRequest() {
         return new CalculatorRequest()
-                .setRealEstateId(UUID.fromString("2b8850b2-d930-11ed-afa1-0242ac120002"))
+                .setRealEstateId("2b8850b2-d930-11ed-afa1-0242ac120002")
                 .setCreditTerm(5)
                 .setCreditPurposeType(CreditPurposeType.PURCHASE_UNDER_CONSTRUCTION)
                 .setDownPayment(BigDecimal.valueOf(10000000))

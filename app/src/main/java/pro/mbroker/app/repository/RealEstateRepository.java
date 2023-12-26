@@ -18,6 +18,8 @@ public interface RealEstateRepository extends JpaRepository<RealEstate, UUID>, J
     @Query("SELECT r FROM RealEstate r JOIN FETCH r.partner WHERE r.id = :id")
     Optional<RealEstate> findRealEstateByIdWithPartner(@Param("id") UUID id);
 
+    List<RealEstate> findAllByCianId(Integer cianId);
+
     @Query("SELECT cp FROM RealEstate r " +
             "JOIN r.partner p " +
             "JOIN p.creditPrograms cp " +

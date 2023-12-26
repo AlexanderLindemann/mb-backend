@@ -22,6 +22,8 @@ import java.util.UUID;
 public class PartnerApplicationResponse {
     private UUID id;
 
+    private boolean isActive;
+
     private BigDecimal maternalCapitalAmount;
 
     private BigDecimal subsidyAmount;
