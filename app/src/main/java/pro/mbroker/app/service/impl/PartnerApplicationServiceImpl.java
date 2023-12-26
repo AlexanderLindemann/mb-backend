@@ -206,9 +206,14 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
             deleteBorrowerDocuments(partnerApplication);
             isChanged = true;
         }
+        if (request.getMortgageCalculation() != null) {
+            if (partnerApplication.getMortgageCalculation() == null) {
+                partnerApplication.setMortgageCalculation(new MortgageCalculation());
+            }
+            mortgageCalculationMapper.updateMortgageCalculationFromRequest(request.getMortgageCalculation(), partnerApplication.getMortgageCalculation());
+            isChanged = true;
+        }
         partnerApplicationMapper.updatePartnerApplicationFromRequest(request, partnerApplication);
-        mortgageCalculationMapper.updateMortgageCalculationFromRequest(request.getMortgageCalculation(),
-                partnerApplication.getMortgageCalculation());
         if (Objects.nonNull(request.getPaymentSource())) {
             String requestPaymentSource = Converter.convertEnumListToString(request.getPaymentSource());
             String existPaymentSource = partnerApplication.getPaymentSource();

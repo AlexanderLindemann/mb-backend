@@ -267,8 +267,12 @@ public class CalculatorServiceImpl implements CalculatorService {
                 .findCreditProgramsWithDetailsAndParametersByRealEstateId(realEstateId,
                         LocalDateTime.now());
         return creditPrograms.stream()
-                .filter(creditProgram -> isProgramEligible(request, creditProgram))
+                .filter(creditProgram -> isProgramEligible(request, creditProgram) && isBankActive(creditProgram))
                 .collect(Collectors.toList());
+    }
+
+    private boolean isBankActive(CreditProgram creditProgram) {
+        return creditProgram.getBank() != null && creditProgram.getBank().isActive();
     }
 
     private boolean isProgramEligible(CalculatorRequest request, CreditProgram creditProgram) {
