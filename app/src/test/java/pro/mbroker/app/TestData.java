@@ -47,14 +47,17 @@ public class TestData {
         BorrowerProfileRequest borrowerProfileRequest1 = new BorrowerProfileRequest()
                 .setEmail("test@test.com")
                 .setFirstName("TestFirstName")
-                .setLastName("TestLastName");
+                .setLastName("TestLastName")
+                .setPhoneNumber("12345567");
         BorrowerProfileRequest borrowerProfileRequest2 = new BorrowerProfileRequest()
                 .setEmail("test2@test.com")
                 .setFirstName("TestFirstName2")
+                .setPhoneNumber("12345567")
                 .setLastName("TestLastName2");
         BorrowerProfileRequest borrowerProfileRequest3 = new BorrowerProfileRequest()
                 .setEmail("test3@test.com")
                 .setFirstName("TestFirstName3")
+                .setPhoneNumber("12345567")
                 .setLastName("TestLastName3");
         return new ArrayList<>(List.of(borrowerProfileRequest1, borrowerProfileRequest2, borrowerProfileRequest3));
     }

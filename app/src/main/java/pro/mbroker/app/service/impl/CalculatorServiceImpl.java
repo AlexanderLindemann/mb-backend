@@ -195,8 +195,13 @@ public class CalculatorServiceImpl implements CalculatorService {
         BankLoanProgramDto bankLoanProgramDtoBuilder = new BankLoanProgramDto()
                 .setBankId(bank.getId())
                 .setBankName(bank.getName());
-        if (Objects.nonNull(attachment)) {
-            bankLoanProgramDtoBuilder.setLogo(Converter.generateBase64FromFile(attachmentService.download(attachment.getId())));
+        if (Objects.nonNull(bank.getLogoAttachmentId())) {
+            Long logoAttachmentId = bank.getLogoAttachmentId().longValue();
+            Attachment attachmentById = attachmentService.getAttachmentById(logoAttachmentId);
+            bankLoanProgramDtoBuilder.setLogo(attachmentById.getContentMd5());
+        } else if (attachment != null) {
+            String base64Logo = Converter.generateBase64FromFile(attachmentService.download(attachment.getId()));
+            bankLoanProgramDtoBuilder.setLogo(base64Logo);
         }
         return bankLoanProgramDtoBuilder;
     }

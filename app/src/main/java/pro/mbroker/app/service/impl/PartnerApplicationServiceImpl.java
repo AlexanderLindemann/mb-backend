@@ -41,6 +41,7 @@ import pro.mbroker.app.entity.Partner;
 import pro.mbroker.app.entity.PartnerApplication;
 import pro.mbroker.app.entity.RealEstate;
 import pro.mbroker.app.exception.AccessDeniedException;
+import pro.mbroker.app.exception.BadRequestException;
 import pro.mbroker.app.exception.ItemConflictException;
 import pro.mbroker.app.exception.ItemNotFoundException;
 import pro.mbroker.app.mapper.BankApplicationMapper;
@@ -669,9 +670,7 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
     }
 
     private void updateMainBorrower(PartnerApplication partnerApplication, BorrowerProfileRequest borrowerProfileRequest) {
-        if (Objects.isNull(borrowerProfileRequest)) {
-            throw new ItemConflictException("A main borrower is required for creating an application.");
-        }
+        validateMainBorrower(borrowerProfileRequest);
         BorrowerProfile borrowerProfile;
         if (borrowerProfileRequest.getId() != null) {
             borrowerProfile = getBorrowerProfile(borrowerProfileRequest.getId());
@@ -687,6 +686,27 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
         borrowerProfile.setPartnerApplication(partnerApplication);
         partnerApplication.getBankApplications().forEach(app -> app.setMainBorrower(borrowerProfile));
     }
+
+    private void validateMainBorrower(BorrowerProfileRequest borrowerProfileRequest) {
+        if (borrowerProfileRequest == null) {
+            throw new BadRequestException("A main borrower is required for creating an application.");
+        }
+        StringBuilder missingFields = new StringBuilder();
+        if (borrowerProfileRequest.getFirstName() == null) {
+            missingFields.append("first name, ");
+        }
+        if (borrowerProfileRequest.getLastName() == null) {
+            missingFields.append("last name, ");
+        }
+        if (borrowerProfileRequest.getPhoneNumber() == null) {
+            missingFields.append("phone number, ");
+        }
+        if (missingFields.length() > 0) {
+            missingFields.delete(missingFields.length() - 2, missingFields.length());
+            throw new BadRequestException("The following fields are missing for the main borrower: " + missingFields);
+        }
+    }
+
 
     private BorrowerProfile getBorrowerProfile(UUID borrowerProfileId) {
         return borrowerProfileRepository.findById(borrowerProfileId)
@@ -740,6 +760,7 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
     }
 
     private PartnerApplication getPartnerApplication(PartnerApplicationRequest request) {
+        validateBankApplications(request.getBankApplications());
         RealEstate realEstate = realEstateService.findByRealEstateId(request.getRealEstateId());
         Partner partner = realEstate.getPartner();
         PartnerApplication partnerApplication = partnerApplicationMapper.toPartnerApplication(request)
@@ -771,4 +792,60 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
         return partnerApplicationRepository.findById(partnerApplicationId)
                 .orElseThrow(() -> new ItemNotFoundException(PartnerApplication.class, String.valueOf(partnerApplicationId)));
     }
+
+    private void validateBankApplications(List<BankApplicationRequest> bankApplications) {
+        if (bankApplications == null || bankApplications.isEmpty()) {
+            throw new BadRequestException("At least one BankApplicationRequest is required");
+        }
+
+        StringBuilder missingFieldsMessage = new StringBuilder();
+
+        for (int i = 0; i < bankApplications.size(); i++) {
+            BankApplicationRequest request = bankApplications.get(i);
+            List<String> missingFields = new ArrayList<>();
+
+            if (request.getCreditProgramId() == null) {
+                missingFields.add("creditProgramId");
+            }
+            if (request.getDownPayment() == null) {
+                missingFields.add("downPayment");
+            }
+            if (request.getRealEstatePrice() == null) {
+                missingFields.add("realEstatePrice");
+            }
+            if (request.getMonthlyPayment() == null) {
+                missingFields.add("monthlyPayment");
+            }
+            if (request.getCreditTerm() == null) {
+                missingFields.add("creditTerm");
+            }
+            if (request.getOverpayment() == null) {
+                missingFields.add("overpayment");
+            }
+            if (request.getRealEstateType() == null) {
+                missingFields.add("realEstateType");
+            }
+            if (!missingFields.isEmpty()) {
+                if (missingFieldsMessage.length() > 0) {
+                    missingFieldsMessage.append("; ");
+                }
+                missingFieldsMessage.append("BankApplicationRequest ");
+                if (request.getCreditProgramId() != null) {
+                    missingFieldsMessage.append("with creditProgramId '")
+                            .append(request.getCreditProgramId())
+                            .append("' ");
+                } else {
+                    missingFieldsMessage.append("at index ")
+                            .append(i)
+                            .append(" ");
+                }
+                missingFieldsMessage.append("is missing fields: ")
+                        .append(String.join(", ", missingFields));
+            }
+        }
+        if (missingFieldsMessage.length() > 0) {
+            throw new BadRequestException(missingFieldsMessage.toString().trim());
+        }
+    }
+
 }

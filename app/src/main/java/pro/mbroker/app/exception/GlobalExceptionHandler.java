@@ -57,15 +57,23 @@ public class GlobalExceptionHandler {
         ControllerError apiError = new ControllerError(ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         return new ResponseEntity<>(apiError, apiError.getStatus());
     }
+
     @ExceptionHandler(DataNotFoundException.class)
     public ResponseEntity<Object> handleDataNotFoundException(DataNotFoundException ex) {
         ControllerError apiError = new ControllerError(ex.getMessage(), HttpStatus.NOT_FOUND);
         return new ResponseEntity<>(apiError, apiError.getStatus());
     }
+
     @ExceptionHandler(ProfileUpdateException.class)
     public ResponseEntity<Object> handleProfileUpdateException(ProfileUpdateException ex) {
         String errorMessage = String.format("Ошибка при обновлении поля '%s' профиля заемщика: %s", ex.getFieldName(), ex.getMessage());
         ControllerError apiError = new ControllerError(errorMessage, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(apiError, apiError.getStatus());
+    }
+
+    @ExceptionHandler(BadRequestException.class)
+    public ResponseEntity<Object> handleBadRequestException(BadRequestException ex) {
+        ControllerError apiError = new ControllerError(ex.getMessage(), HttpStatus.BAD_REQUEST);
         return new ResponseEntity<>(apiError, apiError.getStatus());
     }
 

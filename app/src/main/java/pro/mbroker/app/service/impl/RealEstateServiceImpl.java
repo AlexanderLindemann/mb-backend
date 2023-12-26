@@ -3,6 +3,7 @@ package pro.mbroker.app.service.impl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import pro.mbroker.app.entity.BaseEntity;
 import pro.mbroker.app.entity.RealEstate;
 import pro.mbroker.app.exception.ItemNotFoundException;
 import pro.mbroker.app.repository.RealEstateRepository;
@@ -25,8 +26,9 @@ public class RealEstateServiceImpl implements RealEstateService {
                     .orElseThrow(() -> new ItemNotFoundException(RealEstate.class, realEstateId));
         } else if (realEstateIdParsed instanceof Integer) {
             realEstate = realEstateRepository.findAllByCianId((Integer) realEstateIdParsed)
-                    //TODO убрать когда будет cianId уникальным в БД
-                    .stream().findFirst()
+                    .stream()
+                    .filter(BaseEntity::isActive)
+                    .findFirst()
                     .orElseThrow(() -> new ItemNotFoundException(RealEstate.class, realEstateId));
         }
         return realEstate;
