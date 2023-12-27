@@ -22,4 +22,6 @@ public class BankResponse {
     private List<BankContactResponse> contacts;
 
     private List<CreditProgramResponse> creditProgram;
+
+    private Integer cianId;
 }

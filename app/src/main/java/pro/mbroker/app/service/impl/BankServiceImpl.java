@@ -90,7 +90,6 @@ public class BankServiceImpl implements BankService {
         return bankRepository.save(bank);
     }
 
-
     @Override
     @Transactional(readOnly = true)
     public List<Bank> getAllBank(int page, int size, String sortBy, String sortOrder) {
@@ -123,6 +122,10 @@ public class BankServiceImpl implements BankService {
         return banks;
     }
 
+    @Override
+    public Bank findBankByCianId(Integer cianId) {
+        return bankRepository.findBankByCianId(cianId);
+    }
 
     @Override
     @Transactional
@@ -162,7 +165,6 @@ public class BankServiceImpl implements BankService {
             }
         }
     }
-
 
     private Bank getBank(UUID bankId) {
         return bankRepository.findById(bankId)

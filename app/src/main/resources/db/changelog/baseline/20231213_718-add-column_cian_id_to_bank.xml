@@ -1,0 +1,345 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+    http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <changeSet id="add-cian-id-to-bank" author="y.sedash">
+        <addColumn tableName="bank">
+            <column name="cian_id" type="integer"/>
+        </addColumn>
+    </changeSet>
+    <changeSet id="create-table-region" author="y.sedash">
+        <createTable tableName="region">
+            <column name="id" type="SERIAL">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="name" type="VARCHAR(255)"/>
+            <column name="region_type" type="varchar(255)"/>
+            <column name="cian_id" type="integer">
+                <constraints nullable="true"/>
+            </column>
+
+            <column name="created_at" type="TIMESTAMP WITHOUT TIME ZONE" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="created_by" type="integer" defaultValueNumeric="0">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_by" type="integer"/>
+            <column name="is_active" type="BOOLEAN" defaultValueBoolean="true">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet id="insert-regions" author="y.sedash">
+        <sql>
+            INSERT INTO region (id, name, region_type, cian_id)
+            VALUES
+                (1, 'Республика Адыгея (Адыгея)', 'ADYGEA', null),
+                (2, 'Алтайский край', 'ALTAY', 4555),
+                (3, 'Республика Алтай', 'ALTAI_REPUBLIC', 4554),
+                (4, 'Амурская область', 'AMUR', null),
+                (5, 'Архангельская область', 'ARKHANGELSK', 4557),
+                (6, 'Астраханская область', 'ASTRAKHAN', 4558),
+                (7, 'Республика Башкортостан', 'BASHKORTOSTAN', 4560),
+                (8, 'Белгородская область', 'BELGOROD', 4561),
+                (9, 'Брянская область', 'BRYANSK', 4562),
+                (10, 'Республика Бурятия', 'BURYATIA', null),
+                (11, 'Челябинская область', 'CHELYABINSK', 4630),
+                (12, 'Чеченская Республика', 'CHECHNYA', null),
+                (13, 'Чукотский автономный округ', 'CHUKOTKA', null),
+                (14, 'Республика Дагестан', 'DAGESTAN', null),
+                (15, 'Амурская область', 'AMUR', 16),
+                (16, 'Иркутская область', 'IRKUTSK', 4572),
+                (17, 'Ивановская область', 'IVANOVO', 4570),
+                (18, 'Калининградская область', 'KALININGRAD', 4574),
+                (19, 'Республика Калмыкия', 'KALMYKIA', 4575),
+                (20, 'Калужская область', 'KALUGA', 4576),
+                (21, 'Камчатский край', 'KAMCHATKA', null),
+                (22, 'Карачаево-Черкесская Республика', 'KARACHAY_CHERKESSIA', null),
+                (23, 'Республика Карелия', 'KARELIA', 4579),
+                (24, 'Кемеровская область', 'KEMEROVO', 4580),
+                (25, 'Хабаровский край', 'KHABAROVSK', null),
+                (26, 'Республика Хакасия', 'KHAKASSIA', 4628),
+                (27, 'Кировская область', 'KIROV', 4581),
+                (28, 'Республика Коми', 'KOMI', 4582),
+                (29, 'Костромская область', 'KOSTROMA', 4583),
+                (30, 'Краснодарский край', 'KRASNODAR', 4584),
+                (31, 'Красноярский край', 'KRASNOYARSK', 4585),
+                (32, 'Курганская область', 'KURGANSKAYA_OBL', 4586),
+                (33, 'Курская область', 'KURSK', 4587),
+                (34, 'Ленинградская область', 'LENINGRAD', 4588),
+                (35, 'Липецкая область', 'LIPECK', 4589),
+                (36, 'Магаданская область', 'MAGADAN', null),
+                (37, 'Республика Марий Эл', 'MARI_EL', 4591),
+                (38, 'Москва', 'MOSCOW', 1),
+                (39, 'Московская область', 'MOSCOW_REGION', 4593),
+                (40, 'Республика Мордовия', 'MORDOVIA', 4592),
+                (41, 'Мурманская область', 'MURMANSK', 4594),
+                (42, 'Нижегородская область', 'NIZHNY_NOVGOROD', 4596),
+                (43, 'Новгородская область', 'NOVGOROD', 4597),
+                (44, 'Новосибирская область', 'NOVOSIBIRSK', 4598),
+                (45, 'Омская область', 'OMSK', 4599),
+                (46, 'Оренбургская область', 'ORENBURG', 4600),
+                (47, 'Орловская область', 'OREL', 4601),
+                (48, 'Пензенская область', 'PENZA', 4602),
+                (49, 'Пермский край', 'PERM', 4603),
+                (50, 'Приморский край', 'PRIMORSKY', null),
+                (51, 'Псковская область', 'PSKOV', 4605),
+                (52, 'Ростовская область', 'ROSTOV', 4606),
+                (53, 'Рязанская область', 'RYAZAN', 4607),
+                (54, 'Республика Саха (Якутия)', 'SAKHA', null),
+                (55, 'Сахалинская область', 'SAKHALIN', null),
+                (56, 'Самарская область', 'SAMARA', 4608),
+                (57, 'Саратовская область', 'SARATOV', 4609),
+                (58, 'Смоленская область', 'SMOLENSK', 4614),
+                (59, 'Ставропольский край', 'STAVROPOL', 4615),
+                (60, 'Свердловская область', 'SVERDLOVSK', 4612),
+                (61, 'Санкт-Петербург', 'SAINT_PETERSBURG', 2),
+                (62, 'Тамбовская область', 'TAMBOV', 4617),
+                (63, 'Республика Татарстан (Татарстан)', 'TATARSTAN', 4618),
+                (64, 'Тверская область', 'TVER', 4619),
+                (65, 'Томская область', 'TOMSK', 4620),
+                (66, 'Тульская область', 'TULA', 4621),
+                (67, 'Тюменская область', 'TYUMEN', 4623),
+                (68, 'Удмуртская Республика', 'UDMURTIA', 4624),
+                (69, 'Ульяновская область', 'ULYANOVSK', 4625),
+                (70, 'Ханты-Мансийский автономный округ — Югра', 'KHANTY_MANSIYSK', 4629),
+                (71, 'Ярославская область', 'YAROSLAVL', 4636),
+                (72, 'Севастополь', 'SEVASTOPOL', null),
+                (73, 'Еврейская автономная область', 'JEWISH_AUTONOMOUS_REGION', null),
+                (74, 'Чувашская Республика', 'CHUVASH_REPUBLIC', 4633),
+                (75, 'Ненецкий автономный округ', 'NENETS_AUTONOMOUS_OKRUG', 4595),
+                (76, 'Коми-Пермяцкий автономный округ', 'KOMI_PERMYAK', null),
+                (77, 'Ямало-Ненецкий автономный округ', 'YAMALO_NENETS', 4635),
+                (78, 'Забайкальский край', 'ZABAIKALSKY', null),
+                (79, 'Республика Крым', 'REPUBLIC_OF_CRIMEA', null),
+                (80, 'Вологодская область', 'VOLOGDA', 4566),
+                (81, 'Республика Тыва', 'TUVA', 4622),
+                (82, 'Владимирская область', 'VLADIMIR', 4564),
+                (83, 'Волгоградская область', 'VOLGOGRAD', 4565),
+                (84, 'Воронежская область', 'VORONEZH', 4567),
+                (85, 'Республика Северная Осетия-Алания', 'NORTH_OSSETIA', null);
+
+
+        </sql>
+    </changeSet>
+    <changeSet id="createRegionGroupsTable" author="y.sedash">
+        <createTable tableName="region_groups">
+            <column name="id" type="SERIAL">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="name" type="VARCHAR(1000)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="description" type="VARCHAR(1000)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet id="insertRegionGroupsData" author="y.sedash">
+        <sql>
+            INSERT INTO region_groups (id, name, description)
+            VALUES (1, 'regions', 'Все регионы, кроме МиМОСпбЛО'),
+                   (2, 'regions_gte_million', 'Регионы с населением более 1 млн человек'),
+                   (3, 'regions_lte_million', 'Регионы с населением менее 1 млн человек'),
+                   (4, 'any', 'Любой регион');
+        </sql>
+    </changeSet>
+    <changeSet id="createRegionGroupMappingsTable" author="y.sedash">
+        <createTable tableName="region_group_mappings">
+            <column name="id" type="SERIAL">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="region_id" type="integer">
+                <constraints nullable="false"/>
+            </column>
+            <column name="region_group" type="VARCHAR(1000)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet id="insertRegionGroupMappings" author="y.sedash">
+        <sql>
+            INSERT INTO region_group_mappings (id, region_id, region_group)
+            VALUES
+                (1, 4598, 'regions_gte_million'),
+                (2, 4618, 'regions_gte_million'),
+                (3, 4624, 'regions_gte_million'),
+                (4, 4633, 'regions_gte_million'),
+                (5, 4555, 'regions_gte_million'),
+                (6, 4584, 'regions_gte_million'),
+                (7, 4585, 'regions_gte_million'),
+                (8, 4615, 'regions_gte_million'),
+                (9, 4557, 'regions_gte_million'),
+                (10, 4561, 'regions_gte_million'),
+                (11, 4562, 'regions_gte_million'),
+                (12, 4564, 'regions_gte_million'),
+                (13, 4565, 'regions_gte_million'),
+                (14, 4566, 'regions_gte_million'),
+                (15, 4567, 'regions_gte_million'),
+                (16, 4572, 'regions_gte_million'),
+                (17, 4574, 'regions_gte_million'),
+                (18, 4576, 'regions_gte_million'),
+                (19, 4580, 'regions_gte_million'),
+                (20, 4581, 'regions_gte_million'),
+                (21, 4587, 'regions_gte_million'),
+                (22, 4589, 'regions_gte_million'),
+                (23, 4596, 'regions_gte_million'),
+                (24, 4599, 'regions_gte_million'),
+                (25, 4600, 'regions_gte_million'),
+                (26, 4602, 'regions_gte_million'),
+                (27, 4603, 'regions_gte_million'),
+                (28, 4606, 'regions_gte_million'),
+                (29, 4607, 'regions_gte_million'),
+                (30, 4608, 'regions_gte_million'),
+                (31, 4609, 'regions_gte_million'),
+                (32, 4612, 'regions_gte_million'),
+                (33, 4619, 'regions_gte_million'),
+                (34, 4620, 'regions_gte_million'),
+                (35, 4621, 'regions_gte_million'),
+                (36, 4623, 'regions_gte_million'),
+                (37, 4625, 'regions_gte_million'),
+                (38, 4630, 'regions_gte_million'),
+                (39, 4636, 'regions_gte_million'),
+                (40, 4629, 'regions_gte_million'),
+                (41, 4554, 'regions_lte_million'),
+                (42, 4575, 'regions_lte_million'),
+                (43, 4579, 'regions_lte_million'),
+                (44, 4582, 'regions_lte_million'),
+                (45, 4591, 'regions_lte_million'),
+                (46, 4592, 'regions_lte_million'),
+                (47, 4622, 'regions_lte_million'),
+                (48, 4628, 'regions_lte_million'),
+                (49, 4558, 'regions_lte_million'),
+                (50, 4570, 'regions_lte_million'),
+                (51, 4583, 'regions_lte_million'),
+                (52, 4586, 'regions_lte_million'),
+                (53, 4594, 'regions_lte_million'),
+                (54, 4597, 'regions_lte_million'),
+                (55, 4601, 'regions_lte_million'),
+                (56, 4605, 'regions_lte_million'),
+                (57, 4614, 'regions_lte_million'),
+                (58, 4617, 'regions_lte_million'),
+                (59, 4595, 'regions_lte_million'),
+                (60, 4635, 'regions_lte_million'),
+                (61, 4593, 'regions_gte_million'),
+                (62, 4560, 'regions'),
+                (63, 4598, 'any'),
+                (64, 1, 'any'),
+                (65, 2, 'any'),
+                (66, 4588, 'any'),
+                (67, 4593, 'any'),
+                (68, 4560, 'any'),
+                (69, 4554, 'any'),
+                (70, 4575, 'any'),
+                (71, 4579, 'any'),
+                (72, 4582, 'any'),
+                (73, 4591, 'any'),
+                (74, 4592, 'any'),
+                (75, 4618, 'any'),
+                (76, 4622, 'any'),
+                (77, 4624, 'any'),
+                (78, 4628, 'any'),
+                (79, 4633, 'any'),
+                (80, 4555, 'any'),
+                (81, 4584, 'any'),
+                (82, 4585, 'any'),
+                (83, 4615, 'any'),
+                (84, 4557, 'any'),
+                (85, 4558, 'any'),
+                (86, 4561, 'any'),
+                (87, 4562, 'any'),
+                (88, 4564, 'any'),
+                (89, 4565, 'any'),
+                (90, 4566, 'any'),
+                (91, 4567, 'any'),
+                (92, 4570, 'any'),
+                (93, 4572, 'any'),
+                (94, 4574, 'any'),
+                (95, 4576, 'any'),
+                (96, 4580, 'any'),
+                (97, 4581, 'any'),
+                (98, 4583, 'any'),
+                (99, 4586, 'any'),
+                (100, 4587, 'any'),
+                (101, 4589, 'any'),
+                (102, 4594, 'any'),
+                (103, 4596, 'any'),
+                (104, 4597, 'any'),
+                (105, 4599, 'any'),
+                (106, 4600, 'any'),
+                (107, 4601, 'any'),
+                (108, 4602, 'any'),
+                (109, 4603, 'any'),
+                (110, 4605, 'any'),
+                (111, 4606, 'any'),
+                (112, 4607, 'any'),
+                (113, 4608, 'any'),
+                (114, 4609, 'any'),
+                (115, 4612, 'any'),
+                (116, 4614, 'any'),
+                (117, 4617, 'any'),
+                (118, 4619, 'any'),
+                (119, 4620, 'any'),
+                (120, 4621, 'any'),
+                (121, 4623, 'any'),
+                (122, 4625, 'any'),
+                (123, 4630, 'any'),
+                (124, 4636, 'any'),
+                (125, 4595, 'any'),
+                (126, 4629, 'any'),
+                (127, 4635, 'any'),
+                (128, 4564, 'any'),
+                (129, 4565, 'any'),
+                (130, 4566, 'any'),
+                (131, 4567, 'any'),
+                (132, 4570, 'any'),
+                (133, 4572, 'any'),
+                (134, 4574, 'any'),
+                (135, 4576, 'any'),
+                (136, 4580, 'any'),
+                (137, 4581, 'any'),
+                (138, 4583, 'any'),
+                (139, 4586, 'any'),
+                (140, 4587, 'any'),
+                (141, 4589, 'any'),
+                (142, 4594, 'any'),
+                (143, 4596, 'any'),
+                (144, 4597, 'any'),
+                (145, 4599, 'any'),
+                (146, 4600, 'any'),
+                (147, 4601, 'any'),
+                (148, 4602, 'any'),
+                (149, 4603, 'any'),
+                (150, 4605, 'any'),
+                (151, 4606, 'any'),
+                (152, 4607, 'any'),
+                (153, 4608, 'any'),
+                (154, 4609, 'any'),
+                (155, 4612, 'any'),
+                (156, 4614, 'any'),
+                (157, 4617, 'any'),
+                (158, 4619, 'any'),
+                (159, 4620, 'any'),
+                (160, 4621, 'any'),
+                (161, 4623, 'any'),
+                (162, 4625, 'any'),
+                (163, 4630, 'any'),
+                (164, 4636, 'any'),
+                (165, 4595, 'any'),
+                (166, 4629, 'any'),
+                (167, 4635, 'any');
+
+        </sql>
+    </changeSet>
+    <changeSet id="add-cian-id-to-credit-program" author="y.sedash">
+        <addColumn tableName="credit_program">
+            <column name="cian_id" type="integer"/>
+        </addColumn>
+    </changeSet>
+
+</databaseChangeLog>

@@ -1,14 +1,10 @@
 package pro.mbroker.api.dto.request;
 
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.Data;
 
 import java.math.BigDecimal;
 
-@Getter
-@Setter
-@ToString
+@Data
 public class CreditParameterResponse {
     private BigDecimal minMortgageSum;
 

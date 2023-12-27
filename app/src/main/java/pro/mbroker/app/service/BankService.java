@@ -25,4 +25,6 @@ public interface BankService {
     List<Bank> getAllBank(int page, int size, String sortBy, String sortOrder);
 
     List<Bank> getAllBankByIds(Set<UUID> bankIds);
+
+    Bank findBankByCianId(Integer cianId);
 }

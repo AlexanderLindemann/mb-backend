@@ -16,4 +16,5 @@ public class BankRequest {
 
     private List<BankContactRequest> bankContacts;
 
+    private Integer cianBankId;
 }

@@ -4,9 +4,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import pro.mbroker.app.entity.CreditProgram;
 
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 public interface CreditProgramRepository extends JpaRepository<CreditProgram, UUID>, JpaSpecificationExecutor<CreditProgram> {
@@ -26,4 +28,11 @@ public interface CreditProgramRepository extends JpaRepository<CreditProgram, UU
 
     @Query("SELECT cp.id FROM CreditProgram cp WHERE cp.isActive = true")
     List<UUID> findAllCreditProgramIds();
+
+    @Query("SELECT cp.cianId FROM CreditProgram cp")
+    Set<Integer> findAllCreditProgramCianIds();
+
+    @Query("SELECT cp FROM CreditProgram cp WHERE cp.cianId = :cianId ORDER BY cp.createdAt DESC")
+    List<CreditProgram> findByCianIdWithMaxCreatedAt(@Param("cianId") Integer cianId);
+
 }

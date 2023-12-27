@@ -5,6 +5,7 @@ plugins {
 dependencies {
     implementation ("ru.smartdeal:common-api:$smartdeal_dependencies_version")
     implementation ('org.springframework.boot:spring-boot-starter-web')
+    implementation 'com.opencsv:opencsv:5.9'
 }
 
 publishing {

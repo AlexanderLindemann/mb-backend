@@ -18,4 +18,5 @@ public interface BankRepository extends JpaRepository<Bank, UUID>, JpaSpecificat
 
     List<Bank> findAllByIdInAndIsActiveTrue(Set<UUID> bankIds);
 
+    Bank findBankByCianId(Integer cianId);
 }

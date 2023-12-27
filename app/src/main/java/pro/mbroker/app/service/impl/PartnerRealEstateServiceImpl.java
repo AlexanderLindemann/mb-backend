@@ -114,8 +114,7 @@ public class PartnerRealEstateServiceImpl implements PartnerRealEstateService {
             response.getNewBuildings().forEach(this::checkAndSavePartner);
 
         } catch (Exception e) {
-            log.error("Не смогли загрузить данные из циан ");
-            e.printStackTrace();
+            log.error("Не смогли загрузить данные по ЖК из циан ");
         }
     }
 

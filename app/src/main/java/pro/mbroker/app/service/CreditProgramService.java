@@ -27,4 +27,8 @@ public interface CreditProgramService {
     List<CreditProgram> getProgramsWithDetail(List<UUID> creditProgramIds);
 
     List<UUID> getAllCreditProgramIds();
+
+    void loadCreditProgramFromCian();
+
+    CreditProgram updateProgramFromCian(Integer cianId, BankProgramRequest updateProgramRequest, CreditProgramDetail updateCreditProgramDetail);
 }

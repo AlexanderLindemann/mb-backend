@@ -1,8 +1,6 @@
 package pro.mbroker.api.dto.request;
 
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.Data;
 import pro.mbroker.api.enums.CreditProgramType;
 import pro.mbroker.api.enums.CreditPurposeType;
 import pro.mbroker.api.enums.RealEstateType;
@@ -16,9 +14,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
-@Getter
-@Setter
-@ToString
+@Data
 public class BankProgramRequest {
     @NotNull
     private UUID bankId;
@@ -55,6 +51,8 @@ public class BankProgramRequest {
     @DecimalMin(value = "-100.0000", inclusive = true, message = "Rate cannot be less -100.00")
     @DecimalMax(value = "100.0000", inclusive = true, message = "Rate cannot be greater than 100.00")
     private Double salaryClientInterestRate;
+
+    private Integer cianId;
 
     //Установка начала времени действия программы на 00:00
     public void resetEarliestTime() {

@@ -6,7 +6,9 @@ import pro.smartdeal.common.enums.DictionaryEnum;
 import pro.smartdeal.common.enums.EnumWithValue;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Getter
@@ -26,13 +28,30 @@ public enum RealEstateType implements EnumWithValue<String> {
     private final String value;
     private final String name;
 
+    private static final Map<String, RealEstateType> objectTypeMap = initializeMap();
+
+    private static Map<String, RealEstateType> initializeMap() {
+        Map<String, RealEstateType> map = new HashMap<>();
+        map.put("flat", APARTMENT);
+        map.put("apartments", APARTMENT_COMPLEX);
+        map.put("house", HOUSE_WITH_LAND);
+        return map;
+    }
+
+
     public static List<RealEstateType> getAll() {
         return Arrays.asList(RealEstateType.values());
     }
+
     public static List<String> getAllNames() {
         return Arrays.stream(RealEstateType.values())
                 .map(RealEstateType::getName)
                 .collect(Collectors.toList());
+    }
+
+    public static RealEstateType getRealEstateTypeByCianObjectType(String objectType) {
+
+        return objectTypeMap.get(objectType);
     }
 }
 

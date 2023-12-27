@@ -38,6 +38,7 @@ dependencies {
     implementation 'org.liquibase:liquibase-core'
     runtimeOnly 'org.postgresql:postgresql'
     implementation 'org.springframework.boot:spring-boot-starter-test'
+    implementation 'com.opencsv:opencsv:5.9'
 }
 
 // Customize Git properties plugin.

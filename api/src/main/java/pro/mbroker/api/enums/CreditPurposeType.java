@@ -6,7 +6,9 @@ import pro.smartdeal.common.enums.DictionaryEnum;
 import pro.smartdeal.common.enums.EnumWithValue;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Getter
@@ -20,6 +22,19 @@ public enum CreditPurposeType implements EnumWithValue<String> {
     private final String value;
     private final String name;
 
+    private static final Map<String, CreditPurposeType> objectTypeMap = initializeMap();
+
+    private static Map<String, CreditPurposeType> initializeMap() {
+        Map<String, CreditPurposeType> map = new HashMap<>();
+        map.put("newBuilding", PURCHASE_UNDER_CONSTRUCTION);
+        map.put("secondary", PURCHASE_READY_HOUSE);
+        map.put("refinancing", REFINANCING);
+        map.put("mortgage", PURCHASE_UNDER_CONSTRUCTION);
+
+
+        return map;
+    }
+
     public static List<CreditPurposeType> getAll() {
         return Arrays.asList(CreditPurposeType.values());
     }
@@ -27,6 +42,10 @@ public enum CreditPurposeType implements EnumWithValue<String> {
         return Arrays.stream(CreditPurposeType.values())
                 .map(CreditPurposeType::getName)
                 .collect(Collectors.toList());
+    }
+
+    public static CreditPurposeType getCreditPurposeTypeByCian(String objectType) {
+        return objectTypeMap.get(objectType);
     }
 }
 

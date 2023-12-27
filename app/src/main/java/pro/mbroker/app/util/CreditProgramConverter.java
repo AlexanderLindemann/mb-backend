@@ -22,7 +22,7 @@ public class CreditProgramConverter {
                 .setCreditProgramType(creditProgramDetail.getCreditProgramType());
     }
 
-    public CreditProgramDetail convertCreditDetailToStringFormat(BankProgramRequest createCreditParameter) {
+    public static CreditProgramDetail convertCreditDetailToStringFormat(BankProgramRequest createCreditParameter) {
         return new CreditProgramDetail()
                 .setCreditPurposeType(
                         createCreditParameter.getCreditPurposeType() != null

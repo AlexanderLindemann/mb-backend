@@ -42,4 +42,6 @@ public class Bank extends BaseEntity {
     @OneToMany(mappedBy = "bank", cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH})
     private List<CreditProgram> creditPrograms;
 
+    @Column(name = "cian_id", nullable = true)
+    private Integer cianId;
 }

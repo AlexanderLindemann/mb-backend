@@ -80,4 +80,10 @@ public class CreditProgramControllerImpl implements CreditProgramController {
         creditProgramService.deleteCreditProgram(creditProgramId);
     }
 
+    @Override
+    @PreAuthorize("hasAuthority(T(pro.smartdeal.common.security.Permission$Code).MB_ADMIN_ACCESS)")
+    public void loadCreditProgramFromCian() {
+        creditProgramService.loadCreditProgramFromCian();
+    }
+
 }

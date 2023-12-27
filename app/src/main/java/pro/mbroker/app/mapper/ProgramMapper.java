@@ -38,6 +38,7 @@ public interface ProgramMapper {
     @Mapping(target = "updatedBy", ignore = true)
     @Mapping(target = "active", ignore = true)
     @Mapping(target = "salaryClientInterestRate", source = "salaryClientInterestRate")
+    @Mapping(target = "cianId", ignore = true)
     void updateProgramFromRequest(BankProgramRequest updateProgramRequest, @MappingTarget CreditProgram creditProgram);
 
     default List<CreditProgramResponse> convertCreditProgramsToResponses(List<CreditProgram> creditPrograms) {
