@@ -72,7 +72,7 @@ public enum RegionType implements EnumWithValue<String> {
     SVERDLOVSK("SVERDLOVSK", "Свердловская область"),
     SAINT_PETERSBURG("SAINT_PETERSBURG", "Санкт-Петербург"),
     TAMBOV("TAMBOV", "Тамбовская область"),
-    TATARSTAN("TATARSTAN", "Республика Татарстан (Татарстан)"),
+    TATARSTAN("TATARSTAN", "Республика Татарстан"),
     TVER("TVER", "Тверская область"),
     TOMSK("TOMSK", "Томская область"),
     TULA("TULA", "Тульская область"),

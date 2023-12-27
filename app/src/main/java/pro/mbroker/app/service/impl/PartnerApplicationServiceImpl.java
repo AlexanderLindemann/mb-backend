@@ -734,6 +734,7 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
         }
         Map<BankApplicationKey, BankApplication> currentBankApplications = partnerApplication.getBankApplications()
                 .stream()
+                .filter(ba -> !UNCHANGEABLE_STATUSES.contains(ba.getBankApplicationStatus()))
                 .collect(Collectors.toMap(
                         bankApplication -> new BankApplicationKey(bankApplication.getCreditProgram().getId(), bankApplication.getRealEstateType()),
                         Function.identity()
@@ -753,11 +754,18 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
             }
         });
         currentBankApplications.forEach((key, value) -> {
-            if (!updateCreditProgramIds.contains(key)) {
+            if (!updateCreditProgramIds.contains(key) && !UNCHANGEABLE_STATUSES.contains(value.getBankApplicationStatus())) {
                 value.setActive(false);
             }
         });
-        return new ArrayList<>(currentBankApplications.values());
+        Set<BankApplication> unchangeableStatusBankApplications = partnerApplication.getBankApplications()
+                .stream()
+                .filter(ba -> UNCHANGEABLE_STATUSES.contains(ba.getBankApplicationStatus()))
+                .filter(BaseEntity::isActive)
+                .collect(Collectors.toSet());
+        List<BankApplication> resultBankApplications = new ArrayList<>(currentBankApplications.values());
+        resultBankApplications.addAll(unchangeableStatusBankApplications);
+        return resultBankApplications;
     }
 
     private List<PartnerApplication> findPartnerApplicationByPhoneNumber(String phoneNumber) {
