@@ -239,17 +239,17 @@ public class CreditProgramServiceImpl implements CreditProgramService {
                 .setCianId(cian.getId())
                 .setProgramName(creditProgramType.getName())
                 .setProgramStartDate(createdAt)
-                .setProgramEndDate(createdAt.plusDays(30)) // поставила 30 дней уточнить где брать протухший день
+                .setProgramEndDate(createdAt.plusDays(30*12*3)) // 3 года
                 .setDescription("")
                 .setFullDescription(cian.getFullDescription())
                 .setCreditPurposeType(parseCreditPurposeTypeFromInput(cian.getRealEstateType(), cian.getMortgageType())) //ошибки тут нет у циана это называется RealEstateType
                 .setRealEstateType(parseRealEstateTypesFromInput(cian.getObjectType()))
                 .setCreditProgramType(creditProgramType)
-                .setInclude(parseRegionTypeIncludeFromInput(cian.getRegionIds()))
+                .setInclude(parseRegionTypeIncludeFromInput(cian.getRegionIds(), cian.getRegionGroup()))
                 .setExclude(Collections.emptyList())
                 .setCreditParameter(new CreditParameterResponse()
                         .setMinMortgageSum(new BigDecimal(cian.getLoanAmountMin()))
-                        .setMaxMortgageSum(new BigDecimal(cian.getLoanAmountMin()))
+                        .setMaxMortgageSum(new BigDecimal(cian.getLoanAmountMax()))
                         .setMinCreditTerm(cian.getLoanTermMin())
                         .setMaxCreditTerm(cian.getLoanTermMax())
                         .setMinDownPayment(new BigDecimal(cian.getDownPaymentRateMin()))
@@ -257,7 +257,7 @@ public class CreditProgramServiceImpl implements CreditProgramService {
                         .setIsMaternalCapital(true)
                         )
                 .setBaseRate(cian.getBaseRate())
-                .setSalaryClientInterestRate(cian.getBaseRate());//в выгрузке нет ставки для зп клиентов
+                .setSalaryClientInterestRate(0.0);//в выгрузке нет ставки для зп клиентов //todo взять этот параметр
     }
 
     private static LoanDto parseDataToLoanDto(String[] data) {
@@ -347,23 +347,26 @@ public class CreditProgramServiceImpl implements CreditProgramService {
         return type;
     }
 
-    private List<RegionType> parseRegionTypeIncludeFromInput(String input) {
-        Pattern pattern = Pattern.compile("\\{([^}]+)\\}");
-        Matcher matcher = pattern.matcher(input);
-        List<RegionType> types = new ArrayList<>();
+    private List<RegionType> parseRegionTypeIncludeFromInput(String input, String regionGroupName) {
+        List<RegionType> types;
+        List<Integer> regionTypeIds = new ArrayList<>();
 
-        if (matcher.find()) {
-            String innerContent = matcher.group(1);
-            String[] items = innerContent.split(",");
+        if (input.equals("{}")) {
+           regionTypeIds = regionService.getRegionIdsByGroupName(regionGroupName);
+        } else {
+            Pattern pattern = Pattern.compile("\\{([^}]+)\\}");
+            Matcher matcher = pattern.matcher(input);
 
-            List<Integer> integerList = Arrays.stream(items)
-                    .map(Integer::parseInt)
-                    .collect(Collectors.toList());
+            if (matcher.find()) {
+                String innerContent = matcher.group(1);
+                String[] items = innerContent.split(",");
 
-            types = regionService.getRegionTypesByCianIdIn(integerList);
-
+             regionTypeIds = Arrays.stream(items)
+                        .map(Integer::parseInt)
+                        .collect(Collectors.toList());
+            }
         }
-
+        types = regionService.getRegionTypesByCianIdIn(regionTypeIds);
         return types;
     }
 

@@ -8,7 +8,6 @@ import pro.mbroker.app.repository.RegionRepository;
 import pro.mbroker.app.service.RegionService;
 
 import java.util.List;
-import java.util.Set;
 
 @Slf4j
 @Service
@@ -18,5 +17,10 @@ public class RegionServiceImpl implements RegionService {
     @Override
     public List<RegionType> getRegionTypesByCianIdIn(List<Integer> cianIds) {
         return regionRepository.findRegionTypesByCianIdIn(cianIds);
+    }
+
+    @Override
+    public List<Integer> getRegionIdsByGroupName(String groupName) {
+        return regionRepository.getRegionIdsByGroupName(groupName);
     }
 }
