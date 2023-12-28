@@ -537,7 +537,7 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
         UUID existingRealEstateId = existingApplication.getRealEstate() != null ? existingApplication.getRealEstate().getId() : null;
         if (Objects.nonNull(existingRealEstateId)
                 && Objects.nonNull(request.getRealEstateId())
-                && !Objects.equals(request.getRealEstateId(), existingRealEstateId)) {
+                && !Objects.equals(request.getRealEstateId(), existingRealEstateId.toString())) {
             return true;
         }
         MortgageCalculationDto requestMortgageCalculation = request.getMortgageCalculation();
