@@ -52,6 +52,7 @@ public class BankServiceImpl implements BankService {
         setBankContacts(bank, bankRequest.getBankContacts());
         bank.setOrderNumber(bankRepository.findMaxOrderNumber() + ORDER_STEP);
         setAttachmentIfPresent(bank, bankRequest.getAttachment_id());
+        bank.setCianId(bankRequest.getCianBankId());
         return bankRepository.save(bank);
     }
 
@@ -70,6 +71,7 @@ public class BankServiceImpl implements BankService {
             updateAndAddBankContacts(bank, bankRequest.getBankContacts());
             markAbsentBankContactsAsInactive(bank, bankRequest.getBankContacts());
         }
+        bank.setCianId(bankRequest.getCianBankId());
         setAttachmentIfPresent(bank, bankRequest.getAttachment_id());
         return bankRepository.save(bank);
     }
