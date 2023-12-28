@@ -66,11 +66,11 @@ public interface PartnerApplicationController {
             @PathVariable UUID partnerApplicationId,
             @RequestBody PartnerApplicationRequest request);
 
-    @ApiOperation("удалить заявку по id")
-    @DeleteMapping("/{partnerApplicationId}")
-    void deletePartnerApplication(
-            @PathVariable(value = "partnerApplicationId") UUID partnerApplicationId
-    );
+    @ApiOperation("Изменить активность заявки")
+    @PutMapping("/{partnerApplicationId}/change-active-status")
+    void changePartnerApplicationActiveStatus(
+            @PathVariable UUID partnerApplicationId,
+            @RequestBody boolean isActive);
 
     @ApiOperation("включить программу банка")
     @PutMapping("/enable_bank_application/{partnerApplicationId}")

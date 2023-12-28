@@ -268,14 +268,6 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
     }
 
     @Override
-    @Transactional
-    public void deletePartnerApplication(UUID partnerApplicationId) {
-        PartnerApplication partnerApplication = getPartnerApplicationById(partnerApplicationId);
-        partnerApplication.setActive(false);
-        save(partnerApplication);
-    }
-
-    @Override
     public PartnerApplicationResponse buildPartnerApplicationResponse(PartnerApplication partnerApplication) {
         PartnerApplicationResponse response = partnerApplicationMapper.toPartnerApplicationResponse(partnerApplication);
         response.setRealEstateTypes(Converter.convertStringListToEnumList(partnerApplication.getRealEstateTypes(), RealEstateType.class));
@@ -458,6 +450,13 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
     public PartnerApplication save(PartnerApplication partnerApplication) {
         partnerApplication.setUpdatedAt(LocalDateTime.now());
         return partnerApplicationRepository.save(partnerApplication);
+    }
+
+    @Override
+    public void changePartnerApplicationActiveStatus(UUID partnerApplicationId, boolean isActive) {
+        PartnerApplication partnerApplication = getPartnerApplicationById(partnerApplicationId);
+        partnerApplication.setActive(isActive);
+        save(partnerApplication);
     }
 
     private String formatPhoneNumber(String phoneNumber) {
@@ -810,9 +809,7 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
         if (bankApplications == null || bankApplications.isEmpty()) {
             throw new BadRequestException("At least one BankApplicationRequest is required");
         }
-
         StringBuilder missingFieldsMessage = new StringBuilder();
-
         for (int i = 0; i < bankApplications.size(); i++) {
             BankApplicationRequest request = bankApplications.get(i);
             List<String> missingFields = new ArrayList<>();

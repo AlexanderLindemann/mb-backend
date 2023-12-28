@@ -86,8 +86,8 @@ public class PartnerApplicationControllerImpl implements PartnerApplicationContr
 
     @Override
     @PreAuthorize("hasAuthority(T(pro.smartdeal.common.security.Permission$Code).MB_ADMIN_ACCESS)")
-    public void deletePartnerApplication(UUID partnerApplicationId) {
-        partnerApplicationService.deletePartnerApplication(partnerApplicationId);
+    public void changePartnerApplicationActiveStatus(UUID partnerApplicationId, boolean isActive) {
+        partnerApplicationService.changePartnerApplicationActiveStatus(partnerApplicationId, isActive);
     }
 
     @Override

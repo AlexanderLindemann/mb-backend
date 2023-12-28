@@ -35,8 +35,6 @@ public interface PartnerApplicationService {
 
     PartnerApplication updatePartnerApplication(UUID partnerApplicationId, PartnerApplicationRequest request);
 
-    void deletePartnerApplication(UUID partnerApplicationId);
-
     PartnerApplicationResponse buildPartnerApplicationResponse(PartnerApplication partnerApplication);
 
     List<PartnerApplicationResponse> buildPartnerApplicationResponse(List<PartnerApplication> partnerApplications);
@@ -62,4 +60,6 @@ public interface PartnerApplicationService {
     void saveAll(Collection<PartnerApplication> partnerApplications);
 
     PartnerApplication save(PartnerApplication partnerApplication);
+
+    void changePartnerApplicationActiveStatus(UUID partnerApplicationId, boolean isActive);
 }
