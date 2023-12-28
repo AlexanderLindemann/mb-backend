@@ -42,6 +42,10 @@ public class PartnerApplicationResponse {
 
     private PartnerApplicationStatus status;
 
+    private UUID partnerId;
+
+    private String partnerName;
+
     private List<BankWithBankApplicationDto> bankWithBankApplicationDto;
 
     private List<BorrowerProfileResponse> borrowerProfiles;

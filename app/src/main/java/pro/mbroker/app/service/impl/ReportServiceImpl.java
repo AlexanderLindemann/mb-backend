@@ -49,7 +49,7 @@ public class ReportServiceImpl implements ReportService {
         log.debug("Writing CSV header");
         String[] headerRecord = {
                 "Bank Application ID", "Developer Application ID", "Bank ID", "Bank Name",
-                "Developer ID", "Developer Name", "Main Borrower's Full Name",
+                "Developer ID", "Developer Name", "Real Estate ID", "Real Estate Name", "Main Borrower's Full Name",
                 "Bank Application Status", "Credit Program ID", "Credit Program Name",
                 "Property Cost", "Credit Amount", "Developer Application Creation Date",
                 "Last Modification Date of Bank Application"
@@ -67,6 +67,8 @@ public class ReportServiceImpl implements ReportService {
                             response.getId().toString(),
                             bankWithBankAppDto.getBankId().toString(),
                             bankWithBankAppDto.getBankName(),
+                            response.getPartnerId().toString(),
+                            response.getPartnerName(),
                             response.getRealEstate().getId().toString(),
                             response.getRealEstate().getResidentialComplexName(),
                             bankAppResponse.getMainBorrower().getFirstName() + " " +

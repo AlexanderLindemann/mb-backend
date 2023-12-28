@@ -17,6 +17,8 @@ public interface PartnerApplicationMapper {
     @Mapping(target = "realEstateTypes", ignore = true)
     @Mapping(target = "insurances", ignore = true)
     @Mapping(source = "partnerApplicationStatus", target = "status")
+    @Mapping(source = "partner.id", target = "partnerId")
+    @Mapping(source = "partner.name", target = "partnerName")
     PartnerApplicationResponse toPartnerApplicationResponse(PartnerApplication partnerApplication);
 
     List<PartnerApplicationResponse> toPartnerApplicationResponseList(List<PartnerApplication> partnerApplications);
