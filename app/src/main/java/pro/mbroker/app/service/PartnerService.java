@@ -28,4 +28,6 @@ public interface PartnerService {
     Partner getPartnerByCianIdOrName (Integer cianId, String name);
 
     Optional<Partner> findPartnerByCianId(Integer cianId);
+
+    Partner updateCianId (UUID partnerId, Integer cianId);
 }

@@ -21,4 +21,6 @@ public class RealEstateRequest {
 
     private Integer cianId;
 
+    private Boolean active;
+
 }

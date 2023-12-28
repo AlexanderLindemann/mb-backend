@@ -163,4 +163,12 @@ public class PartnerServiceImpl implements PartnerService {
     public Optional<Partner> findPartnerByCianId(Integer cianId) {
         return partnerRepository.findByCianId(cianId);
     }
+
+    @Override
+    public Partner updateCianId(UUID partnerId, Integer cianId) {
+        Partner partner = partnerRepository.findById(partnerId)
+                .orElseThrow(() -> new RuntimeException("Партнер с указанным ID не найден"));
+        partner.setCianId(cianId);
+        return partnerRepository.save(partner);
+    }
 }

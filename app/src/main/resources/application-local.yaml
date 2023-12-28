@@ -5,8 +5,8 @@ spring:
     name: mbroker
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://mb-dev-dc1:20102/mb_backend
-    #url: jdbc:postgresql://localhost:40002/mb_backend
+    #url: jdbc:postgresql://mb-dev-dc1:20102/mb_backend
+    url: jdbc:postgresql://localhost:40002/mb_backend
 
     username: mb_backend
     password: mb_backend
@@ -54,4 +54,4 @@ api:
     token-url: ${CIAN_TOKEN_URL:https://api.cian.ru}
     token-path: ${CIAN_TOKEN_PATH:/identity/connect/token} #todo когда будем запрашивать токен вбить его сюда
     api-url: ${CIAN_API_URL:https://api.cian.ru}
-    real-estate-path : ${CIAN_REAL_ESTATE_URL:/newbuilding-search/v1/get-newbuildings-for-smartdeal/}
+    real-estate-path : ${CIAN_REAL_ESTATE_URL:/newbuilding-mortgage-calculator/v1/get-newbuildings/}

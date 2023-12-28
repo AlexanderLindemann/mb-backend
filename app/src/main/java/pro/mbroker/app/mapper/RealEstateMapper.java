@@ -7,6 +7,7 @@ import pro.mbroker.api.dto.request.RealEstateRequest;
 import pro.mbroker.api.dto.response.RealEstateResponse;
 import pro.mbroker.app.entity.RealEstate;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -18,7 +19,7 @@ public interface RealEstateMapper {
     @Mapping(target = "updatedAt", ignore = true)
     @Mapping(target = "createdBy", ignore = true)
     @Mapping(target = "updatedBy", ignore = true)
-    @Mapping(target = "active", ignore = true)
+    @Mapping(target = "active", source = "address.active")
     RealEstate toRealEstateMapper(RealEstateRequest address);
 
     RealEstateResponse toRealEstateResponseMapper(RealEstate address);
@@ -26,10 +27,10 @@ public interface RealEstateMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "partner", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
-    @Mapping(target = "updatedAt", ignore = true)
+    @Mapping(target = "updatedAt", expression = "java(mapUpdatedAt())")
     @Mapping(target = "createdBy", ignore = true)
     @Mapping(target = "updatedBy", ignore = true)
-    @Mapping(target = "active", ignore = true)
+    @Mapping(target = "active", source = "realEstateRequest.active")
     void updateRealEstateAddress(RealEstateRequest realEstateRequest, @MappingTarget RealEstate realEstate);
 
     @Mapping(target = "partner", ignore = true)
@@ -45,5 +46,9 @@ public interface RealEstateMapper {
         return realEstates.stream()
                 .map(this::toRealEstateResponseMapper)
                 .collect(Collectors.toList());
+    }
+
+    default LocalDateTime mapUpdatedAt() {
+        return LocalDateTime.now();
     }
 }

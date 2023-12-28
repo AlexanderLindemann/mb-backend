@@ -35,6 +35,7 @@ import pro.smartdeal.ng.common.security.service.CurrentUserService;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -107,13 +108,25 @@ public class PartnerRealEstateServiceImpl implements PartnerRealEstateService {
         try {
             log.info("Запускаем выгрузку жк из циан ");
             RealEstateCianResponse response = cianAPIClient.getRealEstate();
+            int totalBuildings = response.getNewBuildings().size();
             if (response != null) {
-                log.info("Загружено жк в количестве: " + response.getNewBuildings().size());
+                log.info("Загружено из Циан ЖК в количестве: " + response.getNewBuildings().size() + ". Начинаем сохранение");
             }
 
-            response.getNewBuildings().forEach(this::checkAndSavePartner);
+            List<CiansRealEstate> successSavedBuildings = response.getNewBuildings()
+                    .stream()
+                    .peek(x -> {
+                        try {
+                            checkAndSavePartner(x);
+                        } catch (Exception e) {
+                            log.error("Не смогли загрузить Партнера name:{}, id:{}", x.getName(), x.getId(), e);
+                        }
+                    })
+                    .collect(Collectors.toList());
+            log.info("Из {} ЖК загруженных из Циан. Успешно сохранено {} ЖК ", totalBuildings, successSavedBuildings.size());
 
         } catch (Exception e) {
+            e.printStackTrace();
             log.error("Не смогли загрузить данные по ЖК из циан ");
         }
     }
@@ -128,11 +141,20 @@ public class PartnerRealEstateServiceImpl implements PartnerRealEstateService {
                 try {
                     Partner partner = partnerService.getPartnerByCianIdOrName(cianId, name);
                     if (partner != null) {
-                        checkAndSaveRealEstate(cianResponse, partner.getId());
+                        if (partner.getCianId() != null) {
+                            if (partner.getCianId() == 0) {
+                                partnerService.updateCianId(partner.getId(), cianId);
+                            }
+                        }
+                    } else {
+                        PartnerRequest partnerRequest = buildPartnerRequest(cianResponse);
+                        partner= partnerService.createPartner(partnerRequest);
+
                     }
+
+                    checkAndSaveRealEstate(cianResponse, partner.getId());
                 } catch (ItemNotFoundException e) {
-                    PartnerRequest partnerRequest = buildPartnerRequest(cianResponse);
-                    partnerService.createPartner(partnerRequest);
+                    log.error("Не смогли создать или обновить партнера: " + name);
                 }
             }
         }
@@ -152,11 +174,16 @@ public class PartnerRealEstateServiceImpl implements PartnerRealEstateService {
     }
 
     private List<RealEstateRequest> buildRealEstateRequest(CiansRealEstate response) {
+        RegionType regionType;
         RealEstateRequest request = new RealEstateRequest();
         request.setAddress(response.getFullAddress());
         request.setCianId(response.getId());
-        request.setRegion(RegionType.getByName(response.getRegion().getName()));
+        if (response.getRegion().getName().contains("Ханты")) {
+            regionType = RegionType.KHANTY_MANSIYSK;
+        } else regionType = RegionType.getByName(response.getRegion().getName());
+        request.setRegion(regionType);
         request.setResidentialComplexName(response.getName());
+        request.setActive(true);
 
         return List.of(request);
     }
