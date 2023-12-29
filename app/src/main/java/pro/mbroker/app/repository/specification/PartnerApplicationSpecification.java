@@ -30,6 +30,7 @@ public class PartnerApplicationSpecification {
         return (root, query, criteriaBuilder) -> {
             String[] nameParts = fullName.trim().toLowerCase().split("\\s+");
             Join<PartnerApplication, BorrowerProfile> borrowerProfileJoin = root.join("borrowerProfiles", JoinType.INNER);
+            Predicate isActivePredicate = criteriaBuilder.isTrue(borrowerProfileJoin.get("isActive"));
             List<Predicate> predicates = new ArrayList<>();
             for (String part : nameParts) {
                 String likePattern = "%" + part + "%";
@@ -38,8 +39,8 @@ public class PartnerApplicationSpecification {
                 Predicate middleNamePredicate = criteriaBuilder.like(criteriaBuilder.lower(borrowerProfileJoin.get("middleName")), likePattern);
                 predicates.add(criteriaBuilder.or(firstNamePredicate, lastNamePredicate, middleNamePredicate));
             }
-            Predicate finalPredicate = criteriaBuilder.and(predicates.toArray(new Predicate[0]));
-            return finalPredicate;
+            predicates.add(isActivePredicate);
+            return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
         };
     }
 
