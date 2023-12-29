@@ -171,4 +171,9 @@ public class PartnerServiceImpl implements PartnerService {
         partner.setCianId(cianId);
         return partnerRepository.save(partner);
     }
+
+    @Override
+    public Partner saveOrUpdateParthner(Partner partner) {
+        return partnerRepository.save(partner);
+    }
 }

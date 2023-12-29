@@ -30,4 +30,6 @@ public interface PartnerService {
     Optional<Partner> findPartnerByCianId(Integer cianId);
 
     Partner updateCianId (UUID partnerId, Integer cianId);
+
+    Partner saveOrUpdateParthner(Partner partner);
 }

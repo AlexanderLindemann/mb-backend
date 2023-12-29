@@ -142,14 +142,13 @@ public class PartnerRealEstateServiceImpl implements PartnerRealEstateService {
                     Partner partner = partnerService.getPartnerByCianIdOrName(cianId, name);
                     if (partner != null) {
                         if (partner.getCianId() != null) {
-                            if (partner.getCianId() == 0) {
-                                partnerService.updateCianId(partner.getId(), cianId);
-                            }
+                            partner.setCianId(cianId);
+                            partner.setActive(true);
+                            partnerService.saveOrUpdateParthner(partner);
                         }
                     } else {
                         PartnerRequest partnerRequest = buildPartnerRequest(cianResponse);
-                        partner= partnerService.createPartner(partnerRequest);
-
+                        partner = partnerService.createPartner(partnerRequest);
                     }
 
                     checkAndSaveRealEstate(cianResponse, partner.getId());

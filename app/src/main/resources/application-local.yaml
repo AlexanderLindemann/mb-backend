@@ -5,8 +5,8 @@ spring:
     name: mbroker
   datasource:
     driver-class-name: org.postgresql.Driver
-    #url: jdbc:postgresql://mb-dev-dc1:20102/mb_backend
-    url: jdbc:postgresql://localhost:40002/mb_backend
+    url: jdbc:postgresql://mb-dev-dc1:20102/mb_backend
+    #url: jdbc:postgresql://localhost:40002/mb_backend
 
     username: mb_backend
     password: mb_backend
