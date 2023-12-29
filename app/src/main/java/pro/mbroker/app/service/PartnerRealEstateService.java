@@ -1,5 +1,7 @@
 package pro.mbroker.app.service;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import pro.mbroker.api.dto.request.RealEstateRequest;
 import pro.mbroker.app.entity.RealEstate;
 
@@ -19,4 +21,6 @@ public interface PartnerRealEstateService {
     List<RealEstate> getCurrentRealEstate(int page, int size, String sortBy, String sortOrder);
 
     void loadRealEstatesFromCian();
+
+    Page<RealEstate> findRealEstatesByName(Pageable pageable, String realEstateName);
 }

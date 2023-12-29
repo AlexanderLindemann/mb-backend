@@ -2,7 +2,18 @@ package pro.mbroker.api.controller;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import pro.mbroker.api.dto.request.RealEstateRequest;
 import pro.mbroker.api.dto.response.PartnerResponse;
 import pro.mbroker.api.dto.response.RealEstateResponse;
@@ -47,7 +58,14 @@ public interface PartnerRealEstateController {
                                                   @RequestParam(defaultValue = "10") int size,
                                                   @RequestParam(defaultValue = "residentialComplexName") String sortBy,
                                                   @RequestParam(defaultValue = "asc") String sortOrder);
+
     @ApiOperation("получить все ЖК из Циан")
     @GetMapping("/update_real_estates_from_cian")
     void loadRealEstatesFromCian();
+
+    @ApiOperation("Поиск жилых комплексов по названию")
+    @GetMapping("/search")
+    ResponseEntity<Page<RealEstateResponse>> findRealEstatesByName(
+            Pageable pageable,
+            @RequestParam(required = false) String realEstateName);
 }

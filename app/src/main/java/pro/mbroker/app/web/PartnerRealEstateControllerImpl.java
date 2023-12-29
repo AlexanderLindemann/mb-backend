@@ -2,6 +2,9 @@ package pro.mbroker.app.web;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 import pro.mbroker.api.controller.PartnerRealEstateController;
@@ -67,7 +70,16 @@ public class PartnerRealEstateControllerImpl implements PartnerRealEstateControl
     }
 
     @Override
-    public void loadRealEstatesFromCian() {partnerRealEstateService.loadRealEstatesFromCian();}
+    public void loadRealEstatesFromCian() {
+        partnerRealEstateService.loadRealEstatesFromCian();
+    }
+
+    @Override
+    public ResponseEntity<Page<RealEstateResponse>> findRealEstatesByName(Pageable pageable, String realEstateName) {
+        Page<RealEstate> realEstatesPage = partnerRealEstateService.findRealEstatesByName(pageable, realEstateName);
+        Page<RealEstateResponse> responsePage = realEstatesPage.map(realEstateMapper::toRealEstateResponseMapper);
+        return ResponseEntity.ok(responsePage);
+    }
 
     private PartnerResponse buildPartnerResponse(Partner partner) {
         List<CreditProgramResponse> creditProgramResponses = programMapper.convertCreditProgramsToResponses(partner.getCreditPrograms());

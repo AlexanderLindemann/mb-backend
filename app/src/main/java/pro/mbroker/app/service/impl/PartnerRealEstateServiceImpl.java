@@ -131,6 +131,14 @@ public class PartnerRealEstateServiceImpl implements PartnerRealEstateService {
         }
     }
 
+    @Override
+    public Page<RealEstate> findRealEstatesByName(Pageable pageable, String realEstateName) {
+        Specification<RealEstate> specification = Specification
+                .where(RealEstateSpecification.realEstateByNameLike(realEstateName))
+                .and(RealEstateSpecification.isActive());
+        return realEstateRepository.findAll(specification, pageable);
+    }
+
     private void checkAndSavePartner(CiansRealEstate cianResponse) {
         if (Objects.nonNull(cianResponse.getBuilders())) {
             BuilderDto builder = cianResponse.getBuilders().get(0);//договорились с цианом что пока будем вытаскивать первого.

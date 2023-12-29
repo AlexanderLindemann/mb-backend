@@ -19,6 +19,17 @@ public class RealEstateSpecification {
                         criteriaBuilder.isTrue(root.get("isActive")));
     }
 
+    public static Specification<RealEstate> realEstateByNameLike(String name) {
+        return (root, query, criteriaBuilder) -> {
+            if (name == null || name.trim().isEmpty()) {
+                return criteriaBuilder.conjunction();
+            } else {
+                String likePattern = "%" + name.trim().toLowerCase() + "%";
+                return criteriaBuilder.like(criteriaBuilder.lower(root.get("residentialComplexName")), likePattern);
+            }
+        };
+    }
+
     public static Specification<RealEstate> realEstateByPartnerIdAndIsActive(UUID partnerId) {
         return (root, query, criteriaBuilder) -> {
             Join<RealEstate, Partner> partnerJoin = root.join("partner");
@@ -26,6 +37,7 @@ public class RealEstateSpecification {
                     criteriaBuilder.isTrue(root.get("isActive")));
         };
     }
+
     public static Specification<RealEstate> realEstateByPartnerIdsAndIsActive(List<UUID> partnerIds) {
         return (root, query, criteriaBuilder) -> {
             Join<RealEstate, Partner> partnerJoin = root.join("partner");
@@ -33,6 +45,5 @@ public class RealEstateSpecification {
                     criteriaBuilder.isTrue(root.get("isActive")));
         };
     }
-
 }
 
