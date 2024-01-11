@@ -10,11 +10,10 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-public class PartnerApplicationControllerTest extends AbstractControllerTest {
+public class PartnerApplicationControllerTest extends BaseControllerTest {
 
     @Test
     public void getPartnerApplicationWithAdminPermit() throws Exception {
-
         mockMvc.perform(get("/public/partner_application/" + PARTNER_APPLICATION_ID)
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("Authorization", "Bearer " + tokenWithAdminPermission))
@@ -27,7 +26,6 @@ public class PartnerApplicationControllerTest extends AbstractControllerTest {
 
     @Test
     public void getPartnerApplicationWithoutRequiredPermissions() throws Exception {
-        Mockito.when(currentUserService.getCurrentUserToken()).thenReturn(tokenWithoutAdminPermission);
         mockMvc.perform(get("/public/partner_application/" + PARTNER_APPLICATION_ID)
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("Authorization", "Bearer " + tokenWithoutAdminPermission))
@@ -36,7 +34,6 @@ public class PartnerApplicationControllerTest extends AbstractControllerTest {
 
     @Test
     public void getPartnerApplicationWithOrganizationPermissions() throws Exception {
-        Mockito.when(currentUserService.getCurrentUserToken()).thenReturn(tokenWithOrganizationPermission);
         mockMvc.perform(get("/public/partner_application/" + PARTNER_APPLICATION_ID)
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("Authorization", "Bearer " + tokenWithOrganizationPermission))
@@ -65,7 +62,6 @@ public class PartnerApplicationControllerTest extends AbstractControllerTest {
 
     @Test
     public void getPartnerApplicationWithReadOwnPermissions() throws Exception {
-        Mockito.when(currentUserService.getCurrentUserToken()).thenReturn(tokenWithReadOwnPermission);
         mockMvc.perform(get("/public/partner_application/" + PARTNER_APPLICATION_ID)
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("Authorization", "Bearer " + tokenWithReadOwnPermission))

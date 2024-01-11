@@ -2,7 +2,6 @@ package pro.mbroker.app.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.AccessDeniedException;
@@ -16,7 +15,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-public class BankControllerTest extends AbstractControllerTest {
+public class BankControllerTest extends BaseControllerTest {
     @Autowired
     private TestData testData;
 
@@ -37,7 +36,6 @@ public class BankControllerTest extends AbstractControllerTest {
 
     @Test
     public void createBank_withNotValidToken() throws Exception {
-        Mockito.when(currentUserService.getCurrentUserToken()).thenReturn(tokenWithoutAdminPermission);
         try {
             mockMvc.perform(post("/public/bank")
                             .contentType(MediaType.APPLICATION_JSON)

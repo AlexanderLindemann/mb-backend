@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-public class StatusControllerTest extends AbstractControllerTest {
+public class StatusControllerTest extends BaseControllerTest {
 
     @Autowired
     private BorrowerProfileService borrowerProfileService;

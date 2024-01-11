@@ -8,6 +8,7 @@ import pro.mbroker.api.controller.CalculatorController;
 import pro.mbroker.api.dto.LoanProgramCalculationDto;
 import pro.mbroker.api.dto.PropertyMortgageDTO;
 import pro.mbroker.api.dto.request.CalculatorRequest;
+import pro.mbroker.api.dto.response.CreditOfferCountResponse;
 import pro.mbroker.api.enums.CreditPurposeType;
 import pro.mbroker.api.enums.RealEstateType;
 import pro.mbroker.app.service.CalculatorService;
@@ -50,8 +51,19 @@ public class CalculatorControllerImpl implements CalculatorController {
     }
 
     @Override
-    public Integer getCreditOfferCount(String realEstateId, CreditPurposeType creditPurposeType, List<RealEstateType> realEstateTypes, BigDecimal realEstatePrice, BigDecimal downPayment, BigDecimal maxMonthlyPayment, UUID partnerApplicationId, Integer creditTerm, Boolean isMaternalCapital) {
-        return calculatorService.getCreditOfferCount(new CalculatorRequest()
+    @PreAuthorize("hasAuthority(T(pro.smartdeal.common.security.Permission$Code).MB_ADMIN_ACCESS) " +
+            "or hasAuthority(T(pro.smartdeal.common.security.Permission$Code).MB_REQUEST_READ_OWN)" +
+            "or hasAuthority(T(pro.smartdeal.common.security.Permission$Code).MB_REQUEST_READ_ORGANIZATION)")
+    public CreditOfferCountResponse getCreditOfferCount(String realEstateId,
+                                                        CreditPurposeType creditPurposeType,
+                                                        List<RealEstateType> realEstateTypes,
+                                                        BigDecimal realEstatePrice,
+                                                        BigDecimal downPayment,
+                                                        BigDecimal maxMonthlyPayment,
+                                                        UUID partnerApplicationId,
+                                                        Integer creditTerm,
+                                                        Boolean isMaternalCapital) {
+        return new CreditOfferCountResponse().setCount(calculatorService.getCreditOfferCount(new CalculatorRequest()
                 .setRealEstateId(realEstateId)
                 .setCreditPurposeType(creditPurposeType)
                 .setRealEstateTypes(realEstateTypes)
@@ -60,7 +72,7 @@ public class CalculatorControllerImpl implements CalculatorController {
                 .setPartnerApplicationId(partnerApplicationId)
                 .setMaxMonthlyPayment(maxMonthlyPayment)
                 .setCreditTerm(creditTerm)
-                .setIsMaternalCapital(isMaternalCapital));
+                .setIsMaternalCapital(isMaternalCapital)));
     }
 
     @Override

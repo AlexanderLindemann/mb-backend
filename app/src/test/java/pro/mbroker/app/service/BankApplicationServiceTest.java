@@ -17,7 +17,7 @@ import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class BankApplicationServiceTest extends AbstractServiceTest {
+public class BankApplicationServiceTest extends BaseServiceTest {
     @Autowired
     private BankApplicationService bankApplicationService;
     @Autowired

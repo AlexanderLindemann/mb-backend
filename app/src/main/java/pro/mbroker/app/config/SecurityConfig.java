@@ -3,11 +3,13 @@ package pro.mbroker.app.config;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import pro.mbroker.app.util.AuthenticationTokenFilter;
 import pro.mbroker.app.util.PublicKeyCacheService;
@@ -21,6 +23,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     private final TokenExtractor tokenExtractor;
     private final PublicKeyCacheService publicKeyCacheService;
+    private final Environment environment;
+    private final AuthenticationEntryPoint customAuthenticationEntryPoint;
+
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
@@ -30,6 +35,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/public/**").permitAll()
                 .antMatchers("/actuator/**", "/swagger-ui/**", "/v2/api-docs/**", "/swagger-resources/**", "/swagger-ui.html", "/webjars/**").permitAll()
                 .anyRequest().authenticated()
+                .and()
+                .exceptionHandling()
+                .authenticationEntryPoint(customAuthenticationEntryPoint)
                 .and()
                 .addFilterBefore(authenticationTokenFilter(), UsernamePasswordAuthenticationFilter.class);
     }
@@ -42,7 +50,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Bean
     public AuthenticationTokenFilter authenticationTokenFilter() {
-        return new AuthenticationTokenFilter(publicKeyCacheService, tokenExtractor);
+        return new AuthenticationTokenFilter(environment, publicKeyCacheService, tokenExtractor);
     }
 }
 

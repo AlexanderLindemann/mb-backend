@@ -23,7 +23,7 @@ import static org.junit.Assert.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class PartnerApplicationServiceTest extends AbstractServiceTest {
+public class PartnerApplicationServiceTest extends BaseServiceTest {
     @Autowired
     private PartnerApplicationService partnerApplicationService;
     @Autowired

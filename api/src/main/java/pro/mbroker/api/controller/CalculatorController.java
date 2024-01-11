@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import pro.mbroker.api.dto.LoanProgramCalculationDto;
 import pro.mbroker.api.dto.PropertyMortgageDTO;
+import pro.mbroker.api.dto.response.CreditOfferCountResponse;
 import pro.mbroker.api.enums.CreditPurposeType;
 import pro.mbroker.api.enums.RealEstateType;
 
@@ -37,15 +38,15 @@ public interface CalculatorController {
 
     @ApiOperation("Получить количество предложений от банков")
     @GetMapping("/count")
-    Integer getCreditOfferCount(@RequestParam String realEstateId,
-                                       @RequestParam CreditPurposeType creditPurposeType,
-                                       @RequestParam(required = false) List<RealEstateType> realEstateTypes,
-                                       @RequestParam(required = false) BigDecimal realEstatePrice,
-                                       @RequestParam(required = false) BigDecimal downPayment,
-                                       @RequestParam(required = false) BigDecimal maxMonthlyPayment,
-                                       @RequestParam(required = false) UUID partnerApplicationId,
-                                       @RequestParam(required = false) Integer creditTerm,
-                                       @RequestParam(required = false) Boolean isMaternalCapital);
+    CreditOfferCountResponse getCreditOfferCount(@RequestParam String realEstateId,
+                                                 @RequestParam CreditPurposeType creditPurposeType,
+                                                 @RequestParam(required = false) List<RealEstateType> realEstateTypes,
+                                                 @RequestParam(required = false) BigDecimal realEstatePrice,
+                                                 @RequestParam(required = false) BigDecimal downPayment,
+                                                 @RequestParam(required = false) BigDecimal maxMonthlyPayment,
+                                                 @RequestParam(required = false) UUID partnerApplicationId,
+                                                 @RequestParam(required = false) Integer creditTerm,
+                                                 @RequestParam(required = false) Boolean isMaternalCapital);
 
     @ApiOperation("Получить предложение банка")
     @GetMapping("/{creditProgramId}")

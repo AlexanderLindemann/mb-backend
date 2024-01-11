@@ -18,7 +18,7 @@ import java.util.UUID;
 import static org.hibernate.validator.internal.util.Contracts.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class PartnerServiceTest extends AbstractServiceTest {
+public class PartnerServiceTest extends BaseServiceTest {
     @Autowired
     private PartnerService partnerService;
 

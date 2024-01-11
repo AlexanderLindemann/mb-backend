@@ -4,7 +4,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import pro.mbroker.app.util.TokenExtractor;
 
-public class TokenParserTest extends AbstractServiceTest {
+public class TokenParserTest extends BaseServiceTest {
 
     @Test
     public void testExtractSdCurrentOrganizationId() {

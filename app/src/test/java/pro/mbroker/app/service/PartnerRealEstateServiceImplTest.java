@@ -17,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static pro.mbroker.app.TestConstants.PARTNER_ID_1;
 import static pro.mbroker.app.TestConstants.REAL_ESTATE_ID;
 
-public class PartnerRealEstateServiceImplTest extends AbstractServiceTest {
+public class PartnerRealEstateServiceImplTest extends BaseServiceTest {
     @Autowired
     private PartnerRealEstateService partnerRealEstateService;
 

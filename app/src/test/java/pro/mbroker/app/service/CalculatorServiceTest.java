@@ -13,7 +13,7 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class CalculatorServiceTest extends AbstractServiceTest {
+public class CalculatorServiceTest extends BaseServiceTest {
     @Autowired
     private CalculatorServiceImpl calculatorService;
     @Autowired

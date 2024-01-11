@@ -1,5 +1,7 @@
 package pro.mbroker.app.util;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 import pro.mbroker.api.dto.response.PublicKeyResponse;
 import pro.mbroker.app.feign.PublicKeyClient;
@@ -8,10 +10,14 @@ import java.math.BigInteger;
 import java.security.KeyFactory;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.RSAPublicKeySpec;
+import java.util.Arrays;
 import java.util.Base64;
 
 @Component
 public class PublicKeyCacheService {
+    @Autowired
+    private Environment env;
+
     private RSAPublicKey cachedPublicKey;
     private final PublicKeyClient publicKeyClient;
 
@@ -27,14 +33,18 @@ public class PublicKeyCacheService {
     }
 
     public void updateCachedPublicKey() {
-        PublicKeyResponse response = publicKeyClient.getPublicKey();
-
-        if (response != null && !response.getKeys().isEmpty()) {
-            String modulus = response.getKeys().get(0).getN();
-            String exponent = response.getKeys().get(0).getE();
-            cachedPublicKey = convertToPublicKey(modulus, exponent);
+        String[] activeProfiles = env.getActiveProfiles();
+        if (Arrays.asList(activeProfiles).contains("test")) {
+            cachedPublicKey = null;
         } else {
-            throw new IllegalStateException("Не удалось получить публичный ключ от удаленного API");
+            PublicKeyResponse response = publicKeyClient.getPublicKey();
+            if (response != null && !response.getKeys().isEmpty()) {
+                String modulus = response.getKeys().get(0).getN();
+                String exponent = response.getKeys().get(0).getE();
+                cachedPublicKey = convertToPublicKey(modulus, exponent);
+            } else {
+                throw new IllegalStateException("Не удалось получить публичный ключ от удаленного API");
+            }
         }
     }
 

@@ -44,7 +44,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-public class BorrowerProfileControllerTest extends AbstractControllerTest {
+public class BorrowerProfileControllerTest extends BaseControllerTest {
     @Autowired
     private BorrowerProfileService borrowerProfileService;
 

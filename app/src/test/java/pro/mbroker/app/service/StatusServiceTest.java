@@ -27,7 +27,7 @@ import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static pro.mbroker.app.TestConstants.*;
 
-public class StatusServiceTest extends AbstractServiceTest {
+public class StatusServiceTest extends BaseServiceTest {
     @Autowired
     private PartnerApplicationService partnerApplicationService;
     @Autowired

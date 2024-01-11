@@ -1,4 +1,4 @@
-package pro.mbroker.app.exception;
+package pro.mbroker.app.exception.exceptionConfig;
 
 import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -6,6 +6,16 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import pro.mbroker.app.exception.AccessDeniedException;
+import pro.mbroker.app.exception.BadRequestException;
+import pro.mbroker.app.exception.ControllerError;
+import pro.mbroker.app.exception.DataNotFoundException;
+import pro.mbroker.app.exception.ItemConflictException;
+import pro.mbroker.app.exception.ItemNotFoundException;
+import pro.mbroker.app.exception.ProfileUpdateException;
+import pro.mbroker.app.exception.ReportGenerationException;
+import pro.mbroker.app.exception.TokenExpiredOrModifiedException;
+import pro.mbroker.app.exception.UnknownPermissionValueException;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
@@ -25,6 +35,12 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(ItemConflictException.class)
     public ResponseEntity<Object> handleAccessDeniedException(ItemConflictException ex) {
         ControllerError apiError = new ControllerError(ex.getMessage(), HttpStatus.CONFLICT);
+        return new ResponseEntity<>(apiError, apiError.getStatus());
+    }
+
+    @ExceptionHandler(TokenExpiredOrModifiedException.class)
+    public ResponseEntity<Object> handleTokenExpiredOrModifiedException(TokenExpiredOrModifiedException ex) {
+        ControllerError apiError = new ControllerError(ex.getMessage(), HttpStatus.UNAUTHORIZED);
         return new ResponseEntity<>(apiError, apiError.getStatus());
     }
 

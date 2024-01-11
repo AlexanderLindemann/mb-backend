@@ -29,7 +29,7 @@ import java.util.List;
 @Sql(scripts = "classpath:sql/test_data.sql")
 @TestPropertySource(locations = "classpath:application-test.yaml")
 @Sql(value = "classpath:sql/clear_all.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
-public abstract class AbstractServiceTest {
+public abstract class BaseServiceTest {
 
     @MockBean
     protected CurrentUserService currentUserService;

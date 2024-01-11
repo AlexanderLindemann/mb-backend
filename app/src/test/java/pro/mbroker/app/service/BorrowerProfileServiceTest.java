@@ -17,7 +17,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class BorrowerProfileServiceTest extends AbstractServiceTest {
+public class BorrowerProfileServiceTest extends BaseServiceTest {
     @Autowired
     private BorrowerProfileService borrowerProfileService;
     @Autowired

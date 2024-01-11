@@ -9,7 +9,7 @@ import pro.mbroker.app.service.impl.UserServiceImpl;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class UserServiceTest extends AbstractServiceTest {
+public class UserServiceTest extends BaseServiceTest {
 
     @Autowired
     private UserServiceImpl userServiceImpl;

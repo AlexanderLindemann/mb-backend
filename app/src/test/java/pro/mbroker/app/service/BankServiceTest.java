@@ -17,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static pro.mbroker.app.TestConstants.BANK_ID;
 
 
-public class BankServiceTest extends AbstractServiceTest {
+public class BankServiceTest extends BaseServiceTest {
     @Autowired
     private BankService bankService;
     @Autowired

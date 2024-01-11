@@ -20,6 +20,7 @@ import pro.mbroker.app.entity.BankApplication;
 import pro.mbroker.app.entity.BaseEntity;
 import pro.mbroker.app.entity.CreditProgram;
 import pro.mbroker.app.entity.RealEstate;
+import pro.mbroker.app.exception.BadRequestException;
 import pro.mbroker.app.exception.ItemNotFoundException;
 import pro.mbroker.app.repository.CreditProgramRepository;
 import pro.mbroker.app.repository.RealEstateRepository;
@@ -320,7 +321,9 @@ public class CalculatorServiceImpl implements CalculatorService {
     }
 
     private boolean isMaternalCapital(CalculatorRequest request, CreditProgram creditProgram) {
+        if (Objects.isNull(request.getIsMaternalCapital())) {
+            throw new BadRequestException("The use of maternal capital must be explicitly specified as either true or false");
+        }
         return !request.getIsMaternalCapital() || creditProgram.getCreditParameter().getIsMaternalCapital().equals(request.getIsMaternalCapital());
     }
-
 }
