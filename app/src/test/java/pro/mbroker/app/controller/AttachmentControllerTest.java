@@ -2,6 +2,7 @@ package pro.mbroker.app.controller;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
@@ -24,9 +25,9 @@ public class AttachmentControllerTest extends AbstractControllerTest {
         when(attachmentService.download(anyLong())).thenReturn(mockFile);
     }
 
-
     @Test
     public void testDownloadAttachmentWithAdminProperties() throws Exception {
+        Mockito.when(currentUserService.getCurrentUserToken()).thenReturn(tokenWithAdminPermission);
         mockMvc.perform(get("/public/attachment/1/file")
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("Authorization", "Bearer " + tokenWithAdminPermission))
@@ -35,6 +36,7 @@ public class AttachmentControllerTest extends AbstractControllerTest {
 
     @Test
     public void testDownloadAttachmentWithoutAdminProperties() throws Exception {
+        Mockito.when(currentUserService.getCurrentUserToken()).thenReturn(tokenWithoutAdminPermission);
         mockMvc.perform(get("/public/attachment/1/file")
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("Authorization", "Bearer " + tokenWithoutAdminPermission))

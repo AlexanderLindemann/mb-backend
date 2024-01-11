@@ -2,6 +2,7 @@ package pro.mbroker.app.controller;
 
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.http.MediaType;
 
 import static org.hamcrest.Matchers.*;
@@ -26,6 +27,7 @@ public class PartnerApplicationControllerTest extends AbstractControllerTest {
 
     @Test
     public void getPartnerApplicationWithoutRequiredPermissions() throws Exception {
+        Mockito.when(currentUserService.getCurrentUserToken()).thenReturn(tokenWithoutAdminPermission);
         mockMvc.perform(get("/public/partner_application/" + PARTNER_APPLICATION_ID)
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("Authorization", "Bearer " + tokenWithoutAdminPermission))
@@ -34,6 +36,7 @@ public class PartnerApplicationControllerTest extends AbstractControllerTest {
 
     @Test
     public void getPartnerApplicationWithOrganizationPermissions() throws Exception {
+        Mockito.when(currentUserService.getCurrentUserToken()).thenReturn(tokenWithOrganizationPermission);
         mockMvc.perform(get("/public/partner_application/" + PARTNER_APPLICATION_ID)
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("Authorization", "Bearer " + tokenWithOrganizationPermission))
@@ -52,6 +55,7 @@ public class PartnerApplicationControllerTest extends AbstractControllerTest {
 
     @Test
     public void getPartnerApplicationWithReadOwnPermissionsAndIncorrectSdId() throws Exception {
+        Mockito.when(currentUserService.getCurrentUserToken()).thenReturn(tokenWithReadOwnPermission);
         mockMvc.perform(get("/public/partner_application/" + PARTNER_APPLICATION_ID2)
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("Authorization", "Bearer " + tokenWithReadOwnPermission))
@@ -61,6 +65,7 @@ public class PartnerApplicationControllerTest extends AbstractControllerTest {
 
     @Test
     public void getPartnerApplicationWithReadOwnPermissions() throws Exception {
+        Mockito.when(currentUserService.getCurrentUserToken()).thenReturn(tokenWithReadOwnPermission);
         mockMvc.perform(get("/public/partner_application/" + PARTNER_APPLICATION_ID)
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("Authorization", "Bearer " + tokenWithReadOwnPermission))

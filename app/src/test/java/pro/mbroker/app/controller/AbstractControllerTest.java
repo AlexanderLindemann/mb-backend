@@ -13,7 +13,12 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
+import pro.mbroker.api.dto.response.PublicKeyResponse;
+import pro.mbroker.app.TestData;
+import pro.mbroker.app.feign.PublicKeyClient;
 import pro.smartdeal.ng.common.security.service.CurrentUserService;
+
+import static org.mockito.Mockito.when;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -28,6 +33,10 @@ public class AbstractControllerTest {
     protected MockMvc mockMvc;
     @MockBean
     protected CurrentUserService currentUserService;
+    @Autowired
+    private TestData testData;
+    @MockBean
+    private PublicKeyClient publicKeyClient;
 
     @Value("${test_token_with_admin_permission}")
     protected String tokenWithAdminPermission;
@@ -44,6 +53,7 @@ public class AbstractControllerTest {
     @BeforeEach
     public void setUp() {
         Mockito.when(currentUserService.getCurrentUserToken()).thenReturn(tokenWithAdminPermission);
+        PublicKeyResponse publicKeyResponse = testData.createMockPublicKeyResponse();
+        when(publicKeyClient.getPublicKey()).thenReturn(publicKeyResponse);
     }
-
 }

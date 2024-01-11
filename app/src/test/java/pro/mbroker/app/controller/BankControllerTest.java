@@ -1,21 +1,14 @@
 package pro.mbroker.app.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.test.web.servlet.ResultActions;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.util.NestedServletException;
-import pro.mbroker.api.controller.BankController;
 import pro.mbroker.app.TestData;
-import pro.mbroker.app.util.AuthenticationTokenFilter;
-import pro.mbroker.app.util.TokenExtractor;
-
-import javax.servlet.Filter;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -25,26 +18,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 public class BankControllerTest extends AbstractControllerTest {
     @Autowired
-    private BankController bankController;
-    @Autowired
-    private TokenExtractor tokenExtractor;
-    @Autowired
     private TestData testData;
-
-    @BeforeEach
-    public void setUp() {
-        Filter authenticationTokenFilter = new AuthenticationTokenFilter(tokenExtractor);
-
-        mockMvc = MockMvcBuilders.standaloneSetup(bankController)
-                .addFilter(authenticationTokenFilter)
-                .build();
-
-        Mockito.when(currentUserService.getCurrentUserToken()).thenReturn(tokenWithAdminPermission);
-    }
 
     @Test
     public void createBank_withValidToken() throws Exception {
-
         ResultActions authorization = mockMvc.perform(post("/public/bank")
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", "Bearer " + tokenWithAdminPermission)
@@ -58,10 +35,9 @@ public class BankControllerTest extends AbstractControllerTest {
                 .andExpect(jsonPath("$.contacts[1].email").value("test email 2"));
     }
 
-
     @Test
     public void createBank_withNotValidToken() throws Exception {
-
+        Mockito.when(currentUserService.getCurrentUserToken()).thenReturn(tokenWithoutAdminPermission);
         try {
             mockMvc.perform(post("/public/bank")
                             .contentType(MediaType.APPLICATION_JSON)

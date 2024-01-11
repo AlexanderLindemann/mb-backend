@@ -10,6 +10,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import pro.mbroker.app.util.AuthenticationTokenFilter;
+import pro.mbroker.app.util.PublicKeyCacheService;
 import pro.mbroker.app.util.TokenExtractor;
 
 @Configuration
@@ -19,6 +20,7 @@ import pro.mbroker.app.util.TokenExtractor;
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     private final TokenExtractor tokenExtractor;
+    private final PublicKeyCacheService publicKeyCacheService;
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
@@ -40,7 +42,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Bean
     public AuthenticationTokenFilter authenticationTokenFilter() {
-        return new AuthenticationTokenFilter(tokenExtractor);
+        return new AuthenticationTokenFilter(publicKeyCacheService, tokenExtractor);
     }
 }
 

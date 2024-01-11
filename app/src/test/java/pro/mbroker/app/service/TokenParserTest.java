@@ -15,6 +15,6 @@ public class TokenParserTest extends AbstractServiceTest {
     @Test
     public void testExtractSdId() {
         int extractSdId = TokenExtractor.extractSdId(apiToken);
-        Assert.assertEquals(2956, extractSdId);
+        Assert.assertEquals(2964, extractSdId);
     }
 }

@@ -11,6 +11,7 @@ import pro.mbroker.api.dto.request.BorrowerProfileRequest;
 import pro.mbroker.api.dto.request.BorrowerRequest;
 import pro.mbroker.api.dto.request.CalculatorRequest;
 import pro.mbroker.api.dto.request.PartnerApplicationRequest;
+import pro.mbroker.api.dto.response.PublicKeyResponse;
 import pro.mbroker.api.enums.CreditPurposeType;
 import pro.mbroker.api.enums.Insurance;
 import pro.mbroker.api.enums.PaymentSource;
@@ -18,6 +19,7 @@ import pro.mbroker.api.enums.RealEstateType;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -158,5 +160,15 @@ public class TestData {
                 .setRealEstatePrice(BigDecimal.valueOf(20000000))
                 .setRealEstateTypes(List.of(RealEstateType.APARTMENT))
                 .setIsMaternalCapital(true);
+    }
+
+    public PublicKeyResponse createMockPublicKeyResponse() {
+        PublicKeyResponse response = new PublicKeyResponse();
+        PublicKeyResponse.Key key = new PublicKeyResponse.Key();
+        key.setKty("RSA");
+        key.setN("AP2_KR6X--PKANTPEvDWUTC_QzmWYukfSW9Wmd8TBMzTpBqu5nqpFFk81j7jhglLNWngRgtFxsaNAlaouPsCS4B_eIatURSH8KUJ3d4YRMTq3OKy_Lxe7fL5SY3M9yZSoaGif0LG3zXaQPD4FhSSJAKprB9DgtG2nIO1TfrV7KLjQm72oWMNUNVMPobUbEhZu8TFf_FNCUHgwj9EjoJZeYF48p1vB5t_tJrtOP4ySUhG1fvqZCTZGBUvlgkuqW2dF0t1wIquWEY_-ROFEsce0JuQomua2ZLXvwdAv3tYnIWZywBXtCpTkQEcGvPcVxCWtYSPmP-mUX2p-YJqjELa44M=");
+        key.setE("AQAB");
+        response.setKeys(Collections.singletonList(key));
+        return response;
     }
 }
