@@ -90,6 +90,10 @@ public class AuthenticationTokenFilter extends OncePerRequestFilter {
         if (Arrays.asList(environment.getActiveProfiles()).contains("test")) {
             return false;
         }
+        //TODO удалить после добавления рефреша и готовности ЦИАН
+        if (TokenExtractor.extractSdId(token) == 3038) {
+            return false;
+        }
         try {
             RSAPublicKey publicKey = publicKeyCacheService.getPublicKey();
             JwtDecoder jwtDecoder = NimbusJwtDecoder.withPublicKey(publicKey)
