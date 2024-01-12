@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.security.interfaces.RSAPublicKey;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
@@ -92,6 +93,9 @@ public class AuthenticationTokenFilter extends OncePerRequestFilter {
         }
         //TODO удалить после добавления рефреша и готовности ЦИАН
         if (TokenExtractor.extractSdId(token) == 3038) {
+            return false;
+        }
+        if (Objects.nonNull(TokenExtractor.extractPhoneNumber(token))) {
             return false;
         }
         try {

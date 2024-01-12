@@ -52,9 +52,9 @@ public class LinkServiceImpl implements LinkService {
     }
 
     private String determinePrefix(String baseUrl) {
-        if (baseUrl.contains("sd-dev:20100")) {
+        if (baseUrl.contains("mb-dev-dc1")) {
             return "https://stage-cabinet.smartdeal.pro/";
-        } else if (baseUrl.contains("trial-broker.smartdeal.pro")) {
+        } else if (baseUrl.contains("trial")) {
             return "https://trial-cabinet.smartdeal.pro/";
         } else if (baseUrl.contains("localhost:8080")) {
             return "https://localhost:3000/";
