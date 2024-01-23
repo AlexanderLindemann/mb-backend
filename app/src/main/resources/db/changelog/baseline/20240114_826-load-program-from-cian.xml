@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+    http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+
+    <changeSet id="createCianProgramsTable" author="y.sedash">
+        <createTable tableName="cian_programs">
+            <column name="id" type="BIGINT">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="bank_id" type="BIGINT"/>
+            <column name="base_rate" type="DECIMAL(10,2)"/>
+            <column name="region_id" type="TEXT"/>
+            <column name="region_group" type="TEXT"/>
+            <column name="mortgage_type" type="VARCHAR(255)"/>
+            <column name="real_estate_type" type="VARCHAR(255)"/>
+            <column name="object_type" type="VARCHAR(255)"/>
+            <column name="benefit_program" type="VARCHAR(255)"/>
+            <column name="loan_term_min" type="INT"/>
+            <column name="loan_term_max" type="INT"/>
+            <column name="income_confirmation" type="TEXT"/>
+            <column name="loan_amount_min" type="BIGINT"/>
+            <column name="loan_amount_max" type="BIGINT"/>
+            <column name="down_payment_rate_min" type="DECIMAL(5,2)"/>
+            <column name="down_payment_rate_max" type="DECIMAL(5,2)"/>
+            <column name="has_life_insurance" type="TEXT"/>
+            <column name="is_not_citizen" type="TEXT"/>
+            <column name="employment_type" type="TEXT"/>
+            <column name="registration_type" type="TEXT"/>
+            <column name="is_active" type="BOOLEAN"/>
+            <column name="created_at" type="TIMESTAMP WITHOUT TIME ZONE" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="shadow_id" type="BIGINT"/>
+        </createTable>
+
+    </changeSet>
+    <changeSet author="y.sedash" id="createBankFutureRulesTable">
+        <createTable tableName="cian_bank_future_rules">
+            <column name="id" type="BIGINT">
+                <constraints primaryKey="true" nullable="false" />
+            </column>
+            <column name="bank_id" type="BIGINT" />
+            <column name="region_id" type="TEXT" />
+            <column name="mortgage_type" type="TEXT" />
+            <column name="real_estate_type" type="TEXT" />
+            <column name="object_type" type="TEXT" />
+            <column name="benefit_program" type="TEXT" />
+            <column name="employment_type" type="TEXT" />
+            <column name="min_age" type="INTEGER" />
+            <column name="max_age" type="INTEGER" />
+            <column name="min_finally_age" type="INTEGER" />
+            <column name="max_finally_age" type="INTEGER" />
+            <column name="feature_description" type="TEXT" />
+            <column name="is_active" type="BOOLEAN" />
+            <column name="created_at" type="TIMESTAMP WITHOUT TIME ZONE" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="TIMESTAMP WITHOUT TIME ZONE" />
+            <column name="shadow_id" type="BIGINT" />
+
+        </createTable>
+    </changeSet>
+
+    <changeSet author="y.sedash" id="createCainAdditionalRateRulesTable">
+        <createTable tableName="cian_additional_rate_rules">
+            <column name="id" type="BIGINT">
+                <constraints primaryKey="true" nullable="false" />
+            </column>
+            <column name="bank_id" type="BIGINT" />
+            <column name="condition" type="VARCHAR(255)" />
+            <column name="rate" type="DECIMAL(10,2)" />
+            <column name="region_id" type="TEXT" />
+            <column name="mortgage_type" type="TEXT" />
+            <column name="real_estate_type" type="TEXT" />
+            <column name="object_type" type="TEXT" />
+            <column name="benefit_program" type="TEXT" />
+            <column name="employment_type" type="TEXT" />
+            <column name="loan_amount_min" type="BIGINT" />
+            <column name="loan_amount_max" type="BIGINT" />
+            <column name="is_active" type="BOOLEAN" />
+            <column name="created_at" type="TIMESTAMP WITHOUT TIME ZONE" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="TIMESTAMP WITHOUT TIME ZONE" />
+            <column name="shadow_id" type="BIGINT" />
+
+        </createTable>
+    </changeSet>
+</databaseChangeLog>

@@ -128,3 +128,8 @@ databaseChangeLog:
   - include:
       file: 20231213_718-add-column_cian_id_to_bank.xml
       relativeToChangelogFile: true
+  - include:
+      file: 20240114_826-load-program-from-cian.xml
+      relativeToChangelogFile: true
+
+

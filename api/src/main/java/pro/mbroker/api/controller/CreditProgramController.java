@@ -52,8 +52,25 @@ public interface CreditProgramController {
             @PathVariable(value = "creditProgramId") UUID creditProgramId
     );
 
+    @ApiOperation("Создать кредитные программы из уже загруженных файлов")
+    @PostMapping("/load/create_credit_program_from_cian")
+    void createCreditProgramsFromCian();
+
     @ApiOperation("Получить кредитные программы из циан")
-    @GetMapping("/load/cian")
+    @GetMapping("/load/credit_program_from_cian")
     void loadCreditProgramFromCian();
+
+    @ApiOperation("Получить bank future rules из циан")
+    @GetMapping("/load/future_rules_from_cian")
+    void loadBankFutureRulesFromCian();
+
+
+    @ApiOperation("Получить additional rate rules из циан")
+    @GetMapping("/load/AdditionalRateRulesFromCian")
+    void loadAdditionalRateRulesFromCian();
+
+    @ApiOperation("Запустить выгрузку из всех файлов по кредитным программам из циан")
+    @GetMapping("/load/LoadAllFilesFromCian")
+    void loadAllFilesFromCian();
 
 }

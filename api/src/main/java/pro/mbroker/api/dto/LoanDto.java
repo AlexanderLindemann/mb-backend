@@ -79,7 +79,6 @@ public class LoanDto {
     @CsvBindByName(column = "shadow_id")
     private Long shadowId;
 
-    private String fullDescription;
 }
 
 

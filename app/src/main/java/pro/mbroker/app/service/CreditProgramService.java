@@ -28,7 +28,15 @@ public interface CreditProgramService {
 
     List<UUID> getAllCreditProgramIds();
 
+    void createCreditProgramsFromCian();
+
     void loadCreditProgramFromCian();
 
+    void loadBankFutureRulesFromCian();
+
+    void loadAdditionalRateRulesFromCian();
+
     CreditProgram updateProgramFromCian(Integer cianId, BankProgramRequest updateProgramRequest, CreditProgramDetail updateCreditProgramDetail);
+
+    void loadAllFilesFromCian();
 }

@@ -82,8 +82,31 @@ public class CreditProgramControllerImpl implements CreditProgramController {
 
     @Override
     @PreAuthorize("hasAuthority(T(pro.smartdeal.common.security.Permission$Code).MB_ADMIN_ACCESS)")
+    public void createCreditProgramsFromCian() {
+        creditProgramService.createCreditProgramsFromCian();
+    }
+
+    @Override
+    @PreAuthorize("hasAuthority(T(pro.smartdeal.common.security.Permission$Code).MB_ADMIN_ACCESS)")
     public void loadCreditProgramFromCian() {
         creditProgramService.loadCreditProgramFromCian();
+    }
+
+    @Override
+    @PreAuthorize("hasAuthority(T(pro.smartdeal.common.security.Permission$Code).MB_ADMIN_ACCESS)")
+    public void loadBankFutureRulesFromCian() {
+        creditProgramService.loadBankFutureRulesFromCian();
+    }
+
+    @Override
+    @PreAuthorize("hasAuthority(T(pro.smartdeal.common.security.Permission$Code).MB_ADMIN_ACCESS)")
+    public void loadAdditionalRateRulesFromCian() {
+        creditProgramService.loadAdditionalRateRulesFromCian();
+    }
+
+    @Override
+    public void loadAllFilesFromCian() {
+        creditProgramService.loadAllFilesFromCian();
     }
 
 }

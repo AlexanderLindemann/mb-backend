@@ -54,6 +54,8 @@ public class BankProgramRequest {
 
     private Integer cianId;
 
+    private Boolean active;
+
     //Установка начала времени действия программы на 00:00
     public void resetEarliestTime() {
         if (this.programStartDate != null) {

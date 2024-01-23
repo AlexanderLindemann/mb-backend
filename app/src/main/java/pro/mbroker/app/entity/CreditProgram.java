@@ -34,12 +34,12 @@ public class CreditProgram extends BaseEntity {
     @Column(name = "full_description", length = 1000)
     private String fullDescription;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.EAGER)
     @Cascade(org.hibernate.annotations.CascadeType.ALL)
     @JoinColumn(name = "credit_program_detail_id", referencedColumnName = "id")
     private CreditProgramDetail creditProgramDetail;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.EAGER)
     @Cascade(org.hibernate.annotations.CascadeType.ALL)
     @JoinColumn(name = "credit_parameter_id", referencedColumnName = "id")
     private CreditParameter creditParameter;

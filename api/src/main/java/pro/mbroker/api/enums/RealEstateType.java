@@ -35,6 +35,7 @@ public enum RealEstateType implements EnumWithValue<String> {
         map.put("flat", APARTMENT);
         map.put("apartments", APARTMENT_COMPLEX);
         map.put("house", HOUSE_WITH_LAND);
+        map.put("carPlace", PARKING_PLACE);
         return map;
     }
 
