@@ -46,20 +46,21 @@ public class BankApplicationControllerImpl implements BankApplicationController 
     }
 
     @Override
-    public BankApplicationResponse changeMainBorrowerByBankApplicationId(UUID bankApplicationId, @NotNull UUID newMainBorrowerId) {
-        BankApplication bankApplication = bankApplicationService.changeMainBorrowerByBankApplicationId(bankApplicationId, newMainBorrowerId);
+    public BankApplicationResponse changeMainBorrowerByBankApplicationId(UUID bankApplicationId, @NotNull UUID newMainBorrowerId, Integer sdId) {
+        BankApplication bankApplication = bankApplicationService.changeMainBorrowerByBankApplicationId(bankApplicationId, newMainBorrowerId, sdId);
         return toResponse(bankApplication);
     }
 
     @Override
-    public BankApplicationResponse changeStatus(UUID bankApplicationId, BankApplicationStatus status) {
-        BankApplication bankApplication = bankApplicationService.changeStatus(bankApplicationId, status);
+    public BankApplicationResponse changeStatus(UUID bankApplicationId, BankApplicationStatus status, Integer sdId) {
+        BankApplication bankApplication = bankApplicationService.changeStatus(bankApplicationId, status, sdId);
         return toResponse(bankApplication);
     }
 
+    //TODO убрать из controller и перенести в service
     @Override
     @Transactional
-    public ResponseEntity<String> updateStatuses(NotificationStatusRequest notificationStatusRequest) {
+    public ResponseEntity<String> updateStatuses(NotificationStatusRequest notificationStatusRequest, Integer sdId) {
         log.info("Начали обновление заявок. Количество: " + notificationStatusRequest.getApplications().size());
         StringBuilder result = new StringBuilder();
         StringBuilder fail = new StringBuilder();
@@ -96,29 +97,28 @@ public class BankApplicationControllerImpl implements BankApplicationController 
                 }
             }
 
-    });
-        partnerApplications.forEach(statusService::statusChanger);
+        });
+        partnerApplications.forEach(pa -> {
+            pa.setUpdatedBy(sdId);
+            statusService.statusChanger(pa);
+        });
         partnerApplicationService.saveAll(partnerApplications);
 
-        if(fail.length()==0)
-
-    {
-        result.append("Обновлены статусы заявок в количестве ").append(bankApplicationByApplications.size());
-        log.info(result.toString());
-    } else
-
-    {
-        result.append("Не смогли обновить статус для bankApplications: ");
-        result.append(fail);
-        log.error(result.toString());
-    }
+        if (fail.length() == 0) {
+            result.append("Обновлены статусы заявок в количестве ").append(bankApplicationByApplications.size());
+            log.info(result.toString());
+        } else {
+            result.append("Не смогли обновить статус для bankApplications: ");
+            result.append(fail);
+            log.error(result.toString());
+        }
 
         return ResponseEntity.ok().body(result.toString());
-}
+    }
 
     @Override
-    public BankApplicationResponse updateBankApplication(BankApplicationRequest request) {
-        BankApplication bankApplication = bankApplicationService.updateBankApplication(request);
+    public BankApplicationResponse updateBankApplication(BankApplicationRequest request, Integer sdId) {
+        BankApplication bankApplication = bankApplicationService.updateBankApplication(request, sdId);
         return toResponse(bankApplication);
     }
 

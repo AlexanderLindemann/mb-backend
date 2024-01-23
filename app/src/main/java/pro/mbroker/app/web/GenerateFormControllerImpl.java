@@ -17,38 +17,12 @@ public class GenerateFormControllerImpl implements GenerateFormController {
     private final FormService formService;
 
     @Override
-    public ResponseEntity<ByteArrayResource> generateFormFileDocx(UUID borrowerProfileId) {
-        return formService.generateFormFileDocx(borrowerProfileId);
-    }
-
-    //todo удалить после тестов
-    @Override
-    public ResponseEntity<ByteArrayResource> generateFormFileTest(UUID borrowerProfileId, byte[] file) {
-        return formService.generateFormFileTest(borrowerProfileId, file);
+    public ResponseEntity<ByteArrayResource> generateFormFileHtml(UUID borrowerProfileId, Integer sdId) {
+        return formService.generateFormFileHtml(borrowerProfileId, sdId);
     }
 
     @Override
-    public ResponseEntity<ByteArrayResource> signatureFormFile(UUID borrowerProfileId, byte[] signature) {
-        return formService.signatureFormFile(borrowerProfileId, signature);
-    }
-
-    @Override
-    public void updateGeneratedForm(UUID borrowerProfileId, byte[] form) {
-        formService.updateGeneratedForm(borrowerProfileId, form);
-    }
-
-    @Override
-    public void updateSignatureForm(UUID borrowerProfileId, byte[] form) {
-        formService.updateSignatureForm(borrowerProfileId, form);
-    }
-
-    @Override
-    public ResponseEntity<ByteArrayResource> generateFormFileHtml(UUID borrowerProfileId) {
-        return formService.generateFormFileHtml(borrowerProfileId);
-    }
-
-    @Override
-    public ResponseEntity<ByteArrayResource> signatureFormFileHtml(UUID borrowerProfileId, byte[] signature) {
-        return formService.signatureFormFileHtml(borrowerProfileId, signature);
+    public ResponseEntity<ByteArrayResource> signatureFormFileHtml(UUID borrowerProfileId, byte[] signature, Integer sdId) {
+        return formService.signatureFormFileHtml(borrowerProfileId, signature, sdId);
     }
 }

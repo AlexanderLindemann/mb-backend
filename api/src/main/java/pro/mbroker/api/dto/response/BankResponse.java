@@ -11,6 +11,7 @@ import java.util.UUID;
 @Setter
 @ToString
 public class BankResponse {
+
     private UUID id;
 
     private String name;

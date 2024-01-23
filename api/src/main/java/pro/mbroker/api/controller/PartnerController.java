@@ -2,7 +2,15 @@ package pro.mbroker.api.controller;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import pro.mbroker.api.dto.request.PartnerRequest;
 import pro.mbroker.api.dto.response.PartnerResponse;
 
@@ -13,11 +21,10 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/public/partner")
 public interface PartnerController {
+
     @ApiOperation("создать застройщика")
     @PostMapping
-    PartnerResponse createPartner(
-            @RequestBody PartnerRequest request
-    );
+    PartnerResponse createPartner(@RequestBody PartnerRequest request, Integer sdId);
 
     @ApiOperation("получить всех партнеров")
     @GetMapping("/all")
@@ -32,13 +39,12 @@ public interface PartnerController {
 
     @ApiOperation("обновить партнера по id")
     @PutMapping("/{partnerId}")
-    PartnerResponse updatePartnerById(
-            @PathVariable UUID partnerId,
-            @RequestBody PartnerRequest request);
+    PartnerResponse updatePartnerById(@PathVariable UUID partnerId,
+                                      @RequestBody PartnerRequest request, Integer sdId);
 
     @ApiOperation("получить действующего застройщика")
     @GetMapping("/current")
-    PartnerResponse getCurrentPartner();
+    PartnerResponse getCurrentPartner(Integer organisationId);
 
     @ApiOperation("получить застройщика по id заявки застройщика")
     @GetMapping("/current/{partnerApplicationId}")
@@ -46,7 +52,5 @@ public interface PartnerController {
 
     @ApiOperation("удалить партнера по id")
     @DeleteMapping("/{partnerId}")
-    void deletePartner(
-            @PathVariable(value = "partnerId") UUID partnerId
-    );
+    void deletePartner(@PathVariable(value = "partnerId") UUID partnerId, Integer sdId);
 }

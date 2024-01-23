@@ -3,37 +3,22 @@ package pro.mbroker.app.service;
 import org.springframework.data.domain.Page;
 import pro.mbroker.api.dto.request.BankApplicationUpdateRequest;
 import pro.mbroker.api.dto.request.PartnerApplicationRequest;
+import pro.mbroker.api.dto.request.PartnerApplicationServiceRequest;
 import pro.mbroker.api.dto.response.PartnerApplicationResponse;
 import pro.mbroker.api.dto.response.RequiredDocumentResponse;
-import pro.mbroker.api.enums.BankApplicationStatus;
-import pro.mbroker.api.enums.RegionType;
 import pro.mbroker.app.entity.PartnerApplication;
 
-import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 public interface PartnerApplicationService {
-    Page<PartnerApplication> getAllPartnerApplication(int page,
-                                                      int size,
-                                                      String sortBy,
-                                                      String sortOrder,
-                                                      LocalDateTime startDate,
-                                                      LocalDateTime endDate,
-                                                      String phoneNumber,
-                                                      String fullName,
-                                                      Integer applicationNumber,
-                                                      UUID realEstateId,
-                                                      RegionType region,
-                                                      UUID bankId,
-                                                      BankApplicationStatus applicationStatus,
-                                                      Boolean isActive);
 
-    PartnerApplication createPartnerApplication(PartnerApplicationRequest request);
+    Page<PartnerApplication> getAllPartnerApplication(PartnerApplicationServiceRequest request);
 
-    PartnerApplication updatePartnerApplication(UUID partnerApplicationId, PartnerApplicationRequest request);
+    PartnerApplication createPartnerApplication(PartnerApplicationRequest request, Integer sdId);
+
+    PartnerApplication updatePartnerApplication(UUID partnerApplicationId, PartnerApplicationRequest request, Integer sdId);
 
     PartnerApplicationResponse buildPartnerApplicationResponse(PartnerApplication partnerApplication);
 
@@ -43,17 +28,15 @@ public interface PartnerApplicationService {
 
     PartnerApplication getPartnerApplication(UUID partnerApplicationId);
 
-    PartnerApplication enableBankApplication(UUID partnerApplicationId, BankApplicationUpdateRequest request);
+    PartnerApplication enableBankApplication(UUID partnerApplicationId, BankApplicationUpdateRequest request, Integer sdId);
 
-    PartnerApplication disableBankApplication(UUID partnerApplicationId, UUID creditProgramId);
+    PartnerApplication disableBankApplication(UUID partnerApplicationId, UUID creditProgramId, Integer sdId);
 
     List<RequiredDocumentResponse> getRequiredDocuments(UUID partnerApplicationId);
 
-    PartnerApplication changeMainBorrowerByPartnerApplication(UUID partnerApplicationId, UUID newMainBorrowerId);
+    PartnerApplication changeMainBorrowerByPartnerApplication(UUID partnerApplicationId, UUID newMainBorrowerId, Integer sdId);
 
-    Optional<PartnerApplication> getPartnerApplicationByAttachmentId(Long attachmentId);
-
-    void checkPermission(PartnerApplication partnerApplication);
+    PartnerApplication getPartnerApplicationByAttachmentId(Long attachmentId);
 
     List<PartnerApplication> getPartnerApplicationByIds(List<UUID> ids);
 
@@ -61,5 +44,7 @@ public interface PartnerApplicationService {
 
     PartnerApplication save(PartnerApplication partnerApplication);
 
-    void changePartnerApplicationActiveStatus(UUID partnerApplicationId, boolean isActive);
+    void changePartnerApplicationActiveStatus(UUID partnerApplicationId, boolean isActive, Integer sdId);
+
+    List<PartnerApplication> findPartnerApplicationByPhoneNumber(String phoneNumber);
 }

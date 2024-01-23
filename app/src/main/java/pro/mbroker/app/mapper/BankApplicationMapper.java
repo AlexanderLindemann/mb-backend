@@ -89,7 +89,7 @@ public interface BankApplicationMapper {
     }
 
 
-    default BankApplication updateBankApplicationFromRequest(BankApplication existing, BankApplicationRequest request) {
+    default BankApplication updateBankApplicationFromRequest(BankApplication existing, BankApplicationRequest request, Integer sdId) {
         if (existing == null) {
             existing = new BankApplication();
         }
@@ -99,6 +99,7 @@ public interface BankApplicationMapper {
         existing.setMonthCreditTerm(request.getCreditTerm() * 12);
         existing.setOverpayment(request.getOverpayment());
         existing.setActive(true);
+        existing.setUpdatedBy(sdId);
         return existing;
     }
 
@@ -115,7 +116,7 @@ public interface BankApplicationMapper {
         return existing;
     }
 
-    default List<BankApplication> updateBankApplicationsFromRequests(List<BankApplication> existingList, List<BankApplicationRequest> requestList) {
+    default List<BankApplication> updateBankApplicationsFromRequests(List<BankApplication> existingList, List<BankApplicationRequest> requestList, Integer sdId) {
         Map<UUID, BankApplication> existingMap = existingList.stream()
                 .collect(Collectors.toMap(BankApplication::getId, Function.identity()));
         List<BankApplication> resultList = new ArrayList<>();
@@ -124,7 +125,7 @@ public interface BankApplicationMapper {
             if (existing == null) {
                 existing = new BankApplication();
             }
-            updateBankApplicationFromRequest(existing, request);
+            updateBankApplicationFromRequest(existing, request, sdId);
             resultList.add(existing);
         }
         return resultList;

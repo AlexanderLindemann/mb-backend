@@ -2,7 +2,6 @@ package pro.mbroker.app.web;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import pro.mbroker.api.controller.PartnerController;
@@ -12,8 +11,8 @@ import pro.mbroker.api.dto.response.PartnerResponse;
 import pro.mbroker.api.dto.response.RealEstateResponse;
 import pro.mbroker.app.entity.Partner;
 import pro.mbroker.app.entity.RealEstate;
+import pro.mbroker.app.mapper.CreditProgramMapper;
 import pro.mbroker.app.mapper.PartnerMapper;
-import pro.mbroker.app.mapper.ProgramMapper;
 import pro.mbroker.app.mapper.RealEstateMapper;
 import pro.mbroker.app.service.PartnerService;
 import pro.mbroker.app.util.CreditProgramConverter;
@@ -30,14 +29,11 @@ public class PartnerControllerImpl implements PartnerController {
     private final PartnerService partnerService;
     private final PartnerMapper partnerMapper;
     private final RealEstateMapper realEstateMapper;
-    private final ProgramMapper programMapper;
-    private final CreditProgramConverter creditProgramConverter;
-
+    private final CreditProgramMapper creditProgramMapper;
 
     @Override
-    @PreAuthorize("hasAuthority(T(pro.smartdeal.common.security.Permission$Code).MB_ADMIN_ACCESS)")
-    public PartnerResponse createPartner(PartnerRequest request) {
-        Partner partner = partnerService.createPartner(request);
+    public PartnerResponse createPartner(PartnerRequest request, Integer sdId) {
+        Partner partner = partnerService.createPartner(request, sdId);
         return buildPartnerResponse(partner);
     }
 
@@ -51,22 +47,20 @@ public class PartnerControllerImpl implements PartnerController {
     }
 
     @Override
-    @PreAuthorize("hasAuthority(T(pro.smartdeal.common.security.Permission$Code).MB_ADMIN_ACCESS)")
     public PartnerResponse getPartnerResponseById(UUID partnerId) {
         Partner partner = partnerService.getIsActivePartner(partnerId);
         return buildPartnerResponse(partner);
     }
 
     @Override
-    @PreAuthorize("hasAuthority(T(pro.smartdeal.common.security.Permission$Code).MB_ADMIN_ACCESS)")
-    public PartnerResponse updatePartnerById(UUID partnerId, PartnerRequest request) {
-        Partner partner = partnerService.updatePartnerById(partnerId, request);
+    public PartnerResponse updatePartnerById(UUID partnerId, PartnerRequest request, Integer sdId) {
+        Partner partner = partnerService.updatePartnerById(partnerId, request, sdId);
         return buildPartnerResponse(partner);
     }
 
     @Override
-    public PartnerResponse getCurrentPartner() {
-        Partner partner = partnerService.getCurrentPartner();
+    public PartnerResponse getCurrentPartner(Integer organisationId) {
+        Partner partner = partnerService.getCurrentPartner(organisationId);
         return buildPartnerResponse(partner);
     }
 
@@ -77,9 +71,8 @@ public class PartnerControllerImpl implements PartnerController {
     }
 
     @Override
-    @PreAuthorize("hasAuthority(T(pro.smartdeal.common.security.Permission$Code).MB_ADMIN_ACCESS)")
-    public void deletePartner(UUID partnerId) {
-        partnerService.deletePartner(partnerId);
+    public void deletePartner(UUID partnerId, Integer sdId) {
+        partnerService.deletePartner(partnerId, sdId);
     }
 
     private PartnerResponse buildPartnerResponse(Partner partner) {
@@ -88,8 +81,8 @@ public class PartnerControllerImpl implements PartnerController {
                 .collect(Collectors.toList());
         List<CreditProgramResponse> creditProgramResponses = partner.getCreditPrograms().stream()
                 .filter(cp -> cp.isActive() && cp.getBank().isActive())
-                .map(creditProgram -> programMapper.toProgramResponseMapper(creditProgram)
-                        .setCreditProgramDetail(creditProgramConverter.convertCreditDetailToEnumFormat(creditProgram.getCreditProgramDetail())))
+                .map(creditProgram -> creditProgramMapper.toProgramResponseMapper(creditProgram)
+                        .setCreditProgramDetail(CreditProgramConverter.convertCreditDetailToEnumFormat(creditProgram.getCreditProgramDetail())))
                 .collect(Collectors.toList());
         List<RealEstateResponse> realEstateResponses = realEstateMapper.toRealEstateAddressResponseList(activeRealEstates);
         realEstateResponses.sort(Comparator.comparing(RealEstateResponse::getResidentialComplexName));

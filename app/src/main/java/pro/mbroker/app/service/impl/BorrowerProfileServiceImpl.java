@@ -5,7 +5,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.util.ContentCachingRequestWrapper;
 import pro.mbroker.api.dto.request.BorrowerEmployerRequest;
 import pro.mbroker.api.dto.request.BorrowerProfileRequest;
 import pro.mbroker.api.dto.request.BorrowerProfileUpdateRequest;
@@ -38,7 +37,6 @@ import pro.mbroker.app.util.Converter;
 
 import javax.servlet.http.HttpServletRequest;
 import java.lang.reflect.Field;
-import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -64,23 +62,22 @@ public class BorrowerProfileServiceImpl implements BorrowerProfileService {
     private final BankService bankService;
     private final BorrowerProfileMapper borrowerProfileMapper;
     private final PartnerApplicationService partnerApplicationService;
-    private final ObjectMapper objectMapper;
 
     @Override
     @Transactional
-    public BorrowerResponse createOrUpdateBorrowerProfile(BorrowerRequest request) {
+    public BorrowerResponse createOrUpdateBorrowerProfile(BorrowerRequest request, Integer sdId) {
         BankApplication bankApplication = bankApplicationService.getBankApplicationById(request.getId());
         PartnerApplication partnerApplication = bankApplication.getPartnerApplication();
         List<BorrowerProfile> borrowerProfilesToSave = new ArrayList<>();
         if (Objects.nonNull(request.getCoBorrower())) {
             List<BorrowerProfile> coBorrowerProfiles = request.getCoBorrower().stream()
-                    .map(borrower -> prepareBorrowerProfile(partnerApplication, borrower))
+                    .map(borrower -> prepareBorrowerProfile(partnerApplication, borrower, sdId))
                     .collect(Collectors.toList());
 
             borrowerProfilesToSave.addAll(coBorrowerProfiles);
         }
         if (Objects.nonNull(request.getMainBorrower())) {
-            BorrowerProfile mainBorrowerProfile = prepareBorrowerProfile(partnerApplication, request.getMainBorrower());
+            BorrowerProfile mainBorrowerProfile = prepareBorrowerProfile(partnerApplication, request.getMainBorrower(), sdId);
             borrowerProfilesToSave.add(mainBorrowerProfile);
         }
         partnerApplication.setBorrowerProfiles(borrowerProfilesToSave);
@@ -154,13 +151,14 @@ public class BorrowerProfileServiceImpl implements BorrowerProfileService {
     }
 
     @Override
-    public void updateBorrowerProfileField(UUID borrowerProfileId, BorrowerProfileUpdateRequest updateRequest, HttpServletRequest request) {
-        Map<String, Object> fieldsMap = extractFieldsFromRequest(request);
+    public void updateBorrowerProfileField(UUID borrowerProfileId, Map<String, Object> fieldsMap) {
         if (fieldsMap.isEmpty()) return;
         BorrowerProfile borrowerProfile = findByIdWithRealEstateVehicleAndEmployer(borrowerProfileId);
         for (Map.Entry<String, Object> entry : fieldsMap.entrySet()) {
             String fieldName = entry.getKey();
             Object value = entry.getValue();
+            if ("sdId".equals(fieldName)) continue;
+            if ("organisationId".equals(fieldName)) continue;
             try {
                 Field field = BorrowerProfileUpdateRequest.class.getDeclaredField(fieldName);
                 field.setAccessible(true);
@@ -190,9 +188,60 @@ public class BorrowerProfileServiceImpl implements BorrowerProfileService {
                 throw new ProfileUpdateException(fieldName, "Ошибка при обновлении профиля заемщика");
             }
         }
+        setBorrowerProfileSdId(fieldsMap, borrowerProfile);
         deleteBorrowerDocuments(borrowerProfile);
         statusService.statusChanger(borrowerProfile.getPartnerApplication());
         partnerApplicationService.save(borrowerProfile.getPartnerApplication());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public BorrowerProfile getBorrowerProfile(UUID borrowerProfileId) {
+        return borrowerProfileRepository.findById(borrowerProfileId)
+                .orElseThrow(() -> new ItemNotFoundException(BorrowerProfile.class, borrowerProfileId));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public BorrowerProfile findByIdWithRealEstateVehicleAndEmployer(UUID borrowerProfileId) {
+        return borrowerProfileRepository.findByIdWithRealEstateVehicleAndEmployer(borrowerProfileId)
+                .orElseThrow(() -> new ItemNotFoundException(BorrowerProfile.class, borrowerProfileId));
+    }
+
+    @Override
+    @Transactional
+    public BorrowerResponse createOrUpdateGenericBorrowerProfile(BorrowerRequest request, HttpServletRequest httpRequest, Integer sdId) {
+        PartnerApplication partnerApplication = partnerApplicationService.getPartnerApplication(request.getId());
+        List<BorrowerProfile> borrowerProfilesToSave = new ArrayList<>();
+        if (Objects.nonNull(request.getCoBorrower())) {
+            List<BorrowerProfile> coBorrowerProfiles = request.getCoBorrower().stream()
+                    .map(borrower -> prepareBorrowerProfile(partnerApplication, borrower, sdId))
+                    .collect(Collectors.toList());
+
+            borrowerProfilesToSave.addAll(coBorrowerProfiles);
+        }
+
+        if (Objects.nonNull(request.getMainBorrower())) {
+            BorrowerProfile mainBorrowerProfile = prepareBorrowerProfile(partnerApplication, request.getMainBorrower(), sdId);
+            borrowerProfilesToSave.add(mainBorrowerProfile);
+        }
+
+        borrowerProfileRepository.saveAll(borrowerProfilesToSave);
+        borrowerProfileRepository.flush();
+        linkService.addLinksByProfiles(borrowerProfilesToSave, httpRequest);
+        partnerApplicationService.save(partnerApplication);
+        return getBorrowersByPartnerApplicationId(request.getId());
+    }
+
+    private static void setBorrowerProfileSdId(Map<String, Object> fieldsMap, BorrowerProfile borrowerProfile) {
+        Integer sdId = fieldsMap.containsKey("sdId") ? Integer.parseInt(fieldsMap.get("sdId").toString()) : null;
+        if (sdId != null) {
+            if (borrowerProfile.getCreatedAt() == null) {
+                borrowerProfile.setCreatedBy(sdId);
+            } else {
+                borrowerProfile.setUpdatedBy(sdId);
+            }
+        }
     }
 
     private void updateArrayField(BorrowerProfile borrowerProfile, Field field, Map<String, Object> fieldsMap) throws NoSuchFieldException, IllegalAccessException {
@@ -270,7 +319,6 @@ public class BorrowerProfileServiceImpl implements BorrowerProfileService {
         updateObjectWithEnumsAndValues(vehicleFieldsMap, vehicle, BorrowerVehicle.class);
         Objects.requireNonNull(vehicle).setBorrowerProfile(borrowerProfile);
         borrowerProfile.setVehicle(vehicle);
-
     }
 
     private <T> void updateObjectWithEnumsAndValues(Map<String, Object> fieldsMap, T targetObject, Class<T> targetClass) {
@@ -302,67 +350,8 @@ public class BorrowerProfileServiceImpl implements BorrowerProfileService {
         }
     }
 
-    private Map<String, Object> extractFieldsFromRequest(HttpServletRequest request) {
-        new ContentCachingRequestWrapper(request);
-        ContentCachingRequestWrapper wrappedRequest;
-        String jsonPayload;
-        if (request instanceof ContentCachingRequestWrapper) {
-            wrappedRequest = (ContentCachingRequestWrapper) request;
-            byte[] content = wrappedRequest.getContentAsByteArray();
-            jsonPayload = new String(content, StandardCharsets.UTF_8);
-        } else {
-            log.warn("Request is not an instance of ContentCachingRequestWrapper");
-            return Collections.emptyMap();
-        }
-        try {
-            return objectMapper.readValue(jsonPayload, Map.class);
-        } catch (Exception e) {
-            log.error("Error during reading request payload", e);
-            return Collections.emptyMap();
-        }
-    }
-
     @Override
-    @Transactional(readOnly = true)
-    public BorrowerProfile getBorrowerProfile(UUID borrowerProfileId) {
-        return borrowerProfileRepository.findById(borrowerProfileId)
-                .orElseThrow(() -> new ItemNotFoundException(BorrowerProfile.class, borrowerProfileId));
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public BorrowerProfile findByIdWithRealEstateVehicleAndEmployer(UUID borrowerProfileId) {
-        return borrowerProfileRepository.findByIdWithRealEstateVehicleAndEmployer(borrowerProfileId)
-                .orElseThrow(() -> new ItemNotFoundException(BorrowerProfile.class, borrowerProfileId));
-    }
-
-    @Override
-    @Transactional
-    public BorrowerResponse createOrUpdateGenericBorrowerProfile(BorrowerRequest request, HttpServletRequest httpRequest) {
-        PartnerApplication partnerApplication = partnerApplicationService.getPartnerApplication(request.getId());
-        List<BorrowerProfile> borrowerProfilesToSave = new ArrayList<>();
-        if (Objects.nonNull(request.getCoBorrower())) {
-            List<BorrowerProfile> coBorrowerProfiles = request.getCoBorrower().stream()
-                    .map(borrower -> prepareBorrowerProfile(partnerApplication, borrower))
-                    .collect(Collectors.toList());
-
-            borrowerProfilesToSave.addAll(coBorrowerProfiles);
-        }
-
-        if (Objects.nonNull(request.getMainBorrower())) {
-            BorrowerProfile mainBorrowerProfile = prepareBorrowerProfile(partnerApplication, request.getMainBorrower());
-            borrowerProfilesToSave.add(mainBorrowerProfile);
-        }
-
-        borrowerProfileRepository.saveAll(borrowerProfilesToSave);
-        borrowerProfileRepository.flush();
-        linkService.addLinksByProfiles(borrowerProfilesToSave, httpRequest);
-        partnerApplicationService.save(partnerApplication);
-        return getBorrowersByPartnerApplicationId(request.getId());
-    }
-
-    @Override
-    public void deleteBorrowerProfileById(UUID borrowerProfileId) {
+    public void deleteBorrowerProfileById(UUID borrowerProfileId, Integer sdId) {
         BorrowerProfile borrowerProfile = getBorrowerProfile(borrowerProfileId);
         PartnerApplication partnerApplication = borrowerProfile.getPartnerApplication();
         List<UUID> mainBorrowerIds = partnerApplication.getBankApplications().stream()
@@ -371,6 +360,7 @@ public class BorrowerProfileServiceImpl implements BorrowerProfileService {
                 .collect(Collectors.toList());
         if (!mainBorrowerIds.contains(borrowerProfile.getId())) {
             borrowerProfile.setActive(false);
+            borrowerProfile.setUpdatedBy(sdId);
             statusService.statusChanger(partnerApplication);
             partnerApplicationService.save(partnerApplication);
         } else {
@@ -380,7 +370,7 @@ public class BorrowerProfileServiceImpl implements BorrowerProfileService {
 
     @Override
     @Transactional
-    public void updateBorrowerStatus(UUID borrowerProfileId, BorrowerProfileStatus status) {
+    public void updateBorrowerStatus(UUID borrowerProfileId, BorrowerProfileStatus status, Integer sdId) {
         borrowerProfileRepository.updateBorrowerProfileStatus(borrowerProfileId, status);
     }
 
@@ -388,28 +378,32 @@ public class BorrowerProfileServiceImpl implements BorrowerProfileService {
     @Transactional(readOnly = true)
     public BorrowerProfile getFullBorrower(UUID borrowerProfileId) {
         BorrowerProfile borrowerProfile = findByIdWithRealEstateVehicleAndEmployer(borrowerProfileId);
-        partnerApplicationService.checkPermission(borrowerProfile.getPartnerApplication());
         return borrowerProfile;
     }
 
-    private BorrowerProfile prepareBorrowerProfile(PartnerApplication partnerApplication, BorrowerProfileRequest borrower) {
+    private BorrowerProfile prepareBorrowerProfile(PartnerApplication partnerApplication,
+                                                   BorrowerProfileRequest borrower,
+                                                   Integer sdId) {
         BorrowerProfile borrowerProfile;
         if (borrower.getId() != null) {
             borrowerProfile = borrowerProfileRepository.findById(borrower.getId())
                     .map(existingBorrowerProfile -> {
                         borrowerProfileMapper.updateBorrowerProfile(borrower, existingBorrowerProfile);
+                        existingBorrowerProfile.setUpdatedBy(sdId);
                         return existingBorrowerProfile;
                     })
                     .orElseGet(() -> {
                         BorrowerProfile newBorrowerProfile = borrowerProfileMapper.toBorrowerProfile(borrower);
                         newBorrowerProfile.setPartnerApplication(partnerApplication);
+                        newBorrowerProfile.setCreatedBy(sdId);
+                        newBorrowerProfile.setUpdatedBy(sdId);
                         return newBorrowerProfile;
                     });
         } else {
             borrowerProfile = borrowerProfileMapper.toBorrowerProfile(borrower);
             borrowerProfile.setPartnerApplication(partnerApplication);
+            borrowerProfile.setCreatedBy(sdId);
         }
-
         return borrowerProfile;
     }
 

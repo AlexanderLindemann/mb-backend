@@ -6,6 +6,6 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 public interface LinkService {
-    void addLinksByProfiles(List<BorrowerProfile> borrowerProfiles, HttpServletRequest httpRequest);
 
+    void addLinksByProfiles(List<BorrowerProfile> borrowerProfiles, HttpServletRequest httpRequest);
 }

@@ -12,11 +12,11 @@ public interface BankApplicationService {
 
     BankApplication getBankApplicationById(UUID id);
 
-    BankApplication updateBankApplication(BankApplicationRequest request);
+    BankApplication updateBankApplication(BankApplicationRequest request, Integer sdId);
 
-    BankApplication changeMainBorrowerByBankApplicationId(UUID bankApplicationId, UUID newMainBorrowerId);
+    BankApplication changeMainBorrowerByBankApplicationId(UUID bankApplicationId, UUID newMainBorrowerId, Integer sdId);
 
-    BankApplication changeStatus(UUID bankApplicationId, BankApplicationStatus status);
+    BankApplication changeStatus(UUID bankApplicationId, BankApplicationStatus status, Integer sdId);
 
     List<BankApplication> getBankApplicationByBorrowerId(UUID borrowerId);
 
@@ -29,4 +29,5 @@ public interface BankApplicationService {
     void save(BankApplication bankApplication);
 
     int updateStatus(UUID bankApplicationId, BankApplicationStatus statu);
+
 }

@@ -19,5 +19,4 @@ public class EnumDescription {
     private String description;
 
     private List<EnumItemDescription> values = new ArrayList<>();
-
 }

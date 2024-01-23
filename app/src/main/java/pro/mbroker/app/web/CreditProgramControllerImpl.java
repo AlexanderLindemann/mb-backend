@@ -3,14 +3,13 @@ package pro.mbroker.app.web;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 import pro.mbroker.api.controller.CreditProgramController;
 import pro.mbroker.api.dto.request.BankProgramRequest;
 import pro.mbroker.api.dto.response.CreditProgramResponse;
 import pro.mbroker.app.entity.CreditProgram;
 import pro.mbroker.app.mapper.CreditProgramDetailMapper;
-import pro.mbroker.app.mapper.ProgramMapper;
+import pro.mbroker.app.mapper.CreditProgramMapper;
 import pro.mbroker.app.service.CreditProgramService;
 import pro.mbroker.app.util.CreditProgramConverter;
 import pro.mbroker.app.util.Pagination;
@@ -24,41 +23,43 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class CreditProgramControllerImpl implements CreditProgramController {
     private final CreditProgramService creditProgramService;
-    private final ProgramMapper programMapper;
+    private final CreditProgramMapper creditProgramMapper;
     private final CreditProgramDetailMapper creditProgramDetailMapper;
     private final CreditProgramConverter creditProgramConverter;
 
     @Override
-    @PreAuthorize("hasAuthority(T(pro.smartdeal.common.security.Permission$Code).MB_ADMIN_ACCESS)")
-    public CreditProgramResponse createCreditProgram(BankProgramRequest request) {
-        CreditProgram creditProgram = creditProgramService.createCreditParameter(request, creditProgramConverter.convertCreditDetailToStringFormat(request));
-        return programMapper.toProgramResponseMapper(creditProgram)
+    public CreditProgramResponse createCreditProgram(BankProgramRequest request, Integer sdId) {
+        CreditProgram creditProgram = creditProgramService.createCreditParameter(request,
+                creditProgramConverter.convertCreditDetailToStringFormat(request), sdId);
+        return creditProgramMapper.toProgramResponseMapper(creditProgram)
                 .setCreditProgramDetail(creditProgramDetailMapper.toProgramDetailResponse(request));
     }
 
     @Override
-    @PreAuthorize("hasAuthority(T(pro.smartdeal.common.security.Permission$Code).MB_ADMIN_ACCESS)")
     public CreditProgramResponse getProgramByCreditProgramId(UUID creditProgramId) {
         CreditProgram creditProgram = creditProgramService.getProgramByCreditProgramId(creditProgramId);
-        return programMapper.toProgramResponseMapper(creditProgram)
+        return creditProgramMapper.toProgramResponseMapper(creditProgram)
                 .setCreditProgramDetail(creditProgramConverter.convertCreditDetailToEnumFormat(creditProgram.getCreditProgramDetail()));
     }
 
     @Override
-    @PreAuthorize("hasAuthority(T(pro.smartdeal.common.security.Permission$Code).MB_ADMIN_ACCESS)")
     public List<CreditProgramResponse> getProgramsByBankId(UUID bankId) {
         List<CreditProgram> programsByBankId = creditProgramService.getProgramsByBankId(bankId);
         return programsByBankId.stream()
-                .map(creditProgram -> programMapper.toProgramResponseMapper(creditProgram)
+                .map(creditProgram -> creditProgramMapper.toProgramResponseMapper(creditProgram)
                         .setCreditProgramDetail(creditProgramConverter.convertCreditDetailToEnumFormat(creditProgram.getCreditProgramDetail())))
                 .collect(Collectors.toList());
     }
 
     @Override
-    @PreAuthorize("hasAuthority(T(pro.smartdeal.common.security.Permission$Code).MB_ADMIN_ACCESS)")
-    public CreditProgramResponse updateProgram(UUID creditProgramId, BankProgramRequest request) {
-        CreditProgram creditProgram = creditProgramService.updateProgram(creditProgramId, request, creditProgramConverter.convertCreditDetailToStringFormat(request));
-        return programMapper.toProgramResponseMapper(creditProgram)
+    public CreditProgramResponse updateProgram(UUID creditProgramId,
+                                               BankProgramRequest request,
+                                               Integer sdId) {
+        CreditProgram creditProgram = creditProgramService.updateProgram(creditProgramId,
+                request,
+                creditProgramConverter.convertCreditDetailToStringFormat(request),
+                sdId);
+        return creditProgramMapper.toProgramResponseMapper(creditProgram)
                 .setCreditProgramDetail(creditProgramConverter.convertCreditDetailToEnumFormat(creditProgram.getCreditProgramDetail()));
     }
 
@@ -68,38 +69,33 @@ public class CreditProgramControllerImpl implements CreditProgramController {
         Pageable pageable = Pagination.createPageable(page, size, sortBy, sortOrder);
         List<CreditProgram> allCreditProgram = creditProgramService.getAllCreditProgram(pageable);
         List<CreditProgramResponse> creditProgramResponses = allCreditProgram.stream()
-                .map(creditProgram -> programMapper.toProgramResponseMapper(creditProgram)
+                .map(creditProgram -> creditProgramMapper.toProgramResponseMapper(creditProgram)
                         .setCreditProgramDetail(creditProgramConverter.convertCreditDetailToEnumFormat(creditProgram.getCreditProgramDetail())))
                 .collect(Collectors.toList());
         return creditProgramResponses;
     }
 
     @Override
-    @PreAuthorize("hasAuthority(T(pro.smartdeal.common.security.Permission$Code).MB_ADMIN_ACCESS)")
-    public void deleteCreditProgram(UUID creditProgramId) {
-        creditProgramService.deleteCreditProgram(creditProgramId);
+    public void deleteCreditProgram(UUID creditProgramId, Integer sdId) {
+        creditProgramService.deleteCreditProgram(creditProgramId, sdId);
     }
 
     @Override
-    @PreAuthorize("hasAuthority(T(pro.smartdeal.common.security.Permission$Code).MB_ADMIN_ACCESS)")
     public void createCreditProgramsFromCian() {
         creditProgramService.createCreditProgramsFromCian();
     }
 
     @Override
-    @PreAuthorize("hasAuthority(T(pro.smartdeal.common.security.Permission$Code).MB_ADMIN_ACCESS)")
     public void loadCreditProgramFromCian() {
         creditProgramService.loadCreditProgramFromCian();
     }
 
     @Override
-    @PreAuthorize("hasAuthority(T(pro.smartdeal.common.security.Permission$Code).MB_ADMIN_ACCESS)")
     public void loadBankFutureRulesFromCian() {
         creditProgramService.loadBankFutureRulesFromCian();
     }
 
     @Override
-    @PreAuthorize("hasAuthority(T(pro.smartdeal.common.security.Permission$Code).MB_ADMIN_ACCESS)")
     public void loadAdditionalRateRulesFromCian() {
         creditProgramService.loadAdditionalRateRulesFromCian();
     }

@@ -2,20 +2,20 @@ package pro.mbroker.app.web;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 import pro.mbroker.api.controller.BankController;
-import pro.mbroker.api.controller.CreditProgramController;
 import pro.mbroker.api.dto.request.BankRequest;
 import pro.mbroker.api.dto.response.AttachmentResponse;
 import pro.mbroker.api.dto.response.BankResponse;
 import pro.mbroker.app.entity.Attachment;
 import pro.mbroker.app.entity.Bank;
 import pro.mbroker.app.mapper.BankMapper;
+import pro.mbroker.app.mapper.CreditProgramMapper;
 import pro.mbroker.app.service.AttachmentService;
 import pro.mbroker.app.service.BankService;
 import pro.mbroker.app.util.Converter;
+import pro.mbroker.app.util.CreditProgramConverter;
 
 import java.util.List;
 import java.util.Objects;
@@ -30,19 +30,17 @@ public class BankControllerImpl implements BankController {
     private final BankService bankService;
     private final AttachmentService attachmentService;
     private final BankMapper bankMapper;
-    private final CreditProgramController creditProgramController;
+    private final CreditProgramMapper creditProgramMapper;
 
     @Override
-    @PreAuthorize("hasAuthority(T(pro.smartdeal.common.security.Permission$Code).MB_ADMIN_ACCESS)")
-    public BankResponse createBank(BankRequest bankRequest) {
-        Bank bank = bankService.createBank(bankRequest);
+    public BankResponse createBank(BankRequest bankRequest, Integer sdId) {
+        Bank bank = bankService.createBank(bankRequest, sdId);
         return bankMapper.toBankResponseMapper(bank);
     }
 
     @Override
-    @PreAuthorize("hasAuthority(T(pro.smartdeal.common.security.Permission$Code).MB_ADMIN_ACCESS)")
-    public BankResponse updateLogo(UUID bankId, MultipartFile logo) {
-        Bank bank = bankService.updateLogo(bankId, logo);
+    public BankResponse updateLogo(UUID bankId, MultipartFile logo, Integer sdId) {
+        Bank bank = bankService.updateLogo(bankId, logo, sdId);
         return bankMapper.toBankResponseMapper(bank);
     }
 
@@ -55,8 +53,7 @@ public class BankControllerImpl implements BankController {
     @Override
     public BankResponse getBankById(UUID bankId) {
         Bank bank = bankService.getBankById(bankId);
-        return convertToBankResponse(bank)
-                .setCreditProgram(creditProgramController.getProgramsByBankId(bankId));
+        return convertToBankResponse(bank);
     }
 
     @Override
@@ -64,18 +61,15 @@ public class BankControllerImpl implements BankController {
         return bankService.getLogoBankById(bankId);
     }
 
-
     @Override
-    @PreAuthorize("hasAuthority(T(pro.smartdeal.common.security.Permission$Code).MB_ADMIN_ACCESS)")
-    public BankResponse updateBank(UUID bankId, BankRequest bankRequest) {
-        Bank bank = bankService.updateBank(bankId, bankRequest);
+    public BankResponse updateBank(UUID bankId, BankRequest bankRequest, Integer sdId) {
+        Bank bank = bankService.updateBank(bankId, bankRequest, sdId);
         return convertToBankResponse(bank);
     }
 
     @Override
-    @PreAuthorize("hasAuthority(T(pro.smartdeal.common.security.Permission$Code).MB_ADMIN_ACCESS)")
-    public void deleteBankById(UUID bankId) {
-        bankService.deleteBankById(bankId);
+    public void deleteBankById(UUID bankId, Integer sdId) {
+        bankService.deleteBankById(bankId, sdId);
     }
 
     private BankResponse convertToBankResponse(Bank bank) {
@@ -89,7 +83,10 @@ public class BankControllerImpl implements BankController {
             String base64Logo = Converter.generateBase64FromFile(attachmentService.download(attachment.getId()));
             bankResponse.setLogo(base64Logo);
         }
+        bankResponse.setCreditProgram(bank.getCreditPrograms().stream()
+                .map(creditProgram -> creditProgramMapper.toProgramResponseMapper(creditProgram)
+                        .setCreditProgramDetail(CreditProgramConverter.convertCreditDetailToEnumFormat(creditProgram.getCreditProgramDetail())))
+                .collect(Collectors.toList()));
         return bankResponse;
     }
-
 }

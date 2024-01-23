@@ -45,7 +45,7 @@ public class NotificationServiceImpl implements NotificationService {
     public NotificationBankLetterResponse getCustomerInfoForBankLetter(UUID bankApplicationId) {
         NotificationBankLetterResponse notificationResponse = fetchNotificationData(bankApplicationId);
         enrichNotificationResponseWithData(notificationResponse, bankApplicationId);
-        bankApplicationService.changeStatus(bankApplicationId, BankApplicationStatus.SENDING_TO_BANK);
+        bankApplicationService.changeStatus(bankApplicationId, BankApplicationStatus.SENDING_TO_BANK, 1234);
         return notificationResponse;
     }
 

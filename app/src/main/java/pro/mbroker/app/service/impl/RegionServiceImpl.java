@@ -14,6 +14,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class RegionServiceImpl implements RegionService {
     private final RegionRepository regionRepository;
+
     @Override
     public List<RegionType> getRegionTypesByCianIdIn(List<Integer> cianIds) {
         return regionRepository.findRegionTypesByCianIdIn(cianIds);

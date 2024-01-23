@@ -13,8 +13,8 @@ import java.util.List;
 @RestController
 @RequestMapping("/public/filter")
 public interface DirectoryController {
+
     @ApiOperation("Получить все возможные типы ENUM справочника")
     @GetMapping("/directory")
     List<EnumDescription> getAllDirectory();
-
 }

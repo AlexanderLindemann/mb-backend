@@ -116,6 +116,7 @@ public class BorrowerProfileForUpdateResponse {
 
     private BorrowerVehicleDto vehicle;
 
-    private List<BorrowerDocumentResponse> documents;
+    private PartnerApplicationResponse partnerApplication;
 
+    private List<BorrowerDocumentResponse> documents;
 }

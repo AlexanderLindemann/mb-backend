@@ -19,7 +19,7 @@ public interface RealEstateMapper {
     @Mapping(target = "updatedAt", ignore = true)
     @Mapping(target = "createdBy", ignore = true)
     @Mapping(target = "updatedBy", ignore = true)
-    @Mapping(target = "active", source = "address.active")
+    @Mapping(target = "active", ignore = true)
     RealEstate toRealEstateMapper(RealEstateRequest address);
 
     RealEstateResponse toRealEstateResponseMapper(RealEstate address);
@@ -30,7 +30,7 @@ public interface RealEstateMapper {
     @Mapping(target = "updatedAt", expression = "java(mapUpdatedAt())")
     @Mapping(target = "createdBy", ignore = true)
     @Mapping(target = "updatedBy", ignore = true)
-    @Mapping(target = "active", source = "realEstateRequest.active")
+    @Mapping(target = "active", ignore = true)
     void updateRealEstateAddress(RealEstateRequest realEstateRequest, @MappingTarget RealEstate realEstate);
 
     @Mapping(target = "partner", ignore = true)

@@ -19,7 +19,7 @@ public interface AttachmentService {
      * @param file Файл для загрузки.
      * @return Attachment, представляющего загруженный файл.
      */
-    Attachment upload(MultipartFile file);
+    Attachment upload(MultipartFile file, Integer sdId);
 
     /**
      * Скачивает файл, соответствующий идентификатору вложения.
@@ -37,7 +37,7 @@ public interface AttachmentService {
      * @return Сохраненный объект BorrowerDocument, представляющий загруженный документ.
      */
     BorrowerDocument uploadDocument(MultipartFile file,
-                                    BorrowerDocumentRequest documentDto);
+                                    BorrowerDocumentRequest documentDto, Integer sdId);
 
     /**
      * Получает объект вложения по идентификатору.
@@ -63,7 +63,7 @@ public interface AttachmentService {
      *
      * @param attachmentId айди вложения
      */
-    void markAttachmentAsDeleted(Long attachmentId);
+    void markAttachmentAsDeleted(Long attachmentId, Integer sdId);
 
     /**
      * Метод возвращает информацию о вложении в байткоде

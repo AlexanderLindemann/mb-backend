@@ -2,7 +2,6 @@ package pro.mbroker.app.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -46,13 +45,15 @@ public class BankServiceImpl implements BankService {
 
     @Override
     @Transactional
-    public Bank createBank(BankRequest bankRequest) {
+    public Bank createBank(BankRequest bankRequest, Integer sdId) {
         Bank bank = new Bank().setName(bankRequest.getName());
         bank.setContacts(new ArrayList<>());
-        setBankContacts(bank, bankRequest.getBankContacts());
+        setBankContacts(bank, bankRequest.getBankContacts(), sdId);
         bank.setOrderNumber(bankRepository.findMaxOrderNumber() + ORDER_STEP);
         setAttachmentIfPresent(bank, bankRequest.getAttachment_id());
         bank.setCianId(bankRequest.getCianBankId());
+        bank.setCreatedBy(sdId);
+        bank.setUpdatedBy(sdId);
         return bankRepository.save(bank);
     }
 
@@ -64,15 +65,16 @@ public class BankServiceImpl implements BankService {
 
     @Override
     @Transactional
-    public Bank updateBank(UUID bankId, BankRequest bankRequest) {
+    public Bank updateBank(UUID bankId, BankRequest bankRequest, Integer sdId) {
         Bank bank = getBank(bankId);
         bank.setName(bankRequest.getName());
         if (Objects.nonNull(bankRequest.getBankContacts())) {
-            updateAndAddBankContacts(bank, bankRequest.getBankContacts());
-            markAbsentBankContactsAsInactive(bank, bankRequest.getBankContacts());
+            updateAndAddBankContacts(bank, bankRequest.getBankContacts(), sdId);
+            markAbsentBankContactsAsInactive(bank, bankRequest.getBankContacts(), sdId);
         }
         bank.setCianId(bankRequest.getCianBankId());
         setAttachmentIfPresent(bank, bankRequest.getAttachment_id());
+        bank.setUpdatedBy(sdId);
         return bankRepository.save(bank);
     }
 
@@ -86,9 +88,10 @@ public class BankServiceImpl implements BankService {
 
     @Override
     @Transactional
-    public Bank updateLogo(UUID bankId, MultipartFile logo) {
+    public Bank updateLogo(UUID bankId, MultipartFile logo, Integer sdId) {
         Bank bank = getBank(bankId);
-        bank.setAttachment(attachmentService.upload(logo));
+        bank.setUpdatedBy(sdId);
+        bank.setAttachment(attachmentService.upload(logo, sdId).setCreatedBy(sdId));
         return bankRepository.save(bank);
     }
 
@@ -98,17 +101,16 @@ public class BankServiceImpl implements BankService {
         Sort sort = Sort.by(Sort.Direction.fromString(sortOrder), sortBy);
         Pageable pageable = PageRequest.of(page, size, sort);
         Specification<Bank> specification = BankSpecification.isActive();
-        Page<Bank> bankPage = bankRepository.findAll(specification, pageable);
-        List<Bank> banks = bankPage.getContent();
-        for (Bank bank : banks) {
-            List<BankContact> activeContacts = bank.getContacts()
-                    .stream()
-                    .filter(BankContact::isActive)
-                    .collect(Collectors.toList());
-            bank.getContacts().clear();
-            bank.getContacts().addAll(activeContacts);
-        }
-        return banks;
+        return bankRepository.findAll(specification, pageable)
+                .map(bank -> {
+                    List<BankContact> activeContacts = bank.getContacts()
+                            .stream()
+                            .filter(BankContact::isActive)
+                            .collect(Collectors.toList());
+                    bank.setContacts(activeContacts);
+                    return bank;
+                })
+                .getContent();
     }
 
     @Override
@@ -131,39 +133,42 @@ public class BankServiceImpl implements BankService {
 
     @Override
     @Transactional
-    public void deleteBankById(UUID bankId) {
+    public void deleteBankById(UUID bankId, Integer sdId) {
         Bank bank = getBank(bankId);
         bank.setActive(false);
-        bank.getCreditPrograms()
-                .forEach(creditProgram -> creditProgram.setActive(false));
+        bank.setUpdatedBy(sdId);
+        bank.getContacts().forEach(bankContact -> bankContact.setActive(false).setUpdatedBy(sdId));
+        bank.getCreditPrograms().forEach(creditProgram -> creditProgram.setActive(false).setUpdatedBy(sdId));
         bankRepository.save(bank);
     }
 
-    private void updateAndAddBankContacts(Bank bank, List<BankContactRequest> bankContactRequests) {
+    private void updateAndAddBankContacts(Bank bank, List<BankContactRequest> bankContactRequests, Integer sdId) {
         for (BankContactRequest request : bankContactRequests) {
             if (request.getId() != null) {
                 BankContact existingContact = bankContactRepository.findById(request.getId())
                         .orElseThrow(() -> new RuntimeException("BankContact not found: " + request.getId()));
                 existingContact.setEmail(request.getEmail())
-                        .setFullName(request.getFullName());
+                        .setFullName(request.getFullName())
+                        .setUpdatedBy(sdId);
             } else {
                 BankContact newContact = new BankContact()
                         .setEmail(request.getEmail())
                         .setFullName(request.getFullName())
                         .setBank(bank);
+                newContact.setCreatedBy(sdId);
                 bank.getContacts().add(newContact);
             }
         }
     }
 
-    private void markAbsentBankContactsAsInactive(Bank bank, List<BankContactRequest> bankContactRequests) {
+    private void markAbsentBankContactsAsInactive(Bank bank, List<BankContactRequest> bankContactRequests, Integer sdId) {
         Set<UUID> requestIds = bankContactRequests.stream()
                 .map(BankContactRequest::getId)
                 .collect(Collectors.toSet());
-
         for (BankContact existingContact : bank.getContacts()) {
             if (!requestIds.contains(existingContact.getId())) {
-                existingContact.setActive(false);
+                existingContact.setActive(false)
+                        .setUpdatedBy(sdId);
             }
         }
     }
@@ -182,12 +187,17 @@ public class BankServiceImpl implements BankService {
         return bank;
     }
 
-    private void setBankContacts(Bank bank, List<BankContactRequest> bankContactRequests) {
+    private void setBankContacts(Bank bank, List<BankContactRequest> bankContactRequests, Integer sdId) {
         if (Objects.nonNull(bankContactRequests)) {
             List<BankContact> contacts = bankContactRequests.stream()
-                    .map(request -> new BankContact().setEmail(request.getEmail())
-                            .setFullName(request.getFullName())
-                            .setBank(bank))
+                    .map(request -> {
+                        BankContact bankContact = new BankContact()
+                                .setEmail(request.getEmail())
+                                .setFullName(request.getFullName())
+                                .setBank(bank);
+                        bankContact.setCreatedBy(sdId);
+                        return bankContact;
+                    })
                     .collect(Collectors.toList());
             bank.getContacts().addAll(contacts);
         }

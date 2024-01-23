@@ -10,15 +10,15 @@ import java.util.UUID;
 
 public interface PartnerRealEstateService {
 
-    RealEstate addRealEstate(UUID partnerId, RealEstateRequest request);
+    RealEstate addRealEstate(UUID partnerId, RealEstateRequest request, Integer sdId);
 
-    void deleteRealEstate(UUID realEstateId);
+    void deleteRealEstate(UUID realEstateId, Integer sdId);
 
-    RealEstate updateRealEstate(UUID addressId, RealEstateRequest request);
+    RealEstate updateRealEstate(UUID addressId, RealEstateRequest request, Integer sdId);
 
     List<RealEstate> getRealEstateByPartnerId(int page, int size, String sortBy, String sortOrder, UUID partnerId);
 
-    List<RealEstate> getCurrentRealEstate(int page, int size, String sortBy, String sortOrder);
+    List<RealEstate> getCurrentRealEstate(int page, int size, String sortBy, String sortOrder, Integer organisationId);
 
     void loadRealEstatesFromCian();
 

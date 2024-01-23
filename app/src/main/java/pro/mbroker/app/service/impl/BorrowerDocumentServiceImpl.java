@@ -27,9 +27,10 @@ public class BorrowerDocumentServiceImpl implements BorrowerDocumentService {
 
     @Override
     @Transactional
-    public void deleteDocumentByAttachmentId(Long attachmentId) {
+    public void deleteDocumentByAttachmentId(Long attachmentId, Integer sdId) {
         BorrowerDocument borrowerDocument = getBorrowerDocumentByAttachmentId(attachmentId);
         borrowerDocument.setActive(false);
+        borrowerDocument.setUpdatedBy(sdId);
         statusService.statusChanger(borrowerDocument.getBorrowerProfile().getPartnerApplication());
         PartnerApplication partnerApplication = borrowerDocument.getBorrowerProfile().getPartnerApplication();
         partnerApplicationService.save(partnerApplication);

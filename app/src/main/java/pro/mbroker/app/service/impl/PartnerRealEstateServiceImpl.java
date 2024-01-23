@@ -29,8 +29,6 @@ import pro.mbroker.app.service.CreditProgramService;
 import pro.mbroker.app.service.PartnerRealEstateService;
 import pro.mbroker.app.service.PartnerService;
 import pro.mbroker.app.util.Pagination;
-import pro.mbroker.app.util.TokenExtractor;
-import pro.smartdeal.ng.common.security.service.CurrentUserService;
 
 import java.util.List;
 import java.util.Objects;
@@ -44,34 +42,36 @@ public class PartnerRealEstateServiceImpl implements PartnerRealEstateService {
     private final PartnerService partnerService;
     private final RealEstateRepository realEstateRepository;
     private final RealEstateMapper realEstateMapper;
-    private final CurrentUserService currentUserService;
     private final PartnerRepository partnerRepository;
     private final CianAPIClient cianAPIClient;
     private final CreditProgramService creditProgramService;
 
     @Override
     @Transactional
-    public RealEstate addRealEstate(UUID partnerId, RealEstateRequest request) {
+    public RealEstate addRealEstate(UUID partnerId, RealEstateRequest request, Integer sdId) {
         RealEstate realEstate = realEstateMapper.toRealEstateMapper(request)
                 .setPartner(partnerService.getPartner(partnerId));
-        RealEstate address = realEstateRepository.save(realEstate);
-        realEstateRepository.flush();
+        realEstate.setCreatedBy(sdId);
+        realEstate.setUpdatedBy(sdId);
+        RealEstate address = realEstateRepository.saveAndFlush(realEstate);
         return getRealEstate(address.getId());
     }
 
     @Override
     @Transactional
-    public void deleteRealEstate(UUID realEstateId) {
+    public void deleteRealEstate(UUID realEstateId, Integer sdId) {
         RealEstate realEstate = getRealEstate(realEstateId);
         realEstate.setActive(false);
+        realEstate.setUpdatedBy(sdId);
         realEstateRepository.save(realEstate);
     }
 
     @Override
     @Transactional
-    public RealEstate updateRealEstate(UUID addressId, RealEstateRequest request) {
+    public RealEstate updateRealEstate(UUID addressId, RealEstateRequest request, Integer sdId) {
         RealEstate realEstate = getRealEstate(addressId);
         realEstateMapper.updateRealEstateAddress(request, realEstate);
+        realEstate.setUpdatedBy(sdId);
         return realEstateRepository.save(realEstate);
     }
 
@@ -86,12 +86,10 @@ public class PartnerRealEstateServiceImpl implements PartnerRealEstateService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<RealEstate> getCurrentRealEstate(int page, int size, String sortBy, String sortOrder) {
+    public List<RealEstate> getCurrentRealEstate(int page, int size, String sortBy, String sortOrder, Integer organisationId) {
         Pageable pageable = Pagination.createPageable(page, size, sortBy, sortOrder);
-        int organizationId = TokenExtractor
-                .extractSdCurrentOrganizationId(currentUserService.getCurrentUserToken());
-        Partner partnerId = partnerRepository.findBySmartDealOrganizationId(organizationId)
-                .orElseThrow(() -> new ItemNotFoundException(Partner.class, organizationId));
+        Partner partnerId = partnerRepository.findBySmartDealOrganizationId(organisationId)
+                .orElseThrow(() -> new ItemNotFoundException(Partner.class, organisationId));
         Specification<RealEstate> specification = RealEstateSpecification.realEstateByPartnerIdAndIsActive(partnerId.getId());
         return realEstateRepository.findAll(specification, pageable).getContent();
     }
@@ -102,7 +100,7 @@ public class PartnerRealEstateServiceImpl implements PartnerRealEstateService {
                 .orElseThrow(() -> new ItemNotFoundException(RealEstate.class, realEstateAddressId));
     }
 
-    @Scheduled(fixedRate = 60 * 60 * 1000)  //каждый час
+    @Scheduled(fixedRate = 60 * 60 * 1000)
     @Override
     public void loadRealEstatesFromCian() {
         try {
@@ -156,7 +154,7 @@ public class PartnerRealEstateServiceImpl implements PartnerRealEstateService {
                         }
                     } else {
                         PartnerRequest partnerRequest = buildPartnerRequest(cianResponse);
-                        partner = partnerService.createPartner(partnerRequest);
+                        partner = partnerService.createPartner(partnerRequest, 6666);
                     }
 
                     checkAndSaveRealEstate(cianResponse, partner.getId());
@@ -167,15 +165,16 @@ public class PartnerRealEstateServiceImpl implements PartnerRealEstateService {
         }
     }
 
+    //TODO нужно утвердить какой нибудь сервисный cdId для того, чтобы получать ЖК без токена
     private void checkAndSaveRealEstate(CiansRealEstate response, UUID partnerId) {
         buildRealEstateRequest(response).forEach(cianRealEstate -> {
             RealEstate realEstate = getRealEstateByNameByPartnerId(partnerId,
                     cianRealEstate.getResidentialComplexName(),
                     cianRealEstate.getAddress());
             if (realEstate != null) {
-                updateRealEstate(realEstate.getId(), cianRealEstate);
+                updateRealEstate(realEstate.getId(), cianRealEstate, 6333);
             } else {
-                addRealEstate(partnerId, cianRealEstate);
+                addRealEstate(partnerId, cianRealEstate, 6333);
             }
         });
     }
@@ -190,7 +189,6 @@ public class PartnerRealEstateServiceImpl implements PartnerRealEstateService {
         } else regionType = RegionType.getByName(response.getRegion().getName());
         request.setRegion(regionType);
         request.setResidentialComplexName(response.getName());
-        request.setActive(true);
 
         return List.of(request);
     }

@@ -24,26 +24,28 @@ public class BankContactServiceImpl implements BankContactService {
     private final BankRepository bankRepository;
     private final BankContactRepository bankContactRepository;
 
-
     @Override
     @Transactional
-    public Bank addBankContact(UUID id, String fullName, String email) {
+    public Bank addBankContact(UUID id, String fullName, String email, Integer sdId) {
         Bank bank = getBank(id);
-        bankContactRepository.save(new BankContact()
+        bank.setUpdatedBy(sdId);
+        BankContact bankContact = new BankContact()
                 .setBank(bank)
                 .setFullName(fullName)
-                .setEmail(email));
-        bankContactRepository.flush();
-        return getBank(id);
+                .setEmail(email);
+        bankContact.setCreatedBy(sdId);
+        bankContact.setUpdatedBy(sdId);
+        bank.getContacts().add(bankContact);
+        return bankRepository.save(bank);
     }
-
 
     @Override
     @Transactional
-    public void deleteBankContact(UUID contactId) {
+    public void deleteBankContact(UUID contactId, Integer sdId) {
         BankContact bankContact = bankContactRepository.findById(contactId)
                 .orElseThrow(() -> new ItemNotFoundException(BankContact.class, contactId));
         bankContact.setActive(false);
+        bankContact.setUpdatedBy(sdId);
         bankContactRepository.save(bankContact);
     }
 

@@ -11,6 +11,7 @@ import java.util.UUID;
 @Setter
 @ToString
 public class RealEstateResponse {
+
     private UUID id;
 
     private String residentialComplexName;

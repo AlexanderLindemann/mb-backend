@@ -247,5 +247,4 @@ public class StatusServiceImpl implements StatusService {
                 .filter(BorrowerProfile::isActive)
                 .allMatch(x -> x.getBorrowerProfileStatus() == BorrowerProfileStatus.DOCS_SIGNED);
     }
-
 }

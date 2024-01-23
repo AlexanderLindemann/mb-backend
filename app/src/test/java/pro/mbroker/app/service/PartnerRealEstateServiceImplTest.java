@@ -30,7 +30,7 @@ public class PartnerRealEstateServiceImplTest extends BaseServiceTest {
     public void testAddRealEstate() {
         RealEstateRequest request = getRealEstateRequest();
 
-        RealEstate result = partnerRealEstateService.addRealEstate(PARTNER_ID_1, request);
+        RealEstate result = partnerRealEstateService.addRealEstate(PARTNER_ID_1, request, 1234);
         assertEquals(result.getAddress(), "Test Address");
         assertEquals(result.getRegion(), RegionType.MOSCOW);
         assertEquals(result.getResidentialComplexName(), "Test Complex Name");
@@ -40,7 +40,7 @@ public class PartnerRealEstateServiceImplTest extends BaseServiceTest {
     public void testUpdateRealEstate() {
         RealEstateRequest request = getRealEstateRequest();
 
-        RealEstate result = partnerRealEstateService.updateRealEstate(REAL_ESTATE_ID, request);
+        RealEstate result = partnerRealEstateService.updateRealEstate(REAL_ESTATE_ID, request, 1234);
         assertEquals(result.getAddress(), "Test Address");
         assertEquals(result.getRegion(), RegionType.MOSCOW);
         assertEquals(result.getResidentialComplexName(), "Test Complex Name");
@@ -56,7 +56,7 @@ public class PartnerRealEstateServiceImplTest extends BaseServiceTest {
 
     @Test
     public void testDeleteRealEstate() {
-        partnerRealEstateService.deleteRealEstate(REAL_ESTATE_ID);
+        partnerRealEstateService.deleteRealEstate(REAL_ESTATE_ID, 1234);
         List<RealEstate> result = partnerRealEstateService.getRealEstateByPartnerId(0, 10, "residentialComplexName", "asc", PARTNER_ID_1);
         assertThat(result.size(), Matchers.is(2));
         assertEquals(result.get(0).getResidentialComplexName(), "testResidentialComplexName2");

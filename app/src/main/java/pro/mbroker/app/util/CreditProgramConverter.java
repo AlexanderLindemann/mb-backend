@@ -13,7 +13,7 @@ import pro.mbroker.app.entity.CreditProgramDetail;
 @Slf4j
 public class CreditProgramConverter {
 
-    public CreditProgramDetailResponse convertCreditDetailToEnumFormat(CreditProgramDetail creditProgramDetail) {
+    public static CreditProgramDetailResponse convertCreditDetailToEnumFormat(CreditProgramDetail creditProgramDetail) {
         return new CreditProgramDetailResponse()
                 .setCreditPurposeType(Converter.convertStringListToEnumList(creditProgramDetail.getCreditPurposeType(), CreditPurposeType.class))
                 .setRealEstateType(Converter.convertStringListToEnumList(creditProgramDetail.getRealEstateType(), RealEstateType.class))

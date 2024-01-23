@@ -3,8 +3,8 @@ package pro.mbroker.app.web;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -17,8 +17,7 @@ import pro.mbroker.api.enums.DocumentType;
 import pro.mbroker.app.entity.BankApplication;
 import pro.mbroker.app.entity.BorrowerDocument;
 import pro.mbroker.app.entity.BorrowerProfile;
-import pro.mbroker.app.entity.PartnerApplication;
-import pro.mbroker.app.exception.AccessDeniedException;
+import pro.mbroker.app.exception.ItemNotFoundException;
 import pro.mbroker.app.mapper.BorrowerDocumentMapper;
 import pro.mbroker.app.repository.BorrowerDocumentRepository;
 import pro.mbroker.app.service.AttachmentService;
@@ -47,8 +46,8 @@ public class AttachmentControllerImpl implements AttachmentController {
     private final BorrowerDocumentRepository borrowerDocumentRepository;
 
     @Override
-    public Long upload(MultipartFile file) {
-        return attachmentService.upload(file).getId();
+    public Long upload(MultipartFile file, Integer sdId) {
+        return attachmentService.upload(file, sdId).getId();
     }
 
     @Override
@@ -56,7 +55,8 @@ public class AttachmentControllerImpl implements AttachmentController {
                                                    UUID borrowerProfileId,
                                                    DocumentType documentType,
                                                    UUID bankId,
-                                                   UUID bankApplicationId) {
+                                                   UUID bankApplicationId,
+                                                   Integer sdId) {
         BorrowerProfile borrowerProfile = borrowerProfileService.getBorrowerProfile(borrowerProfileId);
         List<BankApplication> bankApplications = bankApplicationService.getBankApplicationByBorrowerId(borrowerProfileId);
         if (bankApplicationId != null) {
@@ -72,14 +72,14 @@ public class AttachmentControllerImpl implements AttachmentController {
         }
         BorrowerDocument borrowerDocument = null;
         if (isSpecialDocumentType(documentType)) {
-            borrowerDocument = attachmentService.uploadDocument(file, borrowerDocumentRequest);
+            borrowerDocument = attachmentService.uploadDocument(file, borrowerDocumentRequest, sdId);
             borrowerDocument.setBorrowerProfile(borrowerProfile);
             borrowerDocument.setBankApplication(null);
             borrowerProfile.getBorrowerDocument().add(borrowerDocument);
             borrowerDocumentRepository.save(borrowerDocument);
         } else {
             for (BankApplication bankApplication : bankApplications) {
-                borrowerDocument = attachmentService.uploadDocument(file, borrowerDocumentRequest);
+                borrowerDocument = attachmentService.uploadDocument(file, borrowerDocumentRequest, sdId);
                 borrowerDocument.setBankApplication(bankApplication);
                 borrowerDocument.setBorrowerProfile(borrowerProfile);
                 borrowerProfile.getBorrowerDocument().add(borrowerDocument);
@@ -92,37 +92,32 @@ public class AttachmentControllerImpl implements AttachmentController {
     }
 
     @Override
-    @PreAuthorize("hasAuthority(T(pro.smartdeal.common.security.Permission$Code).MB_ADMIN_ACCESS) or " +
-            "hasAuthority(T(pro.smartdeal.common.security.Permission$Code).MB_REQUEST_READ_OWN) or " +
-            "hasAuthority('MB_CABINET_ACCESS') or " +
-            "hasAnyAuthority(T(pro.smartdeal.common.security.Permission$Code).MB_REQUEST_READ_ORGANIZATION)")
-    //TODO переделать логику. Убрать из этого метода borrowerDocumentService и сделать метод универсальным для аттачментов
-    public void deleteDocument(Long attachmentId) {
-        borrowerDocumentService.deleteDocumentByAttachmentId(attachmentId); //TODO Как только фронт переедет на deleteBorrowerDocument MB-285
-        attachmentService.markAttachmentAsDeleted(attachmentId);
+    public void deleteDocument(Long attachmentId, Integer sdId) {
+        borrowerDocumentService.deleteDocumentByAttachmentId(attachmentId, sdId); //TODO Как только фронт переедет на deleteBorrowerDocument MB-285
+        attachmentService.markAttachmentAsDeleted(attachmentId, sdId);
     }
 
     @Override
     @Transactional
-    @PreAuthorize("hasAuthority(T(pro.smartdeal.common.security.Permission$Code).MB_ADMIN_ACCESS) or " +
-            "hasAuthority(T(pro.smartdeal.common.security.Permission$Code).MB_REQUEST_READ_OWN) or " +
-            "hasAuthority('MB_CABINET_ACCESS') or " +
-            "hasAnyAuthority(T(pro.smartdeal.common.security.Permission$Code).MB_REQUEST_READ_ORGANIZATION)")
-    public void deleteAttachment(AttachmentRequest attachmentRequest) {
-        PartnerApplication partnerApplication = partnerApplicationService
-                .getPartnerApplicationByAttachmentId(attachmentRequest.getId())
-                .orElseThrow(() -> new AccessDeniedException(attachmentRequest.getId(), PartnerApplication.class));
-        partnerApplicationService.checkPermission(partnerApplication);
-        attachmentService.markAttachmentAsDeleted(attachmentRequest.getId());
-        switch (attachmentRequest.getAttachmentType()) {
-            case SIGNATURE_FORM:
-            case BORROWER_DOCUMENT:
-                borrowerDocumentService.deleteDocumentByAttachmentId(attachmentRequest.getId());
-                break;
-            case OTHER:
-                break;
+    public ResponseEntity<?> deleteAttachment(AttachmentRequest attachmentRequest, Integer sdId) {
+        try {
+            attachmentService.markAttachmentAsDeleted(attachmentRequest.getId(), sdId);
+            switch (attachmentRequest.getAttachmentType()) {
+                case SIGNATURE_FORM:
+                case BORROWER_DOCUMENT:
+                    borrowerDocumentService.deleteDocumentByAttachmentId(attachmentRequest.getId(), sdId);
+                    break;
+                case OTHER:
+                    break;
+            }
+            return ResponseEntity.ok().build();
+        } catch (ItemNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Внутренняя ошибка сервера");
         }
     }
+
 
     @Override
     public List<AttachmentInfo> getConvertedFiles(List<Long> attachmentsIds) {
@@ -130,15 +125,7 @@ public class AttachmentControllerImpl implements AttachmentController {
     }
 
     @Override
-    @PreAuthorize("hasAuthority(T(pro.smartdeal.common.security.Permission$Code).MB_ADMIN_ACCESS) or " +
-            "hasAuthority(T(pro.smartdeal.common.security.Permission$Code).MB_REQUEST_READ_OWN) or " +
-            "hasAuthority('MB_CABINET_ACCESS') or " +
-            "hasAnyAuthority(T(pro.smartdeal.common.security.Permission$Code).MB_REQUEST_READ_ORGANIZATION)")
     public ResponseEntity<InputStreamResource> downloadFile(Long attachmentId) {
-        PartnerApplication partnerApplication = partnerApplicationService
-                .getPartnerApplicationByAttachmentId(attachmentId)
-                .orElseThrow(() -> new AccessDeniedException(attachmentId, PartnerApplication.class));
-        partnerApplicationService.checkPermission(partnerApplication);
         return attachmentService.downloadFile(attachmentId);
     }
 
@@ -156,5 +143,4 @@ public class AttachmentControllerImpl implements AttachmentController {
                 documentType == DocumentType.SIGNATURE_FORM ||
                 documentType == DocumentType.INCOME_CERTIFICATE;
     }
-
 }

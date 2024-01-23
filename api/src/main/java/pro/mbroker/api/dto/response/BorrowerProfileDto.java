@@ -95,5 +95,4 @@ public class BorrowerProfileDto {
     private BorrowerRealEstateDto realEstate;
 
     private BorrowerVehicleDto vehicle;
-
 }

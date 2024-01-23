@@ -3,9 +3,7 @@ package pro.mbroker.app.web;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 import pro.mbroker.api.controller.PartnerRealEstateController;
 import pro.mbroker.api.dto.request.RealEstateRequest;
@@ -14,11 +12,11 @@ import pro.mbroker.api.dto.response.PartnerResponse;
 import pro.mbroker.api.dto.response.RealEstateResponse;
 import pro.mbroker.app.entity.Partner;
 import pro.mbroker.app.entity.RealEstate;
+import pro.mbroker.app.mapper.CreditProgramMapper;
 import pro.mbroker.app.mapper.PartnerMapper;
-import pro.mbroker.app.mapper.ProgramMapper;
 import pro.mbroker.app.mapper.RealEstateMapper;
 import pro.mbroker.app.service.PartnerRealEstateService;
-import pro.mbroker.app.service.PartnerService;
+import pro.mbroker.app.util.Pagination;
 
 import java.util.List;
 import java.util.UUID;
@@ -28,33 +26,26 @@ import java.util.stream.Collectors;
 @Component
 @RequiredArgsConstructor
 public class PartnerRealEstateControllerImpl implements PartnerRealEstateController {
-    private final PartnerService partnerService;
     private final PartnerRealEstateService partnerRealEstateService;
     private final PartnerMapper partnerMapper;
-    private final ProgramMapper programMapper;
+    private final CreditProgramMapper creditProgramMapper;
     private final RealEstateMapper realEstateMapper;
 
     @Override
-    @PreAuthorize("hasAuthority(T(pro.smartdeal.common.security.Permission$Code).MB_ADMIN_ACCESS)")
-    public PartnerResponse addRealEstate(UUID partnerId, RealEstateRequest request) {
-        partnerRealEstateService.addRealEstate(partnerId, request);
-        Partner partner = partnerService.getPartner(partnerId);
-        return buildPartnerResponse(partner);
+    public PartnerResponse addRealEstate(UUID partnerId, RealEstateRequest request, Integer sdId) {
+        RealEstate realEstate = partnerRealEstateService.addRealEstate(partnerId, request, sdId);
+        return buildPartnerResponse(realEstate.getPartner());
     }
 
     @Override
-    @PreAuthorize("hasAuthority(T(pro.smartdeal.common.security.Permission$Code).MB_ADMIN_ACCESS)")
-    public void deleteRealEstate(UUID realEstateId) {
-        partnerRealEstateService.deleteRealEstate(realEstateId);
+    public void deleteRealEstate(UUID realEstateId, Integer sdId) {
+        partnerRealEstateService.deleteRealEstate(realEstateId, sdId);
     }
 
     @Override
-    @PreAuthorize("hasAuthority(T(pro.smartdeal.common.security.Permission$Code).MB_ADMIN_ACCESS) or" +
-            " hasAnyAuthority(T(pro.smartdeal.common.security.Permission$Code).MB_REQUEST_READ_ORGANIZATION)")
-    public PartnerResponse updateRealEstate(RealEstateRequest request) {
-        RealEstate realEstate = partnerRealEstateService.updateRealEstate(request.getId(), request);
-        Partner partner = partnerService.getPartner(realEstate.getPartner().getId());
-        return buildPartnerResponse(partner);
+    public PartnerResponse updateRealEstate(RealEstateRequest request, Integer sdId) {
+        RealEstate realEstate = partnerRealEstateService.updateRealEstate(request.getId(), request, sdId);
+        return buildPartnerResponse(realEstate.getPartner());
     }
 
     @Override
@@ -64,8 +55,8 @@ public class PartnerRealEstateControllerImpl implements PartnerRealEstateControl
     }
 
     @Override
-    public List<RealEstateResponse> getCurrentRealEstate(int page, int size, String sortBy, String sortOrder) {
-        List<RealEstate> currentRealEstates = partnerRealEstateService.getCurrentRealEstate(page, size, sortBy, sortOrder);
+    public List<RealEstateResponse> getCurrentRealEstate(int page, int size, String sortBy, String sortOrder, Integer organisationId) {
+        List<RealEstate> currentRealEstates = partnerRealEstateService.getCurrentRealEstate(page, size, sortBy, sortOrder, organisationId);
         return realEstateMapper.toRealEstateAddressResponseList(currentRealEstates);
     }
 
@@ -75,14 +66,20 @@ public class PartnerRealEstateControllerImpl implements PartnerRealEstateControl
     }
 
     @Override
-    public ResponseEntity<Page<RealEstateResponse>> findRealEstatesByName(Pageable pageable, String realEstateName) {
-        Page<RealEstate> realEstatesPage = partnerRealEstateService.findRealEstatesByName(pageable, realEstateName);
-        Page<RealEstateResponse> responsePage = realEstatesPage.map(realEstateMapper::toRealEstateResponseMapper);
+    public ResponseEntity<Page<RealEstateResponse>> findRealEstatesByName(int page,
+                                                                          int size,
+                                                                          String sortBy,
+                                                                          String sortOrder,
+                                                                          String realEstateName) {
+        Page<RealEstate> realEstatesPage =
+                partnerRealEstateService.findRealEstatesByName(Pagination.createPageable(page, size, sortBy, sortOrder), realEstateName);
+        Page<RealEstateResponse> responsePage =
+                realEstatesPage.map(realEstateMapper::toRealEstateResponseMapper);
         return ResponseEntity.ok(responsePage);
     }
 
     private PartnerResponse buildPartnerResponse(Partner partner) {
-        List<CreditProgramResponse> creditProgramResponses = programMapper.convertCreditProgramsToResponses(partner.getCreditPrograms());
+        List<CreditProgramResponse> creditProgramResponses = creditProgramMapper.convertCreditProgramsToResponses(partner.getCreditPrograms());
         List<RealEstateResponse> realEstateResponse = partner.getRealEstates().stream()
                 .map(realEstateMapper::toRealEstateResponseMapper)
                 .collect(Collectors.toList());

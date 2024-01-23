@@ -11,7 +11,4 @@ public class AttachmentInfo {
     private byte[] file;
     private String originalFileName;
     private String contentType;
-
-    public AttachmentInfo() {}
-
 }

@@ -8,24 +8,20 @@ import org.springframework.context.annotation.Configuration;
 import springfox.documentation.builders.ApiInfoBuilder;
 import springfox.documentation.builders.PathSelectors;
 import springfox.documentation.builders.RequestHandlerSelectors;
-import springfox.documentation.service.*;
+import springfox.documentation.service.ApiInfo;
 import springfox.documentation.spi.DocumentationType;
-import springfox.documentation.spi.service.contexts.SecurityContext;
 import springfox.documentation.spring.web.plugins.Docket;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
-
-import java.util.List;
 
 @Configuration
 @EnableSwagger2
 @RequiredArgsConstructor
 @SuppressWarnings("PMD")
-public class SwaggerConfiguration  {
+public class SwaggerConfiguration {
 
     private static final String BASE_PROJECT_PACKAGE = "pro.mbroker.app.web";
     private static final String PUBLIC_API_ANT_PATTERN = "/public/**";
     private final BuildProperties buildProperties;
-
 
     @Bean
     public Docket internalApiDocket() {
@@ -59,29 +55,10 @@ public class SwaggerConfiguration  {
         return new Docket(DocumentationType.SWAGGER_2)
                 .groupName(title)
                 .apiInfo(apiInfo)
-                .securityContexts(List.of(securityContext()))
-                .securitySchemes(List.of(jwtSchema()))
                 .select()
                 .apis(RequestHandlerSelectors.basePackage(BASE_PROJECT_PACKAGE))
                 .paths(PathSelectors.any())
                 .build();
     }
-
-    private SecurityScheme jwtSchema() {
-        return new ApiKey("JWT", "Authorization", "header");
-    }
-
-    private List<SecurityReference> defaultAuth() {
-        AuthorizationScope[] authorizationScopes = new AuthorizationScope[] {
-                new AuthorizationScope("global", "accessEverything")
-        };
-        return List.of(
-                new SecurityReference("JWT", authorizationScopes)
-        );
-    }
-    private SecurityContext securityContext() {
-        return SecurityContext.builder()
-                .securityReferences(defaultAuth())
-                .build();
-    }
 }
+

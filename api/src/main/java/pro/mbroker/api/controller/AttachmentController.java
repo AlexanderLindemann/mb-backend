@@ -35,7 +35,7 @@ public interface AttachmentController {
 
     @ApiOperation("Загрузить файл и получить attachmentId")
     @PostMapping()
-    Long upload(@RequestPart("file") MultipartFile file);
+    Long upload(@RequestPart("file") MultipartFile file, Integer sdId);
 
     @ApiOperation("Загрузить документ клиента")
     @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -43,15 +43,17 @@ public interface AttachmentController {
                                             @RequestParam UUID borrowerProfileId,
                                             @RequestParam DocumentType documentType,
                                             @RequestParam(required = false) UUID bankId,
-                                            @RequestParam(required = false) UUID bankApplicationId);
+                                            @RequestParam(required = false) UUID bankApplicationId,
+                                            Integer sdId);
 
     @ApiOperation("удалить загруженный документ клиента")
     @PutMapping(value = "/{attachmentId}/delete_document")
-    void deleteDocument(@PathVariable Long attachmentId);
+    void deleteDocument(@PathVariable Long attachmentId, Integer sdId);
 
     @ApiOperation("удалить attachment")
     @DeleteMapping
-    void deleteAttachment(@RequestBody AttachmentRequest attachmentRequest);
+    ResponseEntity<?> deleteAttachment(@RequestBody AttachmentRequest attachmentRequest,
+                                       Integer sdId);
 
     @ApiOperation("Получить вложения в байткоде")
     @PostMapping("get_files_by_ids")

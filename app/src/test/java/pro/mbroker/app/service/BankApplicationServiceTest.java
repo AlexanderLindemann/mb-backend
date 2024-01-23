@@ -41,7 +41,7 @@ public class BankApplicationServiceTest extends BaseServiceTest {
 
     @Test
     public void testUpdateBankApplication() {
-        BankApplication bankApplication = bankApplicationService.updateBankApplication(testData.getBankApplicationRequest());
+        BankApplication bankApplication = bankApplicationService.updateBankApplication(testData.getBankApplicationRequest(), 1234);
         assertEquals(bankApplication.getCreditProgram().getId(), UUID.fromString("bfda8d66-d926-11ed-afa1-0242ac120002"));
         assertEquals(bankApplication.getMainBorrower().getId(), UUID.fromString("1348b508-f476-11ed-a05b-0242ac120003"));
         assertEquals(bankApplication.getBankApplicationStatus(), BankApplicationStatus.DATA_NO_ENTERED);
@@ -56,7 +56,7 @@ public class BankApplicationServiceTest extends BaseServiceTest {
     public void testChangeMainBorrowerByBankApplicationId() {
         BankApplication bankApplication = bankApplicationService.getBankApplicationById(UUID.fromString("3b339aa4-5462-485a-9118-5922cd948566"));
         assertEquals(bankApplication.getMainBorrower().getId(), UUID.fromString("1348b508-f476-11ed-a05b-0242ac120003"));
-        bankApplicationService.changeMainBorrowerByBankApplicationId(UUID.fromString("3b339aa4-5462-485a-9118-5922cd948566"), UUID.fromString("7cb535d6-f92e-11ed-be56-0242ac120002"));
+        bankApplicationService.changeMainBorrowerByBankApplicationId(UUID.fromString("3b339aa4-5462-485a-9118-5922cd948566"), UUID.fromString("7cb535d6-f92e-11ed-be56-0242ac120002"), 1234);
         assertEquals(bankApplication.getBankApplicationStatus(), BankApplicationStatus.DATA_NO_ENTERED);
         assertEquals(bankApplication.getMonthlyPayment(), BigDecimal.valueOf(60000));
         assertEquals(bankApplication.getRealEstatePrice(), BigDecimal.valueOf(10000000));
@@ -70,7 +70,7 @@ public class BankApplicationServiceTest extends BaseServiceTest {
 
     @Test
     public void testChangeMainBorrowerByBankApplicationId2() {
-        BankApplication bankApplication = bankApplicationService.changeStatus(UUID.fromString("3b339aa4-5462-485a-9118-5922cd948566"), BankApplicationStatus.EXPIRED);
+        BankApplication bankApplication = bankApplicationService.changeStatus(UUID.fromString("3b339aa4-5462-485a-9118-5922cd948566"), BankApplicationStatus.EXPIRED, 1234);
         assertEquals(bankApplication.getBankApplicationStatus(), BankApplicationStatus.EXPIRED);
         assertEquals(bankApplication.getMonthlyPayment(), BigDecimal.valueOf(60000));
         assertEquals(bankApplication.getRealEstatePrice(), BigDecimal.valueOf(10000000));

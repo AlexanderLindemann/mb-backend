@@ -15,5 +15,4 @@ public interface NotificationService {
      * @return данные готовые для отправки в письме
      */
     NotificationBankLetterResponse getCustomerInfoForBankLetter(UUID bankApplicationId);
-
 }

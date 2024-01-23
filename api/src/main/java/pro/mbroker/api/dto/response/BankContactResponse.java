@@ -10,6 +10,7 @@ import java.util.UUID;
 @Setter
 @ToString
 public class BankContactResponse {
+
     private UUID id;
 
     private String fullName;

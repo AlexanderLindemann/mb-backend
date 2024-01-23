@@ -14,5 +14,4 @@ public class UserReference {
     private String fio;
 
     private String avatarAttachmentId;
-
 }

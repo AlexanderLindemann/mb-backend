@@ -25,14 +25,14 @@ public class PartnerServiceTest extends BaseServiceTest {
     @Test
     public void testCreatePartner() {
         PartnerRequest request = createPartnerRequest();
-        Partner partner = partnerService.createPartner(request);
+        Partner partner = partnerService.createPartner(request, 1234);
         asserPartner(request, partner);
     }
 
     @Test
     public void testGetPartnerById() {
         PartnerRequest request = createPartnerRequest();
-        Partner partner = partnerService.createPartner(request);
+        Partner partner = partnerService.createPartner(request, 1234);
         Partner foundPartner = partnerService.getPartner(partner.getId());
         assertNotNull(foundPartner);
         assertEquals(partner.getId(), foundPartner.getId());
@@ -41,7 +41,7 @@ public class PartnerServiceTest extends BaseServiceTest {
 
     @Test
     public void testDeletePartner() {
-        partnerService.deletePartner(UUID.fromString("5fec2326-d92e-11ed-afa1-0242ac120002"));
+        partnerService.deletePartner(UUID.fromString("5fec2326-d92e-11ed-afa1-0242ac120002"), 1234);
         List<Partner> allPartner = partnerService.getAllPartner(0, 10, "name", "asc");
         assertEquals(1, allPartner.size());
     }

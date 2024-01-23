@@ -19,6 +19,7 @@ public interface PartnerApplicationMapper {
     @Mapping(source = "partnerApplicationStatus", target = "status")
     @Mapping(source = "partner.id", target = "partnerId")
     @Mapping(source = "partner.name", target = "partnerName")
+    @Mapping(source = "partner.smartDealOrganizationId", target = "smartDealOrganizationId")
     PartnerApplicationResponse toPartnerApplicationResponse(PartnerApplication partnerApplication);
 
     List<PartnerApplicationResponse> toPartnerApplicationResponseList(List<PartnerApplication> partnerApplications);

@@ -24,5 +24,4 @@ public class MortgageCalculationDto {
     private Boolean isMaternalCapital;
 
     private List<UUID> salaryBanks;
-
 }

@@ -20,6 +20,7 @@ import java.util.UUID;
 @Setter
 @ToString
 public class PartnerApplicationResponse {
+
     private UUID id;
 
     private boolean isActive;
@@ -46,6 +47,8 @@ public class PartnerApplicationResponse {
 
     private String partnerName;
 
+    private Integer smartDealOrganizationId;
+
     private List<BankWithBankApplicationDto> bankWithBankApplicationDto;
 
     private List<BorrowerProfileResponse> borrowerProfiles;
@@ -53,4 +56,6 @@ public class PartnerApplicationResponse {
     private LocalDateTime createdAt;
 
     private LocalDateTime updatedAt;
+
+    private Integer createdBy;
 }

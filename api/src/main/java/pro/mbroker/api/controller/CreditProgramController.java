@@ -25,7 +25,8 @@ import java.util.UUID;
 public interface CreditProgramController {
     @ApiOperation("Создать программу кредита")
     @PostMapping()
-    CreditProgramResponse createCreditProgram(@ApiParam(value = "Параметры кредита") @RequestBody BankProgramRequest request);
+    CreditProgramResponse createCreditProgram(@ApiParam(value = "Параметры кредита")
+                                              @RequestBody BankProgramRequest request, Integer sdId);
 
     @ApiOperation("Получить программу кредита по идентификатору")
     @GetMapping("/{creditProgramId}")
@@ -37,7 +38,9 @@ public interface CreditProgramController {
 
     @ApiOperation("обновить программу кредита")
     @PutMapping("/{creditProgramId}")
-    CreditProgramResponse updateProgram(@PathVariable UUID creditProgramId, @RequestBody @Valid BankProgramRequest updateProgramRequest);
+    CreditProgramResponse updateProgram(@PathVariable UUID creditProgramId,
+                                        @RequestBody @Valid BankProgramRequest updateProgramRequest,
+                                        Integer sdId);
 
     @ApiOperation("Получить список всех кредитных программ")
     @GetMapping()
@@ -48,9 +51,8 @@ public interface CreditProgramController {
 
     @ApiOperation("удалить программу кредита по id")
     @DeleteMapping("/{creditProgramId}")
-    void deleteCreditProgram(
-            @PathVariable(value = "creditProgramId") UUID creditProgramId
-    );
+    void deleteCreditProgram(@PathVariable(value = "creditProgramId") UUID creditProgramId,
+                             Integer sdId);
 
     @ApiOperation("Создать кредитные программы из уже загруженных файлов")
     @PostMapping("/load/create_credit_program_from_cian")

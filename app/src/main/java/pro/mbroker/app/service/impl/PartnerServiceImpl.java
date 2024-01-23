@@ -22,10 +22,13 @@ import pro.mbroker.app.repository.specification.PartnerSpecification;
 import pro.mbroker.app.service.CreditProgramService;
 import pro.mbroker.app.service.PartnerService;
 import pro.mbroker.app.util.Pagination;
-import pro.mbroker.app.util.TokenExtractor;
-import pro.smartdeal.ng.common.security.service.CurrentUserService;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -33,7 +36,6 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class PartnerServiceImpl implements PartnerService {
     private final CreditProgramService creditProgramService;
-    private final CurrentUserService currentUserService;
     private final PartnerRepository partnerRepository;
     private final PartnerApplicationRepository partnerApplicationRepository;
     private final CreditProgramRepository creditProgramRepository;
@@ -42,12 +44,18 @@ public class PartnerServiceImpl implements PartnerService {
 
     @Override
     @Transactional
-    public Partner createPartner(PartnerRequest request) {
+    public Partner createPartner(PartnerRequest request, Integer sdId) {
         List<RealEstate> realEstates = realEstateMapper.toRealEstateAddressList(request.getRealEstateRequest());
+        realEstates.forEach(realEstate -> {
+            realEstate.setUpdatedBy(sdId);
+            realEstate.setCreatedBy(sdId);
+        });
         Partner partner = partnerMapper.toPartnerMapper(request)
                 .setCreditPrograms(creditProgramService.getProgramByCreditProgramIds(request.getBankCreditProgram()))
                 .setRealEstates(realEstates);
         realEstates.forEach(address -> address.setPartner(partner));
+        partner.setCreatedBy(sdId);
+        partner.setUpdatedBy(sdId);
         return partnerRepository.save(partner);
     }
 
@@ -68,29 +76,29 @@ public class PartnerServiceImpl implements PartnerService {
 
     @Override
     @Transactional
-    public Partner updatePartnerById(UUID partnerId, PartnerRequest request) {
+    public Partner updatePartnerById(UUID partnerId, PartnerRequest request, Integer sdId) {
         Partner partner = getPartner(partnerId);
+        partner.setUpdatedBy(sdId);
         partnerMapper.updatePartnerFromRequest(request, partner);
-        modifyRealEstates(request.getRealEstateRequest(), partner);
+        modifyRealEstates(request.getRealEstateRequest(), partner, sdId);
         modifyCreditPrograms(request.getBankCreditProgram(), partner);
         return partnerRepository.save(partner);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public Partner getCurrentPartner() {
-        int organizationId = TokenExtractor
-                .extractSdCurrentOrganizationId(currentUserService.getCurrentUserToken());
-        Specification<Partner> specification = PartnerSpecification.partnerByOrganizationIdAndIsActive(organizationId);
+    public Partner getCurrentPartner(Integer organisationId) {
+        Specification<Partner> specification = PartnerSpecification.partnerByOrganizationIdAndIsActive(organisationId);
         return partnerRepository.findOne(specification)
-                .orElseThrow(() -> new ItemNotFoundException(Partner.class, "organization_Id:" + organizationId));
+                .orElseThrow(() -> new ItemNotFoundException(Partner.class, "organization_Id:" + organisationId));
     }
 
     @Override
     @Transactional
-    public void deletePartner(UUID partnerId) {
+    public void deletePartner(UUID partnerId, Integer sdId) {
         Partner partner = getPartner(partnerId);
         partner.setActive(false);
+        partner.setUpdatedBy(sdId);
         partnerRepository.save(partner);
     }
 
@@ -117,7 +125,7 @@ public class PartnerServiceImpl implements PartnerService {
                 .orElseThrow(() -> new ItemNotFoundException(Partner.class, partnerId));
     }
 
-    private void modifyRealEstates(List<RealEstateRequest> estateRequests, Partner partner) {
+    private void modifyRealEstates(List<RealEstateRequest> estateRequests, Partner partner, Integer sdId) {
         List<RealEstate> realEstates = partner.getRealEstates();
         Set<UUID> currentRealEstateIds = realEstates.stream().map(RealEstate::getId).collect(Collectors.toSet());
         estateRequests.forEach(request -> {
@@ -127,9 +135,12 @@ public class PartnerServiceImpl implements PartnerService {
                         .findFirst()
                         .orElseThrow(() -> new ItemNotFoundException(RealEstateRequest.class, request.getId()));
                 realEstateMapper.updateRealEstateAddress(request, realEstate);
+                realEstate.setUpdatedBy(sdId);
                 currentRealEstateIds.remove(request.getId());
             } else {
                 RealEstate realEstate = realEstateMapper.toRealEstateMapper(request);
+                realEstate.setCreatedBy(sdId);
+                realEstate.setUpdatedBy(sdId);
                 realEstate.setPartner(partner);
                 realEstates.add(realEstate);
             }
@@ -137,6 +148,7 @@ public class PartnerServiceImpl implements PartnerService {
         realEstates.forEach(realEstate -> {
             if (currentRealEstateIds.contains(realEstate.getId())) {
                 realEstate.setActive(false);
+                realEstate.setUpdatedBy(sdId);
             }
         });
     }

@@ -9,7 +9,7 @@ import java.util.UUID;
 
 public interface PartnerService {
 
-    Partner createPartner(PartnerRequest request);
+    Partner createPartner(PartnerRequest request, Integer sdId);
 
     Partner getPartner(UUID partnerId);
 
@@ -17,19 +17,19 @@ public interface PartnerService {
 
     List<Partner> getAllPartner(int page, int size, String sortBy, String sortOrder);
 
-    Partner updatePartnerById(UUID partnerId, PartnerRequest request);
+    Partner updatePartnerById(UUID partnerId, PartnerRequest request, Integer sdId);
 
-    Partner getCurrentPartner();
+    Partner getCurrentPartner(Integer organisationId);
 
-    void deletePartner(UUID partnerId);
+    void deletePartner(UUID partnerId, Integer sdId);
 
     Partner getPartnerByPartnerApplicationId(UUID partnerApplicationId);
 
-    Partner getPartnerByCianIdOrName (Integer cianId, String name);
+    Partner getPartnerByCianIdOrName(Integer cianId, String name);
 
     Optional<Partner> findPartnerByCianId(Integer cianId);
 
-    Partner updateCianId (UUID partnerId, Integer cianId);
+    Partner updateCianId(UUID partnerId, Integer cianId);
 
     Partner saveOrUpdateParthner(Partner partner);
 }

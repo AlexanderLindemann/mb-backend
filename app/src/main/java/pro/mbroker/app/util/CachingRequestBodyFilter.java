@@ -15,12 +15,6 @@ import java.io.IOException;
 public class CachingRequestBodyFilter extends OncePerRequestFilter {
 
     @Override
-    protected boolean shouldNotFilter(HttpServletRequest request) {
-        String path = request.getRequestURI();
-        return !path.matches("/public/borrower_profile/.+/updateField");
-    }
-
-    @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         ContentCachingRequestWrapper wrappedRequest = new ContentCachingRequestWrapper(request);
         filterChain.doFilter(wrappedRequest, response);

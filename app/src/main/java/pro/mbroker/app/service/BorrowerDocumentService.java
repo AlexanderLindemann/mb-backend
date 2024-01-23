@@ -11,7 +11,7 @@ public interface BorrowerDocumentService {
 
     BorrowerDocument getBorrowerDocumentByAttachmentId(Long attachmentId);
 
-    void deleteDocumentByAttachmentId(Long attachmentId);
+    void deleteDocumentByAttachmentId(Long attachmentId, Integer sdId);
 
     BorrowerDocument saveBorrowerDocument(BorrowerDocument singForm, DocumentType documentType);
 

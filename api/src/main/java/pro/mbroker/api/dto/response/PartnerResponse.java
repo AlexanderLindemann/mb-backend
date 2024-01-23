@@ -14,6 +14,7 @@ import java.util.UUID;
 @Setter
 @ToString
 public class PartnerResponse {
+
     private UUID id;
 
     private Integer smartDealOrganizationId;

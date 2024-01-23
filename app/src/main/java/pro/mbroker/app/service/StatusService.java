@@ -11,5 +11,4 @@ public interface StatusService {
      * @return boolean было ли изменения статуса или он остался прежний
      */
     boolean statusChanger(PartnerApplication application);
-
 }

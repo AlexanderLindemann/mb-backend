@@ -37,5 +37,4 @@ public class BorrowerProfileResponse {
 
     @JsonIgnore
     private LocalDateTime createdAt;
-
 }

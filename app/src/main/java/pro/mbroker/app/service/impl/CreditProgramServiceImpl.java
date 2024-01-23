@@ -23,7 +23,7 @@ import pro.mbroker.app.entity.CreditProgramDetail;
 import pro.mbroker.app.exception.ItemNotFoundException;
 import pro.mbroker.app.mapper.CreditParameterMapper;
 import pro.mbroker.app.mapper.CreditProgramDetailMapper;
-import pro.mbroker.app.mapper.ProgramMapper;
+import pro.mbroker.app.mapper.CreditProgramMapper;
 import pro.mbroker.app.repository.CreditProgramRepository;
 import pro.mbroker.app.repository.specification.CreditProgramSpecification;
 import pro.mbroker.app.service.BankService;
@@ -63,7 +63,7 @@ import java.util.stream.Collectors;
 public class CreditProgramServiceImpl implements CreditProgramService {
     private final CreditParameterMapper creditParameterMapper;
     private final CreditProgramRepository creditProgramRepository;
-    private final ProgramMapper programMapper;
+    private final CreditProgramMapper creditProgramMapper;
     private final CreditProgramDetailMapper creditProgramDetailMapper;
     private final BankService bankService;
     private final RegionService regionService;
@@ -85,16 +85,20 @@ public class CreditProgramServiceImpl implements CreditProgramService {
 
     AtomicInteger counterPrograms = new AtomicInteger(0);
 
-
     @Override
     @Transactional
-    public CreditProgram createCreditParameter(BankProgramRequest createCreditParameter, CreditProgramDetail creditProgramDetail) {
-        createCreditParameter.resetEarliestTime();
-        createCreditParameter.resetLatestTime();
-        CreditProgram creditProgram = programMapper.toProgramMapper(createCreditParameter)
-                .setBank(bankService.getBankById(createCreditParameter.getBankId()))
+    public CreditProgram createCreditParameter(BankProgramRequest request,
+                                               CreditProgramDetail creditProgramDetail,
+                                               Integer sdId) {
+        request.resetEarliestTime();
+        request.resetLatestTime();
+        CreditProgram creditProgram = creditProgramMapper.toProgramMapper(request)
+                .setBank(bankService.getBankById(request.getBankId()))
                 .setCreditProgramDetail(creditProgramDetail)
-                .setCreditParameter(creditParameterMapper.toCreditParameterMapper(createCreditParameter.getCreditParameter()));
+                .setCreditParameter(creditParameterMapper
+                        .toCreditParameterMapper(request.getCreditParameter()));
+        creditProgram.setCreatedBy(sdId);
+        creditProgram.setUpdatedBy(sdId);
         return creditProgramRepository.save(creditProgram);
     }
 
@@ -112,7 +116,10 @@ public class CreditProgramServiceImpl implements CreditProgramService {
 
     @Override
     @Transactional
-    public CreditProgram updateProgram(UUID creditProgramId, BankProgramRequest updateProgramRequest, CreditProgramDetail updateCreditProgramDetail) {
+    public CreditProgram updateProgram(UUID creditProgramId,
+                                       BankProgramRequest updateProgramRequest,
+                                       CreditProgramDetail updateCreditProgramDetail,
+                                       Integer sdId) {
         CreditProgram creditProgram = creditProgramRepository.findById(creditProgramId)
                 .orElseThrow(() -> new ItemNotFoundException(CreditProgram.class, creditProgramId));
         CreditParameter creditParameter = creditProgram.getCreditParameter();
@@ -120,13 +127,14 @@ public class CreditProgramServiceImpl implements CreditProgramService {
         if (!creditParameter.equals(updateCreditParameter)) {
             creditParameterMapper.updateCreditParameter(updateProgramRequest.getCreditParameter(), creditParameter);
         }
-        programMapper.updateProgramFromRequest(updateProgramRequest, creditProgram);
+        creditProgramMapper.updateProgramFromRequest(updateProgramRequest, creditProgram);
         creditProgram.setCreditParameter(creditParameter);
         if (!creditProgram.getBank().getId().equals(updateProgramRequest.getBankId())) {
             creditProgram.setBank(bankService.getBankById(updateProgramRequest.getBankId()));
         }
         CreditProgramDetail creditProgramDetailCurrent = creditProgram.getCreditProgramDetail();
         creditProgramDetailMapper.updateProgramDetail(updateCreditProgramDetail, creditProgramDetailCurrent);
+        creditProgram.setUpdatedBy(sdId);
         return creditProgramRepository.save(creditProgram);
     }
 
@@ -145,7 +153,7 @@ public class CreditProgramServiceImpl implements CreditProgramService {
             if (!creditParameter.equals(updateCreditParameter)) {
                 creditParameterMapper.updateCreditParameter(updateProgramRequest.getCreditParameter(), creditParameter);
             }
-            programMapper.updateProgramFromRequest(updateProgramRequest, creditProgram);
+            creditProgramMapper.updateProgramFromRequest(updateProgramRequest, creditProgram);
             creditProgram.setCreditParameter(creditParameter);
             if (!creditProgram.getBank().getId().equals(updateProgramRequest.getBankId())) {
                 creditProgram.setBank(bankService.getBankById(updateProgramRequest.getBankId()));
@@ -173,10 +181,11 @@ public class CreditProgramServiceImpl implements CreditProgramService {
 
     @Override
     @Transactional
-    public void deleteCreditProgram(UUID creditProgramId) {
-        CreditProgram program = getProgram(creditProgramId);
-        program.setActive(false);
-        creditProgramRepository.save(program);
+    public void deleteCreditProgram(UUID creditProgramId, Integer sdId) {
+        CreditProgram creditProgram = getProgram(creditProgramId);
+        creditProgram.setActive(false);
+        creditProgram.setUpdatedBy(sdId);
+        creditProgramRepository.save(creditProgram);
     }
 
     private CreditProgram getIsActiveCreditProgram(UUID creditProgramId) {
@@ -371,7 +380,7 @@ public class CreditProgramServiceImpl implements CreditProgramService {
                         bankProgramRequest.setSalaryClientInterestRate(getSalaryClientInterestRate(bankId, mortgageType, benefitProgram));
                     }
 
-                    createCreditParameter(bankProgramRequest, creditProgramDetail);
+                    createCreditParameter(bankProgramRequest, creditProgramDetail, 007);
                     counterPrograms.incrementAndGet();
                 }
             }
@@ -402,7 +411,7 @@ public class CreditProgramServiceImpl implements CreditProgramService {
                         bankProgramRequest.setSalaryClientInterestRate(getSalaryClientInterestRate(bankId, mortgageType, benefitProgram));
                     }
 
-                    createCreditParameter(bankProgramRequest, creditProgramDetail);
+                    createCreditParameter(bankProgramRequest, creditProgramDetail, 007);
                     counterPrograms.incrementAndGet();
                 }
             }
@@ -755,4 +764,3 @@ public class CreditProgramServiceImpl implements CreditProgramService {
         return types;
     }
 }
-

@@ -3,8 +3,6 @@ package pro.mbroker.api.controller;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
-import org.springframework.core.io.ByteArrayResource;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -14,13 +12,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import pro.mbroker.api.dto.request.BorrowerProfileUpdateRequest;
 import pro.mbroker.api.dto.request.BorrowerRequest;
 import pro.mbroker.api.dto.response.BorrowerProfileForUpdateResponse;
 import pro.mbroker.api.dto.response.BorrowerResponse;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.NotNull;
+import java.util.Map;
 import java.util.UUID;
 
 @Api(value = "API Профилей заемщика", tags = "API Профилей заемщика")
@@ -29,13 +27,14 @@ import java.util.UUID;
 public interface BorrowerProfileController {
     @ApiOperation("Дополнить или обновить банковскую заявку")
     @PostMapping("/bank_application")
-    BorrowerResponse createOrUpdateBorrowerProfile(@ApiParam(value = "Параметры заемщиков") @RequestBody BorrowerRequest request);
+    BorrowerResponse createOrUpdateBorrowerProfile(@ApiParam(value = "Параметры заемщиков") @RequestBody BorrowerRequest request,
+                                                   Integer sdId);
 
     @ApiOperation("Дополнить или обновить обобщенную банковскую заявку")
     @PostMapping("/partner_application")
     BorrowerResponse createOrUpdateGenericBorrowerProfile(@ApiParam(value = "Параметры заемщиков")
                                                           @RequestBody BorrowerRequest request,
-                                                          HttpServletRequest httpRequest);
+                                                          HttpServletRequest httpRequest, Integer sdId);
 
     @ApiOperation("получить обобщенный профиль клиента по id заявки партнера")
     @GetMapping("/{partnerApplicationId}")
@@ -43,47 +42,21 @@ public interface BorrowerProfileController {
 
     @ApiOperation("удалить профиль клиента по id")
     @DeleteMapping("/{borrowerProfileId}")
-    void deleteBorrowerProfileById(
-            @NotNull @PathVariable(value = "borrowerProfileId") UUID borrowerProfileId
-    );
+    void deleteBorrowerProfileById(@NotNull @PathVariable(value = "borrowerProfileId") UUID borrowerProfileId,
+                                   Integer sdId);
 
     @ApiOperation("Пометить загруженный документ клиента, как не активный по id документа")
     @PutMapping(value = "/{attachmentId}/mark_document_as_inactive")
-    void deleteBorrowerDocument(@ApiParam(value = "Идентификатор документа") @PathVariable Long attachmentId);
+    void deleteBorrowerDocument(@ApiParam(value = "Идентификатор документа") @PathVariable Long attachmentId,
+                                Integer sdId);
 
     @ApiOperation("Добавить поле в профиль клиента")
     @PutMapping("/{borrowerProfileId}/updateField")
     void updateBorrowerProfileField(@ApiParam(value = "Идентификатор профиля") @PathVariable UUID borrowerProfileId,
-                                    @RequestBody BorrowerProfileUpdateRequest updateRequest,
-                                    HttpServletRequest httpRequest);
+                                    @RequestParam Map<String, Object> fieldsMap);
 
     @ApiOperation("получить полный профиль клиента")
     @GetMapping("/{borrowerProfileId}/full")
-    BorrowerProfileForUpdateResponse getBorrower(@PathVariable UUID borrowerProfileId);
-
-    @ApiOperation("сгенерировать анкету из docx в pdf")
-    @PostMapping("/generate-borrower-form")
-    ResponseEntity<ByteArrayResource> generateFormFileDocx(@RequestParam UUID borrowerProfileId);
-
-    //todo удалить после тестов
-    @ApiOperation("сгенерировать анкету (тестова api для Сани)")
-    @PostMapping("/generate-borrower-form-test")
-    ResponseEntity<ByteArrayResource> generateFormFileTest(@RequestParam UUID borrowerProfileId,
-                                                           @RequestBody byte[] file);
-
-    @ApiOperation("подписать анкету")
-    @PutMapping("/signature-borrower-form")
-    ResponseEntity<ByteArrayResource> signatureFormFile(@RequestParam UUID borrowerProfileId,
-                                                        @RequestBody byte[] signature);
-
-    @ApiOperation("Сохранить сгенерированную анкету")
-    @PutMapping("/{borrowerProfileId}/update-generated-form")
-    void updateGeneratedForm(@ApiParam(value = "Идентификатор профиля") @PathVariable UUID borrowerProfileId,
-                             @RequestBody byte[] form);
-
-    @ApiOperation("Сохранить подписанную анкету")
-    @PutMapping("/{borrowerProfileId}/signature-generated-form")
-    void updateSignatureForm(@ApiParam(value = "Идентификатор профиля") @PathVariable UUID borrowerProfileId,
-                             @RequestBody byte[] form);
+    BorrowerProfileForUpdateResponse getFullBorrower(@PathVariable UUID borrowerProfileId);
 
 }

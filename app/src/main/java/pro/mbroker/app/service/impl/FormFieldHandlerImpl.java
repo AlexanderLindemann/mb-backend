@@ -20,7 +20,7 @@ import pro.mbroker.app.entity.BorrowerProfile;
 import pro.mbroker.app.entity.CreditProgram;
 import pro.mbroker.app.entity.CreditProgramDetail;
 import pro.mbroker.app.entity.PartnerApplication;
-import pro.mbroker.app.service.DocxFieldHandler;
+import pro.mbroker.app.service.FormFieldHandler;
 import pro.mbroker.app.util.Converter;
 
 import java.time.LocalDate;
@@ -35,7 +35,7 @@ import java.util.stream.Collectors;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class DocxFieldHandlerImpl implements DocxFieldHandler {
+public class FormFieldHandlerImpl implements FormFieldHandler {
 
     public Map<String, String> replaceFieldValue(PartnerApplication partnerApplication, BorrowerProfile borrowerProfile) {
         BorrowerProfile mainBorrower;

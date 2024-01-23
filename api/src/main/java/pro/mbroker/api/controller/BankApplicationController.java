@@ -29,22 +29,19 @@ public interface BankApplicationController {
 
     @ApiOperation("обновить банковскую заявку")
     @PutMapping()
-    BankApplicationResponse updateBankApplication(
-            @RequestBody BankApplicationRequest request);
+    BankApplicationResponse updateBankApplication(@RequestBody BankApplicationRequest request, Integer sdId);
 
     @ApiOperation("поменять главного заемщика")
     @PutMapping("/{bankApplicationId}")
-    BankApplicationResponse changeMainBorrowerByBankApplicationId(
-            @PathVariable UUID bankApplicationId,
-            @NotNull @RequestParam("newMainBorrowerId") UUID newMainBorrowerId);
+    BankApplicationResponse changeMainBorrowerByBankApplicationId(@PathVariable UUID bankApplicationId,
+                                                                  @NotNull @RequestParam("newMainBorrowerId") UUID newMainBorrowerId, Integer sdId);
 
     @ApiOperation("обновить статус заявки")
     @PutMapping("/{bankApplicationId}/change_status")
-    BankApplicationResponse changeStatus(
-            @PathVariable UUID bankApplicationId,
-            @NotNull @RequestParam("status") BankApplicationStatus status);
+    BankApplicationResponse changeStatus(@PathVariable UUID bankApplicationId,
+                                         @NotNull @RequestParam("status") BankApplicationStatus status, Integer sdId);
 
     @ApiOperation("обновить статус заявок по ApplicationNumber")
     @PutMapping("/update-statuses")
-    ResponseEntity<String> updateStatuses(@RequestBody NotificationStatusRequest bankApplications);
+    ResponseEntity<String> updateStatuses(@RequestBody NotificationStatusRequest bankApplications, Integer sdId);
 }

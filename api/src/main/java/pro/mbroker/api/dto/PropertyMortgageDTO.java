@@ -12,6 +12,7 @@ import java.util.List;
 @Setter
 @ToString
 public class PropertyMortgageDTO {
+
     private BigDecimal realEstatePrice;
 
     private BigDecimal downPayment;
@@ -21,5 +22,4 @@ public class PropertyMortgageDTO {
     private List<BankLoanProgramDto> bankLoanProgramDto;
 
     private List<LoanProgramCalculationDto> loanProgramCalculationDto = new ArrayList<>();
-
 }

@@ -140,8 +140,8 @@ public interface BorrowerProfileMapper {
     @Mapping(source = "borrowerProfileStatus", target = "status", defaultValue = "DATA_NO_ENTERED")
     @Mapping(target = "documents", expression = "java(mapBorrowerDocuments(borrowerProfile.getBorrowerDocument()))")
     @Mapping(target = "educations", ignore = true)
+    @Mapping(target = "partnerApplication", ignore = true)
     BorrowerProfileForUpdateResponse toBorrowerProfileForUpdate(BorrowerProfile borrowerProfile);
-
 
     default BorrowerDocumentResponse toBorrowerDocumentResponse(BorrowerDocument borrowerDocument) {
         BorrowerDocumentResponse response = new BorrowerDocumentResponse();

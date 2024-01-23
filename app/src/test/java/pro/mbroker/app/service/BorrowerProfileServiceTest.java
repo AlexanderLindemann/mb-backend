@@ -32,7 +32,7 @@ public class BorrowerProfileServiceTest extends BaseServiceTest {
                         .setId(UUID.fromString("1348b508-f476-11ed-a05b-0242ac120003")))
                 .setId(UUID.fromString("5ff4b32c-f967-4cb1-8705-7470a321fe34"));
 
-        BorrowerResponse orUpdateGenericBorrowerApplication = borrowerProfileService.createOrUpdateGenericBorrowerProfile(borrowerRequest, mockRequest);
+        BorrowerResponse orUpdateGenericBorrowerApplication = borrowerProfileService.createOrUpdateGenericBorrowerProfile(borrowerRequest, mockRequest, 1234);
         orUpdateGenericBorrowerApplication.getCoBorrower().forEach(profile -> Assert.assertTrue(Objects.nonNull(profile.getLink())));
         BorrowerProfileResponse mainBorrower = orUpdateGenericBorrowerApplication.getMainBorrower();
         assertThat(mainBorrower.getEmail(), Matchers.is("test@test.com"));
@@ -46,7 +46,7 @@ public class BorrowerProfileServiceTest extends BaseServiceTest {
                 .setMainBorrower(testData.getBorrowerProfileRequestList().get(0)
                         .setId(UUID.fromString("1348b508-f476-11ed-a05b-0242ac120003")))
                 .setId(UUID.fromString("3b339aa4-5462-485a-9118-5922cd948566"));
-        BorrowerResponse orUpdateGenericBorrowerApplication = borrowerProfileService.createOrUpdateBorrowerProfile(borrowerRequest);
+        BorrowerResponse orUpdateGenericBorrowerApplication = borrowerProfileService.createOrUpdateBorrowerProfile(borrowerRequest, 1234);
         BorrowerProfileResponse mainBorrower = orUpdateGenericBorrowerApplication.getMainBorrower();
         assertThat(mainBorrower.getEmail(), Matchers.is("test@test.com"));
         assertThat(mainBorrower.getFirstName(), Matchers.is("TestFirstName"));

@@ -31,7 +31,7 @@ public class PartnerApplicationServiceTest extends BaseServiceTest {
 
     @Test
     public void testCreatePartnerApplication() {
-        PartnerApplication partnerApplication = partnerApplicationService.createPartnerApplication(testData.getPartnerApplicationRequest());
+        PartnerApplication partnerApplication = partnerApplicationService.createPartnerApplication(testData.getPartnerApplicationRequest(), 1234);
         assertEquals(partnerApplication.getPartner().getId(), UUID.fromString("5fec2326-d92e-11ed-afa1-0242ac120002"));
         assertEquals(partnerApplication.getCreditPurposeType(), CreditPurposeType.PURCHASE_UNDER_CONSTRUCTION);
         assertEquals(partnerApplication.getPartnerApplicationStatus(), PartnerApplicationStatus.UPLOADING_DOCS);
@@ -51,7 +51,7 @@ public class PartnerApplicationServiceTest extends BaseServiceTest {
         partnerApplicationNew.getMainBorrower()
                 .setId(UUID.fromString("1348b508-f476-11ed-a05b-0242ac120003"));
         PartnerApplication partnerApplication =
-                partnerApplicationService.updatePartnerApplication(UUID.fromString("5ff4b32c-f967-4cb1-8705-7470a321fe34"), partnerApplicationNew);
+                partnerApplicationService.updatePartnerApplication(UUID.fromString("5ff4b32c-f967-4cb1-8705-7470a321fe34"), partnerApplicationNew, 1234);
         assertEquals(partnerApplication.getPartner().getId(), UUID.fromString("5fec2326-d92e-11ed-afa1-0242ac120002"));
         assertEquals(partnerApplication.getCreditPurposeType(), CreditPurposeType.PURCHASE_UNDER_CONSTRUCTION);
         assertEquals(partnerApplication.getPartnerApplicationStatus(), PartnerApplicationStatus.UPLOADING_DOCS);
@@ -69,7 +69,7 @@ public class PartnerApplicationServiceTest extends BaseServiceTest {
         LocalDateTime updateAtBefore = partnerApplicationBefore.getUpdatedAt();
         PartnerApplication partnerApplicationAfterUpdate =
                 partnerApplicationService.updatePartnerApplication(UUID.fromString("5ff4b32c-f967-4cb1-8705-7470a321fe34"),
-                        testData.getShortPartnerApplicationRequest());
+                        testData.getShortPartnerApplicationRequest(), 1234);
         assertNotEquals(partnerApplicationAfterUpdate.getUpdatedAt(), updateAtBefore);
 
         assertEquals(partnerApplicationAfterUpdate.getInsurances(), "LIFE_INSURANCE,TITLE_INSURANCE");
@@ -90,7 +90,7 @@ public class PartnerApplicationServiceTest extends BaseServiceTest {
 
         PartnerApplication partnerApplicationAfterUpdateWithNullValues =
                 partnerApplicationService.updatePartnerApplication(UUID.fromString("5ff4b32c-f967-4cb1-8705-7470a321fe34"),
-                        testData.getShortPartnerApplicationRequestWithNullValues());
+                        testData.getShortPartnerApplicationRequestWithNullValues(), 1234);
 
         Assert.assertNull(partnerApplicationAfterUpdateWithNullValues.getInsurances());
         Assert.assertNull(partnerApplicationAfterUpdateWithNullValues.getPaymentSource());
@@ -125,9 +125,9 @@ public class PartnerApplicationServiceTest extends BaseServiceTest {
     @Test
     public void testChangeBankApplication() {
         PartnerApplication partnerApplication =
-                partnerApplicationService.disableBankApplication(UUID.fromString("7addcbef-c1e0-4de1-adeb-377f864efcfa"), UUID.fromString("8222cb80-d928-11ed-afa1-0242ac120002"));
+                partnerApplicationService.disableBankApplication(UUID.fromString("7addcbef-c1e0-4de1-adeb-377f864efcfa"), UUID.fromString("8222cb80-d928-11ed-afa1-0242ac120002"), 1234);
         assertThat(partnerApplication.getBankApplications().get(0).isActive(), Matchers.is(false));
-        partnerApplicationService.enableBankApplication(UUID.fromString("7addcbef-c1e0-4de1-adeb-377f864efcfa"), testData.getBankApplicationUpdateRequest());
+        partnerApplicationService.enableBankApplication(UUID.fromString("7addcbef-c1e0-4de1-adeb-377f864efcfa"), testData.getBankApplicationUpdateRequest(), 1234);
         assertThat(partnerApplication.getBankApplications().get(0).isActive(), Matchers.is(true));
     }
 }

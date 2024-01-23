@@ -3,7 +3,6 @@ package pro.mbroker.api.controller;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -29,20 +28,18 @@ public interface PartnerRealEstateController {
 
     @ApiOperation("добавить адрес застройщика")
     @PostMapping("/{partnerId}")
-    PartnerResponse addRealEstate(
-            @PathVariable UUID partnerId,
-            @RequestBody RealEstateRequest request
-    );
+    PartnerResponse addRealEstate(@PathVariable UUID partnerId,
+                                  @RequestBody RealEstateRequest request,
+                                  @RequestParam Integer sdId);
 
     @ApiOperation("удалить адрес застройщика по id")
     @DeleteMapping("/{realEstateId}")
-    void deleteRealEstate(
-            @PathVariable(value = "realEstateId") UUID realEstateId
-    );
+    void deleteRealEstate(@PathVariable(value = "realEstateId") UUID realEstateId,
+                          @RequestParam Integer sdId);
 
     @ApiOperation("обновить данные по ЖК застройщика")
     @PutMapping()
-    PartnerResponse updateRealEstate(@RequestBody @Valid RealEstateRequest request);
+    PartnerResponse updateRealEstate(@RequestBody @Valid RealEstateRequest request, Integer sdId);
 
     @ApiOperation("получить все ЖК по id застройщика")
     @GetMapping("/{partnerId}/real_estate")
@@ -57,7 +54,8 @@ public interface PartnerRealEstateController {
     List<RealEstateResponse> getCurrentRealEstate(@RequestParam(defaultValue = "0") int page,
                                                   @RequestParam(defaultValue = "10") int size,
                                                   @RequestParam(defaultValue = "residentialComplexName") String sortBy,
-                                                  @RequestParam(defaultValue = "asc") String sortOrder);
+                                                  @RequestParam(defaultValue = "asc") String sortOrder,
+                                                  Integer organisationId);
 
     @ApiOperation("получить все ЖК из Циан")
     @GetMapping("/update_real_estates_from_cian")
@@ -65,7 +63,9 @@ public interface PartnerRealEstateController {
 
     @ApiOperation("Поиск жилых комплексов по названию")
     @GetMapping("/search")
-    ResponseEntity<Page<RealEstateResponse>> findRealEstatesByName(
-            Pageable pageable,
-            @RequestParam(required = false) String realEstateName);
+    ResponseEntity<Page<RealEstateResponse>> findRealEstatesByName(@RequestParam(defaultValue = "0") int page,
+                                                                   @RequestParam(defaultValue = "10") int size,
+                                                                   @RequestParam(defaultValue = "residentialComplexName") String sortBy,
+                                                                   @RequestParam(defaultValue = "asc") String sortOrder,
+                                                                   @RequestParam(required = false) String realEstateName);
 }

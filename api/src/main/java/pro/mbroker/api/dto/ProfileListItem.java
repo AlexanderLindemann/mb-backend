@@ -11,7 +11,6 @@ import java.math.BigDecimal;
 @ToString
 public class ProfileListItem {
 
-
     private String id;
     //номер
     private String number;
@@ -36,5 +35,4 @@ public class ProfileListItem {
 
     //тип ипотеки
     private String type;
-
 }

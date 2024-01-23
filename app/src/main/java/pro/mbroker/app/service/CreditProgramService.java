@@ -10,19 +10,24 @@ import java.util.UUID;
 
 public interface CreditProgramService {
 
-    CreditProgram createCreditParameter(BankProgramRequest createCreditParameter, CreditProgramDetail creditProgramDetail);
+    CreditProgram createCreditParameter(BankProgramRequest createCreditParameter,
+                                        CreditProgramDetail creditProgramDetail,
+                                        Integer sdId);
 
     CreditProgram getProgramByCreditProgramId(UUID creditProgramId);
 
     List<CreditProgram> getProgramByCreditProgramIds(List<UUID> creditProgramId);
 
-    CreditProgram updateProgram(UUID creditProgramId, BankProgramRequest updateProgramRequest, CreditProgramDetail updateCreditProgramDetail);
+    CreditProgram updateProgram(UUID creditProgramId,
+                                BankProgramRequest updateProgramRequest,
+                                CreditProgramDetail updateCreditProgramDetail,
+                                Integer sdId);
 
     List<CreditProgram> getProgramsByBankId(UUID bankId);
 
     List<CreditProgram> getAllCreditProgram(Pageable pageable);
 
-    void deleteCreditProgram(UUID creditProgramId);
+    void deleteCreditProgram(UUID creditProgramId, Integer sdId);
 
     List<CreditProgram> getProgramsWithDetail(List<UUID> creditProgramIds);
 

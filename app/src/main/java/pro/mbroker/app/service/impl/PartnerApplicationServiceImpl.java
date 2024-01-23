@@ -6,10 +6,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pro.mbroker.api.dto.BankApplicationKey;
@@ -20,6 +16,7 @@ import pro.mbroker.api.dto.request.BankApplicationRequest;
 import pro.mbroker.api.dto.request.BankApplicationUpdateRequest;
 import pro.mbroker.api.dto.request.BorrowerProfileRequest;
 import pro.mbroker.api.dto.request.PartnerApplicationRequest;
+import pro.mbroker.api.dto.request.PartnerApplicationServiceRequest;
 import pro.mbroker.api.dto.response.BankApplicationResponse;
 import pro.mbroker.api.dto.response.BorrowerProfileResponse;
 import pro.mbroker.api.dto.response.PartnerApplicationResponse;
@@ -29,7 +26,6 @@ import pro.mbroker.api.enums.DocumentType;
 import pro.mbroker.api.enums.Insurance;
 import pro.mbroker.api.enums.PaymentSource;
 import pro.mbroker.api.enums.RealEstateType;
-import pro.mbroker.api.enums.RegionType;
 import pro.mbroker.app.entity.Bank;
 import pro.mbroker.app.entity.BankApplication;
 import pro.mbroker.app.entity.BaseEntity;
@@ -61,9 +57,6 @@ import pro.mbroker.app.service.RealEstateService;
 import pro.mbroker.app.service.StatusService;
 import pro.mbroker.app.util.Converter;
 import pro.mbroker.app.util.Pagination;
-import pro.mbroker.app.util.TokenExtractor;
-import pro.smartdeal.common.security.Permission;
-import pro.smartdeal.ng.common.security.service.CurrentUserService;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -89,7 +82,6 @@ import java.util.stream.Stream;
 public class PartnerApplicationServiceImpl implements PartnerApplicationService {
 
     private final CalculatorService calculatorService;
-    private final CurrentUserService currentUserService;
     private final AttachmentService attachmentService;
     private final PartnerService partnerService;
     private final RealEstateService realEstateService;
@@ -116,27 +108,29 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
 
     @Override
     @Transactional(readOnly = true)
-    public Page<PartnerApplication> getAllPartnerApplication(int page, int size, String sortBy, String sortOrder,
-                                                             LocalDateTime startDate, LocalDateTime endDate,
-                                                             String phoneNumber, String fullName, Integer applicationNumber,
-                                                             UUID realEstateId, RegionType region, UUID bankId,
-                                                             BankApplicationStatus applicationStatus, Boolean isActive) {
-        log.info("Getting all partner applications with pagination: page={}, size={}, sortBy={}, sortOrder={}", page, size, sortBy, sortOrder);
-        Pageable pageable = Pagination.createPageable(page, size, sortBy, sortOrder);
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-
-        Specification<PartnerApplication> specification = PartnerApplicationSpecification.buildSearchSpecification(startDate, endDate, phoneNumber, fullName, applicationNumber, realEstateId, region, bankId, applicationStatus, isActive);
-
-        if (auth.getAuthorities().contains(new SimpleGrantedAuthority(Permission.Code.MB_ADMIN_ACCESS))) {
+    public Page<PartnerApplication> getAllPartnerApplication(PartnerApplicationServiceRequest request) {
+        log.info("Getting all partner applications with pagination: page={}, size={}, sortBy={}, sortOrder={}", request.getPage(), request.getSize(), request.getSortBy(), request.getSortOrder());
+        Pageable pageable = Pagination.createPageable(request.getPage(), request.getSize(), request.getSortBy(), request.getSortOrder());
+        Specification<PartnerApplication> specification = PartnerApplicationSpecification.buildSearchSpecification(
+                request.getStartDate(),
+                request.getEndDate(),
+                request.getPhoneNumber(),
+                request.getFullName(),
+                request.getApplicationNumber(),
+                request.getRealEstateId(),
+                request.getRegion(),
+                request.getBankId(),
+                request.getApplicationStatus(),
+                request.getIsActive());
+        if (request.getPermissions().contains("MB_ADMIN_ACCESS")) {
             return fetchPartnerApplications(specification, pageable);
-        } else if (auth.getAuthorities().contains(new SimpleGrantedAuthority(Permission.Code.MB_REQUEST_READ_ORGANIZATION))) {
-            UUID partnerId = partnerService.getCurrentPartner().getId();
+        } else if (request.getPermissions().contains("MB_REQUEST_READ_ORGANIZATION")) {
+            UUID partnerId = partnerService.getCurrentPartner(request.getOrganisationId()).getId();
             return fetchPartnerApplications(specification.and(PartnerApplicationSpecification.partnerIdEquals(partnerId)), pageable);
-        } else if (auth.getAuthorities().contains(new SimpleGrantedAuthority(Permission.Code.MB_REQUEST_READ_OWN))) {
-            Integer createdBy = TokenExtractor.extractSdId(currentUserService.getCurrentUserToken());
-            return fetchPartnerApplications(specification.and(PartnerApplicationSpecification.createdByEquals(createdBy)), pageable);
-        } else if (auth.getAuthorities().contains(new SimpleGrantedAuthority("MB_CABINET_ACCESS"))) {
-            String tokenPhoneNumber = formatPhoneNumber(TokenExtractor.extractPhoneNumber(currentUserService.getCurrentUserToken()));
+        } else if (request.getPermissions().contains("MB_REQUEST_READ_OWN")) {
+            return fetchPartnerApplications(specification.and(PartnerApplicationSpecification.createdByEquals(request.getSdId())), pageable);
+        } else if (request.getPermissions().contains("MB_CABINET_ACCESS")) {
+            String tokenPhoneNumber = formatPhoneNumber(request.getPhoneNumber());
             List<PartnerApplication> partnerApplications = getPartnerApplicationsByPhoneNumber(tokenPhoneNumber);
             return new PageImpl<>(getPartnerApplicationsByPhoneNumber(tokenPhoneNumber), pageable, partnerApplications.size());
         } else {
@@ -166,7 +160,7 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
 
     @Override
     @Transactional
-    public PartnerApplication changeMainBorrowerByPartnerApplication(UUID partnerApplicationId, UUID newMainBorrowerId) {
+    public PartnerApplication changeMainBorrowerByPartnerApplication(UUID partnerApplicationId, UUID newMainBorrowerId, Integer sdId) {
         PartnerApplication partnerApplication = getPartnerApplication(partnerApplicationId);
         BorrowerProfile borrowerProfile = borrowerProfileRepository.findById(newMainBorrowerId)
                 .orElseThrow(() -> new ItemNotFoundException(BorrowerProfile.class, newMainBorrowerId));
@@ -174,24 +168,26 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
                 .forEach(bankApplication -> {
                     if (!UNCHANGEABLE_STATUSES.contains(bankApplication.getBankApplicationStatus()))
                         bankApplication.setMainBorrower(borrowerProfile);
+                    bankApplication.setUpdatedBy(sdId);
                 });
-
+        partnerApplication.setUpdatedBy(sdId);
         return save(partnerApplication);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public Optional<PartnerApplication> getPartnerApplicationByAttachmentId(Long attachmentId) {
-        return partnerApplicationRepository.findByAttachmentId(attachmentId);
+    public PartnerApplication getPartnerApplicationByAttachmentId(Long attachmentId) {
+        return partnerApplicationRepository.findByAttachmentId(attachmentId)
+                .orElseThrow(() -> new AccessDeniedException(attachmentId, PartnerApplication.class));
     }
 
     @Override
     @Transactional
-    public PartnerApplication createPartnerApplication(PartnerApplicationRequest request) {
-        PartnerApplication partnerApplication = getPartnerApplication(request);
-        List<BankApplication> bankApplications = buildBankApplications(request, partnerApplication);
+    public PartnerApplication createPartnerApplication(PartnerApplicationRequest request, Integer sdId) {
+        PartnerApplication partnerApplication = getPartnerApplication(request, sdId);
+        List<BankApplication> bankApplications = buildBankApplications(request, partnerApplication, sdId);
         partnerApplication.setBankApplications(bankApplications);
-        updateMainBorrower(partnerApplication, request.getMainBorrower());
+        updateMainBorrower(partnerApplication, request.getMainBorrower(), sdId);
         statusService.statusChanger(partnerApplication);
         return save(partnerApplication);
     }
@@ -199,11 +195,11 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
     //TODO переделать на подобии обновления BorrowerProfile
     @Override
     @Transactional
-    public PartnerApplication updatePartnerApplication(UUID partnerApplicationId, PartnerApplicationRequest request) {
+    public PartnerApplication updatePartnerApplication(UUID partnerApplicationId, PartnerApplicationRequest request, Integer sdId) {
         PartnerApplication partnerApplication = getPartnerApplicationByIdCheckPermission(partnerApplicationId);
         boolean isChanged = false;
         if (isBorrowerProfileChanged(request, partnerApplication)) {
-            deleteBorrowerDocuments(partnerApplication);
+            deleteBorrowerDocuments(partnerApplication, sdId);
             isChanged = true;
         }
         if (request.getMortgageCalculation() != null) {
@@ -251,7 +247,7 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
             }
         }
         if (Objects.nonNull(request.getBankApplications())) {
-            List<BankApplication> updatedBorrowerApplications = buildBankApplications(request, partnerApplication);
+            List<BankApplication> updatedBorrowerApplications = buildBankApplications(request, partnerApplication, sdId);
             List<BankApplication> existBankApplication = partnerApplication.getBankApplications();
 
             if (existBankApplication != null
@@ -327,7 +323,6 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
     @Transactional(readOnly = true)
     public PartnerApplication getPartnerApplicationByIdCheckPermission(UUID partnerApplicationId) {
         PartnerApplication partnerApplication = getPartnerApplication(partnerApplicationId);
-        checkPermission(partnerApplication);
         List<BorrowerProfile> sortedBorrowerProfiles = partnerApplication.getBorrowerProfiles()
                 .stream()
                 .sorted(Comparator.comparing(BorrowerProfile::getCreatedAt))
@@ -345,7 +340,7 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
 
     @Override
     @Transactional
-    public PartnerApplication enableBankApplication(UUID partnerApplicationId, BankApplicationUpdateRequest request) {
+    public PartnerApplication enableBankApplication(UUID partnerApplicationId, BankApplicationUpdateRequest request, Integer sdId) {
         PartnerApplication partnerApplication = getPartnerApplication(partnerApplicationId);
         Map<UUID, BankApplication> currentBankApplications = partnerApplication.getBankApplications()
                 .stream()
@@ -353,30 +348,34 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
         BankApplication currentBankApplication = currentBankApplications.get(request.getCreditProgramId());
         if (currentBankApplication != null) {
             bankApplicationMapper.updateBankApplicationFromRequest(currentBankApplication, request);
+            currentBankApplication.setUpdatedBy(sdId);
         } else {
             BankApplication newBankApplication = bankApplicationMapper.toBankApplication(request);
             newBankApplication.setPartnerApplication(partnerApplication);
             newBankApplication.setMainBorrower(getBorrowerProfile(request.getMainBorrowerId()));
+            newBankApplication.setCreatedBy(sdId);
+            newBankApplication.setUpdatedBy(sdId);
             currentBankApplications.put(request.getCreditProgramId(), newBankApplication);
         }
         partnerApplication.setBankApplications(new ArrayList<>(currentBankApplications.values()));
-
         return save(partnerApplication);
     }
 
     @Override
     @Transactional
-    public PartnerApplication disableBankApplication(UUID partnerApplicationId, UUID creditProgramId) {
+    public PartnerApplication disableBankApplication(UUID partnerApplicationId, UUID creditProgramId, Integer sdId) {
         PartnerApplication partnerApplication = getPartnerApplication(partnerApplicationId);
         Map<UUID, BankApplication> currentBankApplications = partnerApplication.getBankApplications()
                 .stream()
                 .collect(Collectors.toMap(bankApplication -> bankApplication.getCreditProgram().getId(), Function.identity()));
         BankApplication disabledBankApplication = currentBankApplications.get(creditProgramId);
         if (disabledBankApplication == null) {
-            throw new ItemConflictException(CreditProgram.class, "This PartnerApplication with" + partnerApplicationId + " does not have such a credit program id: " + creditProgramId);
+            throw new ItemConflictException(CreditProgram.class, " This PartnerApplication with " + partnerApplicationId + " does not have such a credit program id: " + creditProgramId);
         }
         disabledBankApplication.setActive(false);
+        disabledBankApplication.setUpdatedBy(sdId);
         partnerApplication.setBankApplications(new ArrayList<>(currentBankApplications.values()));
+        partnerApplication.setUpdatedBy(sdId);
         return save(partnerApplication);
     }
 
@@ -406,33 +405,8 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
     }
 
     @Override
-    public void checkPermission(PartnerApplication partnerApplication) {
-        Collection<? extends GrantedAuthority> authorities = SecurityContextHolder.getContext().getAuthentication().getAuthorities();
-        if (!authorities.contains(new SimpleGrantedAuthority(Permission.Code.MB_ADMIN_ACCESS))) {
-            String currentUserToken = currentUserService.getCurrentUserToken();
-            Integer organizationId = TokenExtractor.extractSdCurrentOrganizationId(currentUserToken);
-            Integer sdId = TokenExtractor.extractSdId(currentUserToken);
-
-            if (authorities.contains(new SimpleGrantedAuthority(Permission.Code.MB_REQUEST_READ_ORGANIZATION)) &&
-                    !partnerApplication.getPartner().getSmartDealOrganizationId().equals(organizationId)) {
-                throw new AccessDeniedException("organization_id: " + organizationId, PartnerApplication.class);
-            }
-            if (authorities.contains(new SimpleGrantedAuthority(Permission.Code.MB_REQUEST_READ_OWN)) &&
-                    !partnerApplication.getCreatedBy().equals(sdId)) {
-                throw new AccessDeniedException("sd_id: " + sdId, PartnerApplication.class);
-            }
-            if (authorities.contains(new SimpleGrantedAuthority(Permission.Code.MB_REQUEST_READ_OWN)) &&
-                    !partnerApplication.getCreatedBy().equals(sdId)) {
-                throw new AccessDeniedException("sd_id: " + sdId, PartnerApplication.class);
-            }
-            if ((authorities.contains(new SimpleGrantedAuthority("MB_CABINET_ACCESS")))) {
-                String phoneNumber = formatPhoneNumber(TokenExtractor.extractPhoneNumber(currentUserToken));
-                List<PartnerApplication> partnerApplicationByPhoneNumber = findPartnerApplicationByPhoneNumber(phoneNumber);
-                if (!partnerApplicationByPhoneNumber.contains(partnerApplication)) {
-                    throw new AccessDeniedException("phoneNumber: " + phoneNumber, PartnerApplication.class);
-                }
-            }
-        }
+    public List<PartnerApplication> findPartnerApplicationByPhoneNumber(String phoneNumber) {
+        return partnerApplicationRepository.findByBorrowerPhoneNumber(phoneNumber);
     }
 
     @Override
@@ -453,9 +427,10 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
     }
 
     @Override
-    public void changePartnerApplicationActiveStatus(UUID partnerApplicationId, boolean isActive) {
+    public void changePartnerApplicationActiveStatus(UUID partnerApplicationId, boolean isActive, Integer sdId) {
         PartnerApplication partnerApplication = getPartnerApplicationById(partnerApplicationId);
         partnerApplication.setActive(isActive);
+        partnerApplication.setUpdatedBy(sdId);
         save(partnerApplication);
     }
 
@@ -558,7 +533,7 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
     }
 
 
-    private void deleteBorrowerDocuments(PartnerApplication application) {
+    private void deleteBorrowerDocuments(PartnerApplication application, Integer sdId) {
         EnumSet<DocumentType> typesToDelete = EnumSet.of(
                 DocumentType.APPLICATION_FORM,
                 DocumentType.GENERATED_FORM,
@@ -569,7 +544,10 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
             List<BorrowerDocument> documents = borrowerProfile.getBorrowerDocument();
             documents.stream()
                     .filter(document -> typesToDelete.contains(document.getDocumentType()))
-                    .forEach(document -> document.setActive(false));
+                    .forEach(document -> {
+                        document.setActive(false);
+                        document.setUpdatedBy(sdId);
+                    });
         });
     }
 
@@ -673,11 +651,12 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
         return dto;
     }
 
-    private void updateMainBorrower(PartnerApplication partnerApplication, BorrowerProfileRequest borrowerProfileRequest) {
+    private void updateMainBorrower(PartnerApplication partnerApplication, BorrowerProfileRequest borrowerProfileRequest, Integer sdId) {
         validateMainBorrower(borrowerProfileRequest);
         BorrowerProfile borrowerProfile;
         if (borrowerProfileRequest.getId() != null) {
             borrowerProfile = getBorrowerProfile(borrowerProfileRequest.getId());
+            borrowerProfile.setUpdatedBy(sdId);
             borrowerProfileMapper.updateBorrowerProfile(borrowerProfileRequest, borrowerProfile);
         } else {
             if (!partnerApplication.getBorrowerProfiles().isEmpty()) {
@@ -685,6 +664,8 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
                         "The PartnerApplication id: " + partnerApplication.getId() + " already has a mainBorrower. You need to specify the ID of the existing mainBorrower in the request");
             }
             borrowerProfile = borrowerProfileMapper.toBorrowerProfile(borrowerProfileRequest);
+            borrowerProfile.setCreatedBy(sdId);
+            borrowerProfile.setUpdatedBy(sdId);
             partnerApplication.getBorrowerProfiles().add(borrowerProfile);
         }
         borrowerProfile.setPartnerApplication(partnerApplication);
@@ -717,7 +698,7 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
                 .orElseThrow(() -> new ItemNotFoundException(BorrowerProfile.class, borrowerProfileId));
     }
 
-    private List<BankApplication> buildBankApplications(PartnerApplicationRequest requests, PartnerApplication partnerApplication) {
+    private List<BankApplication> buildBankApplications(PartnerApplicationRequest requests, PartnerApplication partnerApplication, Integer sdId) {
         Optional<BorrowerProfileRequest> optionalBorrower = Optional.ofNullable(requests.getMainBorrower());
         BorrowerProfile mainBorrower = optionalBorrower
                 .filter(borrower -> Objects.nonNull(borrower.getId()))
@@ -742,7 +723,7 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
             BankApplication currentBankApplication = currentBankApplications.get(new BankApplicationKey(bankApplicationRequest.getCreditProgramId(),
                     bankApplicationRequest.getRealEstateType()));
             if (currentBankApplication != null) {
-                bankApplicationMapper.updateBankApplicationFromRequest(currentBankApplication, bankApplicationRequest);
+                bankApplicationMapper.updateBankApplicationFromRequest(currentBankApplication, bankApplicationRequest, sdId);
             } else {
                 BankApplication newBankApplication = bankApplicationMapper.toBankApplication(bankApplicationRequest)
                         .setMainBorrower(mainBorrower)
@@ -750,6 +731,8 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
                 currentBankApplications.put(new BankApplicationKey(bankApplicationRequest.getCreditProgramId(),
                                 bankApplicationRequest.getRealEstateType())
                         , newBankApplication);
+                newBankApplication.setCreatedBy(sdId);
+                newBankApplication.setUpdatedBy(sdId);
             }
         });
         currentBankApplications.forEach((key, value) -> {
@@ -767,11 +750,7 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
         return resultBankApplications;
     }
 
-    private List<PartnerApplication> findPartnerApplicationByPhoneNumber(String phoneNumber) {
-        return partnerApplicationRepository.findByBorrowerPhoneNumber(phoneNumber);
-    }
-
-    private PartnerApplication getPartnerApplication(PartnerApplicationRequest request) {
+    private PartnerApplication getPartnerApplication(PartnerApplicationRequest request, Integer sdId) {
         validateBankApplications(request.getBankApplications());
         RealEstate realEstate = realEstateService.findByRealEstateId(request.getRealEstateId());
         Partner partner = realEstate.getPartner();
@@ -788,7 +767,10 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
             partnerApplication.setRealEstateTypes(Converter.convertEnumListToString(realEstateTypes));
         }
         if (Objects.nonNull(request.getMortgageCalculation())) {
-            partnerApplication.setMortgageCalculation(mortgageCalculationMapper.toMortgageCalculation(request.getMortgageCalculation()));
+            MortgageCalculation mortgageCalculation = mortgageCalculationMapper.toMortgageCalculation(request.getMortgageCalculation());
+            mortgageCalculation.setCreatedBy(sdId);
+            mortgageCalculation.setUpdatedBy(sdId);
+            partnerApplication.setMortgageCalculation(mortgageCalculation);
         }
         if (Objects.nonNull(request.getPaymentSource())) {
             partnerApplication.setPaymentSource(Converter.convertEnumListToString(request.getPaymentSource()));
@@ -797,6 +779,8 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
             partnerApplication.setInsurances(Converter.convertEnumListToString(request.getInsurances()));
         }
         setSalaryBank(request, partnerApplication);
+        partnerApplication.setCreatedBy(sdId);
+        partnerApplication.setUpdatedBy(sdId);
         return partnerApplication;
     }
 
@@ -857,5 +841,4 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
             throw new BadRequestException(missingFieldsMessage.toString().trim());
         }
     }
-
 }

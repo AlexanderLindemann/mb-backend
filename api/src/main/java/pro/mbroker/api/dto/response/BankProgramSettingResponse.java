@@ -11,6 +11,6 @@ import java.util.List;
 @Setter
 @ToString
 public class BankProgramSettingResponse {
-    List<EnumDescription> enumDescription = new ArrayList<>();
 
+    List<EnumDescription> enumDescription = new ArrayList<>();
 }

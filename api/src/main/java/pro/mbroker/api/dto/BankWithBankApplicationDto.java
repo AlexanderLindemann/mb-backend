@@ -13,6 +13,7 @@ import java.util.UUID;
 @Setter
 @ToString
 public class BankWithBankApplicationDto {
+
     private UUID bankId;
 
     private String bankName;
@@ -20,5 +21,4 @@ public class BankWithBankApplicationDto {
     private String logo;
 
     private List<BankApplicationResponse> bankApplications = new ArrayList<>();
-
 }

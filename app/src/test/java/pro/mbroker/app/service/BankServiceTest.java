@@ -40,7 +40,7 @@ public class BankServiceTest extends BaseServiceTest {
     @Test
     public void testCreateBank() {
         String name = "Test Bank";
-        Bank bank = bankService.createBank(testData.getBankRequest());
+        Bank bank = bankService.createBank(testData.getBankRequest(), 1234);
         assertNotNull(bank.getId());
         assertEquals(name, bank.getName());
         assertTrue(bank.getOrderNumber() > 0);
@@ -60,7 +60,7 @@ public class BankServiceTest extends BaseServiceTest {
 
     @Test
     public void testDeleteBank() {
-        bankService.deleteBankById(BANK_ID);
+        bankService.deleteBankById(BANK_ID, 1234);
         List<Bank> allBankSortByName = bankService.getAllBank(0, 10, "name", "asc");
         assertThat(allBankSortByName.size(), Matchers.is(3));
         List<UUID> bankIds = allBankSortByName.stream().map(Bank::getId).collect(Collectors.toList());

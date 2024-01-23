@@ -5,6 +5,7 @@ import pro.mbroker.app.entity.PartnerApplication;
 
 import java.util.Map;
 
-public interface DocxFieldHandler {
+public interface FormFieldHandler {
+
     Map<String, String> replaceFieldValue(PartnerApplication partnerApplication, BorrowerProfile borrowerProfile);
 }

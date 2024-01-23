@@ -42,14 +42,15 @@ public class AttachmentServiceImpl implements AttachmentService {
 
     @Override
     @Transactional
-    public Attachment upload(MultipartFile file) {
+    public Attachment upload(MultipartFile file, Integer sdId) {
         AttachmentMeta upload = attachmentService.upload(file);
         return attachmentRepository.save(new Attachment()
-                .setId(upload.getId())
-                .setName(replaceFileNameDots(upload.getName()))
-                .setMimeType(upload.getMimeType())
-                .setSizeBytes(upload.getSizeBytes())
-                .setContentMd5(upload.getMd5Hash()));
+                        .setId(upload.getId())
+                        .setName(replaceFileNameDots(upload.getName()))
+                        .setMimeType(upload.getMimeType())
+                        .setSizeBytes(upload.getSizeBytes())
+                        .setContentMd5(upload.getMd5Hash()))
+                .setCreatedBy(sdId);
     }
 
     @Override
@@ -60,8 +61,9 @@ public class AttachmentServiceImpl implements AttachmentService {
 
     @Override
     @Transactional
-    public BorrowerDocument uploadDocument(MultipartFile file, BorrowerDocumentRequest documentDto) {
-        Attachment attachment = upload(file);
+    public BorrowerDocument uploadDocument(MultipartFile file, BorrowerDocumentRequest documentDto, Integer sdId) {
+        Attachment attachment = upload(file, sdId);
+        attachment.setCreatedBy(sdId);
         var borrowerProfile = borrowerProfileRepository.findById(documentDto.getBorrowerProfileId())
                 .orElseThrow(() -> new ItemNotFoundException(BorrowerProfile.class, documentDto.getBorrowerProfileId()));
         BorrowerDocument borrowerDocument = new BorrowerDocument()
@@ -72,6 +74,8 @@ public class AttachmentServiceImpl implements AttachmentService {
             borrowerDocument.setBank(bankRepository.findById(documentDto.getBankId())
                     .orElseThrow(() -> new ItemNotFoundException(Bank.class, documentDto.getBankId())));
         }
+        borrowerDocument.setCreatedBy(sdId);
+        borrowerDocument.setUpdatedBy(sdId);
         return borrowerDocumentRepository.save(borrowerDocument);
     }
 
@@ -123,10 +127,11 @@ public class AttachmentServiceImpl implements AttachmentService {
         }
     }
 
-    public void markAttachmentAsDeleted(Long attachmentId) {
+    public void markAttachmentAsDeleted(Long attachmentId, Integer sdId) {
         var attachment = attachmentRepository.findAttachmentById(attachmentId)
                 .orElseThrow(() -> new ItemNotFoundException(Attachment.class, attachmentId));
         attachment.setActive(false);
+        attachment.setUpdatedBy(sdId);
         attachmentRepository.save(attachment);
     }
 

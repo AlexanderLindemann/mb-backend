@@ -10,15 +10,15 @@ import java.util.Set;
 import java.util.UUID;
 
 public interface BankService {
-    Bank createBank(BankRequest bankRequest);
+    Bank createBank(BankRequest bankRequest, Integer sdId);
 
     Bank getBankById(UUID id);
 
-    void deleteBankById(UUID id);
+    void deleteBankById(UUID bankId, Integer sdId);
 
-    Bank updateBank(UUID bankId, BankRequest bankRequest);
+    Bank updateBank(UUID bankId, BankRequest bankRequest, Integer sdId);
 
-    Bank updateLogo(UUID bankId, MultipartFile logo);
+    Bank updateLogo(UUID bankId, MultipartFile logo, Integer sdId);
 
     AttachmentResponse getLogoBankById(UUID bankId);
 

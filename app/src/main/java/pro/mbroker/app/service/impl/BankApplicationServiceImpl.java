@@ -48,21 +48,23 @@ public class BankApplicationServiceImpl implements BankApplicationService {
     }
 
     @Override
-    public BankApplication changeMainBorrowerByBankApplicationId(UUID bankApplicationId, UUID newMainBorrowerId) {
+    public BankApplication changeMainBorrowerByBankApplicationId(UUID bankApplicationId, UUID newMainBorrowerId, Integer sdId) {
         BankApplication bankApplication = getBankApplicationById(bankApplicationId);
         BorrowerProfile borrowerProfile = borrowerProfileRepository.findById(newMainBorrowerId)
                 .orElseThrow(() -> new ItemNotFoundException(BorrowerProfile.class, newMainBorrowerId));
         if (!UNCHANGEABLE_STATUSES.contains(bankApplication.getBankApplicationStatus())) {
             bankApplication.setMainBorrower(borrowerProfile);
+            bankApplication.setUpdatedBy(sdId);
         }
         return bankApplicationRepository.save(bankApplication);
     }
 
     @Override
     @Transactional
-    public BankApplication changeStatus(UUID bankApplicationId, BankApplicationStatus status) {
+    public BankApplication changeStatus(UUID bankApplicationId, BankApplicationStatus status, Integer sdId) {
         BankApplication bankApplication = getBankApplicationById(bankApplicationId)
                 .setBankApplicationStatus(status);
+        bankApplication.setUpdatedBy(sdId);
         PartnerApplication partnerApplication = bankApplication.getPartnerApplication();
         statusService.statusChanger(partnerApplication);
         return bankApplicationRepository.save(bankApplication);
@@ -84,16 +86,16 @@ public class BankApplicationServiceImpl implements BankApplicationService {
         bankApplicationRepository.saveAll(bankApplications);
     }
 
-    @Transactional
     @Override
+    @Transactional
     public void save(BankApplication bankApplications) {
         bankApplicationRepository.save(bankApplications);
     }
 
-
     @Override
-    public BankApplication updateBankApplication(BankApplicationRequest request) {
-        return bankApplicationMapper.updateBankApplicationFromRequest(getBankApplicationById(request.getId()), request);
+    @Transactional
+    public BankApplication updateBankApplication(BankApplicationRequest request, Integer sdId) {
+        return bankApplicationMapper.updateBankApplicationFromRequest(getBankApplicationById(request.getId()), request, sdId);
     }
 
     @Transactional(readOnly = true)

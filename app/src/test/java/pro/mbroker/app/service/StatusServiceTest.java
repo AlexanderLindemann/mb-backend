@@ -48,7 +48,7 @@ public class StatusServiceTest extends BaseServiceTest {
 
     @Test
     public void testDefaultStatusesForNewPartnerApplication() {
-        PartnerApplication partnerApplication = partnerApplicationService.createPartnerApplication(testData.getPartnerApplicationRequest());
+        PartnerApplication partnerApplication = partnerApplicationService.createPartnerApplication(testData.getPartnerApplicationRequest(), 1234);
         assertEquals(partnerApplication.getPartnerApplicationStatus(), PartnerApplicationStatus.UPLOADING_DOCS);
         partnerApplication.getBankApplications()
                 .forEach(bankApplication -> assertEquals(bankApplication.getBankApplicationStatus(), BankApplicationStatus.DATA_NO_ENTERED));
@@ -68,13 +68,13 @@ public class StatusServiceTest extends BaseServiceTest {
                         .setSizeBytes(123456)
                         .setMd5Hash("contentMD"));
 
-        borrowerDocumentService.deleteDocumentByAttachmentId(1L); //delete GENERATED_FORM
+        borrowerDocumentService.deleteDocumentByAttachmentId(1L, 1234); //delete GENERATED_FORM
         assertEquals(BorrowerProfileStatus.DOCS_SIGNED, getBorrowerProfile(BORROWER_PROFILE_ID_1).getBorrowerProfileStatus());
         getBorrowerProfile(BORROWER_PROFILE_ID_1).getPartnerApplication().getBankApplications()
                 .forEach(bankApplication -> assertEquals(bankApplication.getBankApplicationStatus(), BankApplicationStatus.READY_TO_SENDING));
         assertEquals(PartnerApplicationStatus.UPLOADING_DOCS,
                 getBorrowerProfile(BORROWER_PROFILE_ID_1).getPartnerApplication().getPartnerApplicationStatus());
-        borrowerDocumentService.deleteDocumentByAttachmentId(2L); //delete INCOME_CERTIFICATE
+        borrowerDocumentService.deleteDocumentByAttachmentId(2L, 1234); //delete INCOME_CERTIFICATE
         getBorrowerProfile(BORROWER_PROFILE_ID_1).getPartnerApplication().getBankApplications()
                 .forEach(bankApplication -> assertEquals(bankApplication.getBankApplicationStatus(), BankApplicationStatus.DATA_NO_ENTERED));
         assertEquals(BorrowerProfileStatus.DATA_NO_ENTERED, getBorrowerProfile(BORROWER_PROFILE_ID_1).getBorrowerProfileStatus());
@@ -82,17 +82,17 @@ public class StatusServiceTest extends BaseServiceTest {
         assertEquals(BorrowerProfileStatus.DOCS_SIGNED, getBorrowerProfile(BORROWER_PROFILE_ID_1).getBorrowerProfileStatus());
         getBorrowerProfile(BORROWER_PROFILE_ID_1).getPartnerApplication().getBankApplications()
                 .forEach(bankApplication -> assertEquals(bankApplication.getBankApplicationStatus(), BankApplicationStatus.READY_TO_SENDING));
-        borrowerDocumentService.deleteDocumentByAttachmentId(6L); //delete GENERATED_SIGNATURE_FORM
+        borrowerDocumentService.deleteDocumentByAttachmentId(6L, 1234); //delete GENERATED_SIGNATURE_FORM
         assertEquals(BorrowerProfileStatus.DATA_ENTERED, getBorrowerProfile(BORROWER_PROFILE_ID_1).getBorrowerProfileStatus());
         uploadDocumentTest(mockMultipartFile, DocumentType.GENERATED_SIGNATURE_FORM);
         assertEquals(BorrowerProfileStatus.DOCS_SIGNED, getBorrowerProfile(BORROWER_PROFILE_ID_1).getBorrowerProfileStatus());
-        borrowerDocumentService.deleteDocumentByAttachmentId(3L); //delete CERTIFIED_COPY_TK
+        borrowerDocumentService.deleteDocumentByAttachmentId(3L, 1234); //delete CERTIFIED_COPY_TK
         assertEquals(BorrowerProfileStatus.DOCS_SIGNED, getBorrowerProfile(BORROWER_PROFILE_ID_1).getBorrowerProfileStatus());
-        borrowerDocumentService.deleteDocumentByAttachmentId(4L); //delete BORROWER_SNILS
+        borrowerDocumentService.deleteDocumentByAttachmentId(4L, 1234); //delete BORROWER_SNILS
         assertEquals(BorrowerProfileStatus.DATA_NO_ENTERED, getBorrowerProfile(BORROWER_PROFILE_ID_1).getBorrowerProfileStatus());
         uploadDocumentTest(mockMultipartFile, DocumentType.BORROWER_SNILS);
         assertEquals(BorrowerProfileStatus.DOCS_SIGNED, getBorrowerProfile(BORROWER_PROFILE_ID_1).getBorrowerProfileStatus());
-        borrowerDocumentService.deleteDocumentByAttachmentId(5L); //delete BORROWER_PASSPORT
+        borrowerDocumentService.deleteDocumentByAttachmentId(5L, 1234); //delete BORROWER_PASSPORT
         assertEquals(BorrowerProfileStatus.DATA_NO_ENTERED, getBorrowerProfile(BORROWER_PROFILE_ID_1).getBorrowerProfileStatus());
         uploadDocumentTest(mockMultipartFile, DocumentType.BORROWER_PASSPORT);
         assertEquals(BorrowerProfileStatus.DOCS_SIGNED, getBorrowerProfile(BORROWER_PROFILE_ID_1).getBorrowerProfileStatus());
@@ -110,8 +110,8 @@ public class StatusServiceTest extends BaseServiceTest {
                         .setSizeBytes(123456)
                         .setMd5Hash("contentMD"));
 
-        borrowerDocumentService.deleteDocumentByAttachmentId(1L); //delete GENERATED_FORM
-        borrowerDocumentService.deleteDocumentByAttachmentId(6L); //delete GENERATED_SIGNATURE_FORM
+        borrowerDocumentService.deleteDocumentByAttachmentId(1L, 1234); //delete GENERATED_FORM
+        borrowerDocumentService.deleteDocumentByAttachmentId(6L, 1234); //delete GENERATED_SIGNATURE_FORM
         uploadDocumentTest(mockMultipartFile, DocumentType.SIGNATURE_FORM);
         assertEquals(BorrowerProfileStatus.DOCS_SIGNED, getBorrowerProfile(BORROWER_PROFILE_ID_1).getBorrowerProfileStatus());
     }
@@ -154,10 +154,10 @@ public class StatusServiceTest extends BaseServiceTest {
 
     @Test
     public void testStatusAddNewBorrowerProfile() {
-        bankApplicationService.changeStatus(BANK_APPLICATION_1, BankApplicationStatus.SENT_TO_BANK);
+        bankApplicationService.changeStatus(BANK_APPLICATION_1, BankApplicationStatus.SENT_TO_BANK, 1234);
         BorrowerRequest borrowerRequest = testData.getBorrowerRequest().setId(BANK_APPLICATION_1);
         borrowerRequest.getMainBorrower().setId(BORROWER_PROFILE_ID_1);
-        borrowerProfileService.createOrUpdateBorrowerProfile(borrowerRequest);
+        borrowerProfileService.createOrUpdateBorrowerProfile(borrowerRequest, 1111);
 
         PartnerApplication partnerApplication = partnerApplicationService.getPartnerApplication(PARTNER_APPLICATION_1);
         List<BankApplication> bankApplications = partnerApplication.getBankApplications();
@@ -172,51 +172,51 @@ public class StatusServiceTest extends BaseServiceTest {
 
     @Test
     public void testCREDIT_APPROVEDStatusChangeStatusBankApplication() {
-        bankApplicationService.changeStatus(BANK_APPLICATION_1, BankApplicationStatus.CREDIT_APPROVED);
+        bankApplicationService.changeStatus(BANK_APPLICATION_1, BankApplicationStatus.CREDIT_APPROVED, 1234);
         PartnerApplication partnerApplication = partnerApplicationService.getPartnerApplication(PARTNER_APPLICATION_1);
         assertEquals(PartnerApplicationStatus.CREDIT_APPROVED, partnerApplication.getPartnerApplicationStatus());
     }
 
     @Test
     public void testEXPIREDStatusChangeStatusBankApplication() {
-        bankApplicationService.changeStatus(BANK_APPLICATION_1, BankApplicationStatus.EXPIRED);
-        bankApplicationService.changeStatus(BANK_APPLICATION_2, BankApplicationStatus.EXPIRED);
+        bankApplicationService.changeStatus(BANK_APPLICATION_1, BankApplicationStatus.EXPIRED, 1234);
+        bankApplicationService.changeStatus(BANK_APPLICATION_2, BankApplicationStatus.EXPIRED, 1234);
         PartnerApplication partnerApplication = partnerApplicationService.getPartnerApplication(PARTNER_APPLICATION_1);
         assertEquals(PartnerApplicationStatus.EXPIRED, partnerApplication.getPartnerApplicationStatus());
     }
 
     @Test
     public void testREJECTEDStatusChangeStatusBankApplication() {
-        bankApplicationService.changeStatus(BANK_APPLICATION_1, BankApplicationStatus.REJECTED);
-        bankApplicationService.changeStatus(BANK_APPLICATION_2, BankApplicationStatus.REJECTED);
+        bankApplicationService.changeStatus(BANK_APPLICATION_1, BankApplicationStatus.REJECTED, 1234);
+        bankApplicationService.changeStatus(BANK_APPLICATION_2, BankApplicationStatus.REJECTED, 1234);
         PartnerApplication partnerApplication = partnerApplicationService.getPartnerApplication(PARTNER_APPLICATION_1);
         assertEquals(PartnerApplicationStatus.REJECTED, partnerApplication.getPartnerApplicationStatus());
     }
 
     @Test
     public void testUPLOADING_DOCStatusChangeStatusBankApplication1() {
-        bankApplicationService.changeStatus(BANK_APPLICATION_1, BankApplicationStatus.REJECTED);
-        bankApplicationService.changeStatus(BANK_APPLICATION_2, BankApplicationStatus.REJECTED);
+        bankApplicationService.changeStatus(BANK_APPLICATION_1, BankApplicationStatus.REJECTED, 1234);
+        bankApplicationService.changeStatus(BANK_APPLICATION_2, BankApplicationStatus.REJECTED, 1234);
         List<BankApplicationRequest> bankApplications = testData.getPartnerApplicationRequest().getBankApplications();
         bankApplications.add(testData.getBankApplicationRequest());
-        partnerApplicationService.updatePartnerApplication(UUID.fromString("5ff4b32c-f967-4cb1-8705-7470a321fe34"), testData.getPartnerApplicationRequest().setBankApplications(bankApplications));
+        partnerApplicationService.updatePartnerApplication(UUID.fromString("5ff4b32c-f967-4cb1-8705-7470a321fe34"), testData.getPartnerApplicationRequest().setBankApplications(bankApplications), 1234);
         PartnerApplication partnerApplication = partnerApplicationService.getPartnerApplication(PARTNER_APPLICATION_1);
         assertEquals(PartnerApplicationStatus.UPLOADING_DOCS, partnerApplication.getPartnerApplicationStatus());
     }
 
     @Test
     public void testUPLOADING_DOCStatusChangeStatusBankApplication2() {
-        bankApplicationService.changeStatus(BANK_APPLICATION_1, BankApplicationStatus.EXPIRED);
-        bankApplicationService.changeStatus(BANK_APPLICATION_2, BankApplicationStatus.EXPIRED);
+        bankApplicationService.changeStatus(BANK_APPLICATION_1, BankApplicationStatus.EXPIRED, 1234);
+        bankApplicationService.changeStatus(BANK_APPLICATION_2, BankApplicationStatus.EXPIRED, 1234);
         List<BankApplicationRequest> bankApplications = testData.getPartnerApplicationRequest().getBankApplications();
         bankApplications.add(testData.getBankApplicationRequest());
-        partnerApplicationService.updatePartnerApplication(UUID.fromString("5ff4b32c-f967-4cb1-8705-7470a321fe34"), testData.getPartnerApplicationRequest().setBankApplications(bankApplications));
+        partnerApplicationService.updatePartnerApplication(UUID.fromString("5ff4b32c-f967-4cb1-8705-7470a321fe34"), testData.getPartnerApplicationRequest().setBankApplications(bankApplications), 1234);
         PartnerApplication partnerApplication = partnerApplicationService.getPartnerApplication(PARTNER_APPLICATION_1);
         assertEquals(PartnerApplicationStatus.UPLOADING_DOCS, partnerApplication.getPartnerApplicationStatus());
     }
 
     //TODO написать тест который удаляет созаемщика и это афектит на статус
-    public void testStatusDeletNewBorrowerProfile() {
+    public void testStatusDeleteNewBorrowerProfile() {
 
     }
 
@@ -225,7 +225,8 @@ public class StatusServiceTest extends BaseServiceTest {
                 BORROWER_PROFILE_ID_1,
                 documentType,
                 null,
-                null);
+                null,
+                1234);
     }
 
     private BorrowerProfile getBorrowerProfile(UUID id) {

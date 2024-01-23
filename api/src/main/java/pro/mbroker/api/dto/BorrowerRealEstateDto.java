@@ -10,6 +10,7 @@ import pro.mbroker.api.enums.RealEstateType;
 @Setter
 @ToString
 public class BorrowerRealEstateDto {
+
     private RealEstateType type;
 
     private BasisOfOwnership basisOfOwnership;
@@ -23,5 +24,4 @@ public class BorrowerRealEstateDto {
     private String address;
 
     private Boolean isCollateral;
-
 }

@@ -5,7 +5,7 @@ import org.mapstruct.Mapping;
 import pro.mbroker.api.dto.response.BankResponse;
 import pro.mbroker.app.entity.Bank;
 
-@Mapper
+@Mapper(uses = {CreditProgramDetailMapper.class})
 public interface BankMapper {
     @Mapping(target = "creditProgram", ignore = true)
     @Mapping(target = "logo", ignore = true)

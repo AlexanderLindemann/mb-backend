@@ -25,5 +25,4 @@ public class BorrowerDocumentResponse {
     private String updatedAt; //не использовать LocalDateTime иначе Rabit будет ругатья
 
     private String attachmentName;
-
 }

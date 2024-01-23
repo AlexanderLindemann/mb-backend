@@ -40,5 +40,4 @@ public class LoanProgramCalculationDto {
     private RealEstateType realEstateType;
 
     private SalaryClientProgramCalculationDto salaryClientCalculation;
-
 }

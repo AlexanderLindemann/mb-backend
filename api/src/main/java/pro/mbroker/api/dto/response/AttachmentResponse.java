@@ -28,5 +28,4 @@ public class AttachmentResponse {
     private Integer createdBy;
 
     private Integer updatedBy;
-
 }

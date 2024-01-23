@@ -51,6 +51,7 @@ public class UnderwritingComparator {
 
         return false;
     }
+
     public static boolean decisionIsChanged(UnderwritingDecision old, UnderwritingDecision updated) {
         if (old == null && updated == null) {
             return false;
@@ -71,19 +72,19 @@ public class UnderwritingComparator {
                 || !Objects.equals(old.getCreditProgramName(), updated.getCreditProgramName());
     }
 
-    public static boolean errorIsChanged (UnderwritingError old, UnderwritingError updated) {
-       if (old == null && updated == null) {
-           return false;
-       }
+    public static boolean errorIsChanged(UnderwritingError old, UnderwritingError updated) {
+        if (old == null && updated == null) {
+            return false;
+        }
 
-       if (old == null && updated != null) {
-           return true;
-       }
+        if (old == null && updated != null) {
+            return true;
+        }
 
-       return !Objects.equals(old.getCode(), updated.getCode())
-               || !Objects.equals(old.getMessage(), updated.getMessage())
-               || !Objects.equals(old.getSource(), updated.getSource())
-               || !Objects.equals(old.getSourceDescription(), updated.getSourceDescription())
-               || !Objects.equals(old.getAdditionalInfo(), updated.getAdditionalInfo());
-   }
+        return !Objects.equals(old.getCode(), updated.getCode())
+                || !Objects.equals(old.getMessage(), updated.getMessage())
+                || !Objects.equals(old.getSource(), updated.getSource())
+                || !Objects.equals(old.getSourceDescription(), updated.getSourceDescription())
+                || !Objects.equals(old.getAdditionalInfo(), updated.getAdditionalInfo());
+    }
 }
