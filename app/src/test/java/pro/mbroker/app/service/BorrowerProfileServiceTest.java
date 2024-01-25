@@ -1,5 +1,8 @@
 package pro.mbroker.app.service;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.SneakyThrows;
 import org.hamcrest.Matchers;
 import org.junit.Assert;
 import org.junit.Test;
@@ -7,13 +10,33 @@ import org.springframework.beans.factory.annotation.Autowired;
 import pro.mbroker.api.dto.request.BorrowerRequest;
 import pro.mbroker.api.dto.response.BorrowerProfileResponse;
 import pro.mbroker.api.dto.response.BorrowerResponse;
+import pro.mbroker.api.enums.BasisOfOwnership;
+import pro.mbroker.api.enums.Branch;
+import pro.mbroker.api.enums.Education;
+import pro.mbroker.api.enums.EmploymentStatus;
+import pro.mbroker.api.enums.FamilyRelation;
+import pro.mbroker.api.enums.Gender;
+import pro.mbroker.api.enums.MaritalStatus;
+import pro.mbroker.api.enums.MarriageContract;
+import pro.mbroker.api.enums.NumberOfEmployees;
+import pro.mbroker.api.enums.OrganizationAge;
+import pro.mbroker.api.enums.ProofOfIncome;
+import pro.mbroker.api.enums.RealEstateType;
+import pro.mbroker.api.enums.RegistrationType;
+import pro.mbroker.api.enums.TotalWorkExperience;
 import pro.mbroker.app.TestData;
+import pro.mbroker.app.entity.BorrowerProfile;
+import pro.mbroker.app.util.Converter;
 
 import javax.servlet.http.HttpServletRequest;
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -22,6 +45,7 @@ public class BorrowerProfileServiceTest extends BaseServiceTest {
     private BorrowerProfileService borrowerProfileService;
     @Autowired
     private TestData testData;
+    private static final UUID borrowerId = UUID.fromString("1348b508-f476-11ed-a05b-0242ac120003");
 
     @Test
     public void testUpdateGenericBorrowerProfile() {
@@ -64,4 +88,165 @@ public class BorrowerProfileServiceTest extends BaseServiceTest {
         assertThat(mainBorrower.getPhoneNumber(), Matchers.is("9876543219"));
     }
 
+    @SneakyThrows
+    @Test
+    public void testUpdateBorrowerProfileFieldsSequentially() {
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, Map.of("additionalIncome", 10000, "sdId", 1234));
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, Map.of("age", 35, "sdId", 1234));
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, Map.of("birthdate", "1990-01-01", "sdId", 1234));
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, Map.of("children", 2, "sdId", 1234));
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, Map.of("educations", List.of("INCOMPLETE_SECONDARY", "AVERAGE"), "sdId", 1234));
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, Map.of("email", "email@test.com", "sdId", 1234));
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, Map.of("employmentStatus", "EMPLOYEE", "sdId", 1234));
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, Map.of("firstName", "test_first_name", "sdId", 1234));
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, Map.of("gender", "MALE", "sdId", 1234));
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, Map.of("lastName", "test_last_name", "sdId", 1234));
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, Map.of("mainIncome", 100000, "sdId", 1234));
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, Map.of("maritalStatus", "MARRIED", "sdId", 1234));
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, Map.of("marriageContract", "NO", "sdId", 1234));
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, Map.of("middleName", "test_middle_name", "sdId", 1234));
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, Map.of("passportIssuedByCode", "123123", "sdId", 1234));
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, Map.of("passportIssuedByName", "Отделение Тестового УВД", "sdId", 1234));
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, Map.of("passportIssuedDate", "2020-01-01", "sdId", 1234));
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, Map.of("passportNumber", "11112222", "sdId", 1234));
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, Map.of("pension", 10000, "sdId", 1234));
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, Map.of("phoneNumber", "9999999999", "sdId", 1234));
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, Map.of("prevFullName", "Тестовый Тестослав Тестович", "sdId", 1234));
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, Map.of("proofOfIncome", "TWO_NDFL", "sdId", 1234));
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, Map.of("registrationAddress", "test_address", "sdId", 1234));
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, Map.of("registrationType", "PERMANENT", "sdId", 1234));
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, Map.of("residenceAddress", "test_address_residence", "sdId", 1234));
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, Map.of("residenceRF", true, "sdId", 1234));
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, Map.of("snils", "8877665544", "sdId", 1234));
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, Map.of("tin", "4444333332", "sdId", 1234));
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, Map.of("totalWorkExperience", "FROM_1_TO_3", "sdId", 1234));
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, Map.of("familyRelation", "HUSBAND_WIFE", "sdId", 1234));
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, Map.of("residencyOutsideRU", "Germany", "sdId", 1234));
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, Map.of("longTermStayOutsideRU", "Germany", "sdId", 1234));
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, Map.of("isPublicOfficial", true, "sdId", 1234));
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, Map.of("relatedPublicOfficial", "HUSBAND_WIFE", "sdId", 1234));
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, Map.of("taxResidencyCountries", "Test_Counties", "sdId", 1234));
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, Map.of("publicOfficialPosition", "test_important_employer", "sdId", 1234));
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, Map.of("tinForeign", "4455000002", "sdId", 1234));
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, Map.of("birthPlace", "test_birth_place", "sdId", 1234));
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, Map.of("citizenship", "test_citizenship_counties", "sdId", 1234));
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, new ObjectMapper().readValue("{\"employer\": {\"address\": \"test_address\"}, \"sdId\": 1234}", new TypeReference<>() {
+        }));
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, new ObjectMapper().readValue("{\"employer\": {\"branch\": \"RESCUE\"}, \"sdId\": 1234}", new TypeReference<>() {
+        }));
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, new ObjectMapper().readValue("{\"employer\": {\"tin\": \"555666677788\"}, \"sdId\": 1234}", new TypeReference<>() {
+        }));
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, new ObjectMapper().readValue("{\"employer\": {\"name\": \"test_name_employer\"}, \"sdId\": 1234}", new TypeReference<>() {
+        }));
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, new ObjectMapper().readValue("{\"employer\": {\"numberOfEmployees\": \"LESS_THAN_10\"}, \"sdId\": 1234}", new TypeReference<>() {
+        }));
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, new ObjectMapper().readValue("{\"employer\": {\"organizationAge\": \"LESS_THAN_1\"}, \"sdId\": 1234}", new TypeReference<>() {
+        }));
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, new ObjectMapper().readValue("{\"employer\": {\"phone\": \"4556667778\"}, \"sdId\": 1234}", new TypeReference<>() {
+        }));
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, new ObjectMapper().readValue("{\"employer\": {\"position\": \"director\"}, \"sdId\": 1234}", new TypeReference<>() {
+        }));
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, new ObjectMapper().readValue("{\"employer\": {\"site\": \"site.com\"}, \"sdId\": 1234}", new TypeReference<>() {
+        }));
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, new ObjectMapper().readValue("{\"employer\": {\"workExperience\": \"FROM_1_TO_3\"}, \"sdId\": 1234}", new TypeReference<>() {
+        }));
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, new ObjectMapper().readValue("{\"employer\": {\"isCurrentEmployer\": true}, \"sdId\": 1234}", new TypeReference<>() {
+        }));
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, new ObjectMapper().readValue("{\"employer\": {\"bankDetails\": \"test_bank_details\"}, \"sdId\": 1234}", new TypeReference<>() {
+        }));
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, new ObjectMapper().readValue("{\"employer\": {\"manager\": \"test_manager_contact\"}, \"sdId\": 1234}", new TypeReference<>() {
+        }));
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, new ObjectMapper().readValue("{\"employer\": {\"manager\": \"test_manager_contact\"}, \"sdId\": 1234}", new TypeReference<>() {
+        }));
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, new ObjectMapper().readValue("{\"realEstate\": {\"address\": \"test_address\"}, \"sdId\": 1234}", new TypeReference<>() {
+        }));
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, new ObjectMapper().readValue("{\"realEstate\": {\"area\": 100}, \"sdId\": 1234}", new TypeReference<>() {
+        }));
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, new ObjectMapper().readValue("{\"realEstate\": {\"basisOfOwnership\": \"PURCHASE\"}, \"sdId\": 1234}", new TypeReference<>() {
+        }));
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, new ObjectMapper().readValue("{\"realEstate\": {\"isCollateral\": true}, \"sdId\": 1234}", new TypeReference<>() {
+        }));
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, new ObjectMapper().readValue("{\"realEstate\": {\"price\": 10000000}, \"sdId\": 1234}", new TypeReference<>() {
+        }));
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, new ObjectMapper().readValue("{\"realEstate\": {\"share\": 50}, \"sdId\": 1234}", new TypeReference<>() {
+        }));
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, new ObjectMapper().readValue("{\"realEstate\": {\"type\": \"APARTMENT\"}, \"sdId\": 1234}", new TypeReference<>() {
+        }));
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, new ObjectMapper().readValue("{\"vehicle\": {\"basisOfOwnership\": \"PURCHASE\"}, \"sdId\": 1234}", new TypeReference<>() {
+        }));
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, new ObjectMapper().readValue("{\"vehicle\": {\"isCollateral\": true}, \"sdId\": 1234}", new TypeReference<>() {
+        }));
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, new ObjectMapper().readValue("{\"vehicle\": {\"model\": \"LADA_BAKLAZHAN\"}, \"sdId\": 1234}", new TypeReference<>() {
+        }));
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, new ObjectMapper().readValue("{\"vehicle\": {\"price\": 1000000}, \"sdId\": 1234}", new TypeReference<>() {
+        }));
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, new ObjectMapper().readValue("{\"vehicle\": {\"yearOfManufacture\": 2000}, \"sdId\": 1234}", new TypeReference<>() {
+        }));
+
+        BorrowerProfile borrowerProfile = borrowerProfileService.findByIdWithRealEstateVehicleAndEmployer(UUID.fromString("1348b508-f476-11ed-a05b-0242ac120003"));
+        assertEquals(10000, borrowerProfile.getAdditionalIncome());
+        assertEquals(35, borrowerProfile.getAge());
+        assertEquals(LocalDate.of(1990, 1, 1), borrowerProfile.getBirthdate());
+        assertEquals(2, borrowerProfile.getChildren());
+        assertEquals(Converter.convertStringListToEnumList(borrowerProfile.getEducations(), Education.class), List.of(Education.INCOMPLETE_SECONDARY, Education.AVERAGE));
+        assertEquals("email@test.com", borrowerProfile.getEmail());
+        assertEquals(EmploymentStatus.EMPLOYEE, borrowerProfile.getEmploymentStatus());
+        assertEquals("test_first_name", borrowerProfile.getFirstName());
+        assertEquals(Gender.MALE, borrowerProfile.getGender());
+        assertEquals("test_last_name", borrowerProfile.getLastName());
+        assertEquals(100000, borrowerProfile.getMainIncome());
+        assertEquals(MaritalStatus.MARRIED, borrowerProfile.getMaritalStatus());
+        assertEquals(MarriageContract.NO, borrowerProfile.getMarriageContract());
+        assertEquals("test_middle_name", borrowerProfile.getMiddleName());
+        assertEquals("123123", borrowerProfile.getPassportIssuedByCode());
+        assertEquals("Отделение Тестового УВД", borrowerProfile.getPassportIssuedByName());
+        assertEquals(LocalDate.of(2020, 1, 1), borrowerProfile.getPassportIssuedDate());
+        assertEquals("11112222", borrowerProfile.getPassportNumber());
+        assertEquals(10000, borrowerProfile.getPension());
+        assertEquals("9999999999", borrowerProfile.getPhoneNumber());
+        assertEquals("Тестовый Тестослав Тестович", borrowerProfile.getPrevFullName());
+        assertEquals(ProofOfIncome.TWO_NDFL, borrowerProfile.getProofOfIncome());
+        assertEquals("test_address_residence", borrowerProfile.getResidenceAddress());
+        assertEquals(RegistrationType.PERMANENT, borrowerProfile.getRegistrationType());
+        assertEquals("test_address_residence", borrowerProfile.getResidenceAddress());
+        assertEquals(true, borrowerProfile.getResidenceRF());
+        assertEquals("8877665544", borrowerProfile.getSnils());
+        assertEquals(TotalWorkExperience.FROM_1_TO_3, borrowerProfile.getTotalWorkExperience());
+        assertEquals("4444333332", borrowerProfile.getTin());
+        assertEquals(FamilyRelation.HUSBAND_WIFE, borrowerProfile.getFamilyRelation());
+        assertEquals("Germany", borrowerProfile.getResidencyOutsideRU());
+        assertEquals("Germany", borrowerProfile.getLongTermStayOutsideRU());
+        assertEquals(true, borrowerProfile.getIsPublicOfficial());
+        assertEquals(FamilyRelation.HUSBAND_WIFE, borrowerProfile.getRelatedPublicOfficial());
+        assertEquals("Test_Counties", borrowerProfile.getTaxResidencyCountries());
+        assertEquals("test_important_employer", borrowerProfile.getPublicOfficialPosition());
+        assertEquals("4455000002", borrowerProfile.getTinForeign());
+        assertEquals("test_birth_place", borrowerProfile.getBirthPlace());
+        assertEquals("test_citizenship_counties", borrowerProfile.getCitizenship());
+        assertEquals("test_address", borrowerProfile.getEmployer().getAddress());
+        assertEquals(Branch.RESCUE, borrowerProfile.getEmployer().getBranch());
+        assertEquals("555666677788", borrowerProfile.getEmployer().getTin());
+        assertEquals("test_name_employer", borrowerProfile.getEmployer().getName());
+        assertEquals(NumberOfEmployees.LESS_THAN_10, borrowerProfile.getEmployer().getNumberOfEmployees());
+        assertEquals(OrganizationAge.LESS_THAN_1, borrowerProfile.getEmployer().getOrganizationAge());
+        assertEquals("4556667778", borrowerProfile.getEmployer().getPhone());
+        assertEquals("director", borrowerProfile.getEmployer().getPosition());
+        assertEquals("site.com", borrowerProfile.getEmployer().getSite());
+        assertEquals(TotalWorkExperience.FROM_1_TO_3, borrowerProfile.getEmployer().getWorkExperience());
+        assertEquals(true, borrowerProfile.getEmployer().getIsCurrentEmployer());
+        assertEquals("test_bank_details", borrowerProfile.getEmployer().getBankDetails());
+        assertEquals("test_manager_contact", borrowerProfile.getEmployer().getManager());
+        assertEquals("test_address", borrowerProfile.getRealEstate().getAddress());
+        assertEquals(100, borrowerProfile.getRealEstate().getArea());
+        assertEquals(BasisOfOwnership.PURCHASE, borrowerProfile.getRealEstate().getBasisOfOwnership());
+        assertEquals(true, borrowerProfile.getRealEstate().getIsCollateral());
+        assertEquals(10000000, borrowerProfile.getRealEstate().getPrice());
+        assertEquals(50, borrowerProfile.getRealEstate().getShare());
+        assertEquals(RealEstateType.APARTMENT, borrowerProfile.getRealEstate().getType());
+        assertEquals(BasisOfOwnership.PURCHASE, borrowerProfile.getVehicle().getBasisOfOwnership());
+        assertEquals(true, borrowerProfile.getVehicle().getIsCollateral());
+        assertEquals("LADA_BAKLAZHAN", borrowerProfile.getVehicle().getModel());
+        assertEquals(1000000, borrowerProfile.getVehicle().getPrice());
+        assertEquals(2000, borrowerProfile.getVehicle().getYearOfManufacture());
+    }
 }

@@ -16,6 +16,7 @@ import pro.mbroker.api.enums.DocumentType;
 import pro.mbroker.api.enums.Education;
 import pro.mbroker.app.entity.Bank;
 import pro.mbroker.app.entity.BankApplication;
+import pro.mbroker.app.entity.BaseEntity;
 import pro.mbroker.app.entity.BorrowerDocument;
 import pro.mbroker.app.entity.BorrowerEmployer;
 import pro.mbroker.app.entity.BorrowerProfile;
@@ -151,6 +152,7 @@ public class BorrowerProfileServiceImpl implements BorrowerProfileService {
     }
 
     @Override
+    @Transactional
     public void updateBorrowerProfileField(UUID borrowerProfileId, Map<String, Object> fieldsMap) {
         if (fieldsMap.isEmpty()) return;
         BorrowerProfile borrowerProfile = findByIdWithRealEstateVehicleAndEmployer(borrowerProfileId);
@@ -188,7 +190,7 @@ public class BorrowerProfileServiceImpl implements BorrowerProfileService {
                 throw new ProfileUpdateException(fieldName, "Ошибка при обновлении профиля заемщика");
             }
         }
-        setBorrowerProfileSdId(fieldsMap, borrowerProfile);
+        setCreationAndUpdateField(borrowerProfile, fieldsMap);
         deleteBorrowerDocuments(borrowerProfile);
         statusService.statusChanger(borrowerProfile.getPartnerApplication());
         partnerApplicationService.save(borrowerProfile.getPartnerApplication());
@@ -233,13 +235,14 @@ public class BorrowerProfileServiceImpl implements BorrowerProfileService {
         return getBorrowersByPartnerApplicationId(request.getId());
     }
 
-    private static void setBorrowerProfileSdId(Map<String, Object> fieldsMap, BorrowerProfile borrowerProfile) {
+    private static void setCreationAndUpdateField(BaseEntity entity, Map<String, Object> fieldsMap) {
         Integer sdId = fieldsMap.containsKey("sdId") ? Integer.parseInt(fieldsMap.get("sdId").toString()) : null;
         if (sdId != null) {
-            if (borrowerProfile.getCreatedAt() == null) {
-                borrowerProfile.setCreatedBy(sdId);
+            if (entity.getCreatedAt() == null) {
+                entity.setCreatedBy(sdId);
+                entity.setUpdatedBy(sdId);
             } else {
-                borrowerProfile.setUpdatedBy(sdId);
+                entity.setUpdatedBy(sdId);
             }
         }
     }
@@ -292,6 +295,7 @@ public class BorrowerProfileServiceImpl implements BorrowerProfileService {
         updateObjectWithEnumsAndValues((Map<String, Object>) fieldsMap.get("employer"), employer, BorrowerEmployer.class);
         Objects.requireNonNull(employer).setBorrowerProfile(borrowerProfile);
         borrowerProfile.setEmployer(employer);
+        setCreationAndUpdateField(employer, fieldsMap);
     }
 
     private void updateObjectWithSalaryBankValues(Map<String, Object> fieldsMap, Object value, BorrowerEmployer employer) {
@@ -311,6 +315,7 @@ public class BorrowerProfileServiceImpl implements BorrowerProfileService {
         updateObjectWithEnumsAndValues(realEstateFieldsMap, realEstate, BorrowerRealEstate.class);
         Objects.requireNonNull(realEstate).setBorrowerProfile(borrowerProfile);
         borrowerProfile.setRealEstate(realEstate);
+        setCreationAndUpdateField(realEstate, fieldsMap);
     }
 
     private void updateVehicleField(BorrowerProfile borrowerProfile, Map<String, Object> fieldsMap) {
@@ -319,6 +324,7 @@ public class BorrowerProfileServiceImpl implements BorrowerProfileService {
         updateObjectWithEnumsAndValues(vehicleFieldsMap, vehicle, BorrowerVehicle.class);
         Objects.requireNonNull(vehicle).setBorrowerProfile(borrowerProfile);
         borrowerProfile.setVehicle(vehicle);
+        setCreationAndUpdateField(vehicle, fieldsMap);
     }
 
     private <T> void updateObjectWithEnumsAndValues(Map<String, Object> fieldsMap, T targetObject, Class<T> targetClass) {
@@ -424,5 +430,4 @@ public class BorrowerProfileServiceImpl implements BorrowerProfileService {
         updatedBanks.addAll(banksToAdd);
         employer.setSalaryBanks(updatedBanks);
     }
-
 }

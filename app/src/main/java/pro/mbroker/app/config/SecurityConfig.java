@@ -8,6 +8,8 @@ import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import pro.mbroker.app.util.CachingRequestBodyFilter;
 
 @Configuration
 @EnableWebSecurity
@@ -27,7 +29,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .anyRequest().permitAll()
                 .and()
                 .exceptionHandling()
-                .authenticationEntryPoint(customAuthenticationEntryPoint);
+                .authenticationEntryPoint(customAuthenticationEntryPoint)
+                .and()
+                .addFilterBefore(new CachingRequestBodyFilter(), UsernamePasswordAuthenticationFilter.class);
     }
 
     @Override

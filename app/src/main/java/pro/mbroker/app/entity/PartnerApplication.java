@@ -46,6 +46,9 @@ public class PartnerApplication extends BaseEntity {
     @Column(name = "insurances")
     private String insurances;
 
+    @Column(name = "external_creator_id")
+    private Integer externalCreatorId;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "credit_purpose_type", nullable = false)
     private CreditPurposeType creditPurposeType;

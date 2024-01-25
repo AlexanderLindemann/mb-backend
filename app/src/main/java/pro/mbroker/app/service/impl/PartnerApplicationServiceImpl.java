@@ -188,6 +188,9 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
         List<BankApplication> bankApplications = buildBankApplications(request, partnerApplication, sdId);
         partnerApplication.setBankApplications(bankApplications);
         updateMainBorrower(partnerApplication, request.getMainBorrower(), sdId);
+        if (Objects.nonNull(request.getExternalCreatorId())) {
+            partnerApplication.setExternalCreatorId(request.getExternalCreatorId());
+        }
         statusService.statusChanger(partnerApplication);
         return save(partnerApplication);
     }

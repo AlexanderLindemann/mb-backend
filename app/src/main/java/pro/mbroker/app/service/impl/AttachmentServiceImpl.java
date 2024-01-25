@@ -50,7 +50,7 @@ public class AttachmentServiceImpl implements AttachmentService {
                         .setMimeType(upload.getMimeType())
                         .setSizeBytes(upload.getSizeBytes())
                         .setContentMd5(upload.getMd5Hash()))
-                .setCreatedBy(sdId);
+                        .setCreatedBy(sdId);
     }
 
     @Override

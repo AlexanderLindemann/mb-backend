@@ -6,6 +6,7 @@ import lombok.ToString;
 import pro.mbroker.api.dto.MortgageCalculationDto;
 import pro.mbroker.api.enums.CreditPurposeType;
 import pro.mbroker.api.enums.Insurance;
+import pro.mbroker.api.enums.PartnerType;
 import pro.mbroker.api.enums.PaymentSource;
 import pro.mbroker.api.enums.RealEstateType;
 
@@ -16,6 +17,12 @@ import java.util.List;
 @Setter
 @ToString
 public class PartnerApplicationRequest {
+
+    private String realEstateId;
+
+    private Integer externalCreatorId;
+
+    private PartnerType partnerType;
 
     private BigDecimal maternalCapitalAmount;
 
@@ -28,8 +35,6 @@ public class PartnerApplicationRequest {
     private CreditPurposeType creditPurposeType;
 
     private List<RealEstateType> realEstateTypes;
-
-    private String realEstateId;
 
     private List<BankApplicationRequest> bankApplications;
 
