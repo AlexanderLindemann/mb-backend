@@ -6,7 +6,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
-import pro.mbroker.app.util.CachingRequestBodyFilter;
+import pro.mbroker.app.util.HmacRequestVerificationFilter;
 import pro.smartdeal.ng.common.api.SdApiPackages;
 import pro.smartdeal.ng.common.security.config.CommonWebSecurityConfigurationAdapter;
 
@@ -28,7 +28,7 @@ public class SmartDealBeans {
     }
 
     @Bean
-    public CachingRequestBodyFilter customCachingRequestBodyFilter() {
-        return new CachingRequestBodyFilter();
+    public HmacRequestVerificationFilter customCachingRequestBodyFilter() {
+        return new HmacRequestVerificationFilter();
     }
 }

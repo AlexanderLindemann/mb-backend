@@ -15,7 +15,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
 @Component
-public class CachingRequestBodyFilter extends OncePerRequestFilter {
+public class HmacRequestVerificationFilter extends OncePerRequestFilter {
 
     private static final String HMAC_HEADER = "X-HMAC-Hash";
     private static final String TIMESTAMP_HEADER = "X-Timestamp";
