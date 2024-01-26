@@ -113,8 +113,7 @@ public class PartnerServiceImpl implements PartnerService {
     @Override
     public Partner getPartnerByCianIdOrName(Integer cianId, String name) {
         Specification<Partner> specification = PartnerSpecification.partnerByCianIdOrName(cianId, name);
-        return partnerRepository.findOne(specification)
-                .orElseThrow(() -> new ItemNotFoundException(Partner.class, List.of(cianId, name)));
+        return partnerRepository.findOne(specification).orElse(null);
     }
 
     @Override
@@ -185,7 +184,7 @@ public class PartnerServiceImpl implements PartnerService {
     }
 
     @Override
-    public Partner saveOrUpdateParthner(Partner partner) {
+    public Partner saveOrUpdatePartner(Partner partner) {
         return partnerRepository.save(partner);
     }
 }

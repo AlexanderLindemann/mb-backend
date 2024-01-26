@@ -31,5 +31,5 @@ public interface PartnerService {
 
     Partner updateCianId(UUID partnerId, Integer cianId);
 
-    Partner saveOrUpdateParthner(Partner partner);
+    Partner saveOrUpdatePartner(Partner partner);
 }

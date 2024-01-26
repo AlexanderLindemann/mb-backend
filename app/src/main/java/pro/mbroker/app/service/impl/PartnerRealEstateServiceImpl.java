@@ -21,6 +21,7 @@ import pro.mbroker.app.integration.cian.CianAPIClient;
 import pro.mbroker.app.integration.cian.CiansRealEstate;
 import pro.mbroker.app.integration.cian.response.BuilderDto;
 import pro.mbroker.app.integration.cian.response.RealEstateCianResponse;
+import pro.mbroker.app.integration.cian.response.SellerDto;
 import pro.mbroker.app.mapper.RealEstateMapper;
 import pro.mbroker.app.repository.PartnerRepository;
 import pro.mbroker.app.repository.RealEstateRepository;
@@ -33,7 +34,7 @@ import pro.mbroker.app.util.Pagination;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
-import java.util.stream.Collectors;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
 @Slf4j
@@ -105,23 +106,24 @@ public class PartnerRealEstateServiceImpl implements PartnerRealEstateService {
     public void loadRealEstatesFromCian() {
         try {
             log.info("Запускаем выгрузку жк из циан ");
+            AtomicInteger counter = new AtomicInteger(0);
             RealEstateCianResponse response = cianAPIClient.getRealEstate();
             int totalBuildings = response.getNewBuildings().size();
             if (response != null) {
                 log.info("Загружено из Циан ЖК в количестве: " + response.getNewBuildings().size() + ". Начинаем сохранение");
             }
-
-            List<CiansRealEstate> successSavedBuildings = response.getNewBuildings()
+            response.getNewBuildings()
                     .stream()
-                    .peek(x -> {
+                    .forEach(x -> {
                         try {
                             checkAndSavePartner(x);
+                            counter.getAndIncrement();
                         } catch (Exception e) {
+                            e.printStackTrace();
                             log.error("Не смогли загрузить Партнера name:{}, id:{}", x.getName(), x.getId(), e);
                         }
-                    })
-                    .collect(Collectors.toList());
-            log.info("Из {} ЖК загруженных из Циан. Успешно сохранено {} ЖК ", totalBuildings, successSavedBuildings.size());
+                    });
+            log.info("Из {} ЖК загруженных из Циан. Успешно сохранено {} ЖК ", totalBuildings, counter);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -139,29 +141,55 @@ public class PartnerRealEstateServiceImpl implements PartnerRealEstateService {
 
     private void checkAndSavePartner(CiansRealEstate cianResponse) {
         if (Objects.nonNull(cianResponse.getBuilders())) {
-            BuilderDto builder = cianResponse.getBuilders().get(0);//договорились с цианом что пока будем вытаскивать первого.
-
-            var cianId = builder.getId();
-            var name = builder.getName();
-            if (cianId != null || name != null) {
-                try {
-                    Partner partner = partnerService.getPartnerByCianIdOrName(cianId, name);
-                    if (partner != null) {
-                        if (partner.getCianId() != null) {
-                            partner.setCianId(cianId);
-                            partner.setActive(true);
-                            partnerService.saveOrUpdateParthner(partner);
+            if (!cianResponse.getBuilders().isEmpty()) {
+                cianResponse.getBuilders().forEach(
+                        builder ->
+                        {
+                            var cianId = builder.getId();
+                            var name = builder.getName();
+                            if (cianId != null || name != null) {
+                                processCiansPartner(cianResponse, cianId, name, PartnerType.DEVELOPER);
+                            }
                         }
-                    } else {
-                        PartnerRequest partnerRequest = buildPartnerRequest(cianResponse);
-                        partner = partnerService.createPartner(partnerRequest, 6666);
-                    }
-
-                    checkAndSaveRealEstate(cianResponse, partner.getId());
-                } catch (ItemNotFoundException e) {
-                    log.error("Не смогли создать или обновить партнера: " + name);
-                }
+                );
             }
+
+            if (!cianResponse.getSellers().isEmpty()) {
+                cianResponse.getSellers().forEach(
+                        seller ->
+                        {
+                            var cianId = seller.getRealtyUserId();
+                            var name = seller.getName();
+                            if (cianId != null || name != null) {
+                                processCiansPartner(cianResponse, cianId, name, PartnerType.REAL_ESTATE_AGENCY);
+                            }
+                        }
+                );
+            }
+
+        }
+    }
+
+    private void processCiansPartner(CiansRealEstate cianResponse, Integer cianId, String name, PartnerType type) {
+        try {
+            Partner partner = partnerService.getPartnerByCianIdOrName(cianId, name);
+            if (partner != null) {
+                if (partner.getCianId() != null) {
+                    partner.setCianId(cianId);
+                    partner.setActive(true);
+                    partner.setType(type);
+                    partner = partnerService.saveOrUpdatePartner(partner);
+                }
+            } else {
+                PartnerRequest partnerRequest = buildPartnerRequest(cianResponse, type, cianId);
+                partner = partnerService.createPartner(partnerRequest, 6666);
+            }
+
+            checkAndSaveRealEstate(cianResponse, partner.getId());
+
+        } catch (ItemNotFoundException e) {
+            e.printStackTrace();
+            log.error("Не смогли создать или обновить партнера: " + name);
         }
     }
 
@@ -193,15 +221,28 @@ public class PartnerRealEstateServiceImpl implements PartnerRealEstateService {
         return List.of(request);
     }
 
-    private PartnerRequest buildPartnerRequest(CiansRealEstate response) {
-        BuilderDto builder = response.getBuilders().get(0);//договорились с цианом брать 1го застройщика
+    private PartnerRequest buildPartnerRequest(CiansRealEstate response, PartnerType type, Integer cianId) {
         PartnerRequest partnerRequest = new PartnerRequest();
-        partnerRequest.setName(builder.getName());
-        partnerRequest.setCianId(builder.getId());
+        if (type == PartnerType.DEVELOPER) {
+            BuilderDto builder = response.getBuilders().stream()
+                    .filter(x -> Objects.equals(x.getId(), cianId))
+                    .findFirst()
+                    .orElse(null);
+            partnerRequest.setName(builder.getName());
+            partnerRequest.setCianId(builder.getId());
+
+        } else if (type == PartnerType.REAL_ESTATE_AGENCY) {
+            SellerDto seller = response.getSellers().stream()
+                    .filter(x -> Objects.equals(x.getRealtyUserId(), cianId))
+                    .findFirst()
+                    .orElse(null);
+            partnerRequest.setName(seller.getName());
+            partnerRequest.setCianId(seller.getRealtyUserId());
+        }
 
         partnerRequest.setRealEstateRequest(buildRealEstateRequest(response));
         partnerRequest.setRealEstateType(RealEstateType.getAll());
-        partnerRequest.setType(PartnerType.DEVELOPER);
+        partnerRequest.setType(type);
         partnerRequest.setBankCreditProgram(getAllCreditProgramIds());
         partnerRequest.setCreditPurposeType(CreditPurposeType.getAll());
 
