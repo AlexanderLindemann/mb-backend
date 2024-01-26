@@ -53,7 +53,7 @@ public interface BorrowerProfileController {
     @ApiOperation("Добавить поле в профиль клиента")
     @PutMapping("/{borrowerProfileId}/updateField")
     void updateBorrowerProfileField(@ApiParam(value = "Идентификатор профиля") @PathVariable UUID borrowerProfileId,
-                                    @RequestParam Map<String, Object> fieldsMap);
+                                    @RequestBody Map<String, Object> fieldsMap);
 
     @ApiOperation("получить полный профиль клиента")
     @GetMapping("/{borrowerProfileId}/full")
