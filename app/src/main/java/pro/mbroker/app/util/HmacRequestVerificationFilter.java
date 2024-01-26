@@ -27,6 +27,10 @@ public class HmacRequestVerificationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
 
+        if ("/health".equals(request.getRequestURI())) {
+            filterChain.doFilter(request, response);
+            return;
+        }
         ContentCachingRequestWrapper wrappedRequest = new ContentCachingRequestWrapper(request);
         String hmacHeader = wrappedRequest.getHeader(HMAC_HEADER);
         String timestamp = wrappedRequest.getHeader(TIMESTAMP_HEADER);
