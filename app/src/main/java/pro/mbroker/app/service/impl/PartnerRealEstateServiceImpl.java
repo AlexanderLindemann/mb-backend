@@ -104,31 +104,31 @@ public class PartnerRealEstateServiceImpl implements PartnerRealEstateService {
     @Scheduled(fixedRate = 60 * 60 * 1000)
     @Override
     public void loadRealEstatesFromCian() {
-//        try {
-//            log.info("Запускаем выгрузку жк из циан ");
-//            AtomicInteger counter = new AtomicInteger(0);
-//            RealEstateCianResponse response = cianAPIClient.getRealEstate();
-//            int totalBuildings = response.getNewBuildings().size();
-//            if (response != null) {
-//                log.info("Загружено из Циан ЖК в количестве: " + response.getNewBuildings().size() + ". Начинаем сохранение");
-//            }
-//            response.getNewBuildings()
-//                    .stream()
-//                    .forEach(x -> {
-//                        try {
-//                            checkAndSavePartner(x);
-//                            counter.getAndIncrement();
-//                        } catch (Exception e) {
-//                            e.printStackTrace();
-//                            log.error("Не смогли загрузить Партнера name:{}, id:{}", x.getName(), x.getId(), e);
-//                        }
-//                    });
-//            log.info("Из {} ЖК загруженных из Циан. Успешно сохранено {} ЖК ", totalBuildings, counter);
-//
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//            log.error("Не смогли загрузить данные по ЖК из циан ");
-//        }
+        try {
+            log.info("Запускаем выгрузку жк из циан ");
+            AtomicInteger counter = new AtomicInteger(0);
+            RealEstateCianResponse response = cianAPIClient.getRealEstate();
+            int totalBuildings = response.getNewBuildings().size();
+            if (response != null) {
+                log.info("Загружено из Циан ЖК в количестве: " + response.getNewBuildings().size() + ". Начинаем сохранение");
+            }
+            response.getNewBuildings()
+                    .stream()
+                    .forEach(x -> {
+                        try {
+                            checkAndSavePartner(x);
+                            counter.getAndIncrement();
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                            log.error("Не смогли загрузить Партнера name:{}, id:{}", x.getName(), x.getId(), e);
+                        }
+                    });
+            log.info("Из {} ЖК загруженных из Циан. Успешно сохранено {} ЖК ", totalBuildings, counter);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            log.error("Не смогли загрузить данные по ЖК из циан ");
+        }
     }
 
     @Override

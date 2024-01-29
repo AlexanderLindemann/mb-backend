@@ -3,6 +3,7 @@ package pro.mbroker.app.web;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import pro.mbroker.api.controller.PartnerRealEstateController;
@@ -71,8 +72,9 @@ public class PartnerRealEstateControllerImpl implements PartnerRealEstateControl
                                                                           String sortBy,
                                                                           String sortOrder,
                                                                           String realEstateName) {
+        Sort sort = Sort.by(Sort.Direction.fromString(sortOrder), sortBy).and(Sort.by("id"));
         Page<RealEstate> realEstatesPage =
-                partnerRealEstateService.findRealEstatesByName(Pagination.createPageable(page, size, sortBy, sortOrder), realEstateName);
+                partnerRealEstateService.findRealEstatesByName(Pagination.createPageable(page, size, sort), realEstateName);
         Page<RealEstateResponse> responsePage =
                 realEstatesPage.map(realEstateMapper::toRealEstateResponseMapper);
         return ResponseEntity.ok(responsePage);

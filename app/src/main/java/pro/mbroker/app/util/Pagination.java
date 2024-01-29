@@ -11,4 +11,8 @@ public final class Pagination {
         Sort sort = Sort.by(Sort.Direction.fromString(sortOrder), sortBy);
         return PageRequest.of(page, size, sort);
     }
+
+    public static Pageable createPageable(int page, int size, Sort sort) {
+        return PageRequest.of(page, size, sort);
+    }
 }

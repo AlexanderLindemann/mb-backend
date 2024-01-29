@@ -15,6 +15,6 @@ public class ItemNotFoundException extends RestException {
     }
 
     public ItemNotFoundException(@NonNull Class<?> itemClass, @NonNull String msg) {
-        super(StringUtils.capitalize(itemClass.getSimpleName()) + msg);
+        super(StringUtils.capitalize(itemClass.getSimpleName()) + " " + msg);
     }
 }

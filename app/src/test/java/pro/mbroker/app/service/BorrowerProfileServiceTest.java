@@ -30,6 +30,7 @@ import pro.mbroker.app.util.Converter;
 
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -37,6 +38,7 @@ import java.util.UUID;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -46,6 +48,8 @@ public class BorrowerProfileServiceTest extends BaseServiceTest {
     @Autowired
     private TestData testData;
     private static final UUID borrowerId = UUID.fromString("1348b508-f476-11ed-a05b-0242ac120003");
+    @Autowired
+    private ObjectMapper objectMapper;
 
     @Test
     public void testUpdateGenericBorrowerProfile() {
@@ -248,5 +252,160 @@ public class BorrowerProfileServiceTest extends BaseServiceTest {
         assertEquals("LADA_BAKLAZHAN", borrowerProfile.getVehicle().getModel());
         assertEquals(1000000, borrowerProfile.getVehicle().getPrice());
         assertEquals(2000, borrowerProfile.getVehicle().getYearOfManufacture());
+    }
+
+    @Test
+    public void testDeleteBorrowerProfileFieldsSequentially() {
+
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, getFieldMap("additionalIncome", null));
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, getFieldMap("age", null));
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, getFieldMap("birthdate", null));
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, getFieldMap("children", null));
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, getFieldMap("educations", null));
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, getFieldMap("email", null));
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, getFieldMap("employmentStatus", null));
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, getFieldMap("firstName", null));
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, getFieldMap("gender", null));
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, getFieldMap("lastName", null));
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, getFieldMap("mainIncome", null));
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, getFieldMap("maritalStatus", null));
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, getFieldMap("marriageContract", null));
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, getFieldMap("middleName", null));
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, getFieldMap("passportIssuedByCode", null));
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, getFieldMap("passportIssuedByName", null));
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, getFieldMap("passportIssuedDate", null));
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, getFieldMap("passportNumber", null));
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, getFieldMap("pension", null));
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, getFieldMap("phoneNumber", null));
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, getFieldMap("prevFullName", null));
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, getFieldMap("proofOfIncome", null));
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, getFieldMap("registrationAddress", null));
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, getFieldMap("registrationType", null));
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, getFieldMap("residenceAddress", null));
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, getFieldMap("residenceRF", null));
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, getFieldMap("snils", null));
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, getFieldMap("tin", null));
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, getFieldMap("totalWorkExperience", null));
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, getFieldMap("familyRelation", null));
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, getFieldMap("residencyOutsideRU", null));
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, getFieldMap("longTermStayOutsideRU", null));
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, getFieldMap("isPublicOfficial", null));
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, getFieldMap("relatedPublicOfficial", null));
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, getFieldMap("taxResidencyCountries", null));
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, getFieldMap("publicOfficialPosition", null));
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, getFieldMap("tinForeign", null));
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, getFieldMap("birthPlace", null));
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, getFieldMap("citizenship", null));
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, getFieldMap("citizenship", null));
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, getFieldMapFromJson("{\"employer\": {\"address\": null}}"));
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, getFieldMapFromJson("{\"employer\": {\"branch\": null}}"));
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, getFieldMapFromJson("{\"employer\": {\"tin\": null}}"));
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, getFieldMapFromJson("{\"employer\": {\"name\": null}}"));
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, getFieldMapFromJson("{\"employer\": {\"numberOfEmployees\": null}}"));
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, getFieldMapFromJson("{\"employer\": {\"organizationAge\": null}}"));
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, getFieldMapFromJson("{\"employer\": {\"phone\": null}}"));
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, getFieldMapFromJson("{\"employer\": {\"position\": null}}"));
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, getFieldMapFromJson("{\"employer\": {\"site\": null}}"));
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, getFieldMapFromJson("{\"employer\": {\"workExperience\": null}}"));
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, getFieldMapFromJson("{\"employer\": {\"isCurrentEmployer\": null}}"));
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, getFieldMapFromJson("{\"employer\": {\"bankDetails\": null}}"));
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, getFieldMapFromJson("{\"employer\": {\"manager\": null}}"));
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, getFieldMapFromJson("{\"realEstate\": {\"address\": null}}"));
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, getFieldMapFromJson("{\"realEstate\": {\"area\": null}}"));
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, getFieldMapFromJson("{\"realEstate\": {\"basisOfOwnership\": null}}"));
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, getFieldMapFromJson("{\"realEstate\": {\"isCollateral\": null}}"));
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, getFieldMapFromJson("{\"realEstate\": {\"price\": null}}"));
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, getFieldMapFromJson("{\"realEstate\": {\"share\": null}}"));
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, getFieldMapFromJson("{\"realEstate\": {\"type\": null}}"));
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, getFieldMapFromJson("{\"vehicle\": {\"basisOfOwnership\": null}}"));
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, getFieldMapFromJson("{\"vehicle\": {\"isCollateral\": null}}"));
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, getFieldMapFromJson("{\"vehicle\": {\"model\": null}}"));
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, getFieldMapFromJson("{\"vehicle\": {\"price\": null}}"));
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, getFieldMapFromJson("{\"vehicle\": {\"yearOfManufacture\": null}}"));
+
+        BorrowerProfile borrowerProfile = borrowerProfileService.findByIdWithRealEstateVehicleAndEmployer(borrowerId);
+        assertNull(borrowerProfile.getAdditionalIncome());
+        assertNull(borrowerProfile.getAge());
+        assertNull(borrowerProfile.getBirthdate());
+        assertNull(borrowerProfile.getChildren());
+        assertNull(borrowerProfile.getEducations());
+        assertNull(borrowerProfile.getEmail());
+        assertNull(borrowerProfile.getEmploymentStatus());
+        assertNull(borrowerProfile.getFirstName());
+        assertNull(borrowerProfile.getGender());
+        assertNull(borrowerProfile.getLastName());
+        assertNull(borrowerProfile.getMainIncome());
+        assertNull(borrowerProfile.getMaritalStatus());
+        assertNull(borrowerProfile.getMarriageContract());
+        assertNull(borrowerProfile.getMiddleName());
+        assertNull(borrowerProfile.getPassportIssuedByCode());
+        assertNull(borrowerProfile.getPassportIssuedByName());
+        assertNull(borrowerProfile.getPassportIssuedDate());
+        assertNull(borrowerProfile.getPassportNumber());
+        assertNull(borrowerProfile.getPension());
+        assertNull(borrowerProfile.getPhoneNumber());
+        assertNull(borrowerProfile.getPrevFullName());
+        assertNull(borrowerProfile.getProofOfIncome());
+        assertNull(borrowerProfile.getResidenceAddress());
+        assertNull(borrowerProfile.getRegistrationType());
+        assertNull(borrowerProfile.getResidenceRF());
+        assertNull(borrowerProfile.getSnils());
+        assertNull(borrowerProfile.getTotalWorkExperience());
+        assertNull(borrowerProfile.getFamilyRelation());
+        assertNull(borrowerProfile.getResidencyOutsideRU());
+        assertNull(borrowerProfile.getLongTermStayOutsideRU());
+        assertNull(borrowerProfile.getIsPublicOfficial());
+        assertNull(borrowerProfile.getRelatedPublicOfficial());
+        assertNull(borrowerProfile.getTaxResidencyCountries());
+        assertNull(borrowerProfile.getPublicOfficialPosition());
+        assertNull(borrowerProfile.getTinForeign());
+        assertNull(borrowerProfile.getBirthPlace());
+        assertNull(borrowerProfile.getCitizenship());
+        assertNull(borrowerProfile.getEmployer().getAddress());
+        assertNull(borrowerProfile.getEmployer().getBranch());
+        assertNull(borrowerProfile.getEmployer().getTin());
+        assertNull(borrowerProfile.getEmployer().getName());
+        assertNull(borrowerProfile.getEmployer().getNumberOfEmployees());
+        assertNull(borrowerProfile.getEmployer().getOrganizationAge());
+        assertNull(borrowerProfile.getEmployer().getPhone());
+        assertNull(borrowerProfile.getEmployer().getPosition());
+        assertNull(borrowerProfile.getEmployer().getSite());
+        assertNull(borrowerProfile.getEmployer().getWorkExperience());
+        assertNull(borrowerProfile.getEmployer().getIsCurrentEmployer());
+        assertNull(borrowerProfile.getEmployer().getBankDetails());
+        assertNull(borrowerProfile.getEmployer().getManager());
+        assertNull(borrowerProfile.getRealEstate().getAddress());
+        assertNull(borrowerProfile.getRealEstate().getArea());
+        assertNull(borrowerProfile.getRealEstate().getBasisOfOwnership());
+        assertNull(borrowerProfile.getRealEstate().getIsCollateral());
+        assertNull(borrowerProfile.getRealEstate().getPrice());
+        assertNull(borrowerProfile.getRealEstate().getShare());
+        assertNull(borrowerProfile.getRealEstate().getType());
+        assertNull(borrowerProfile.getVehicle().getBasisOfOwnership());
+        assertNull(borrowerProfile.getVehicle().getIsCollateral());
+        assertNull(borrowerProfile.getVehicle().getModel());
+        assertNull(borrowerProfile.getVehicle().getPrice());
+        assertNull(borrowerProfile.getVehicle().getYearOfManufacture());
+    }
+
+    private Map<String, Object> getFieldMap(String fieldName, Objects value) {
+        Map<String, Object> map = new HashMap<>() {{
+            put(fieldName, value);
+            put("sdId", 1234);
+        }};
+        return map;
+    }
+
+    private Map<String, Object> getFieldMapFromJson(String json) {
+        Map<String, Object> fieldMap;
+        try {
+            TypeReference<HashMap<String, Object>> typeRef = new TypeReference<>() {
+            };
+            fieldMap = objectMapper.readValue(json, typeRef);
+        } catch (Exception e) {
+            throw new RuntimeException("Error parsing JSON", e);
+        }
+        fieldMap.put("sdId", 1234);
+        return fieldMap;
     }
 }
