@@ -129,8 +129,8 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
             return fetchPartnerApplications(specification.and(PartnerApplicationSpecification.partnerIdEquals(partnerId)), pageable);
         } else if (request.getPermissions().contains("MB_REQUEST_READ_OWN")) {
             return fetchPartnerApplications(specification.and(PartnerApplicationSpecification.createdByEquals(request.getSdId())), pageable);
-        } else if (request.getPermissions().contains("MB_CABINET_ACCESS")) {
-            String tokenPhoneNumber = formatPhoneNumber(request.getPhoneNumber());
+        } else if (request.getPermissions().contains("SD_MOBILE_INTERACTION")) {
+            String tokenPhoneNumber = formatPhoneNumber(request.getTokenPhoneNumber());
             List<PartnerApplication> partnerApplications = getPartnerApplicationsByPhoneNumber(tokenPhoneNumber);
             return new PageImpl<>(getPartnerApplicationsByPhoneNumber(tokenPhoneNumber), pageable, partnerApplications.size());
         } else {

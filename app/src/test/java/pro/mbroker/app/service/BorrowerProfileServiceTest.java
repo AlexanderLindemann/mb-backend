@@ -25,18 +25,24 @@ import pro.mbroker.api.enums.RealEstateType;
 import pro.mbroker.api.enums.RegistrationType;
 import pro.mbroker.api.enums.TotalWorkExperience;
 import pro.mbroker.app.TestData;
+import pro.mbroker.app.entity.Bank;
 import pro.mbroker.app.entity.BorrowerProfile;
 import pro.mbroker.app.util.Converter;
 
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDate;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hibernate.validator.internal.util.Contracts.assertNotNull;
+import static org.hibernate.validator.internal.util.Contracts.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.mock;
@@ -66,6 +72,85 @@ public class BorrowerProfileServiceTest extends BaseServiceTest {
         assertThat(mainBorrower.getEmail(), Matchers.is("test@test.com"));
         assertThat(mainBorrower.getFirstName(), Matchers.is("TestFirstName"));
         assertThat(mainBorrower.getLastName(), Matchers.is("TestLastName"));
+    }
+
+    @Test
+    public void createOrUpdateBorrowerProfileTest() throws Exception {
+        BorrowerRequest borrowerRequest = testData.getBorrowerRequest()
+                .setId(UUID.fromString("3b339aa4-5462-485a-9118-5922cd948566"));
+        BorrowerResponse borrowerProfile = borrowerProfileService.createOrUpdateBorrowerProfile(borrowerRequest, 1234);
+        BorrowerProfileResponse mainBorrower = borrowerProfile.getMainBorrower();
+        assertEquals("1348b508-f476-11ed-a05b-0242ac120003", mainBorrower.getId().toString());
+        assertEquals("Ivan", mainBorrower.getFirstName());
+        assertEquals("Ivanov Perviy", mainBorrower.getLastName());
+        assertEquals("Ivanovich", mainBorrower.getMiddleName());
+        assertEquals("9876543219", mainBorrower.getPhoneNumber());
+        assertEquals("test@test.com", mainBorrower.getEmail());
+        List<BorrowerProfileResponse> expectedCoBorrowers = List.of(
+                new BorrowerProfileResponse()
+                        .setFirstName("TestFirstName2").setLastName("TestLastName2").setEmail("test2@test.com"),
+                new BorrowerProfileResponse()
+                        .setFirstName("TestFirstName3").setLastName("TestLastName3").setEmail("test3@test.com"),
+                new BorrowerProfileResponse()
+                        .setFirstName("TestFirstName").setLastName("TestLastName").setEmail("test@test.com")
+        );
+        for (BorrowerProfileResponse expectedCoBorrower : expectedCoBorrowers) {
+            boolean found = borrowerProfile.getCoBorrower().stream().anyMatch(coBorrower ->
+                    expectedCoBorrower.getFirstName().equals(coBorrower.getFirstName()) &&
+                            expectedCoBorrower.getLastName().equals(coBorrower.getLastName()) &&
+                            expectedCoBorrower.getEmail().equals(coBorrower.getEmail()));
+            assertTrue(found, "Did not find expected coBorrower: " + expectedCoBorrower);
+        }
+    }
+
+    @SneakyThrows
+    @Test
+    public void testAddSalaryBanks() {
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, new ObjectMapper().readValue("{\"employer\": {\"salaryBanks\": [\"1fd0708a-d848-11ed-afa1-0242ac120002\", \"0c371042-d848-11ed-afa1-0242ac120002\"]}}", new TypeReference<>() {
+        }));
+        BorrowerProfile borrowerProfile = borrowerProfileService.findByIdWithRealEstateVehicleAndEmployer(UUID.fromString("1348b508-f476-11ed-a05b-0242ac120003"));
+        assertNotNull(borrowerProfile.getEmployer().getSalaryBanks());
+        Set<UUID> actualSalaryBanks = borrowerProfile.getEmployer().getSalaryBanks().stream()
+                .map(Bank::getId)
+                .collect(Collectors.toSet());
+        Set<UUID> expectedBanks = new HashSet<>();
+        expectedBanks.add(UUID.fromString("1fd0708a-d848-11ed-afa1-0242ac120002"));
+        expectedBanks.add(UUID.fromString("0c371042-d848-11ed-afa1-0242ac120002"));
+        assertEquals(expectedBanks, actualSalaryBanks);
+    }
+
+    @SneakyThrows
+    @Test
+    public void testModifySalaryBanks() {
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, new ObjectMapper().readValue("{\"employer\": {\"salaryBanks\": [\"1fd0708a-d848-11ed-afa1-0242ac120002\", \"0c371042-d848-11ed-afa1-0242ac120002\"]}}", new TypeReference<>() {
+        }));
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, new ObjectMapper().readValue("{\"employer\": {\"salaryBanks\": [\"2708daa4-d848-11ed-afa1-0242ac120002\", \"0c371042-d848-11ed-afa1-0242ac120002\"]}}", new TypeReference<>() {
+        }));
+        BorrowerProfile borrowerProfile = borrowerProfileService.findByIdWithRealEstateVehicleAndEmployer(UUID.fromString("1348b508-f476-11ed-a05b-0242ac120003"));
+        assertNotNull(borrowerProfile.getEmployer().getSalaryBanks());
+        Set<UUID> actualSalaryBanks = borrowerProfile.getEmployer().getSalaryBanks().stream()
+                .map(Bank::getId)
+                .collect(Collectors.toSet());
+        assertEquals(2, actualSalaryBanks.size());
+        Set<UUID> expectedBanks = new HashSet<>();
+        expectedBanks.add(UUID.fromString("2708daa4-d848-11ed-afa1-0242ac120002"));
+        expectedBanks.add(UUID.fromString("0c371042-d848-11ed-afa1-0242ac120002"));
+        assertEquals(expectedBanks, actualSalaryBanks);
+    }
+
+    @SneakyThrows
+    @Test
+    public void testDeleteSalaryBanks() {
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, new ObjectMapper().readValue("{\"employer\": {\"salaryBanks\": [\"1fd0708a-d848-11ed-afa1-0242ac120002\", \"0c371042-d848-11ed-afa1-0242ac120002\"]}}", new TypeReference<>() {
+        }));
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, new ObjectMapper().readValue("{\"employer\": {\"salaryBanks\": null}}", new TypeReference<>() {
+        }));
+        BorrowerProfile borrowerProfile = borrowerProfileService.findByIdWithRealEstateVehicleAndEmployer(UUID.fromString("1348b508-f476-11ed-a05b-0242ac120003"));
+        assertNotNull(borrowerProfile.getEmployer().getSalaryBanks());
+        Set<UUID> actualSalaryBanks = borrowerProfile.getEmployer().getSalaryBanks().stream()
+                .map(Bank::getId)
+                .collect(Collectors.toSet());
+        assertEquals(0, actualSalaryBanks.size());
     }
 
     @Test

@@ -383,8 +383,7 @@ public class BorrowerProfileServiceImpl implements BorrowerProfileService {
     @Override
     @Transactional(readOnly = true)
     public BorrowerProfile getFullBorrower(UUID borrowerProfileId) {
-        BorrowerProfile borrowerProfile = findByIdWithRealEstateVehicleAndEmployer(borrowerProfileId);
-        return borrowerProfile;
+        return findByIdWithRealEstateVehicleAndEmployer(borrowerProfileId);
     }
 
     private BorrowerProfile prepareBorrowerProfile(PartnerApplication partnerApplication,

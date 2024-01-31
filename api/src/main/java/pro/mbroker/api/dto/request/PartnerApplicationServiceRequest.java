@@ -16,6 +16,7 @@ public class PartnerApplicationServiceRequest {
     private String sortOrder;
     private String fullName;
     private String phoneNumber;
+    private String tokenPhoneNumber;
     private Integer applicationNumber;
     private UUID realEstateId;
     private RegionType region;
