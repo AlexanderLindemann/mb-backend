@@ -59,35 +59,35 @@ pipeline {
                 executeGradlewCommand('assemble')
             }
         }
-//        stage("Unit test") {
-//            steps {
-//                script {
-//                    boolean isContainerRunning = true
-//                    int attempts = 0
-//                    while (isContainerRunning && attempts < 10) {
-//                        attempts++
-//                        String existingContainer = sh(script: 'docker ps -aqf "name=^mb-backend-db-test$"', returnStdout: true).trim()
-//                        if (!existingContainer) {
-//                            isContainerRunning = false
-//                        } else {
-//                            echo "Ожидание освобождения контейнера mb-backend-db-test (попытка ${attempts})"
-//                            sleep(30)
-//                        }
-//                    }
-//                    try {
-//                        sh "docker run -d -p 40002:5432 --name mb-backend-db-test mb-docker.practus.ru/mb-postgres:15.4"
-//                        executeGradlewCommand('test')
-//                    } finally {
-//                        try {
-//                            sh "docker stop mb-backend-db-test"
-//                            sh "docker rm mb-backend-db-test"
-//                        } catch (Exception e) {
-//                            echo "Ошибка при удалении Docker контейнера 'mb-backend-db-test': ${e.message}"
-//                        }
-//                    }
-//                }
-//            }
-//        }
+        stage("Unit test") {
+            steps {
+                script {
+                    boolean isContainerRunning = true
+                    int attempts = 0
+                    while (isContainerRunning && attempts < 10) {
+                        attempts++
+                        String existingContainer = sh(script: 'docker ps -aqf "name=^mb-backend-db-test$"', returnStdout: true).trim()
+                        if (!existingContainer) {
+                            isContainerRunning = false
+                        } else {
+                            echo "Ожидание освобождения контейнера mb-backend-db-test (попытка ${attempts})"
+                            sleep(30)
+                        }
+                    }
+                    try {
+                        sh "docker run -d -p 40002:5432 --name mb-backend-db-test mb-docker.practus.ru/mb-postgres:15.4"
+                        executeGradlewCommand('test')
+                    } finally {
+                        try {
+                            sh "docker stop mb-backend-db-test"
+                            sh "docker rm mb-backend-db-test"
+                        } catch (Exception e) {
+                            echo "Ошибка при удалении Docker контейнера 'mb-backend-db-test': ${e.message}"
+                        }
+                    }
+                }
+            }
+        }
         stage("Build Docker") {
             steps {
                 executeGradlewCommand('buildDocker')

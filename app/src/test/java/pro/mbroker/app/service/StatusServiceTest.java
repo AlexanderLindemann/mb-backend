@@ -1,6 +1,9 @@
 package pro.mbroker.app.service;
 
-import org.junit.Test;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.SneakyThrows;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -13,6 +16,7 @@ import pro.mbroker.api.enums.BankApplicationStatus;
 import pro.mbroker.api.enums.BorrowerProfileStatus;
 import pro.mbroker.api.enums.DocumentType;
 import pro.mbroker.api.enums.PartnerApplicationStatus;
+import pro.mbroker.app.TestConstants;
 import pro.mbroker.app.TestData;
 import pro.mbroker.app.entity.BankApplication;
 import pro.mbroker.app.entity.BorrowerProfile;
@@ -44,6 +48,118 @@ public class StatusServiceTest extends BaseServiceTest {
     private TestData testData;
     @MockBean
     private AttachmentRestApi mockAttachmentRestApi;
+
+    private static UUID borrowerId = UUID.fromString("1348b508-f476-11ed-a05b-0242ac120003");
+
+
+    @Test
+    @SneakyThrows
+    public void testBorrowerProfileStatusChangeOnDataUpdateAfterSigning() {
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, new ObjectMapper().readValue("{\"additionalIncome\": 10000}", new TypeReference<>() {
+        }));
+        assertEquals(BorrowerProfileStatus.DATA_ENTERED, getBorrowerProfile(TestConstants.BORROWER_PROFILE_ID_1).getBorrowerProfileStatus());
+    }
+
+    @Test
+    @SneakyThrows
+    public void testBorrowerProfileStatusChangeOnProfileValue(){
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, new ObjectMapper().readValue("{\"mainIncome\": null}", new TypeReference<>() {}));
+        assertEquals(BorrowerProfileStatus.DATA_NO_ENTERED, getBorrowerProfile(TestConstants.BORROWER_PROFILE_ID_1).getBorrowerProfileStatus());
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, new ObjectMapper().readValue("{\"mainIncome\": 100000}", new TypeReference<>() {}));
+        assertEquals(BorrowerProfileStatus.DATA_ENTERED, getBorrowerProfile(TestConstants.BORROWER_PROFILE_ID_1).getBorrowerProfileStatus());
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, new ObjectMapper().readValue("{\"proofOfIncome\": null}", new TypeReference<>() {}));
+        assertEquals(BorrowerProfileStatus.DATA_NO_ENTERED, getBorrowerProfile(TestConstants.BORROWER_PROFILE_ID_1).getBorrowerProfileStatus());
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, new ObjectMapper().readValue("{\"proofOfIncome\": \"TWO_NDFL\"}", new TypeReference<>() {}));
+        assertEquals(BorrowerProfileStatus.DATA_ENTERED, getBorrowerProfile(TestConstants.BORROWER_PROFILE_ID_1).getBorrowerProfileStatus());
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, new ObjectMapper().readValue("{\"passportIssuedDate\": null}", new TypeReference<>() {}));
+        assertEquals(BorrowerProfileStatus.DATA_NO_ENTERED, getBorrowerProfile(TestConstants.BORROWER_PROFILE_ID_1).getBorrowerProfileStatus());
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, new ObjectMapper().readValue("{\"passportIssuedDate\": \"2020-01-01\"}", new TypeReference<>() {}));
+        assertEquals(BorrowerProfileStatus.DATA_ENTERED, getBorrowerProfile(TestConstants.BORROWER_PROFILE_ID_1).getBorrowerProfileStatus());
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, new ObjectMapper().readValue("{\"passportNumber\": null}", new TypeReference<>() {}));
+        assertEquals(BorrowerProfileStatus.DATA_NO_ENTERED, getBorrowerProfile(TestConstants.BORROWER_PROFILE_ID_1).getBorrowerProfileStatus());
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, new ObjectMapper().readValue("{\"passportNumber\": \"11112222\"}", new TypeReference<>() {}));
+        assertEquals(BorrowerProfileStatus.DATA_ENTERED, getBorrowerProfile(TestConstants.BORROWER_PROFILE_ID_1).getBorrowerProfileStatus());
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, new ObjectMapper().readValue("{\"passportIssuedByName\": null}", new TypeReference<>() {}));
+        assertEquals(BorrowerProfileStatus.DATA_NO_ENTERED, getBorrowerProfile(TestConstants.BORROWER_PROFILE_ID_1).getBorrowerProfileStatus());
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, new ObjectMapper().readValue("{\"passportIssuedByName\": \"Отделение Тестового УВД\"}", new TypeReference<>() {}));
+        assertEquals(BorrowerProfileStatus.DATA_ENTERED, getBorrowerProfile(TestConstants.BORROWER_PROFILE_ID_1).getBorrowerProfileStatus());
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, new ObjectMapper().readValue("{\"passportIssuedByCode\": null}", new TypeReference<>() {}));
+        assertEquals(BorrowerProfileStatus.DATA_ENTERED, getBorrowerProfile(TestConstants.BORROWER_PROFILE_ID_1).getBorrowerProfileStatus());
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, new ObjectMapper().readValue("{\"passportIssuedByCode\": \"123123\"}", new TypeReference<>() {}));
+        assertEquals(BorrowerProfileStatus.DATA_ENTERED, getBorrowerProfile(TestConstants.BORROWER_PROFILE_ID_1).getBorrowerProfileStatus());
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, new ObjectMapper().readValue("{\"employmentStatus\": null}", new TypeReference<>() {}));
+        assertEquals(BorrowerProfileStatus.DATA_NO_ENTERED, getBorrowerProfile(TestConstants.BORROWER_PROFILE_ID_1).getBorrowerProfileStatus());
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, new ObjectMapper().readValue("{\"employmentStatus\": \"MILITARY\"}", new TypeReference<>() {}));
+        assertEquals(BorrowerProfileStatus.DATA_ENTERED, getBorrowerProfile(TestConstants.BORROWER_PROFILE_ID_1).getBorrowerProfileStatus());
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, new ObjectMapper().readValue("{\"totalWorkExperience\": null}", new TypeReference<>() {}));
+        assertEquals(BorrowerProfileStatus.DATA_NO_ENTERED, getBorrowerProfile(TestConstants.BORROWER_PROFILE_ID_1).getBorrowerProfileStatus());
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, new ObjectMapper().readValue("{\"totalWorkExperience\": \"FROM_1_TO_3\"}", new TypeReference<>() {}));
+        assertEquals(BorrowerProfileStatus.DATA_ENTERED, getBorrowerProfile(TestConstants.BORROWER_PROFILE_ID_1).getBorrowerProfileStatus());
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, new ObjectMapper().readValue("{\"employer\": {\"name\": null}}", new TypeReference<>() {}));
+        assertEquals(BorrowerProfileStatus.DATA_NO_ENTERED, getBorrowerProfile(TestConstants.BORROWER_PROFILE_ID_1).getBorrowerProfileStatus());
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, new ObjectMapper().readValue("{\"employer\": {\"name\": \"test_name_employer\"}}", new TypeReference<>() {}));
+        assertEquals(BorrowerProfileStatus.DATA_ENTERED, getBorrowerProfile(TestConstants.BORROWER_PROFILE_ID_1).getBorrowerProfileStatus());
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, new ObjectMapper().readValue("{\"employer\": {\"branch\": null}}", new TypeReference<>() {}));
+        assertEquals(BorrowerProfileStatus.DATA_NO_ENTERED, getBorrowerProfile(TestConstants.BORROWER_PROFILE_ID_1).getBorrowerProfileStatus());
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, new ObjectMapper().readValue("{\"employer\": {\"branch\": \"RESCUE\"}}", new TypeReference<>() {}));
+        assertEquals(BorrowerProfileStatus.DATA_ENTERED, getBorrowerProfile(TestConstants.BORROWER_PROFILE_ID_1).getBorrowerProfileStatus());
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, new ObjectMapper().readValue("{\"employer\": {\"tin\": null}}", new TypeReference<>() {}));
+        assertEquals(BorrowerProfileStatus.DATA_NO_ENTERED, getBorrowerProfile(TestConstants.BORROWER_PROFILE_ID_1).getBorrowerProfileStatus());
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, new ObjectMapper().readValue("{\"employer\": {\"tin\": \"555666677788\"}}", new TypeReference<>() {}));
+        assertEquals(BorrowerProfileStatus.DATA_ENTERED, getBorrowerProfile(TestConstants.BORROWER_PROFILE_ID_1).getBorrowerProfileStatus());
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, new ObjectMapper().readValue("{\"employer\": {\"phone\": null}}", new TypeReference<>() {}));
+        assertEquals(BorrowerProfileStatus.DATA_NO_ENTERED, getBorrowerProfile(TestConstants.BORROWER_PROFILE_ID_1).getBorrowerProfileStatus());
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, new ObjectMapper().readValue("{\"employer\": {\"phone\": \"4556667778\"}}", new TypeReference<>() {}));
+        assertEquals(BorrowerProfileStatus.DATA_ENTERED, getBorrowerProfile(TestConstants.BORROWER_PROFILE_ID_1).getBorrowerProfileStatus());
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, new ObjectMapper().readValue("{\"employer\": {\"numberOfEmployees\": null}}", new TypeReference<>() {}));
+        assertEquals(BorrowerProfileStatus.DATA_NO_ENTERED, getBorrowerProfile(TestConstants.BORROWER_PROFILE_ID_1).getBorrowerProfileStatus());
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, new ObjectMapper().readValue("{\"employer\": {\"numberOfEmployees\": \"LESS_THAN_10\"}}", new TypeReference<>() {}));
+        assertEquals(BorrowerProfileStatus.DATA_ENTERED, getBorrowerProfile(TestConstants.BORROWER_PROFILE_ID_1).getBorrowerProfileStatus());
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, new ObjectMapper().readValue("{\"employer\": {\"organizationAge\": null}}", new TypeReference<>() {}));
+        assertEquals(BorrowerProfileStatus.DATA_NO_ENTERED, getBorrowerProfile(TestConstants.BORROWER_PROFILE_ID_1).getBorrowerProfileStatus());
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, new ObjectMapper().readValue("{\"employer\": {\"organizationAge\": \"LESS_THAN_1\"}}", new TypeReference<>() {}));
+        assertEquals(BorrowerProfileStatus.DATA_ENTERED, getBorrowerProfile(TestConstants.BORROWER_PROFILE_ID_1).getBorrowerProfileStatus());
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, new ObjectMapper().readValue("{\"employer\": {\"address\": null}}", new TypeReference<>() {}));
+        assertEquals(BorrowerProfileStatus.DATA_NO_ENTERED, getBorrowerProfile(TestConstants.BORROWER_PROFILE_ID_1).getBorrowerProfileStatus());
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, new ObjectMapper().readValue("{\"employer\": {\"address\": \"test_address\"}}", new TypeReference<>() {}));
+        assertEquals(BorrowerProfileStatus.DATA_ENTERED, getBorrowerProfile(TestConstants.BORROWER_PROFILE_ID_1).getBorrowerProfileStatus());
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, new ObjectMapper().readValue("{\"employer\": {\"workExperience\": null}}", new TypeReference<>() {}));
+        assertEquals(BorrowerProfileStatus.DATA_NO_ENTERED, getBorrowerProfile(TestConstants.BORROWER_PROFILE_ID_1).getBorrowerProfileStatus());
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, new ObjectMapper().readValue("{\"employer\": {\"workExperience\": \"FROM_1_TO_3\"}}", new TypeReference<>() {}));
+        assertEquals(BorrowerProfileStatus.DATA_ENTERED, getBorrowerProfile(TestConstants.BORROWER_PROFILE_ID_1).getBorrowerProfileStatus());
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, new ObjectMapper().readValue("{\"employer\": {\"position\": null}}", new TypeReference<>() {}));
+        assertEquals(BorrowerProfileStatus.DATA_NO_ENTERED, getBorrowerProfile(TestConstants.BORROWER_PROFILE_ID_1).getBorrowerProfileStatus());
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, new ObjectMapper().readValue("{\"employer\": {\"position\": \"director\"}}", new TypeReference<>() {}));
+        assertEquals(BorrowerProfileStatus.DATA_ENTERED, getBorrowerProfile(TestConstants.BORROWER_PROFILE_ID_1).getBorrowerProfileStatus());
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, new ObjectMapper().readValue("{\"firstName\": null}", new TypeReference<>() {}));
+        assertEquals(BorrowerProfileStatus.DATA_NO_ENTERED, getBorrowerProfile(TestConstants.BORROWER_PROFILE_ID_1).getBorrowerProfileStatus());
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, new ObjectMapper().readValue("{\"firstName\": \"test_first_name\"}", new TypeReference<>() {}));
+        assertEquals(BorrowerProfileStatus.DATA_ENTERED, getBorrowerProfile(TestConstants.BORROWER_PROFILE_ID_1).getBorrowerProfileStatus());
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, new ObjectMapper().readValue("{\"lastName\": null}", new TypeReference<>() {}));
+        assertEquals(BorrowerProfileStatus.DATA_NO_ENTERED, getBorrowerProfile(TestConstants.BORROWER_PROFILE_ID_1).getBorrowerProfileStatus());
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, new ObjectMapper().readValue("{\"lastName\": \"test_last_name\"}", new TypeReference<>() {}));
+        assertEquals(BorrowerProfileStatus.DATA_ENTERED, getBorrowerProfile(TestConstants.BORROWER_PROFILE_ID_1).getBorrowerProfileStatus());
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, new ObjectMapper().readValue("{\"phoneNumber\": null}", new TypeReference<>() {}));
+        assertEquals(BorrowerProfileStatus.DATA_NO_ENTERED, getBorrowerProfile(TestConstants.BORROWER_PROFILE_ID_1).getBorrowerProfileStatus());
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, new ObjectMapper().readValue("{\"phoneNumber\": \"9999999999\"}", new TypeReference<>() {}));
+        assertEquals(BorrowerProfileStatus.DATA_ENTERED, getBorrowerProfile(TestConstants.BORROWER_PROFILE_ID_1).getBorrowerProfileStatus());
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, new ObjectMapper().readValue("{\"birthdate\": null}", new TypeReference<>() {}));
+        assertEquals(BorrowerProfileStatus.DATA_NO_ENTERED, getBorrowerProfile(TestConstants.BORROWER_PROFILE_ID_1).getBorrowerProfileStatus());
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, new ObjectMapper().readValue("{\"birthdate\": \"1990-01-01\"}", new TypeReference<>() {}));
+        assertEquals(BorrowerProfileStatus.DATA_ENTERED, getBorrowerProfile(TestConstants.BORROWER_PROFILE_ID_1).getBorrowerProfileStatus());
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, new ObjectMapper().readValue("{\"gender\": null}", new TypeReference<>() {}));
+        assertEquals(BorrowerProfileStatus.DATA_NO_ENTERED, getBorrowerProfile(TestConstants.BORROWER_PROFILE_ID_1).getBorrowerProfileStatus());
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, new ObjectMapper().readValue("{\"gender\": \"MALE\"}", new TypeReference<>() {}));
+        assertEquals(BorrowerProfileStatus.DATA_ENTERED, getBorrowerProfile(TestConstants.BORROWER_PROFILE_ID_1).getBorrowerProfileStatus());
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, new ObjectMapper().readValue("{\"snils\": null}", new TypeReference<>() {}));
+        assertEquals(BorrowerProfileStatus.DATA_NO_ENTERED, getBorrowerProfile(TestConstants.BORROWER_PROFILE_ID_1).getBorrowerProfileStatus());
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, new ObjectMapper().readValue("{\"snils\": \"8877665544\"}", new TypeReference<>() {}));
+        assertEquals(BorrowerProfileStatus.DATA_ENTERED, getBorrowerProfile(TestConstants.BORROWER_PROFILE_ID_1).getBorrowerProfileStatus());
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, new ObjectMapper().readValue("{\"registrationAddress\": null}", new TypeReference<>() {}));
+        assertEquals(BorrowerProfileStatus.DATA_NO_ENTERED, getBorrowerProfile(TestConstants.BORROWER_PROFILE_ID_1).getBorrowerProfileStatus());
+        borrowerProfileService.updateBorrowerProfileField(borrowerId, new ObjectMapper().readValue("{\"registrationAddress\": \"test_address\"}", new TypeReference<>() {}));
+        assertEquals(BorrowerProfileStatus.DATA_ENTERED, getBorrowerProfile(TestConstants.BORROWER_PROFILE_ID_1).getBorrowerProfileStatus());
+    }
 
 
     @Test

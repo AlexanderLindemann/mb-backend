@@ -1,7 +1,7 @@
 package pro.mbroker.app.service;
 
 import org.hamcrest.Matchers;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import pro.mbroker.app.TestData;
 import pro.mbroker.app.entity.Bank;

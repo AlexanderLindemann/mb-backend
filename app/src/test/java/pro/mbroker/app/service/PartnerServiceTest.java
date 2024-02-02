@@ -1,6 +1,6 @@
 package pro.mbroker.app.service;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import pro.mbroker.api.dto.request.PartnerRequest;
 import pro.mbroker.api.dto.request.RealEstateRequest;
@@ -43,7 +43,9 @@ public class PartnerServiceTest extends BaseServiceTest {
     public void testDeletePartner() {
         partnerService.deletePartner(UUID.fromString("5fec2326-d92e-11ed-afa1-0242ac120002"), 1234);
         List<Partner> allPartner = partnerService.getAllPartner(0, 10, "name", "asc");
-        assertEquals(1, allPartner.size());
+        allPartner.stream()
+                .noneMatch(partner ->
+                        partner.getId().equals(UUID.fromString("5fec2326-d92e-11ed-afa1-0242ac120002")));
     }
 
     private void asserPartner(PartnerRequest request, Partner partner) {

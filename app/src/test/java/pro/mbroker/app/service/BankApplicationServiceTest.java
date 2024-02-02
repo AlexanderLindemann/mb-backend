@@ -1,7 +1,7 @@
 package pro.mbroker.app.service;
 
-import org.junit.Test;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import pro.mbroker.api.enums.BankApplicationStatus;
 import pro.mbroker.app.TestData;

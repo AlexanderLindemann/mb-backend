@@ -4,8 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
 import org.hamcrest.Matchers;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import pro.mbroker.api.dto.request.BorrowerRequest;
 import pro.mbroker.api.dto.response.BorrowerProfileResponse;
@@ -67,7 +66,7 @@ public class BorrowerProfileServiceTest extends BaseServiceTest {
                 .setId(UUID.fromString("5ff4b32c-f967-4cb1-8705-7470a321fe34"));
 
         BorrowerResponse orUpdateGenericBorrowerApplication = borrowerProfileService.createOrUpdateGenericBorrowerProfile(borrowerRequest, mockRequest, 1234);
-        orUpdateGenericBorrowerApplication.getCoBorrower().forEach(profile -> Assert.assertTrue(Objects.nonNull(profile.getLink())));
+        orUpdateGenericBorrowerApplication.getCoBorrower().forEach(profile -> assertTrue(Objects.nonNull(profile.getLink()), "message"));
         BorrowerProfileResponse mainBorrower = orUpdateGenericBorrowerApplication.getMainBorrower();
         assertThat(mainBorrower.getEmail(), Matchers.is("test@test.com"));
         assertThat(mainBorrower.getFirstName(), Matchers.is("TestFirstName"));
