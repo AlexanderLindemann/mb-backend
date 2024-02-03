@@ -35,11 +35,11 @@ public interface CreditProgramService {
 
     void createCreditProgramsFromCian();
 
-    void loadCreditProgramFromCian();
+    Integer loadCreditProgramFromCian();
 
-    void loadBankFutureRulesFromCian();
+    Integer loadBankFutureRulesFromCian();
 
-    void loadAdditionalRateRulesFromCian();
+    Integer loadAdditionalRateRulesFromCian();
 
     CreditProgram updateProgramFromCian(Integer cianId, BankProgramRequest updateProgramRequest, CreditProgramDetail updateCreditProgramDetail);
 

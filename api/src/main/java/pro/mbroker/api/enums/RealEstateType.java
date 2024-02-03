@@ -54,5 +54,11 @@ public enum RealEstateType implements EnumWithValue<String> {
 
         return objectTypeMap.get(objectType);
     }
+
+    public static String getRealEstateTypeString (List<RealEstateType> realEstateTypes) {
+        return realEstateTypes.stream()
+                .map(Enum::name)
+                .collect(Collectors.joining(", "));
+    }
 }
 

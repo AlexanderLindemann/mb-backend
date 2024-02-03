@@ -134,3 +134,6 @@ databaseChangeLog:
   - include:
       file: 20240125_1721-create-external_creator_id-in-partner_application-table.xml
       relativeToChangelogFile: true
+  - include:
+      file: 20240203_862-create-cian_loaded_files-table.xml
+      relativeToChangelogFile: true

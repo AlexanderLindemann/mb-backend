@@ -16,7 +16,8 @@ public enum CreditProgramType implements EnumWithValue<String> {
     FAMILY("FAMILY", "Семейная"),
     MILITARY("MILITARY", "Военная"),
     PREFERENTIAL("PREFERENTIAL", "Льготная ипотека"),
-    IT("IT", "IT-ипотека");
+    IT("IT", "IT-ипотека"),
+    IGC("IGC", "ИЖС хозспособом");
 
     private final String value;
     private final String name;
@@ -30,16 +31,19 @@ public enum CreditProgramType implements EnumWithValue<String> {
         map.put("governmentSupport2020", PREFERENTIAL);
         map.put("it", IT);
         map.put("military", MILITARY);
+        map.put("izhsHozsposopom", IGC);
 
         return map;
     }
 
     private static final Map<String, CreditProgramType> BY_VALUE = new HashMap<>();
+
     static {
         for (CreditProgramType type : values()) {
             BY_VALUE.put(type.value, type);
         }
     }
+
     public static CreditProgramType fromString(String value) {
         return BY_VALUE.getOrDefault(value, STANDARD);
     }

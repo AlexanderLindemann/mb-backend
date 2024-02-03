@@ -5,9 +5,11 @@ import com.opencsv.exceptions.CsvValidationException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pro.mbroker.api.dto.request.BankProgramRequest;
@@ -27,31 +29,34 @@ import pro.mbroker.app.mapper.CreditProgramMapper;
 import pro.mbroker.app.repository.CreditProgramRepository;
 import pro.mbroker.app.repository.specification.CreditProgramSpecification;
 import pro.mbroker.app.service.BankService;
+import pro.mbroker.app.service.CianLoadingFilesService;
 import pro.mbroker.app.service.CreditProgramService;
 import pro.mbroker.app.service.RegionService;
 import pro.mbroker.app.util.CreditProgramConverter;
 
-import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.math.BigDecimal;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Random;
+import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -67,14 +72,24 @@ public class CreditProgramServiceImpl implements CreditProgramService {
     private final CreditProgramDetailMapper creditProgramDetailMapper;
     private final BankService bankService;
     private final RegionService regionService;
-    @Value("${program_path}")
+    private final CianLoadingFilesService cianLoadingFilesService;
+    @Value("${cian.credit-program.loading_credit_program.scheduled.enabled}")
+    private boolean loadingCreditProgramEnabled;
+
+    @Value("${cian.credit-program.program_path}")
     String programPath;
 
-    @Value("${bank_future_rules_path}")
+    String cianProgramsTable = "cian_programs";
+
+    @Value("${cian.credit-program.bank_future_rules_path}")
     String bankFutureRulesPath;
 
-    @Value("${additional_rate_rules_path}")
+    String cianBankFutureTable = "cian_bank_future_rules";
+
+    @Value("${cian.credit-program.additional_rate_rules_path}")
     String additionalRateRulesPath;
+
+    String cianAdditionalRateRulesTable = "cian_additional_rate_rules";
 
     @Value("${spring.datasource.url}")
     String jdbcUrl;
@@ -83,7 +98,8 @@ public class CreditProgramServiceImpl implements CreditProgramService {
     @Value("${spring.datasource.password}")
     String password;
 
-    AtomicInteger counterPrograms = new AtomicInteger(0);
+    AtomicInteger counterNewPrograms = new AtomicInteger(0);
+    AtomicInteger counterUpdatedPrograms = new AtomicInteger(0);
 
     @Override
     @Transactional
@@ -223,23 +239,25 @@ public class CreditProgramServiceImpl implements CreditProgramService {
 
     @Async
     @Override
-    //@Scheduled(fixedRate = 60 * 60 * 1000)  //
+    @Scheduled(fixedRateString = "${cian.credit-program.loading_credit_program.scheduled.interval}")
     public void loadAllFilesFromCian() {
-        ExecutorService executor = Executors.newFixedThreadPool(3);
-
-        // Запускаем каждый метод в отдельном потоке
-        executor.submit(this::loadCreditProgramFromCian);
-        executor.submit(this::loadBankFutureRulesFromCian);
-        executor.submit(this::loadAdditionalRateRulesFromCian);
-
-        executor.shutdown();
+        if (loadingCreditProgramEnabled) {
+            Integer programs = loadCreditProgramFromCian();
+            Integer future = loadBankFutureRulesFromCian();
+            Integer rate = loadAdditionalRateRulesFromCian();
+            if (programs != 0 && future != 0 && rate != 0) {
+               createCreditProgramsFromCian();
+            } else {
+                log.info("Нет новых кредитных программ для загрузки");
+            }
+        }
     }
 
     private void updateInactiveProgramStatus() {
         log.info("Помечаем не активные программы");
         try (Connection connection = DriverManager.getConnection(jdbcUrl, username, password)) {
             String sqlQuery = "update credit_program set is_active = false " +
-                    "where cian_id in (select id from cian_programs where is_active = false);";
+                    "where cian_id IS NOT NULL;";
             try (PreparedStatement preparedStatement = connection.prepareStatement(sqlQuery)) {
                 preparedStatement.executeUpdate();
             }
@@ -336,8 +354,8 @@ public class CreditProgramServiceImpl implements CreditProgramService {
     private void loadProgramFromCianProgramsTable() {
         log.info("Подгрузить все программы из cian programs");
 
-        String sqlQuery = "SELECT distinct bank_id, region_id, region_group, mortgage_type, real_estate_type, object_type, benefit_program, base_rate, " +
-                "       loan_term_min, loan_term_max, loan_amount_min, loan_amount_max, down_payment_rate_min, created_at " +
+       /* String sqlQuery = "SELECT distinct bank_id, region_id, mortgage_type, real_estate_type, object_type, benefit_program, base_rate, " +
+                "       loan_term_min, loan_term_max, loan_amount_min, loan_amount_max, down_payment_rate_min " +
                 "FROM cian_programs " +
                 "WHERE is_active " +
                 "  AND ARRAY(SELECT unnest(region_id::integer[])) && ARRAY(SELECT unnest(region_id::integer[]) FROM cian_programs) " +
@@ -349,8 +367,8 @@ public class CreditProgramServiceImpl implements CreditProgramService {
                 "      ARRAY(SELECT unnest(cian_programs.income_confirmation::TEXT[]) FROM cian_programs) " +
                 "and income_confirmation like '%confirmation%'" +
                 "UNION ALL " +
-                "SELECT distinct bank_id, region_id, region_group, mortgage_type, real_estate_type, object_type, benefit_program, base_rate, " +
-                "                loan_term_min, loan_term_max, loan_amount_min, loan_amount_max, down_payment_rate_min, created_at " +
+                "SELECT distinct bank_id, region_id, mortgage_type, real_estate_type, object_type, benefit_program, base_rate, " +
+                "                loan_term_min, loan_term_max, loan_amount_min, loan_amount_max, down_payment_rate_min " +
                 "FROM cian_programs " +
                 "WHERE is_active " +
                 "  AND ARRAY(SELECT unnest(real_estate_type::TEXT[])) && " +
@@ -360,198 +378,134 @@ public class CreditProgramServiceImpl implements CreditProgramService {
                 "  AND ARRAY(SELECT unnest(income_confirmation::TEXT[])) && " +
                 "      ARRAY(SELECT unnest(cian_programs.income_confirmation::TEXT[]) FROM cian_programs) " +
                 "  and income_confirmation like '%confirmation%' and region_group is not null";
+*/
 
-
-        try (Connection connection = DriverManager.getConnection(jdbcUrl, username, password); PreparedStatement preparedStatement = connection.prepareStatement(sqlQuery);
+        String sqlQuery = "SELECT bank_id, region_id, mortgage_type, real_estate_type, object_type, benefit_program, base_rate, " +
+                "       loan_term_min, loan_term_max, loan_amount_min, loan_amount_max, down_payment_rate_min " +
+                "FROM cian_programs ";
+        try (Connection connection = DriverManager.getConnection(jdbcUrl, username, password);
+             PreparedStatement preparedStatement = connection.prepareStatement(sqlQuery);
              ResultSet resultSet = preparedStatement.executeQuery()) {
             while (resultSet.next()) {
                 BankProgramRequest bankProgramRequest = mappingToBankProgramRequest(resultSet);
-                CreditProgramDetail creditProgramDetail = null;
+                bankProgramRequest.setCianId(new Random().nextInt(6) + 1);//todo добавить поле что загружено из циана
                 if (bankProgramRequest != null) {
-                    creditProgramDetail = CreditProgramConverter.convertCreditDetailToStringFormat(bankProgramRequest);
-                }
-                if (creditProgramDetail != null) {
-                    Integer bankId = resultSet.getInt("bank_id");
-                    String mortgageType = resultSet.getString("mortgage_type");
-                    String benefitProgram = resultSet.getString("benefit_program");
+                    CreditProgramDetail creditProgramDetail =
+                            CreditProgramConverter.convertCreditDetailToStringFormat(bankProgramRequest);
 
-                    if (bankProgramRequest.getActive()) {
-                        bankProgramRequest.setFullDescription(getFullDescription(bankId, mortgageType, benefitProgram));
-                        bankProgramRequest.setSalaryClientInterestRate(getSalaryClientInterestRate(bankId, mortgageType, benefitProgram));
+                    if (creditProgramDetail != null) {
+                        Integer bankId = resultSet.getInt("bank_id");
+                        String mortgageType = resultSet.getString("mortgage_type");
+                        String benefitProgram = resultSet.getString("benefit_program");
+
+                        if (bankProgramRequest.getActive() != null && bankProgramRequest.getActive()) {
+                            bankProgramRequest.setFullDescription(getFullDescription(bankId, mortgageType, benefitProgram));
+                            bankProgramRequest.setSalaryClientInterestRate(getSalaryClientInterestRate(bankId, mortgageType, benefitProgram));
+                        }
+
+                        List<CreditProgram> existList = creditProgramExist(bankProgramRequest);
+                        if (existList.isEmpty()) {
+                            createCreditParameter(bankProgramRequest, creditProgramDetail, 007);
+                            counterNewPrograms.incrementAndGet();
+                        } else {
+                            updateProgram(existList.get(0).getId(), bankProgramRequest, creditProgramDetail, 007);
+                            counterUpdatedPrograms.incrementAndGet();
+                        }
                     }
-
-                    createCreditParameter(bankProgramRequest, creditProgramDetail, 007);
-                    counterPrograms.incrementAndGet();
                 }
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
+        log.info("Загружено новых кредитных програм {}. Обновлено {} программ ", counterNewPrograms.get(), counterUpdatedPrograms.get());
     }
 
+    private List<CreditProgram> creditProgramExist(BankProgramRequest request) {
 
-
-    private BankProgramRequest executeQueryAndGetResults(Connection connection, String sqlQuery) throws SQLException {
-        BankProgramRequest bankProgramRequests = null;
-        try (PreparedStatement preparedStatement = connection.prepareStatement(sqlQuery);
-             ResultSet resultSet = preparedStatement.executeQuery()) {
-            while (resultSet.next()) {
-                BankProgramRequest bankProgramRequest = mappingToBankProgramRequest(resultSet);
-                CreditProgramDetail creditProgramDetail = null;
-                if (bankProgramRequest != null) {
-                    creditProgramDetail = CreditProgramConverter.convertCreditDetailToStringFormat(bankProgramRequest);
-                }
-                if (creditProgramDetail != null) {
-                    Integer bankId = resultSet.getInt("bank_id");
-                    String mortgageType = resultSet.getString("mortgage_type");
-                    String benefitProgram = resultSet.getString("benefit_program");
-
-                    if (bankProgramRequest.getActive()) {
-                        bankProgramRequest.setFullDescription(getFullDescription(bankId, mortgageType, benefitProgram));
-                        bankProgramRequest.setSalaryClientInterestRate(getSalaryClientInterestRate(bankId, mortgageType, benefitProgram));
-                    }
-
-                    createCreditParameter(bankProgramRequest, creditProgramDetail, 007);
-                    counterPrograms.incrementAndGet();
-                }
-            }
-        }
-        return bankProgramRequests;
+        return creditProgramRepository.findCreditProgram(
+                request.getProgramName(),
+                request.getFullDescription(),
+                request.getBankId(),
+                request.getBaseRate(),
+                request.getSalaryClientInterestRate(),
+                RegionType.getRegionTypesString(request.getInclude()),
+                CreditPurposeType.getCreditPurposeTypeString(request.getCreditPurposeType()),
+                request.getCreditProgramType(),
+                RealEstateType.getRealEstateTypeString(request.getRealEstateType()));
     }
 
-    @Override
-    @Async
-    public void loadCreditProgramFromCian() {
+    private Integer loadDataFromCian(String tableName, String filePath) {
+        AtomicInteger counter = new AtomicInteger();
+        String fileName = Paths.get(filePath).getFileName().toString();
         try {
-            cleanCianTable("cian_programs");
-            String fullPath = System.getProperty("user.dir") + programPath;
-            FileReader filereader = new FileReader(fullPath);
-            AtomicInteger counter = new AtomicInteger();
-            log.info("Начали парсить файл: {}", programPath);
-            try (Connection connection = DriverManager.getConnection(jdbcUrl, username, password);
-                 CSVReader reader = new CSVReader(filereader)) {
+            if (!isFileAlreadyLoaded(tableName, fileName)) {
+                cleanCianTable(tableName);
 
-                String tableName = "cian_programs";
-                String[] header = reader.readNext();
-                String insertQuery = generateInsertQuery(tableName, header);
+                log.info("Начали парсить файл: {}", filePath);
+                try (Connection connection = DriverManager.getConnection(jdbcUrl, username, password);
+                     InputStream is = getInputStreamFromPath(filePath);
+                     InputStreamReader inputStreamReader = new InputStreamReader(is, StandardCharsets.UTF_8);
+                     CSVReader reader = new CSVReader(inputStreamReader)) {
 
-                try (PreparedStatement preparedStatement = connection.prepareStatement(insertQuery)) {
-                    String[] nextLine;
-                    while ((nextLine = reader.readNext()) != null) {
-                        for (int i = 0; i < nextLine.length; i++) {
-                            preparedStatement.setObject(i + 1, convertToCorrectType(header[i], nextLine[i]));
-                        }
+                    String[] header = reader.readNext();
+                    String insertQuery = generateInsertQuery(tableName, header);
 
-                        preparedStatement.executeUpdate();
-                        counter.getAndIncrement();
-                    }
-                }
-
-                log.info("Загрузка успешно в cian_programs успешно {} записей ", counter);
-            }
-        } catch (SQLException | IOException e) {
-            log.error("Не удалось загрузить все записи");
-            e.printStackTrace();
-        } catch (CsvValidationException ex) {
-            log.error("Не удалось загрузить все записи");
-            throw new RuntimeException(ex);
-        }
-    }
-
-    @Override
-    @Async
-    public void loadBankFutureRulesFromCian() {
-        try {
-            cleanCianTable("cian_bank_future_rules");
-            String fullPath = System.getProperty("user.dir") + bankFutureRulesPath;
-            FileReader filereader = new FileReader(fullPath);
-            String table = "cian_bank_future_rules";
-            AtomicInteger counter = new AtomicInteger(0);
-            log.info("Начали парсить файл: " + fullPath);
-
-            try (Connection connection = DriverManager.getConnection(jdbcUrl, username, password);
-                 CSVReader reader = new CSVReader(filereader)) {
-
-                String[] header = reader.readNext();
-                String insertQuery = generateInsertQuery(table, header);
-
-                try (PreparedStatement preparedStatement = connection.prepareStatement(insertQuery)) {
-                    String[] nextLine;
-                    boolean continueProcessing = true;
-                    while (continueProcessing && (nextLine = reader.readNext()) != null) {
-                        for (int i = 0; i < nextLine.length; i++) {
-                            if ("is_active".equals(header[i]) && !Boolean.parseBoolean(nextLine[i])) {
-                                continueProcessing = false;
-                                break;
+                    try (PreparedStatement preparedStatement = connection.prepareStatement(insertQuery)) {
+                        String[] nextLine;
+                        while ((nextLine = reader.readNext()) != null) {
+                            boolean continueProcessing = processLine(preparedStatement, header, nextLine);
+                            if (continueProcessing) {
+                                preparedStatement.executeUpdate();
+                                counter.incrementAndGet();
                             }
-                            preparedStatement.setObject(i + 1, convertToCorrectType(header[i], nextLine[i]));
-                        }
-
-                        if (continueProcessing) {
-                            preparedStatement.executeUpdate();
-                            counter.incrementAndGet();
-                        } else {
-                            continueProcessing = true;
                         }
                     }
+                    cianLoadingFilesService.insertLoadedFileRecord(tableName, fileName, counter.get());
+                    log.info("Загрузка в {} успешна, {} записей", tableName, counter);
                 }
             }
-            log.info("Загрузили в cian_bank_future_rules успешно {} записей", counter);
-        } catch (SQLException | IOException e) {
-            log.error("Загрузка файла завершилась ошибкой" + e.getMessage());
-        } catch (CsvValidationException ex) {
-            log.error("Загрузка файла завершилась ошибкой" + ex.getMessage());
-            throw new RuntimeException(ex);
+        } catch (SQLException | IOException | CsvValidationException e) {
+            log.error("Не удалось загрузить все записи", e);
+            throw new RuntimeException(e);
         }
+
+        return counter.get();
+    }
+
+    private boolean isFileAlreadyLoaded(String tableName, String fileName) {
+        return cianLoadingFilesService.isFileAlreadyLoaded(tableName, fileName);
+    }
+
+    private boolean processLine(PreparedStatement preparedStatement, String[] header, String[] nextLine)
+            throws SQLException {
+        for (int i = 0; i < nextLine.length; i++) {
+            if ("is_active".equals(header[i]) && !Boolean.parseBoolean(nextLine[i])) {
+                return false;
+            }
+            if ("created_at".equals(header[i]) || "updated_at".equals(header[i])) {
+                preparedStatement.setObject(i + 1, LocalDateTime.now());
+            } else if ("shadow_id".equals(header[i])) {
+                preparedStatement.setObject(i + 1, 1);
+            } else {
+                preparedStatement.setObject(i + 1, convertToCorrectType(header[i], nextLine[i]));
+            }
+        }
+        return true;
     }
 
     @Override
-    @Async
-    public void loadAdditionalRateRulesFromCian() {
-        try {
-            cleanCianTable("cian_additional_rate_rules");
-            String fullPath = System.getProperty("user.dir") + additionalRateRulesPath;
-            String table = "cian_additional_rate_rules";
-            AtomicInteger counter = new AtomicInteger(0);
+    public Integer loadCreditProgramFromCian() {
+        return loadDataFromCian(cianProgramsTable, programPath);
+    }
 
-            log.info("Начали парсить файл: " + fullPath);
+    @Override
+    public Integer loadBankFutureRulesFromCian() {
+        return loadDataFromCian(cianBankFutureTable, bankFutureRulesPath);
+    }
 
-            FileReader filereader = new FileReader(fullPath);
-
-            try (Connection connection = DriverManager.getConnection(jdbcUrl, username, password);
-                 CSVReader reader = new CSVReader(filereader)) {
-
-                String[] header = reader.readNext();
-                String insertQuery = generateInsertQuery(table, header);
-
-                try (PreparedStatement preparedStatement = connection.prepareStatement(insertQuery)) {
-                    String[] nextLine;
-                    boolean continueProcessing = true;
-                    while (continueProcessing && (nextLine = reader.readNext()) != null) {
-                        for (int i = 0; i < nextLine.length; i++) {
-                            if ("is_active".equals(header[i]) && !Boolean.parseBoolean(nextLine[i])) {
-                                continueProcessing = false;
-                                break;
-                            }
-                            preparedStatement.setObject(i + 1, convertToCorrectType(header[i], nextLine[i]));
-                        }
-
-                        if (continueProcessing) {
-                            preparedStatement.executeUpdate();
-                            counter.incrementAndGet();
-                        } else {
-                            continueProcessing = true;
-                        }
-                    }
-                }
-
-                log.info("Загрузили в cian_additional_rate_rules успешно {} записей", counter);
-            }
-        } catch (SQLException | IOException e) {
-            e.printStackTrace();
-        } catch (CsvValidationException ex) {
-            throw new RuntimeException(ex);
-        }
+    @Override
+    public Integer loadAdditionalRateRulesFromCian() {
+        return loadDataFromCian(cianAdditionalRateRulesTable, additionalRateRulesPath);
     }
 
     private static Object convertToCorrectType(String columnName, String value) {
@@ -559,20 +513,7 @@ public class CreditProgramServiceImpl implements CreditProgramService {
             return null;
         }
         if ("created_at".equals(columnName) || "updated_at".equals(columnName)) {
-            DateTimeFormatter formatter1 = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS Z");
-            DateTimeFormatter formatter2 = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS");
-            DateTimeFormatter formatter3 = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
             LocalDateTime dateTime = LocalDateTime.now();
-            try {
-                dateTime = LocalDateTime.parse(value, formatter1);
-            } catch (DateTimeParseException e1) {
-                try {
-                    dateTime = LocalDateTime.parse(value, formatter2);
-                } catch (DateTimeParseException e2) {
-
-                }
-            }
-
             return dateTime;
 
         }
@@ -585,11 +526,15 @@ public class CreditProgramServiceImpl implements CreditProgramService {
             case "region_id":
                 return convertStringArrayToString(value);
             case "loan_term_min":
-            case "loan_term_max":
-            case "loan_amount_min":
-            case "loan_amount_max":
-            case "shadow_id":
                 return Long.parseLong(value);
+            case "loan_term_max":
+                return Long.parseLong(value);
+            case "loan_amount_min":
+                return Long.parseLong(value);
+            case "loan_amount_max":
+                return Long.parseLong(value);
+            case "shadow_id":
+                return 1;
             case "base_rate":
             case "down_payment_rate_min":
                 return Double.parseDouble(value);
@@ -611,9 +556,9 @@ public class CreditProgramServiceImpl implements CreditProgramService {
             case "min_age":
             case "max_age":
             case "min_finally_age":
-                return Integer.parseInt(value);
+                return java.lang.Integer.parseInt(value);
             case "max_finally_age":
-                return Integer.parseInt(value);
+                return java.lang.Integer.parseInt(value);
             case "condition":
                 return value;
             case "rate":
@@ -644,23 +589,22 @@ public class CreditProgramServiceImpl implements CreditProgramService {
 
     private BankProgramRequest mappingToBankProgramRequest(ResultSet cian) {
         BankProgramRequest bankProgramRequest = new BankProgramRequest();
-        Bank bank;
+        Bank bank = null;
         try {
             bank = bankService.findBankByCianId(cian.getInt("bank_id"));
-            LocalDateTime createdAt = cian.getTimestamp("created_at").toLocalDateTime();
-            CreditProgramType creditProgramType = parseCreditProgramTypeFromInput(cian.getString("mortgage_type"));
+            CreditProgramType creditProgramType = parseCreditProgramTypeFromInput(cian.getString("benefit_program"));
 
             bankProgramRequest = new BankProgramRequest()
                     .setBankId(bank.getId())
                     .setProgramName(creditProgramType.getName())
-                    .setProgramStartDate(createdAt)
-                    .setProgramEndDate(createdAt.plusDays(30 * 12 * 3)) // 3 года
+                    .setProgramStartDate(LocalDateTime.now())
+                    .setProgramEndDate(LocalDateTime.now().plusDays(30 * 12 * 3)) // 3 года
                     .setDescription("")
                     .setCreditPurposeType(parseCreditPurposeTypeFromInput(cian.getString("real_estate_type"),
                             cian.getString("mortgage_type"))) //ошибки тут нет у циана это называется RealEstateType
                     .setRealEstateType(parseRealEstateTypesFromInput(cian.getString("object_type")))
                     .setCreditProgramType(creditProgramType)
-                    .setInclude(parseRegionTypeIncludeFromInput(cian.getString("region_id"), cian.getString("region_group")))
+                    .setInclude(parseRegionTypeIncludeFromInput(cian.getString("region_id")))
                     .setExclude(Collections.emptyList())
                     .setCreditParameter(new CreditParameterResponse()
                             .setMinMortgageSum(new BigDecimal(cian.getLong("loan_amount_min")))
@@ -674,7 +618,7 @@ public class CreditProgramServiceImpl implements CreditProgramService {
                     .setBaseRate(cian.getDouble("base_rate"))
                     .setActive(true);
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
         }
 
         if (bank == null) {
@@ -703,64 +647,65 @@ public class CreditProgramServiceImpl implements CreditProgramService {
     }
 
     private static List<CreditPurposeType> parseCreditPurposeTypeFromInput(String input, String mortgageType) {
-        Pattern pattern = Pattern.compile("\\{([^}]+)\\}");
-        Matcher matcher = pattern.matcher(input);
-        List<CreditPurposeType> types = new ArrayList<>();
+        Set<CreditPurposeType> types = new HashSet<>();
 
-        if (matcher.find()) {
-            String innerContent = matcher.group(1);
-            String[] items = innerContent.split(",");
-            var list = Arrays.asList(items);
-
-            types = list.stream()
-                    .map(CreditPurposeType::getCreditPurposeTypeByCian)
-                    .filter(Objects::nonNull)
-                    .collect(Collectors.toList());
-            types.add(CreditPurposeType.getCreditPurposeTypeByCian(mortgageType));
-        }
-
-        return types;
-    }
-
-    private static CreditProgramType parseCreditProgramTypeFromInput(String input) {
-        Pattern pattern = Pattern.compile("\\{([^}]+)\\}");
-        Matcher matcher = pattern.matcher(input);
-        CreditProgramType type = CreditProgramType.STANDARD;
-
-        if (matcher.find()) {
-            String innerContent = matcher.group(1);
-            String[] items = innerContent.split(",");
-
-            var list = Arrays.asList(items);
-
-            if (!list.isEmpty()) {
-                type = CreditProgramType.getCreditProgramTypeByCian(list.get(0));
-            }
-        }
-
-        return type;
-    }
-
-    private List<RegionType> parseRegionTypeIncludeFromInput(String input, String regionGroupName) {
-        List<RegionType> types;
-        List<Integer> regionTypeIds = new ArrayList<>();
-
-        if (input.equals("{}")) {
-            regionTypeIds = regionService.getRegionIdsByGroupName(regionGroupName);
-        } else {
+        if (input != null) {
             Pattern pattern = Pattern.compile("\\{([^}]+)\\}");
             Matcher matcher = pattern.matcher(input);
 
             if (matcher.find()) {
                 String innerContent = matcher.group(1);
                 String[] items = innerContent.split(",");
+                var list = Arrays.asList(items);
 
-                regionTypeIds = Arrays.stream(items)
-                        .map(Integer::parseInt)
-                        .collect(Collectors.toList());
+                types = list.stream()
+                        .map(CreditPurposeType::getCreditPurposeTypeByCian)
+                        .filter(Objects::nonNull)
+                        .collect(Collectors.toSet());
             }
         }
+
+        if (mortgageType != null) {
+            CreditPurposeType mortgagePurposeType = CreditPurposeType.getCreditPurposeTypeByCian(mortgageType);
+            if (mortgagePurposeType != null) {
+                types.add(mortgagePurposeType);
+            }
+        }
+
+        return new ArrayList<>(types);
+    }
+
+    private static CreditProgramType parseCreditProgramTypeFromInput(String input) {
+        return CreditProgramType.getCreditProgramTypeByCian(input);
+    }
+
+    private List<RegionType> parseRegionTypeIncludeFromInput(String input) {
+        List<RegionType> types;
+        List<Integer> regionTypeIds = new ArrayList<>();
+
+        Pattern pattern = Pattern.compile("\\{([^}]+)\\}");
+        Matcher matcher = pattern.matcher(input);
+
+        if (matcher.find()) {
+            String innerContent = matcher.group(1);
+            String[] items = innerContent.split(",");
+
+            regionTypeIds = Arrays.stream(items)
+                    .map(Integer::parseInt)
+                    .collect(Collectors.toList());
+        }
+
         types = regionService.getRegionTypesByCianIdIn(regionTypeIds);
         return types;
+    }
+
+    private InputStream getInputStreamFromPath(String path) {
+        ClassPathResource classPathResource = new ClassPathResource(path);
+        try {
+            return classPathResource.getInputStream();
+        } catch (IOException e) {
+            log.error("Error reading {}", path, e);
+            throw new RuntimeException("Error reading " + path, e);
+        }
     }
 }

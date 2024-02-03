@@ -47,5 +47,11 @@ public enum CreditPurposeType implements EnumWithValue<String> {
     public static CreditPurposeType getCreditPurposeTypeByCian(String objectType) {
         return objectTypeMap.get(objectType);
     }
+
+    public static String getCreditPurposeTypeString (List<CreditPurposeType> creditPurposeTypes) {
+        return creditPurposeTypes.stream()
+                .map(Enum::name)
+                .collect(Collectors.joining(", "));
+    }
 }
 

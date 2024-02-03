@@ -2,6 +2,7 @@ package pro.mbroker.app.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -46,6 +47,14 @@ public class PartnerRealEstateServiceImpl implements PartnerRealEstateService {
     private final PartnerRepository partnerRepository;
     private final CianAPIClient cianAPIClient;
     private final CreditProgramService creditProgramService;
+    @Value("${cian.gk.scheduled.enabled}")
+    private boolean loadingGkEnabled;
+
+    @Value("${cian.credit-program.loading_credit_program.scheduled.enabled}")
+    private boolean loadingCreditProgramEnabled;
+
+    AtomicInteger realEstateNewCount = new AtomicInteger(0);
+    AtomicInteger partnerNewCount = new AtomicInteger(0);
 
     @Override
     @Transactional
@@ -101,33 +110,44 @@ public class PartnerRealEstateServiceImpl implements PartnerRealEstateService {
                 .orElseThrow(() -> new ItemNotFoundException(RealEstate.class, realEstateAddressId));
     }
 
-    @Scheduled(fixedRate = 60 * 60 * 1000)
+    @Scheduled(fixedRateString = "${cian.gk.scheduled.interval}")
     @Override
     public void loadRealEstatesFromCian() {
-        try {
-            log.info("Запускаем выгрузку жк из циан ");
-            AtomicInteger counter = new AtomicInteger(0);
-            RealEstateCianResponse response = cianAPIClient.getRealEstate();
-            int totalBuildings = response.getNewBuildings().size();
-            if (response != null) {
-                log.info("Загружено из Циан ЖК в количестве: " + response.getNewBuildings().size() + ". Начинаем сохранение");
-            }
-            response.getNewBuildings()
-                    .stream()
-                    .forEach(x -> {
-                        try {
-                            checkAndSavePartner(x);
-                            counter.getAndIncrement();
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                            log.error("Не смогли загрузить Партнера name:{}, id:{}", x.getName(), x.getId(), e);
-                        }
-                    });
-            log.info("Из {} ЖК загруженных из Циан. Успешно сохранено {} ЖК ", totalBuildings, counter);
+        if (loadingGkEnabled) {
+            if (loadingCreditProgramEnabled) {
+                try {
+                    log.info("Загрузка Жк на паузе 20 мин.");
+                    Thread.sleep(20 * 60 * 1000); // 20 минут, что бы крединые програмы успели прогрузиться
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+                try {
+                    log.info("Запускаем выгрузку жк из циан ");
+                    RealEstateCianResponse response = cianAPIClient.getRealEstate();
+                    int totalBuildings = response.getNewBuildings().size();
+                    if (response != null) {
+                        log.info("Загружено из Циан ЖК в количестве: " + response.getNewBuildings().size() + ". Начинаем сохранение");
+                    }
+                    response.getNewBuildings()
+                            .stream()
+                            .forEach(x -> {
+                                try {
+                                    checkAndSavePartner(x);
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                    log.error("Не смогли загрузить Партнера name:{}, id:{}", x.getName(), x.getId(), e);
+                                }
+                            });
+                    log.info("Из {} ЖК загруженных из Циан. Успешно создано новых партнеров {}; новых ЖК {};",
+                            totalBuildings,
+                            partnerNewCount,
+                            realEstateNewCount);
 
-        } catch (Exception e) {
-            e.printStackTrace();
-            log.error("Не смогли загрузить данные по ЖК из циан ");
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    log.error("Не смогли загрузить данные по ЖК из циан ");
+                }
+            }
         }
     }
 
@@ -148,7 +168,7 @@ public class PartnerRealEstateServiceImpl implements PartnerRealEstateService {
                             var cianId = builder.getId();
                             var name = builder.getName();
                             if (cianId != null || name != null) {
-                                processCiansPartner(cianResponse, cianId, name, PartnerType.DEVELOPER);
+                                processCianPartner(cianResponse, cianId, name, PartnerType.DEVELOPER);
                             }
                         }
                 );
@@ -161,7 +181,7 @@ public class PartnerRealEstateServiceImpl implements PartnerRealEstateService {
                             var cianId = seller.getRealtyUserId();
                             var name = seller.getName();
                             if (cianId != null || name != null) {
-                                processCiansPartner(cianResponse, cianId, name, PartnerType.REAL_ESTATE_AGENCY);
+                                processCianPartner(cianResponse, cianId, name, PartnerType.REAL_ESTATE_AGENCY);
                             }
                         }
                 );
@@ -170,19 +190,13 @@ public class PartnerRealEstateServiceImpl implements PartnerRealEstateService {
         }
     }
 
-    private void processCiansPartner(CiansRealEstate cianResponse, Integer cianId, String name, PartnerType type) {
+    private void processCianPartner(CiansRealEstate cianResponse, Integer cianId, String name, PartnerType type) {
         try {
             Partner partner = partnerService.getPartnerByCianIdOrName(cianId, name);
-            if (partner != null) {
-                if (partner.getCianId() != null) {
-                    partner.setCianId(cianId);
-                    partner.setActive(true);
-                    partner.setType(type);
-                    partner = partnerService.saveOrUpdatePartner(partner);
-                }
-            } else {
+            if (partner == null) {
                 PartnerRequest partnerRequest = buildPartnerRequest(cianResponse, type, cianId);
                 partner = partnerService.createPartner(partnerRequest, 6666);
+                partnerNewCount.getAndIncrement();
             }
 
             checkAndSaveRealEstate(cianResponse, partner.getId());
@@ -199,10 +213,9 @@ public class PartnerRealEstateServiceImpl implements PartnerRealEstateService {
             RealEstate realEstate = getRealEstateByNameByPartnerId(partnerId,
                     cianRealEstate.getResidentialComplexName(),
                     cianRealEstate.getAddress());
-            if (realEstate != null) {
-                updateRealEstate(realEstate.getId(), cianRealEstate, 6333);
-            } else {
+            if (realEstate == null) {
                 addRealEstate(partnerId, cianRealEstate, 6333);
+                realEstateNewCount.getAndIncrement();
             }
         });
     }

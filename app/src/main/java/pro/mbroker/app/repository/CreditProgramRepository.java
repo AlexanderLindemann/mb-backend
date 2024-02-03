@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import pro.mbroker.api.enums.CreditProgramType;
 import pro.mbroker.app.entity.CreditProgram;
 
 import java.util.List;
@@ -34,5 +35,27 @@ public interface CreditProgramRepository extends JpaRepository<CreditProgram, UU
 
     @Query("SELECT cp FROM CreditProgram cp WHERE cp.cianId = :cianId ORDER BY cp.createdAt DESC")
     List<CreditProgram> findByCianIdWithMaxCreatedAt(@Param("cianId") Integer cianId);
+
+    @Query("SELECT cp FROM CreditProgram cp WHERE cp.isActive = true AND " +
+            "cp.programName = :programName AND " +
+            "cp.fullDescription = :fullDescription AND " +
+            "cp.baseRate = :baseRate AND " +
+            "cp.salaryClientInterestRate = :interestRate AND " +
+            "cp.creditProgramDetail.include = :include AND " +
+            "cp.creditProgramDetail.creditPurposeType = :creditPurposeType AND " +
+            "cp.creditProgramDetail.creditProgramType = :creditProgramType AND " +
+            "cp.creditProgramDetail.realEstateType = :realEstateType AND " +
+
+            "cp.bank.id = :bankId")
+    List<CreditProgram> findCreditProgram(
+            @Param("programName") String programName,
+            @Param("fullDescription") String fullDescription,
+            @Param("bankId") UUID bankId,
+            @Param("baseRate") Double baseRate,
+            @Param("interestRate") Double interestRate,
+            @Param("include") String include,
+            @Param("creditPurposeType") String creditPurposeType,
+            @Param("creditProgramType") CreditProgramType creditProgramType,
+            @Param("realEstateType") String realEstateType);
 
 }

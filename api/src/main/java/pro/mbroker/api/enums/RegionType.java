@@ -5,6 +5,9 @@ import lombok.RequiredArgsConstructor;
 import pro.smartdeal.common.enums.DictionaryEnum;
 import pro.smartdeal.common.enums.EnumWithValue;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Getter
 @RequiredArgsConstructor
 @DictionaryEnum(code = "Region", name = "Регион")
@@ -107,5 +110,11 @@ public enum RegionType implements EnumWithValue<String> {
             }
         }
         throw new IllegalArgumentException("No such region for Russian name: " + name);
+    }
+
+    public static String getRegionTypesString (List<RegionType> regionTypes) {
+    return regionTypes.stream()
+            .map(Enum::name)
+            .collect(Collectors.joining(", "));
     }
 }

@@ -55,6 +55,16 @@ api:
     token-path: ${CIAN_TOKEN_PATH:/identity/connect/token} #todo когда будем запрашивать токен вбить его сюда
     api-url: ${CIAN_API_URL:https://api.cian.ru}
     real-estate-path : ${CIAN_REAL_ESTATE_URL:/newbuilding-mortgage-calculator/v1/get-newbuildings/}
-program_path: "/app/src/main/resources/programs/programs_202312281115.csv"
-bank_future_rules_path: "/app/src/main/resources/programs/bank_feature_rules_202312281115.csv"
-additional_rate_rules_path: "/app/src/main/resources/programs/additional_rate_rules_202312281115.csv"
+cian:
+  credit-program:
+    loading_credit_program:
+      scheduled:
+        enabled: true
+        interval: 36000000 #в млсек, каждый час
+    program_path: "/programs/2024-02-01/programs_shadow_4_7_2.csv"
+    bank_future_rules_path: "/programs/2024-02-01/bank_feature_rules.csv"
+    additional_rate_rules_path: "/programs/2024-02-01/additional_rate_rules.csv"
+  gk:
+    scheduled:
+      enabled: true
+      interval: 3600000 #в млсек, каждый час
