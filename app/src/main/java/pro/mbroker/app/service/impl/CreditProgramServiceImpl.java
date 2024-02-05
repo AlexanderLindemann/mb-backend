@@ -98,6 +98,8 @@ public class CreditProgramServiceImpl implements CreditProgramService {
     @Value("${spring.datasource.password}")
     String password;
 
+    @Value("${cian.credit-program.make-inactive}")
+    Boolean makeInactive;
     AtomicInteger counterNewPrograms = new AtomicInteger(0);
     AtomicInteger counterUpdatedPrograms = new AtomicInteger(0);
 
@@ -232,7 +234,9 @@ public class CreditProgramServiceImpl implements CreditProgramService {
     @Override
     public void createCreditProgramsFromCian() {
         log.info("Начали автоматическое создание кредитных программ");
-        updateInactiveProgramStatus();
+        if (makeInactive) {
+            updateInactiveProgramStatus();
+        }
         loadProgramFromCianProgramsTable();
         log.info("Загрузили кредитные программы успешно");
     }
@@ -431,7 +435,9 @@ public class CreditProgramServiceImpl implements CreditProgramService {
                 RegionType.getRegionTypesString(request.getInclude()),
                 CreditPurposeType.getCreditPurposeTypeString(request.getCreditPurposeType()),
                 request.getCreditProgramType(),
-                RealEstateType.getRealEstateTypeString(request.getRealEstateType()));
+                RealEstateType.getRealEstateTypeString(request.getRealEstateType()),
+                request.getCreditParameter().getMinDownPayment(),
+                request.getCreditParameter().getMaxDownPayment());
     }
 
     private Integer loadDataFromCian(String tableName, String filePath) {

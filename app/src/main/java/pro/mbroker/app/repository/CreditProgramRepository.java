@@ -8,6 +8,7 @@ import org.springframework.data.repository.query.Param;
 import pro.mbroker.api.enums.CreditProgramType;
 import pro.mbroker.app.entity.CreditProgram;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -45,6 +46,8 @@ public interface CreditProgramRepository extends JpaRepository<CreditProgram, UU
             "cp.creditProgramDetail.creditPurposeType = :creditPurposeType AND " +
             "cp.creditProgramDetail.creditProgramType = :creditProgramType AND " +
             "cp.creditProgramDetail.realEstateType = :realEstateType AND " +
+            "cp.creditParameter.minDownPayment = :minDownPayment AND " +
+            "cp.creditParameter.maxDownPayment = :maxDownPayment AND " +
 
             "cp.bank.id = :bankId")
     List<CreditProgram> findCreditProgram(
@@ -56,6 +59,8 @@ public interface CreditProgramRepository extends JpaRepository<CreditProgram, UU
             @Param("include") String include,
             @Param("creditPurposeType") String creditPurposeType,
             @Param("creditProgramType") CreditProgramType creditProgramType,
-            @Param("realEstateType") String realEstateType);
+            @Param("realEstateType") String realEstateType,
+            @Param("minDownPayment") BigDecimal minDownPayment,
+            @Param("maxDownPayment") BigDecimal maxDownPayment);
 
 }
