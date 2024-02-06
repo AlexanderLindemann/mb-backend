@@ -392,28 +392,30 @@ public class CreditProgramServiceImpl implements CreditProgramService {
              ResultSet resultSet = preparedStatement.executeQuery()) {
             while (resultSet.next()) {
                 BankProgramRequest bankProgramRequest = mappingToBankProgramRequest(resultSet);
-                bankProgramRequest.setCianId(new Random().nextInt(6) + 1);//todo добавить поле что загружено из циана
                 if (bankProgramRequest != null) {
-                    CreditProgramDetail creditProgramDetail =
-                            CreditProgramConverter.convertCreditDetailToStringFormat(bankProgramRequest);
+                    bankProgramRequest.setCianId(new Random().nextInt(6) + 1);//todo добавить поле что загружено из циана
+                    if (bankProgramRequest != null) {
+                        CreditProgramDetail creditProgramDetail =
+                                CreditProgramConverter.convertCreditDetailToStringFormat(bankProgramRequest);
 
-                    if (creditProgramDetail != null) {
-                        Integer bankId = resultSet.getInt("bank_id");
-                        String mortgageType = resultSet.getString("mortgage_type");
-                        String benefitProgram = resultSet.getString("benefit_program");
+                        if (creditProgramDetail != null) {
+                            Integer bankId = resultSet.getInt("bank_id");
+                            String mortgageType = resultSet.getString("mortgage_type");
+                            String benefitProgram = resultSet.getString("benefit_program");
 
-                        if (bankProgramRequest.getActive() != null && bankProgramRequest.getActive()) {
-                            bankProgramRequest.setFullDescription(getFullDescription(bankId, mortgageType, benefitProgram));
-                            bankProgramRequest.setSalaryClientInterestRate(getSalaryClientInterestRate(bankId, mortgageType, benefitProgram));
-                        }
+                            if (bankProgramRequest.getActive() != null && bankProgramRequest.getActive()) {
+                                bankProgramRequest.setFullDescription(getFullDescription(bankId, mortgageType, benefitProgram));
+                                bankProgramRequest.setSalaryClientInterestRate(getSalaryClientInterestRate(bankId, mortgageType, benefitProgram));
+                            }
 
-                        List<CreditProgram> existList = creditProgramExist(bankProgramRequest);
-                        if (existList.isEmpty()) {
-                            createCreditParameter(bankProgramRequest, creditProgramDetail, 007);
-                            counterNewPrograms.incrementAndGet();
-                        } else {
-                            updateProgram(existList.get(0).getId(), bankProgramRequest, creditProgramDetail, 007);
-                            counterUpdatedPrograms.incrementAndGet();
+                            List<CreditProgram> existList = creditProgramExist(bankProgramRequest);
+                            if (existList.isEmpty()) {
+                                createCreditParameter(bankProgramRequest, creditProgramDetail, 007);
+                                counterNewPrograms.incrementAndGet();
+                            } else {
+                                updateProgram(existList.get(0).getId(), bankProgramRequest, creditProgramDetail, 007);
+                                counterUpdatedPrograms.incrementAndGet();
+                            }
                         }
                     }
                 }
@@ -594,7 +596,7 @@ public class CreditProgramServiceImpl implements CreditProgramService {
     }
 
     private BankProgramRequest mappingToBankProgramRequest(ResultSet cian) {
-        BankProgramRequest bankProgramRequest = new BankProgramRequest();
+        BankProgramRequest bankProgramRequest = null;
         try {
             Integer bankId = cian.getInt("bank_id");
             Bank bank = bankService.findBankByCianId(cian.getInt("bank_id"));

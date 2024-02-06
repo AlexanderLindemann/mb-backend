@@ -2,12 +2,14 @@ package pro.mbroker.api.enums;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import pro.smartdeal.common.enums.DictionaryEnum;
 import pro.smartdeal.common.enums.EnumWithValue;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Getter
 @RequiredArgsConstructor
 @DictionaryEnum(code = "Region", name = "Регион")
@@ -113,8 +115,13 @@ public enum RegionType implements EnumWithValue<String> {
     }
 
     public static String getRegionTypesString (List<RegionType> regionTypes) {
-    return regionTypes.stream()
-            .map(Enum::name)
-            .collect(Collectors.joining(", "));
+        if (!regionTypes.isEmpty()) {
+            return regionTypes.stream()
+                    .map(Enum::name)
+                    .collect(Collectors.joining(", "));
+        } else {
+         log.error("regionTypes is empty");
+         return "";
+        }
     }
 }
