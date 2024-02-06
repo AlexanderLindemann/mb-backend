@@ -250,7 +250,7 @@ public class CreditProgramServiceImpl implements CreditProgramService {
             Integer future = loadBankFutureRulesFromCian();
             Integer rate = loadAdditionalRateRulesFromCian();
             if (programs != 0 && future != 0 && rate != 0) {
-               createCreditProgramsFromCian();
+                createCreditProgramsFromCian();
             } else {
                 log.info("Нет новых кредитных программ для загрузки");
             }
@@ -595,41 +595,43 @@ public class CreditProgramServiceImpl implements CreditProgramService {
 
     private BankProgramRequest mappingToBankProgramRequest(ResultSet cian) {
         BankProgramRequest bankProgramRequest = new BankProgramRequest();
-        Bank bank = null;
         try {
-            bank = bankService.findBankByCianId(cian.getInt("bank_id"));
-            CreditProgramType creditProgramType = parseCreditProgramTypeFromInput(cian.getString("benefit_program"));
+            Integer bankId = cian.getInt("bank_id");
+            Bank bank = bankService.findBankByCianId(cian.getInt("bank_id"));
+            if (bank != null) {
+                CreditProgramType creditProgramType = parseCreditProgramTypeFromInput(cian.getString("benefit_program"));
 
-            bankProgramRequest = new BankProgramRequest()
-                    .setBankId(bank.getId())
-                    .setProgramName(creditProgramType.getName())
-                    .setProgramStartDate(LocalDateTime.now())
-                    .setProgramEndDate(LocalDateTime.now().plusDays(30 * 12 * 3)) // 3 года
-                    .setDescription("")
-                    .setCreditPurposeType(parseCreditPurposeTypeFromInput(cian.getString("real_estate_type"),
-                            cian.getString("mortgage_type"))) //ошибки тут нет у циана это называется RealEstateType
-                    .setRealEstateType(parseRealEstateTypesFromInput(cian.getString("object_type")))
-                    .setCreditProgramType(creditProgramType)
-                    .setInclude(parseRegionTypeIncludeFromInput(cian.getString("region_id")))
-                    .setExclude(Collections.emptyList())
-                    .setCreditParameter(new CreditParameterResponse()
-                            .setMinMortgageSum(new BigDecimal(cian.getLong("loan_amount_min")))
-                            .setMaxMortgageSum(new BigDecimal(cian.getLong("loan_amount_max")))
-                            .setMinCreditTerm(cian.getInt("loan_term_min"))
-                            .setMaxCreditTerm(cian.getInt("loan_term_max"))
-                            .setMinDownPayment(cian.getBigDecimal("down_payment_rate_min"))
-                            .setMaxDownPayment(new BigDecimal("99.99"))
-                            .setIsMaternalCapital(true)
-                    )
-                    .setBaseRate(cian.getDouble("base_rate"))
-                    .setActive(true);
+                bankProgramRequest = new BankProgramRequest()
+                        .setBankId(bank.getId())
+                        .setProgramName(creditProgramType.getName())
+                        .setProgramStartDate(LocalDateTime.now())
+                        .setProgramEndDate(LocalDateTime.now().plusDays(30 * 12 * 3)) // 3 года
+                        .setDescription("")
+                        .setCreditPurposeType(parseCreditPurposeTypeFromInput(cian.getString("real_estate_type"),
+                                cian.getString("mortgage_type"))) //ошибки тут нет у циана это называется RealEstateType
+                        .setRealEstateType(parseRealEstateTypesFromInput(cian.getString("object_type")))
+                        .setCreditProgramType(creditProgramType)
+                        .setInclude(parseRegionTypeIncludeFromInput(cian.getString("region_id")))
+                        .setExclude(Collections.emptyList())
+                        .setCreditParameter(new CreditParameterResponse()
+                                .setMinMortgageSum(new BigDecimal(cian.getLong("loan_amount_min")))
+                                .setMaxMortgageSum(new BigDecimal(cian.getLong("loan_amount_max")))
+                                .setMinCreditTerm(cian.getInt("loan_term_min"))
+                                .setMaxCreditTerm(cian.getInt("loan_term_max"))
+                                .setMinDownPayment(cian.getBigDecimal("down_payment_rate_min"))
+                                .setMaxDownPayment(new BigDecimal("99.99"))
+                                .setIsMaternalCapital(true)
+                        )
+                        .setBaseRate(cian.getDouble("base_rate"))
+                        .setActive(true);
+            } else {
+                log.info("Банк с id {} не было найден", bankId);
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        if (bank == null) {
-            return null;
-        } //else todo создать автоматически банк. Но это не просто.
+
         return bankProgramRequest;
     }
 
