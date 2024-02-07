@@ -5,6 +5,7 @@ import lombok.Setter;
 import lombok.ToString;
 import pro.mbroker.api.dto.response.BankApplicationResponse;
 
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -18,7 +19,7 @@ public class BankWithBankApplicationDto {
 
     private String bankName;
 
-    private String logo;
+    private URL logo;
 
     private List<BankApplicationResponse> bankApplications = new ArrayList<>();
 }

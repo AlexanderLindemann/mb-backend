@@ -14,11 +14,11 @@ import pro.mbroker.api.dto.response.EnumItemDescription;
 import pro.mbroker.api.enums.CreditPurposeType;
 import pro.mbroker.api.enums.RealEstateType;
 import pro.mbroker.api.enums.RegionType;
-import pro.mbroker.app.entity.Attachment;
 import pro.mbroker.app.entity.Bank;
 import pro.mbroker.app.entity.BankApplication;
 import pro.mbroker.app.entity.BaseEntity;
 import pro.mbroker.app.entity.CreditProgram;
+import pro.mbroker.app.entity.FileStorage;
 import pro.mbroker.app.entity.RealEstate;
 import pro.mbroker.app.exception.BadRequestException;
 import pro.mbroker.app.exception.ItemNotFoundException;
@@ -192,17 +192,12 @@ public class CalculatorServiceImpl implements CalculatorService {
             throw new IllegalArgumentException("Credit program and its bank cannot be null");
         }
         Bank bank = creditProgram.getBank();
-        Attachment attachment = bank.getAttachment();
+        FileStorage fileStorage = bank.getLogoFileStorage();
         BankLoanProgramDto bankLoanProgramDtoBuilder = new BankLoanProgramDto()
                 .setBankId(bank.getId())
                 .setBankName(bank.getName());
-        if (Objects.nonNull(bank.getLogoAttachmentId())) {
-            Long logoAttachmentId = bank.getLogoAttachmentId().longValue();
-            Attachment attachmentById = attachmentService.getAttachmentById(logoAttachmentId);
-            bankLoanProgramDtoBuilder.setLogo(attachmentById.getContentMd5());
-        } else if (attachment != null) {
-            String base64Logo = Converter.generateBase64FromFile(attachmentService.download(attachment.getId()));
-            bankLoanProgramDtoBuilder.setLogo(base64Logo);
+        if (Objects.nonNull(fileStorage)) {
+            bankLoanProgramDtoBuilder.setLogo(attachmentService.getSignedUrl(fileStorage.getObjectKey()));
         }
         return bankLoanProgramDtoBuilder;
     }

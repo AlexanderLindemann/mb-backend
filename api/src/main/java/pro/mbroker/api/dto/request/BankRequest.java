@@ -5,6 +5,7 @@ import lombok.Setter;
 import lombok.ToString;
 
 import java.util.List;
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -12,7 +13,7 @@ import java.util.List;
 public class BankRequest {
     private String name;
 
-    private Long attachment_id;
+    private UUID fileStorageId;
 
     private List<BankContactRequest> bankContacts;
 

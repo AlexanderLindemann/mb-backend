@@ -2,8 +2,8 @@ package pro.mbroker.app.service;
 
 import org.springframework.web.multipart.MultipartFile;
 import pro.mbroker.api.dto.request.BankRequest;
-import pro.mbroker.api.dto.response.AttachmentResponse;
 import pro.mbroker.app.entity.Bank;
+import pro.mbroker.app.entity.FileStorage;
 
 import java.util.List;
 import java.util.Set;
@@ -20,7 +20,7 @@ public interface BankService {
 
     Bank updateLogo(UUID bankId, MultipartFile logo, Integer sdId);
 
-    AttachmentResponse getLogoBankById(UUID bankId);
+    FileStorage getLogoBankById(UUID bankId);
 
     List<Bank> getAllBank(int page, int size, String sortBy, String sortOrder);
 

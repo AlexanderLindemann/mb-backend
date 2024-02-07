@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+    http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+
+    <changeSet id="create-file_storage-table" author="a.lindemann">
+        <createTable tableName="file_storage">
+            <column name="id" type="UUID">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="bucket_name" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="object_key" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="file_name" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="content_type" type="VARCHAR(50)"/>
+            <column name="content_length" type="BIGINT"/>
+            <column name="created_at" type="TIMESTAMP WITHOUT TIME ZONE" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="created_by" type="integer" defaultValueNumeric="0">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_by" type="integer"/>
+            <column name="is_active" type="BOOLEAN" defaultValueBoolean="true">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="remove-logoAttachmentId-and-attachmentId-from-bank" author="a.lindemann">
+        <dropForeignKeyConstraint baseTableName="bank" constraintName="fk_attachment_bank"/>
+        <dropColumn columnName="logo_attachment_id" tableName="bank"/>
+        <dropColumn columnName="attachment_id" tableName="bank"/>
+    </changeSet>
+
+    <changeSet id="add-fileStorageId-to-bank" author="a.lindemann">
+        <addColumn tableName="bank">
+            <column name="file_storage_id" type="UUID"/>
+        </addColumn>
+        <addForeignKeyConstraint baseTableName="bank" baseColumnNames="file_storage_id"
+                                 referencedTableName="file_storage" referencedColumnNames="id"
+                                 constraintName="fk_bank_file_storage"/>
+    </changeSet>
+</databaseChangeLog>

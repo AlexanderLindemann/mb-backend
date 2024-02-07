@@ -11,11 +11,10 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import pro.mbroker.api.dto.request.BankContactRequest;
 import pro.mbroker.api.dto.request.BankRequest;
-import pro.mbroker.api.dto.response.AttachmentResponse;
-import pro.mbroker.app.entity.Attachment;
 import pro.mbroker.app.entity.Bank;
 import pro.mbroker.app.entity.BankContact;
 import pro.mbroker.app.entity.CreditProgram;
+import pro.mbroker.app.entity.FileStorage;
 import pro.mbroker.app.exception.ItemNotFoundException;
 import pro.mbroker.app.mapper.AttachmentMapper;
 import pro.mbroker.app.repository.BankContactRepository;
@@ -23,6 +22,7 @@ import pro.mbroker.app.repository.BankRepository;
 import pro.mbroker.app.repository.specification.BankSpecification;
 import pro.mbroker.app.service.AttachmentService;
 import pro.mbroker.app.service.BankService;
+import pro.mbroker.app.service.FileStorageService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,8 +39,8 @@ public class BankServiceImpl implements BankService {
     private static final int ORDER_STEP = 10;
 
     private final BankRepository bankRepository;
-    private final AttachmentMapper attachmentMapper;
     private final AttachmentService attachmentService;
+    private final FileStorageService fileStorageService;
     private final BankContactRepository bankContactRepository;
 
     @Override
@@ -50,7 +50,7 @@ public class BankServiceImpl implements BankService {
         bank.setContacts(new ArrayList<>());
         setBankContacts(bank, bankRequest.getBankContacts(), sdId);
         bank.setOrderNumber(bankRepository.findMaxOrderNumber() + ORDER_STEP);
-        setAttachmentIfPresent(bank, bankRequest.getAttachment_id());
+        bank.setLogoFileStorage(fileStorageService.getFileStorage(bankRequest.getFileStorageId()));
         bank.setCianId(bankRequest.getCianBankId());
         bank.setCreatedBy(sdId);
         bank.setUpdatedBy(sdId);
@@ -73,17 +73,16 @@ public class BankServiceImpl implements BankService {
             markAbsentBankContactsAsInactive(bank, bankRequest.getBankContacts(), sdId);
         }
         bank.setCianId(bankRequest.getCianBankId());
-        setAttachmentIfPresent(bank, bankRequest.getAttachment_id());
+        setAttachmentIfPresent(bank, bankRequest.getFileStorageId());
         bank.setUpdatedBy(sdId);
         return bankRepository.save(bank);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public AttachmentResponse getLogoBankById(UUID bankId) {
+    public FileStorage getLogoBankById(UUID bankId) {
         Bank bank = getBank(bankId);
-        return attachmentMapper.toAttachmentResponse(
-                attachmentService.getAttachmentById(bank.getAttachment().getId()));
+        return bank.getLogoFileStorage();
     }
 
     @Override
@@ -91,7 +90,7 @@ public class BankServiceImpl implements BankService {
     public Bank updateLogo(UUID bankId, MultipartFile logo, Integer sdId) {
         Bank bank = getBank(bankId);
         bank.setUpdatedBy(sdId);
-        bank.setAttachment(attachmentService.upload(logo, sdId).setCreatedBy(sdId));
+        bank.setLogoFileStorage(attachmentService.uploadS3(logo, sdId));
         return bankRepository.save(bank);
     }
 
@@ -203,10 +202,10 @@ public class BankServiceImpl implements BankService {
         }
     }
 
-    private void setAttachmentIfPresent(Bank bank, Long attachmentId) {
-        if (Objects.nonNull(attachmentId)) {
-            Attachment attachment = attachmentService.getAttachmentById(attachmentId);
-            bank.setAttachment(attachment);
+    private void setAttachmentIfPresent(Bank bank, UUID fileStorageId) {
+        if (Objects.nonNull(fileStorageId)) {
+            FileStorage fileStorage = fileStorageService.getFileStorage(fileStorageId);
+            bank.setLogoFileStorage(fileStorage);
         }
     }
 }

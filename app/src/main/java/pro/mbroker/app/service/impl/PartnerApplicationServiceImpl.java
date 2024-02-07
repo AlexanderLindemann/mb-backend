@@ -641,8 +641,8 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
         BankWithBankApplicationDto dto = new BankWithBankApplicationDto();
         dto.setBankName(bank.getName());
         dto.setBankId(bank.getId());
-        if (Objects.nonNull(bank.getAttachment()) && Objects.nonNull(bank.getAttachment().getId()))
-            dto.setLogo(Converter.generateBase64FromFile(attachmentService.download(bank.getAttachment().getId())));
+        if (Objects.nonNull(bank.getLogoFileStorage()) && Objects.nonNull(bank.getLogoFileStorage().getId()))
+            dto.setLogo(attachmentService.getSignedUrl(bank.getLogoFileStorage().getObjectKey()));
         List<UUID> creditProgramIds = bank.getCreditPrograms().stream()
                 .filter(BaseEntity::isActive)
                 .map(CreditProgram::getId)

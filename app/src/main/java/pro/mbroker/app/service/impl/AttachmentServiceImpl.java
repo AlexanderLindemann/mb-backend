@@ -1,7 +1,13 @@
 package pro.mbroker.app.service.impl;
 
+import com.amazonaws.HttpMethod;
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.model.GeneratePresignedUrlRequest;
+import com.amazonaws.services.s3.model.ObjectMetadata;
+import com.amazonaws.services.s3.model.PutObjectRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -16,19 +22,24 @@ import pro.mbroker.app.entity.Attachment;
 import pro.mbroker.app.entity.Bank;
 import pro.mbroker.app.entity.BorrowerDocument;
 import pro.mbroker.app.entity.BorrowerProfile;
+import pro.mbroker.app.entity.FileStorage;
 import pro.mbroker.app.exception.ItemNotFoundException;
 import pro.mbroker.app.repository.AttachmentRepository;
 import pro.mbroker.app.repository.BankRepository;
 import pro.mbroker.app.repository.BorrowerDocumentRepository;
 import pro.mbroker.app.repository.BorrowerProfileRepository;
+import pro.mbroker.app.repository.FileStorageRepository;
 import pro.mbroker.app.service.AttachmentService;
 import pro.smartdeal.ng.attachment.api.AttachmentRestApi;
 import pro.smartdeal.ng.attachment.api.pojo.AttachmentMeta;
 
 import java.io.IOException;
+import java.math.BigInteger;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 
 @Service
 @Slf4j
@@ -39,6 +50,13 @@ public class AttachmentServiceImpl implements AttachmentService {
     private final AttachmentRepository attachmentRepository;
     private final BorrowerDocumentRepository borrowerDocumentRepository;
     private final BorrowerProfileRepository borrowerProfileRepository;
+    private final FileStorageRepository fileStorageRepository;
+    private final AmazonS3 amazonS3;
+    public static final long ONE_HOUR_IN_MILLIS = 1000 * 60 * 60;
+    @Value("${aws.s3.bucket-name}")
+    private String BUCKET_NAME;
+    @Value("${aws.s3.path.bank-logo}")
+    private String S3_BANK_LOGO_PATH;
 
     @Override
     @Transactional
@@ -50,8 +68,58 @@ public class AttachmentServiceImpl implements AttachmentService {
                         .setMimeType(upload.getMimeType())
                         .setSizeBytes(upload.getSizeBytes())
                         .setContentMd5(upload.getMd5Hash()))
-                        .setCreatedBy(sdId);
+                .setCreatedBy(sdId);
     }
+
+    @Override
+    public FileStorage uploadS3(MultipartFile file, Integer sdId) {
+        log.info("Starting upload to S3 for file: {}", file.getOriginalFilename());
+        FileStorage fileStorage = null;
+        try {
+            ObjectMetadata metadata = new ObjectMetadata();
+            metadata.setContentLength(file.getSize());
+            metadata.setContentType(file.getContentType());
+            String fileObjKeyName = S3_BANK_LOGO_PATH + UUID.randomUUID() + "_" + file.getOriginalFilename();
+            amazonS3.putObject(new PutObjectRequest(BUCKET_NAME, fileObjKeyName, file.getInputStream(), metadata));
+            log.info("File uploaded to S3 with key: {}", fileObjKeyName);
+
+            fileStorage = new FileStorage();
+            fileStorage.setFileName(file.getOriginalFilename());
+            fileStorage.setBucketName(BUCKET_NAME);
+            fileStorage.setObjectKey(fileObjKeyName);
+            fileStorage.setContentType(file.getContentType());
+            fileStorage.setContentLength(BigInteger.valueOf(file.getSize()));
+            fileStorage.setCreatedBy(sdId);
+            fileStorage = fileStorageRepository.save(fileStorage);
+        } catch (Exception e) {
+            log.error("Error during file upload to S3 for file: {}. Exception: {}", file.getOriginalFilename(), e.getMessage(), e);
+        }
+        return fileStorage;
+    }
+
+    @Override
+    public URL getSignedUrl(String fileObjKeyName) {
+        if (fileObjKeyName.isEmpty()) {
+            return null;
+        }
+        log.info("Generating signed URL for object key: {}", fileObjKeyName);
+        try {
+            java.util.Date expiration = new java.util.Date();
+            long expTimeMillis = System.currentTimeMillis() + ONE_HOUR_IN_MILLIS;
+            expiration.setTime(expTimeMillis);
+            GeneratePresignedUrlRequest generatePresignedUrlRequest =
+                    new GeneratePresignedUrlRequest(BUCKET_NAME, fileObjKeyName)
+                            .withMethod(HttpMethod.GET)
+                            .withExpiration(expiration);
+            URL signedUrl = amazonS3.generatePresignedUrl(generatePresignedUrlRequest);
+            log.info("Generated signed URL for: {}", fileObjKeyName);
+            return signedUrl;
+        } catch (Exception e) {
+            log.error("Error generating signed URL for object key: {}. Exception: {}", fileObjKeyName, e.getMessage(), e);
+            return null;
+        }
+    }
+
 
     @Override
     @Transactional

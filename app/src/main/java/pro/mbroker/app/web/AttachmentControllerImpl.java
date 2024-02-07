@@ -13,12 +13,15 @@ import pro.mbroker.api.dto.request.AttachmentRequest;
 import pro.mbroker.api.dto.request.BorrowerDocumentRequest;
 import pro.mbroker.api.dto.response.AttachmentInfo;
 import pro.mbroker.api.dto.response.BorrowerDocumentResponse;
+import pro.mbroker.api.dto.response.StorageResponse;
 import pro.mbroker.api.enums.DocumentType;
 import pro.mbroker.app.entity.BankApplication;
 import pro.mbroker.app.entity.BorrowerDocument;
 import pro.mbroker.app.entity.BorrowerProfile;
+import pro.mbroker.app.entity.FileStorage;
 import pro.mbroker.app.exception.ItemNotFoundException;
 import pro.mbroker.app.mapper.BorrowerDocumentMapper;
+import pro.mbroker.app.mapper.StorageMapper;
 import pro.mbroker.app.repository.BorrowerDocumentRepository;
 import pro.mbroker.app.service.AttachmentService;
 import pro.mbroker.app.service.BankApplicationService;
@@ -43,11 +46,15 @@ public class AttachmentControllerImpl implements AttachmentController {
     private final BorrowerDocumentService borrowerDocumentService;
     private final StatusService statusService;
     private final BorrowerDocumentMapper borrowerDocumentMapper;
+    private final StorageMapper storageMapper;
     private final BorrowerDocumentRepository borrowerDocumentRepository;
 
     @Override
-    public Long upload(MultipartFile file, Integer sdId) {
-        return attachmentService.upload(file, sdId).getId();
+    public StorageResponse upload(MultipartFile file, Integer sdId) {
+        FileStorage fileStorage = attachmentService.uploadS3(file, sdId);
+        StorageResponse storageResponse = storageMapper.toStorageResponse(fileStorage);
+        storageResponse.setUrl(attachmentService.getSignedUrl(fileStorage.getObjectKey()));
+        return storageResponse;
     }
 
     @Override

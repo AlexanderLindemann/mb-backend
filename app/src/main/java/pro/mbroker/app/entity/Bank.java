@@ -12,7 +12,6 @@ import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
-import java.math.BigInteger;
 import java.util.List;
 
 @Entity
@@ -26,13 +25,6 @@ public class Bank extends BaseEntity {
     @Column(name = "name", nullable = false)
     private String name;
 
-    @Column(name = "logo_attachment_id")
-    private BigInteger logoAttachmentId;
-
-    @OneToOne
-    @JoinColumn(name = "attachment_id", referencedColumnName = "id")
-    private Attachment attachment;
-
     @Column(name = "order_number")
     private Integer orderNumber;
 
@@ -44,4 +36,8 @@ public class Bank extends BaseEntity {
 
     @Column(name = "cian_id")
     private Integer cianId;
+
+    @OneToOne
+    @JoinColumn(name = "file_storage_id", referencedColumnName = "id")
+    private FileStorage logoFileStorage;
 }

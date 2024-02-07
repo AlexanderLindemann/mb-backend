@@ -137,3 +137,6 @@ databaseChangeLog:
   - include:
       file: 20240203_862-create-cian_loaded_files-table.xml
       relativeToChangelogFile: true
+  - include:
+      file: 20240205_2300-create-file_storage-table.xml
+      relativeToChangelogFile: true

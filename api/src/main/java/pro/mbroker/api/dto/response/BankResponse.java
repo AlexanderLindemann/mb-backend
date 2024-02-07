@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
+import java.net.URL;
 import java.util.List;
 import java.util.UUID;
 
@@ -18,7 +19,7 @@ public class BankResponse {
 
     private Integer orderNumber;
 
-    private String logo;
+    private URL logo;
 
     private List<BankContactResponse> contacts;
 

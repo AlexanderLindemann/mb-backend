@@ -7,8 +7,10 @@ import pro.mbroker.api.dto.request.BorrowerDocumentRequest;
 import pro.mbroker.api.dto.response.AttachmentInfo;
 import pro.mbroker.app.entity.Attachment;
 import pro.mbroker.app.entity.BorrowerDocument;
+import pro.mbroker.app.entity.FileStorage;
 import pro.mbroker.app.exception.ItemNotFoundException;
 
+import java.net.URL;
 import java.util.List;
 
 public interface AttachmentService {
@@ -20,6 +22,22 @@ public interface AttachmentService {
      * @return Attachment, представляющего загруженный файл.
      */
     Attachment upload(MultipartFile file, Integer sdId);
+
+    /**
+     * Загружает файл в файловое хранилище s3, возвращает идентификатор соответствующего вложения.
+     *
+     * @param file Файл для загрузки.
+     * @return Attachment, представляющего загруженный файл.
+     */
+    FileStorage uploadS3(MultipartFile file, Integer sdId);
+
+    /**
+     * Загружает файл в файловое хранилище s3, возвращает идентификатор соответствующего вложения.
+     *
+     * @param fileObjKeyName уникальное имя файла.
+     * @return URL, подписанная ссылка для получения файла
+     */
+    URL getSignedUrl(String fileObjKeyName);
 
     /**
      * Скачивает файл, соответствующий идентификатору вложения.

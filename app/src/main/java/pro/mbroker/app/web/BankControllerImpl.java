@@ -6,15 +6,15 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 import pro.mbroker.api.controller.BankController;
 import pro.mbroker.api.dto.request.BankRequest;
-import pro.mbroker.api.dto.response.AttachmentResponse;
 import pro.mbroker.api.dto.response.BankResponse;
-import pro.mbroker.app.entity.Attachment;
+import pro.mbroker.api.dto.response.StorageResponse;
 import pro.mbroker.app.entity.Bank;
+import pro.mbroker.app.entity.FileStorage;
 import pro.mbroker.app.mapper.BankMapper;
 import pro.mbroker.app.mapper.CreditProgramMapper;
+import pro.mbroker.app.mapper.StorageMapper;
 import pro.mbroker.app.service.AttachmentService;
 import pro.mbroker.app.service.BankService;
-import pro.mbroker.app.util.Converter;
 import pro.mbroker.app.util.CreditProgramConverter;
 
 import java.util.List;
@@ -30,12 +30,14 @@ public class BankControllerImpl implements BankController {
     private final BankService bankService;
     private final AttachmentService attachmentService;
     private final BankMapper bankMapper;
+    private final StorageMapper storageMapper;
     private final CreditProgramMapper creditProgramMapper;
 
     @Override
     public BankResponse createBank(BankRequest bankRequest, Integer sdId) {
         Bank bank = bankService.createBank(bankRequest, sdId);
-        return bankMapper.toBankResponseMapper(bank);
+        return bankMapper.toBankResponseMapper(bank)
+                .setLogo(attachmentService.getSignedUrl(bank.getLogoFileStorage().getObjectKey()));
     }
 
     @Override
@@ -57,8 +59,9 @@ public class BankControllerImpl implements BankController {
     }
 
     @Override
-    public AttachmentResponse getLogoBankById(UUID bankId) {
-        return bankService.getLogoBankById(bankId);
+    public StorageResponse getLogoBankById(UUID bankId) {
+        FileStorage fileStorage = bankService.getLogoBankById(bankId);
+        return storageMapper.toStorageResponse(fileStorage);
     }
 
     @Override
@@ -74,19 +77,14 @@ public class BankControllerImpl implements BankController {
 
     private BankResponse convertToBankResponse(Bank bank) {
         BankResponse bankResponse = bankMapper.toBankResponseMapper(bank);
-        Attachment attachment = bank.getAttachment();
-        if (Objects.nonNull(bank.getLogoAttachmentId())) {
-            Long logoAttachmentId = bank.getLogoAttachmentId().longValue();
-            Attachment attachmentById = attachmentService.getAttachmentById(logoAttachmentId);
-            bankResponse.setLogo(attachmentById.getContentMd5());
-        } else if (attachment != null) {
-            String base64Logo = Converter.generateBase64FromFile(attachmentService.download(attachment.getId()));
-            bankResponse.setLogo(base64Logo);
+        FileStorage fileStorage = bank.getLogoFileStorage();
+        if (Objects.nonNull(bank.getLogoFileStorage())) {
+            bankResponse.setLogo(attachmentService.getSignedUrl(fileStorage.getObjectKey()));
+            bankResponse.setCreditProgram(bank.getCreditPrograms().stream()
+                    .map(creditProgram -> creditProgramMapper.toProgramResponseMapper(creditProgram)
+                            .setCreditProgramDetail(CreditProgramConverter.convertCreditDetailToEnumFormat(creditProgram.getCreditProgramDetail())))
+                    .collect(Collectors.toList()));
         }
-        bankResponse.setCreditProgram(bank.getCreditPrograms().stream()
-                .map(creditProgram -> creditProgramMapper.toProgramResponseMapper(creditProgram)
-                        .setCreditProgramDetail(CreditProgramConverter.convertCreditDetailToEnumFormat(creditProgram.getCreditProgramDetail())))
-                .collect(Collectors.toList()));
         return bankResponse;
     }
 }

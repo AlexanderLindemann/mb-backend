@@ -93,6 +93,7 @@ subprojects {
         imports {
             mavenBom("org.springframework.boot:spring-boot-dependencies:${spring_boot_version}")
             mavenBom("org.springframework.cloud:spring-cloud-dependencies:${spring_cloud_version}")
+            mavenBom 'com.amazonaws:aws-java-sdk-bom:1.12.118'
         }
     }
 

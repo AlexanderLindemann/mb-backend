@@ -19,6 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 import pro.mbroker.api.dto.request.AttachmentRequest;
 import pro.mbroker.api.dto.response.AttachmentInfo;
 import pro.mbroker.api.dto.response.BorrowerDocumentResponse;
+import pro.mbroker.api.dto.response.StorageResponse;
 import pro.mbroker.api.enums.DocumentType;
 
 import java.util.List;
@@ -35,7 +36,7 @@ public interface AttachmentController {
 
     @ApiOperation("Загрузить файл и получить attachmentId")
     @PostMapping()
-    Long upload(@RequestPart("file") MultipartFile file, Integer sdId);
+    StorageResponse upload(@RequestPart("file") MultipartFile file, Integer sdId);
 
     @ApiOperation("Загрузить документ клиента")
     @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
