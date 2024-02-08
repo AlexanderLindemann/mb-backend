@@ -5,7 +5,6 @@ import pro.mbroker.api.dto.response.BorrowerResponse;
 import pro.mbroker.api.enums.BorrowerProfileStatus;
 import pro.mbroker.app.entity.BorrowerProfile;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.Map;
 import java.util.UUID;
 
@@ -17,7 +16,7 @@ public interface BorrowerProfileService {
 
     BorrowerProfile getBorrowerProfile(UUID borrowerProfileId);
 
-    BorrowerResponse createOrUpdateGenericBorrowerProfile(BorrowerRequest request, HttpServletRequest httpRequest, Integer sdId);
+    BorrowerResponse createOrUpdateGenericBorrowerProfile(BorrowerRequest request, Integer sdId);
 
     void deleteBorrowerProfileById(UUID borrowerProfileId, Integer sdId);
 

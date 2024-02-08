@@ -20,6 +20,8 @@ public class PartnerApplicationRequest {
 
     private String realEstateId;
 
+    private String prefixLink;
+
     private Integer externalCreatorId;
 
     private PartnerType partnerType;

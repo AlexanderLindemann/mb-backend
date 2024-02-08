@@ -9,7 +9,6 @@ import pro.mbroker.app.entity.UrlMappings;
 import pro.mbroker.app.repository.BorrowerProfileRepository;
 import pro.mbroker.app.service.LinkService;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.Random;
 
@@ -21,21 +20,20 @@ public class LinkServiceImpl implements LinkService {
 
     @Override
     @Transactional
-    public void addLinksByProfiles(List<BorrowerProfile> borrowerProfiles, HttpServletRequest httpRequest) {
+    public void addLinksByProfiles(List<BorrowerProfile> borrowerProfiles, String prefixLink) {
         for (BorrowerProfile borrowerProfile : borrowerProfiles) {
             if (borrowerProfile.getLink() == null) {
-                UrlMappings linkTable = createLinkTableForBorrowerProfile(borrowerProfile, httpRequest);
+                UrlMappings linkTable = createLinkTableForBorrowerProfile(borrowerProfile, prefixLink);
                 borrowerProfile.setLink(linkTable);
             }
         }
         borrowerProfileRepository.saveAll(borrowerProfiles);
     }
 
-    private UrlMappings createLinkTableForBorrowerProfile(BorrowerProfile borrowerProfile, HttpServletRequest httpRequest) {
-        String prefix = determinePrefix(httpRequest.getRequestURL().toString());
+    private UrlMappings createLinkTableForBorrowerProfile(BorrowerProfile borrowerProfile, String prefixLink) {
         UrlMappings urlMappings = new UrlMappings();
-        urlMappings.setShortLink(generateRandomString(prefix));
-        urlMappings.setFullLink(buildFullLink(borrowerProfile, prefix));
+        urlMappings.setShortLink(generateRandomString(prefixLink));
+        urlMappings.setFullLink(buildFullLink(borrowerProfile, prefixLink));
         return urlMappings;
     }
 
@@ -49,18 +47,6 @@ public class LinkServiceImpl implements LinkService {
             sb.append(randomChar);
         }
         return sb.toString();
-    }
-
-    private String determinePrefix(String baseUrl) {
-        if (baseUrl.contains("mb-dev-dc1")) {
-            return "https://stage-cabinet.smartdeal.pro/";
-        } else if (baseUrl.contains("trial")) {
-            return "https://trial-cabinet.smartdeal.pro/";
-        } else if (baseUrl.contains("localhost:8080")) {
-            return "https://localhost:3000/";
-        } else {
-            return "https://my.smartdeal.pro/";
-        }
     }
 
     private String buildFullLink(BorrowerProfile borrowerProfile, String prefix) {

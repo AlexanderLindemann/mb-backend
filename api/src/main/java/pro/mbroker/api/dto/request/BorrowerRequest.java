@@ -1,7 +1,6 @@
 package pro.mbroker.api.dto.request;
 
 import lombok.Getter;
-import lombok.NonNull;
 import lombok.Setter;
 import lombok.ToString;
 
@@ -14,6 +13,8 @@ import java.util.UUID;
 public class BorrowerRequest {
 
     private UUID id;
+
+    private String prefixLink;
 
     private BorrowerProfileRequest mainBorrower;
 

@@ -15,7 +15,6 @@ import pro.mbroker.app.entity.PartnerApplication;
 import pro.mbroker.app.service.LinkService;
 import pro.mbroker.app.service.PartnerApplicationService;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.UUID;
 
@@ -40,9 +39,9 @@ public class PartnerApplicationControllerImpl implements PartnerApplicationContr
     }
 
     @Override
-    public PartnerApplicationResponse createPartnerApplication(PartnerApplicationRequest request, HttpServletRequest httpRequest, Integer sdId) {
+    public PartnerApplicationResponse createPartnerApplication(PartnerApplicationRequest request, Integer sdId) {
         PartnerApplication partnerApplication = partnerApplicationService.createPartnerApplication(request, sdId);
-        linkService.addLinksByProfiles(partnerApplication.getBorrowerProfiles(), httpRequest);
+        linkService.addLinksByProfiles(partnerApplication.getBorrowerProfiles(), request.getPrefixLink());
         return partnerApplicationService.buildPartnerApplicationResponse(partnerApplication);
     }
 

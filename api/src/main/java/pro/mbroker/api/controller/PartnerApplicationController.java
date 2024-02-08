@@ -18,7 +18,6 @@ import pro.mbroker.api.dto.request.PartnerApplicationServiceRequest;
 import pro.mbroker.api.dto.response.PartnerApplicationResponse;
 import pro.mbroker.api.dto.response.RequiredDocumentResponse;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.NotNull;
 import java.util.List;
 import java.util.UUID;
@@ -39,8 +38,7 @@ public interface PartnerApplicationController {
     @ApiOperation("Создать заявку")
     @PostMapping()
     PartnerApplicationResponse createPartnerApplication(@ApiParam(value = "Параметры кредитной заявки")
-                                                        @RequestBody PartnerApplicationRequest request,
-                                                        HttpServletRequest httpRequest, Integer sdId);
+                                                        @RequestBody PartnerApplicationRequest request, Integer sdId);
 
     @ApiOperation("обновить заявку")
     @PutMapping("/{partnerApplicationId}")

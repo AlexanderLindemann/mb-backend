@@ -10,13 +10,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import pro.mbroker.api.dto.request.BorrowerRequest;
 import pro.mbroker.api.dto.response.BorrowerProfileForUpdateResponse;
 import pro.mbroker.api.dto.response.BorrowerResponse;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.NotNull;
 import java.util.Map;
 import java.util.UUID;
@@ -33,8 +31,7 @@ public interface BorrowerProfileController {
     @ApiOperation("Дополнить или обновить обобщенную банковскую заявку")
     @PostMapping("/partner_application")
     BorrowerResponse createOrUpdateGenericBorrowerProfile(@ApiParam(value = "Параметры заемщиков")
-                                                          @RequestBody BorrowerRequest request,
-                                                          HttpServletRequest httpRequest, Integer sdId);
+                                                          @RequestBody BorrowerRequest request, Integer sdId);
 
     @ApiOperation("получить обобщенный профиль клиента по id заявки партнера")
     @GetMapping("/{partnerApplicationId}")

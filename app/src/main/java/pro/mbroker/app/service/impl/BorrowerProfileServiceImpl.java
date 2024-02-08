@@ -36,7 +36,6 @@ import pro.mbroker.app.service.PartnerApplicationService;
 import pro.mbroker.app.service.StatusService;
 import pro.mbroker.app.util.Converter;
 
-import javax.servlet.http.HttpServletRequest;
 import java.lang.reflect.Field;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -212,7 +211,7 @@ public class BorrowerProfileServiceImpl implements BorrowerProfileService {
 
     @Override
     @Transactional
-    public BorrowerResponse createOrUpdateGenericBorrowerProfile(BorrowerRequest request, HttpServletRequest httpRequest, Integer sdId) {
+    public BorrowerResponse createOrUpdateGenericBorrowerProfile(BorrowerRequest request, Integer sdId) {
         PartnerApplication partnerApplication = partnerApplicationService.getPartnerApplication(request.getId());
         List<BorrowerProfile> borrowerProfilesToSave = new ArrayList<>();
         if (Objects.nonNull(request.getCoBorrower())) {
@@ -230,7 +229,7 @@ public class BorrowerProfileServiceImpl implements BorrowerProfileService {
 
         borrowerProfileRepository.saveAll(borrowerProfilesToSave);
         borrowerProfileRepository.flush();
-        linkService.addLinksByProfiles(borrowerProfilesToSave, httpRequest);
+        linkService.addLinksByProfiles(borrowerProfilesToSave, request.getPrefixLink());
         partnerApplicationService.save(partnerApplication);
         return getBorrowersByPartnerApplicationId(request.getId());
     }

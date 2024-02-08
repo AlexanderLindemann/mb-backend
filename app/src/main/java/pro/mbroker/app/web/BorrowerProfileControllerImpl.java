@@ -15,7 +15,6 @@ import pro.mbroker.app.service.BorrowerDocumentService;
 import pro.mbroker.app.service.BorrowerProfileService;
 import pro.mbroker.app.util.Converter;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.Map;
 import java.util.UUID;
 
@@ -35,8 +34,8 @@ public class BorrowerProfileControllerImpl implements BorrowerProfileController 
     }
 
     @Override
-    public BorrowerResponse createOrUpdateGenericBorrowerProfile(BorrowerRequest request, HttpServletRequest httpRequest, Integer sdId) {
-        return borrowerProfileService.createOrUpdateGenericBorrowerProfile(request, httpRequest, sdId);
+    public BorrowerResponse createOrUpdateGenericBorrowerProfile(BorrowerRequest request, Integer sdId) {
+        return borrowerProfileService.createOrUpdateGenericBorrowerProfile(request, sdId);
     }
 
     @Override
