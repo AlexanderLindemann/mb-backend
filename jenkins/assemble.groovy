@@ -14,7 +14,7 @@ pipeline {
     parameters {
         gitParameter(
                 name: 'GIT_BRANCH',
-                useRepository: "https://git.practus.ru/scm/mb/mb-backend.git",
+                useRepository: "https://ci-gitea.cian.tech/smartdeal/mb-backend.git",
                 defaultValue: "origin/develop",
                 type: 'PT_BRANCH',
                 description: 'Branch for build'
@@ -35,7 +35,7 @@ pipeline {
                 script {
                     setBuildName(env.BUILD_VERSION_SHORT)
                     setBackendReleaseAndVersions(env.GIT_BRANCH)
-                    bitbucketProcessTracker.started(params.GIT_COMMIT_ID, "assemble", "Assembling")
+//                    bitbucketProcessTracker.started(params.GIT_COMMIT_ID, "assemble", "Assembling")
                 }
             }
         }
@@ -110,11 +110,11 @@ pipeline {
         }
     }
     post {
-        always {
-            script {
-                bitbucketProcessTracker.finished(params.GIT_COMMIT_ID, "assemble", "Assembled ${env.BUILD_VERSION_SHORT}")
-            }
-        }
+//        always {
+//            script {
+//                bitbucketProcessTracker.finished(params.GIT_COMMIT_ID, "assemble", "Assembled ${env.BUILD_VERSION_SHORT}")
+//            }
+//        }
         success {
             cleanWorkspace()
         }
