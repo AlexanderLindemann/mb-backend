@@ -19,5 +19,4 @@ public class MortgageBrokerApplication {
     public static void main(String[] args) {
         SpringApplication.run(MortgageBrokerApplication.class, args);
     }
-
 }

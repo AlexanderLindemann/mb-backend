@@ -19,7 +19,7 @@ public interface PartnerService {
 
     Partner updatePartnerById(UUID partnerId, PartnerRequest request, Integer sdId);
 
-    Partner getCurrentPartner(Integer organisationId);
+    List<Partner> getCurrentPartners(Integer organisationId);
 
     void deletePartner(UUID partnerId, Integer sdId);
 

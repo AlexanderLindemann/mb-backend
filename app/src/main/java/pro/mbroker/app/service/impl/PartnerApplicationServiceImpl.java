@@ -125,8 +125,10 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
         if (request.getPermissions().contains("MB_ADMIN_ACCESS")) {
             return fetchPartnerApplications(specification, pageable);
         } else if (request.getPermissions().contains("MB_REQUEST_READ_ORGANIZATION")) {
-            UUID partnerId = partnerService.getCurrentPartner(request.getOrganisationId()).getId();
-            return fetchPartnerApplications(specification.and(PartnerApplicationSpecification.partnerIdEquals(partnerId)), pageable);
+            List<UUID> partnerIds = partnerService.getCurrentPartners(request.getOrganisationId()).stream()
+                    .map(Partner::getId)
+                    .collect(Collectors.toList());
+            return fetchPartnerApplications(specification.and(PartnerApplicationSpecification.partnerIdIn(partnerIds)), pageable);
         } else if (request.getPermissions().contains("MB_REQUEST_READ_OWN")) {
             return fetchPartnerApplications(specification.and(PartnerApplicationSpecification.createdByEquals(request.getSdId())), pageable);
         } else if (request.getPermissions().contains("SD_MOBILE_INTERACTION")) {

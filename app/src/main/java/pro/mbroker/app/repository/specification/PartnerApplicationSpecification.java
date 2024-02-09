@@ -50,6 +50,12 @@ public class PartnerApplicationSpecification {
                         criteriaBuilder.equal(root.get("partner").get("id"), partnerId);
     }
 
+    public static Specification<PartnerApplication> partnerIdIn(List<UUID> partnerIds) {
+        return (root, query, criteriaBuilder) ->
+                partnerIds == null || partnerIds.isEmpty() ? criteriaBuilder.conjunction() :
+                        root.get("partner").get("id").in(partnerIds);
+    }
+
     public static Specification<PartnerApplication> applicationNumberEquals(Integer applicationNumber) {
         return ((root, query, criteriaBuilder) -> {
             Join<PartnerApplication, BankApplication> bankApplicationJoin = root.join("bankApplications", JoinType.INNER);

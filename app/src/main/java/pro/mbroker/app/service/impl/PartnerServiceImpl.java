@@ -87,10 +87,9 @@ public class PartnerServiceImpl implements PartnerService {
 
     @Override
     @Transactional(readOnly = true)
-    public Partner getCurrentPartner(Integer organisationId) {
+    public List<Partner> getCurrentPartners(Integer organisationId) {
         Specification<Partner> specification = PartnerSpecification.partnerByOrganizationIdAndIsActive(organisationId);
-        return partnerRepository.findOne(specification)
-                .orElseThrow(() -> new ItemNotFoundException(Partner.class, "organization_Id:" + organisationId));
+        return partnerRepository.findAll(specification);
     }
 
     @Override

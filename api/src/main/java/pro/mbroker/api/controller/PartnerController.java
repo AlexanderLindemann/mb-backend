@@ -44,7 +44,7 @@ public interface PartnerController {
 
     @ApiOperation("получить действующего застройщика")
     @GetMapping("/current")
-    PartnerResponse getCurrentPartner(Integer organisationId);
+    List<PartnerResponse> getCurrentPartner(Integer organisationId);
 
     @ApiOperation("получить застройщика по id заявки застройщика")
     @GetMapping("/current/{partnerApplicationId}")
