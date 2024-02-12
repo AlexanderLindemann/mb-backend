@@ -14,7 +14,7 @@ public interface PartnerRepository extends JpaRepository<Partner, UUID>, JpaSpec
     @EntityGraph(attributePaths = {"bank"})
     List<Partner> findAllWithBankBy(Pageable pageable);
 
-    Optional<Partner> findBySmartDealOrganizationId(Integer id);
+    List<Partner> findBySmartDealOrganizationId(Integer id);
 
     Optional<Partner> findByCianId(Integer cianId);
 }

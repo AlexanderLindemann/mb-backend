@@ -67,9 +67,11 @@ public class PartnerControllerImpl implements PartnerController {
     }
 
     @Override
-    public PartnerResponse getPartnerApplicationPartner(UUID partnerApplicationId) {
+    public List<PartnerResponse> getPartnersByPartnerApplicationId(UUID partnerApplicationId) {
         Partner partner = partnerService.getPartnerByPartnerApplicationId(partnerApplicationId);
-        return buildPartnerResponse(partner);
+        List<Partner> partners =
+                partnerService.getPartnersBySmartDealOrganizationId(partner.getSmartDealOrganizationId());
+        return partners.stream().map(this::buildPartnerResponse).collect(Collectors.toList());
     }
 
     @Override

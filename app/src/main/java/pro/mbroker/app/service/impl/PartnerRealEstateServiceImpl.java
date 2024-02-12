@@ -36,6 +36,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -98,9 +99,9 @@ public class PartnerRealEstateServiceImpl implements PartnerRealEstateService {
     @Transactional(readOnly = true)
     public List<RealEstate> getCurrentRealEstate(int page, int size, String sortBy, String sortOrder, Integer organisationId) {
         Pageable pageable = Pagination.createPageable(page, size, sortBy, sortOrder);
-        Partner partnerId = partnerRepository.findBySmartDealOrganizationId(organisationId)
-                .orElseThrow(() -> new ItemNotFoundException(Partner.class, organisationId));
-        Specification<RealEstate> specification = RealEstateSpecification.realEstateByPartnerIdAndIsActive(partnerId.getId());
+        List<UUID> partnerIds = partnerRepository.findBySmartDealOrganizationId(organisationId).stream()
+                .map(Partner::getId).collect(Collectors.toList());
+        Specification<RealEstate> specification = RealEstateSpecification.realEstateByPartnerIdsAndIsActive(partnerIds);
         return realEstateRepository.findAll(specification, pageable).getContent();
     }
 

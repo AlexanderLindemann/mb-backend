@@ -5,6 +5,7 @@ import pro.mbroker.app.entity.Partner;
 import pro.mbroker.app.entity.RealEstate;
 
 import javax.persistence.criteria.Join;
+import javax.persistence.criteria.Predicate;
 import java.util.List;
 import java.util.UUID;
 
@@ -39,11 +40,12 @@ public class RealEstateSpecification {
     }
 
     public static Specification<RealEstate> realEstateByPartnerIdsAndIsActive(List<UUID> partnerIds) {
-        return (root, query, criteriaBuilder) -> {
+        return ((root, criteriaQuery, criteriaBuilder) -> {
             Join<RealEstate, Partner> partnerJoin = root.join("partner");
-            return criteriaBuilder.and(partnerJoin.get("id").in(partnerIds),
-                    criteriaBuilder.isTrue(root.get("isActive")));
-        };
+            Predicate partnerIdIn = partnerJoin.get("id").in(partnerIds);
+            Predicate isActive = criteriaBuilder.isTrue(root.get("isActive"));
+            return criteriaBuilder.and(partnerIdIn, isActive);
+        });
     }
 }
 
