@@ -32,4 +32,6 @@ public interface PartnerService {
     Partner updateCianId(UUID partnerId, Integer cianId);
 
     Partner saveOrUpdatePartner(Partner partner);
+
+    List<Partner> getPartnersBySmartDealOrganizationId(Integer smartDealOrganizationId);
 }

@@ -186,4 +186,9 @@ public class PartnerServiceImpl implements PartnerService {
     public Partner saveOrUpdatePartner(Partner partner) {
         return partnerRepository.save(partner);
     }
+
+    @Override
+    public List<Partner> getPartnersBySmartDealOrganizationId(Integer smartDealOrganizationId) {
+        return partnerRepository.findBySmartDealOrganizationId(smartDealOrganizationId);
+    }
 }
