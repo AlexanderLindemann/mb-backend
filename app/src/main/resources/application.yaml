@@ -62,7 +62,7 @@ api:
     real-estate-path: ${CIAN_REAL_ESTATE_URL:/newbuilding-mortgage-calculator/v1/get-newbuildings/}
 cian:
   credit-program:
-    make-inactive: false
+    make-inactive: true
     loading_credit_program:
       scheduled:
         enabled: true
