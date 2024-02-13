@@ -57,12 +57,12 @@ api:
     real-estate-path : ${CIAN_REAL_ESTATE_URL:/newbuilding-mortgage-calculator/v1/get-newbuildings/}
 cian:
   credit-program:
-    make-inactive: false
+    make-inactive: true
     loading_credit_program:
       scheduled:
         enabled: true
         interval: 36000000 #в млсек, каждый час
-    program_path: "/programs/2024-02-01/programs_4_5_7.csv"
+    program_path: "/programs/2024-02-13/programs_4_5_7_240213.csv"
     bank_future_rules_path: "/programs/2024-02-01/bank_feature_rules.csv"
     additional_rate_rules_path: "/programs/2024-02-01/additional_rate_rules.csv"
   gk:
