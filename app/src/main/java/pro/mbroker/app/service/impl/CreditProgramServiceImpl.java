@@ -247,12 +247,12 @@ public class CreditProgramServiceImpl implements CreditProgramService {
     public void loadAllFilesFromCian() {
         if (loadingCreditProgramEnabled) {
             Integer programs = loadCreditProgramFromCian();
-            Integer future = loadBankFutureRulesFromCian();
-            Integer rate = loadAdditionalRateRulesFromCian();
-            if (programs != 0 && future != 0 && rate != 0) {
+            loadBankFutureRulesFromCian();
+            loadAdditionalRateRulesFromCian();
+            if (programs != 0) {
                 createCreditProgramsFromCian();
             } else {
-                log.info("Нет новых кредитных программ для загрузки");
+                log.info("нет программ для загрузки");
             }
         }
     }
@@ -358,32 +358,6 @@ public class CreditProgramServiceImpl implements CreditProgramService {
     private void loadProgramFromCianProgramsTable() {
         log.info("Подгрузить все программы из cian programs");
 
-       /* String sqlQuery = "SELECT distinct bank_id, region_id, mortgage_type, real_estate_type, object_type, benefit_program, base_rate, " +
-                "       loan_term_min, loan_term_max, loan_amount_min, loan_amount_max, down_payment_rate_min " +
-                "FROM cian_programs " +
-                "WHERE is_active " +
-                "  AND ARRAY(SELECT unnest(region_id::integer[])) && ARRAY(SELECT unnest(region_id::integer[]) FROM cian_programs) " +
-                "  AND ARRAY(SELECT unnest(real_estate_type::TEXT[])) && " +
-                "      ARRAY(SELECT unnest(cian_programs.real_estate_type::TEXT[]) FROM cian_programs) " +
-                "  AND ARRAY(SELECT unnest(object_type::TEXT[])) && " +
-                "      ARRAY(SELECT unnest(cian_programs.object_type::TEXT[]) FROM cian_programs) " +
-                "  AND ARRAY(SELECT unnest(income_confirmation::TEXT[])) && " +
-                "      ARRAY(SELECT unnest(cian_programs.income_confirmation::TEXT[]) FROM cian_programs) " +
-                "and income_confirmation like '%confirmation%'" +
-                "UNION ALL " +
-                "SELECT distinct bank_id, region_id, mortgage_type, real_estate_type, object_type, benefit_program, base_rate, " +
-                "                loan_term_min, loan_term_max, loan_amount_min, loan_amount_max, down_payment_rate_min " +
-                "FROM cian_programs " +
-                "WHERE is_active " +
-                "  AND ARRAY(SELECT unnest(real_estate_type::TEXT[])) && " +
-                "      ARRAY(SELECT unnest(cian_programs.real_estate_type::TEXT[]) FROM cian_programs) " +
-                "  AND ARRAY(SELECT unnest(object_type::TEXT[])) && " +
-                "      ARRAY(SELECT unnest(cian_programs.object_type::TEXT[]) FROM cian_programs) " +
-                "  AND ARRAY(SELECT unnest(income_confirmation::TEXT[])) && " +
-                "      ARRAY(SELECT unnest(cian_programs.income_confirmation::TEXT[]) FROM cian_programs) " +
-                "  and income_confirmation like '%confirmation%' and region_group is not null";
-*/
-
         String sqlQuery = "SELECT bank_id, region_id, mortgage_type, real_estate_type, object_type, benefit_program, base_rate, " +
                 "       loan_term_min, loan_term_max, loan_amount_min, loan_amount_max, down_payment_rate_min " +
                 "FROM cian_programs ";
@@ -393,8 +367,14 @@ public class CreditProgramServiceImpl implements CreditProgramService {
             while (resultSet.next()) {
                 BankProgramRequest bankProgramRequest = mappingToBankProgramRequest(resultSet);
                 if (bankProgramRequest != null) {
-                    bankProgramRequest.setCianId(new Random().nextInt(6) + 1);//todo добавить поле что загружено из циана
-                    if (bankProgramRequest != null) {
+                    bankProgramRequest.setCianId(new Random().nextInt(6) + 1);//todo добавить поле что загружено из циана\
+                   try {
+                      bankService.getBankById(bankProgramRequest.getBankId());
+                   } catch (ItemNotFoundException e) {
+                       log.error("Банк с id - {} не найден", bankProgramRequest.getBankId());
+                       continue;
+                   }
+
                         CreditProgramDetail creditProgramDetail =
                                 CreditProgramConverter.convertCreditDetailToStringFormat(bankProgramRequest);
 
@@ -418,7 +398,7 @@ public class CreditProgramServiceImpl implements CreditProgramService {
                             }
                         }
                     }
-                }
+
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
