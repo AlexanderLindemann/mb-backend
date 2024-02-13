@@ -5,13 +5,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import pro.mbroker.api.controller.ReportController;
 import pro.mbroker.api.dto.request.PartnerApplicationServiceRequest;
-import pro.mbroker.api.dto.response.PartnerApplicationResponse;
+import pro.mbroker.app.entity.PartnerApplication;
 import pro.mbroker.app.service.PartnerApplicationService;
 import pro.mbroker.app.service.ReportService;
 
 import javax.servlet.http.HttpServletResponse;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -22,10 +21,9 @@ public class ReportControllerImpl implements ReportController {
 
     @Override
     public void getReport(HttpServletResponse response, PartnerApplicationServiceRequest request) {
-        List<PartnerApplicationResponse> partnerApplicationResponses = partnerApplicationService.getAllPartnerApplication(request).getContent()
-                .stream()
-                .map(partnerApplicationService::buildPartnerApplicationResponse)
-                .collect(Collectors.toList());
+        request.setSize(Integer.MAX_VALUE);
+        request.setPage(0);
+        List<PartnerApplication> partnerApplicationResponses = partnerApplicationService.getAllPartnerApplication(request).getContent();
         reportService.generateCsvReport(response, partnerApplicationResponses);
     }
 }
