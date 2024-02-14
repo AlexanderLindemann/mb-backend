@@ -80,11 +80,12 @@ public class BankControllerImpl implements BankController {
         FileStorage fileStorage = bank.getLogoFileStorage();
         if (Objects.nonNull(bank.getLogoFileStorage())) {
             bankResponse.setLogo(attachmentService.getSignedUrl(fileStorage.getObjectKey()));
-            bankResponse.setCreditProgram(bank.getCreditPrograms().stream()
-                    .map(creditProgram -> creditProgramMapper.toProgramResponseMapper(creditProgram)
-                            .setCreditProgramDetail(CreditProgramConverter.convertCreditDetailToEnumFormat(creditProgram.getCreditProgramDetail())))
-                    .collect(Collectors.toList()));
         }
+        bankResponse.setCreditProgram(bank.getCreditPrograms().stream()
+                .map(creditProgram -> creditProgramMapper.toProgramResponseMapper(creditProgram)
+                        .setCreditProgramDetail(CreditProgramConverter.convertCreditDetailToEnumFormat(creditProgram.getCreditProgramDetail())))
+                .collect(Collectors.toList()));
+
         return bankResponse;
     }
 }
