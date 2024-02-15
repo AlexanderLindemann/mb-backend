@@ -79,7 +79,7 @@ public interface BorrowerProfileMapper {
     @Mapping(source = "request.lastName", target = "lastName")
     @Mapping(source = "request.middleName", target = "middleName")
     @Mapping(source = "request.phoneNumber", target = "phoneNumber")
-    @Mapping(source = "request.link.shortLink", target = "link")
+    @Mapping(source = "request.link.fullLink", target = "link")
     @Mapping(source = "borrowerProfileStatus", target = "status")
     @Mapping(target = "documents", expression = "java(mapBorrowerDocuments(request.getBorrowerDocument()))")
     BorrowerProfileResponse toBorrowerProfileResponse(BorrowerProfile request);
