@@ -12,6 +12,7 @@ import pro.mbroker.app.exception.ItemNotFoundException;
 
 import java.net.URL;
 import java.util.List;
+import java.util.UUID;
 
 public interface AttachmentService {
 
@@ -99,4 +100,12 @@ public interface AttachmentService {
      * @param attachmentIds айди вложений
      */
     void markAttachmentsAsDeleted(List<Long> attachmentIds);
+
+    /**
+     * Метод возвращает StorageResponse с временной ссылкой на файл
+     *
+     * @param attachmentId идентификатор вложений
+     * @return список преобразованных вложений
+     */
+    FileStorage downloadFileS3(UUID attachmentId);
 }

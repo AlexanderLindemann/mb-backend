@@ -19,7 +19,7 @@ public class BankResponse {
 
     private Integer orderNumber;
 
-    private URL logo;
+    private StorageResponse storageResponse;
 
     private List<BankContactResponse> contacts;
 
