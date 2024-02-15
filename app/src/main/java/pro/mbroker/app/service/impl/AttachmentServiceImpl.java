@@ -53,7 +53,7 @@ public class AttachmentServiceImpl implements AttachmentService {
     private final BorrowerProfileRepository borrowerProfileRepository;
     private final FileStorageRepository fileStorageRepository;
     private final AmazonS3 amazonS3;
-    public static final long ONE_HOUR_IN_MILLIS = 1000 * 60 * 60;
+    public static final long TWENTY_FOUR_HOURS_IN_MILLIS = 1000 * 60 * 60 * 24;
     @Value("${aws.s3.bucket-name}")
     private String BUCKET_NAME;
     @Value("${aws.s3.path.bank-logo}")
@@ -106,7 +106,7 @@ public class AttachmentServiceImpl implements AttachmentService {
         log.info("Generating signed URL for object key: {}", fileObjKeyName);
         try {
             java.util.Date expiration = new java.util.Date();
-            long expTimeMillis = System.currentTimeMillis() + ONE_HOUR_IN_MILLIS;
+            long expTimeMillis = System.currentTimeMillis() + TWENTY_FOUR_HOURS_IN_MILLIS;
             expiration.setTime(expTimeMillis);
             GeneratePresignedUrlRequest generatePresignedUrlRequest =
                     new GeneratePresignedUrlRequest(BUCKET_NAME, fileObjKeyName)
