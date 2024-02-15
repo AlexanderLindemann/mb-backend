@@ -368,36 +368,30 @@ public class CreditProgramServiceImpl implements CreditProgramService {
                 BankProgramRequest bankProgramRequest = mappingToBankProgramRequest(resultSet);
                 if (bankProgramRequest != null) {
                     bankProgramRequest.setCianId(new Random().nextInt(6) + 1);//todo добавить поле что загружено из циана\
-                   try {
-                      bankService.getBankById(bankProgramRequest.getBankId());
-                   } catch (ItemNotFoundException e) {
-                       log.error("Банк с id - {} не найден", bankProgramRequest.getBankId());
-                       continue;
-                   }
-
-                        CreditProgramDetail creditProgramDetail =
-                                CreditProgramConverter.convertCreditDetailToStringFormat(bankProgramRequest);
-
-                        if (creditProgramDetail != null) {
-                            Integer bankId = resultSet.getInt("bank_id");
-                            String mortgageType = resultSet.getString("mortgage_type");
-                            String benefitProgram = resultSet.getString("benefit_program");
-
-                            if (bankProgramRequest.getActive() != null && bankProgramRequest.getActive()) {
-                                bankProgramRequest.setFullDescription(getFullDescription(bankId, mortgageType, benefitProgram));
-                                bankProgramRequest.setSalaryClientInterestRate(getSalaryClientInterestRate(bankId, mortgageType, benefitProgram));
-                            }
-
-                            List<CreditProgram> existList = creditProgramExist(bankProgramRequest);
-                            if (existList.isEmpty()) {
-                                createCreditParameter(bankProgramRequest, creditProgramDetail, 007);
-                                counterNewPrograms.incrementAndGet();
-                            } else {
-                                updateProgram(existList.get(0).getId(), bankProgramRequest, creditProgramDetail, 007);
-                                counterUpdatedPrograms.incrementAndGet();
-                            }
-                        }
+                    try {
+                        bankService.getBankById(bankProgramRequest.getBankId());
+                    } catch (ItemNotFoundException e) {
+                        log.error("Банк с id - {} не найден", bankProgramRequest.getBankId());
+                        continue;
                     }
+
+                    CreditProgramDetail creditProgramDetail =
+                            CreditProgramConverter.convertCreditDetailToStringFormat(bankProgramRequest);
+
+                    if (creditProgramDetail != null) {
+                        Integer bankId = resultSet.getInt("bank_id");
+                        String mortgageType = resultSet.getString("mortgage_type");
+                        String benefitProgram = resultSet.getString("benefit_program");
+
+                        if (bankProgramRequest.getActive() != null && bankProgramRequest.getActive()) {
+                            bankProgramRequest.setFullDescription(getFullDescription(bankId, mortgageType, benefitProgram));
+                            bankProgramRequest.setSalaryClientInterestRate(getSalaryClientInterestRate(bankId, mortgageType, benefitProgram));
+                        }
+
+                        createCreditParameter(bankProgramRequest, creditProgramDetail, 007);
+                        counterNewPrograms.incrementAndGet();
+                    }
+                }
 
             }
         } catch (SQLException e) {
