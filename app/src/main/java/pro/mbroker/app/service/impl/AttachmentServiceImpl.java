@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import pro.mbroker.api.dto.request.BorrowerDocumentRequest;
 import pro.mbroker.api.dto.response.AttachmentInfo;
+import pro.mbroker.api.dto.response.StorageResponse;
 import pro.mbroker.app.entity.Attachment;
 import pro.mbroker.app.entity.Bank;
 import pro.mbroker.app.entity.BorrowerDocument;
@@ -208,6 +209,12 @@ public class AttachmentServiceImpl implements AttachmentService {
             return;
         }
         attachmentRepository.setAttachmentsInactive(attachmentIds);
+    }
+
+    @Override
+    public FileStorage downloadFileS3(UUID attachmentId) {
+        return fileStorageRepository.findById(attachmentId)
+                .orElseThrow(() -> new ItemNotFoundException(StorageResponse.class, attachmentId));
     }
 
     @Override

@@ -138,7 +138,9 @@ public class AttachmentControllerImpl implements AttachmentController {
 
     @Override
     public StorageResponse downloadFileS3(UUID attachmentId) {
-        return attachmentService.downloadFileS3(attachmentId);
+        FileStorage fileStorage = attachmentService.downloadFileS3(attachmentId);
+        return storageMapper.toStorageResponse(fileStorage)
+                .setUrl((attachmentService.getSignedUrl(fileStorage.getObjectKey())));
     }
 
     private boolean isSpecialDocumentType(DocumentType documentType) {
