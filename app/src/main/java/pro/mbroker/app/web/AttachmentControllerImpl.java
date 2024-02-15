@@ -137,8 +137,8 @@ public class AttachmentControllerImpl implements AttachmentController {
     }
 
     @Override
-    public StorageResponse downloadFileS3(UUID attachmentId) {
-        FileStorage fileStorage = attachmentService.downloadFileS3(attachmentId);
+    public StorageResponse downloadFileS3(UUID fileStorageId) {
+        FileStorage fileStorage = attachmentService.downloadFileS3(fileStorageId);
         return storageMapper.toStorageResponse(fileStorage)
                 .setUrl((attachmentService.getSignedUrl(fileStorage.getObjectKey())));
     }

@@ -34,9 +34,9 @@ public interface AttachmentController {
     @GetMapping("/{attachmentId}/file")
     ResponseEntity<InputStreamResource> downloadFile(@PathVariable Long attachmentId);
 
-    @ApiOperation("Получить файл по fileStorageId для скачивания")
-    @GetMapping("/{attachmentId}/fileS3")
-    StorageResponse downloadFileS3(@PathVariable UUID attachmentId);
+    @ApiOperation("Получить StorageResponse по fileStorageId")
+    @GetMapping("/{fileStorageId}/fileS3")
+    StorageResponse downloadFileS3(@PathVariable UUID fileStorageId);
 
     @ApiOperation("Загрузить файл и получить attachmentId")
     @PostMapping()
