@@ -136,6 +136,11 @@ public class AttachmentControllerImpl implements AttachmentController {
         return attachmentService.downloadFile(attachmentId);
     }
 
+    @Override
+    public StorageResponse downloadFileS3(UUID attachmentId) {
+        return attachmentService.downloadFileS3(attachmentId);
+    }
+
     private boolean isSpecialDocumentType(DocumentType documentType) {
         return documentType == DocumentType.BORROWER_SNILS ||
                 documentType == DocumentType.CERTIFIED_COPY_TK ||

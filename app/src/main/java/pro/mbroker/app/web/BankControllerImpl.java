@@ -35,8 +35,7 @@ public class BankControllerImpl implements BankController {
     @Override
     public BankResponse createBank(BankRequest bankRequest, Integer sdId) {
         Bank bank = bankService.createBank(bankRequest, sdId);
-        return bankMapper.toBankResponseMapper(bank)
-                .setLogo(attachmentService.getSignedUrl(bank.getLogoFileStorage().getObjectKey()));
+        return convertToBankResponse(bank);
     }
 
     @Override
@@ -78,8 +77,8 @@ public class BankControllerImpl implements BankController {
         BankResponse bankResponse = bankMapper.toBankResponseMapper(bank);
         FileStorage fileStorage = bank.getLogoFileStorage();
         if (Objects.nonNull(bank.getLogoFileStorage())) {
-            bankResponse.setLogo(attachmentService.getSignedUrl(fileStorage.getObjectKey()));
-            bankResponse.setStorageResponse(storageMapper.toStorageResponse(bank.getLogoFileStorage()));
+            bankResponse.setStorageResponse(storageMapper.toStorageResponse(bank.getLogoFileStorage())
+                    .setUrl(attachmentService.getSignedUrl(fileStorage.getObjectKey())));
         }
         bankResponse.setCreditProgram(bank.getCreditPrograms().stream()
                 .map(creditProgram -> creditProgramMapper.toProgramResponseMapper(creditProgram)

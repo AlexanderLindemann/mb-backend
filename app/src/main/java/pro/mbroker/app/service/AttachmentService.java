@@ -5,6 +5,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.multipart.MultipartFile;
 import pro.mbroker.api.dto.request.BorrowerDocumentRequest;
 import pro.mbroker.api.dto.response.AttachmentInfo;
+import pro.mbroker.api.dto.response.StorageResponse;
 import pro.mbroker.app.entity.Attachment;
 import pro.mbroker.app.entity.BorrowerDocument;
 import pro.mbroker.app.entity.FileStorage;
@@ -12,6 +13,7 @@ import pro.mbroker.app.exception.ItemNotFoundException;
 
 import java.net.URL;
 import java.util.List;
+import java.util.UUID;
 
 public interface AttachmentService {
 
@@ -99,4 +101,12 @@ public interface AttachmentService {
      * @param attachmentIds айди вложений
      */
     void markAttachmentsAsDeleted(List<Long> attachmentIds);
+
+    /**
+     * Метод возвращает StorageResponse
+     *
+     * @param attachmentId идентификатор вложений
+     * @return список преобразованных вложений
+     */
+    StorageResponse downloadFileS3(UUID attachmentId);
 }
