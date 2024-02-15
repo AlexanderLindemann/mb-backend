@@ -21,6 +21,8 @@ public class BankResponse {
 
     private URL logo;
 
+    private StorageResponse storageResponse;
+
     private List<BankContactResponse> contacts;
 
     private List<CreditProgramResponse> creditProgram;

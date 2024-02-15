@@ -9,5 +9,6 @@ import pro.mbroker.app.entity.Bank;
 public interface BankMapper {
     @Mapping(target = "creditProgram", ignore = true)
     @Mapping(target = "logo", ignore = true)
+    @Mapping(target = "storageResponse", ignore = true)
     BankResponse toBankResponseMapper(Bank bank);
 }
