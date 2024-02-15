@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
 import pro.mbroker.api.dto.request.BankRequest;
 import pro.mbroker.api.dto.response.BankResponse;
 import pro.mbroker.api.dto.response.StorageResponse;
@@ -33,7 +32,7 @@ public interface BankController {
     @ApiOperation("обновить логотип банка")
     @PutMapping("/{bankId}/logo")
     BankResponse updateLogo(@PathVariable UUID bankId,
-                            @RequestParam("logo") MultipartFile logo,
+                            @RequestParam UUID fileStorageId,
                             @RequestParam Integer sdId);
 
     @ApiOperation("получить все банки")
