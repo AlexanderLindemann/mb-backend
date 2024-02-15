@@ -8,7 +8,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 import pro.mbroker.api.dto.request.BankContactRequest;
 import pro.mbroker.api.dto.request.BankRequest;
 import pro.mbroker.app.entity.Bank;
@@ -16,7 +15,6 @@ import pro.mbroker.app.entity.BankContact;
 import pro.mbroker.app.entity.CreditProgram;
 import pro.mbroker.app.entity.FileStorage;
 import pro.mbroker.app.exception.ItemNotFoundException;
-import pro.mbroker.app.mapper.AttachmentMapper;
 import pro.mbroker.app.repository.BankContactRepository;
 import pro.mbroker.app.repository.BankRepository;
 import pro.mbroker.app.repository.specification.BankSpecification;
@@ -87,10 +85,10 @@ public class BankServiceImpl implements BankService {
 
     @Override
     @Transactional
-    public Bank updateLogo(UUID bankId, MultipartFile logo, Integer sdId) {
+    public Bank updateLogo(UUID bankId, UUID fileStorageId, Integer sdId) {
         Bank bank = getBank(bankId);
         bank.setUpdatedBy(sdId);
-        bank.setLogoFileStorage(attachmentService.uploadS3(logo, sdId));
+        setAttachmentIfPresent(bank, fileStorageId);
         return bankRepository.save(bank);
     }
 

@@ -1,6 +1,5 @@
 package pro.mbroker.app.service;
 
-import org.springframework.web.multipart.MultipartFile;
 import pro.mbroker.api.dto.request.BankRequest;
 import pro.mbroker.app.entity.Bank;
 import pro.mbroker.app.entity.FileStorage;
@@ -18,7 +17,7 @@ public interface BankService {
 
     Bank updateBank(UUID bankId, BankRequest bankRequest, Integer sdId);
 
-    Bank updateLogo(UUID bankId, MultipartFile logo, Integer sdId);
+    Bank updateLogo(UUID bankId, UUID fileStorageId, Integer sdId);
 
     FileStorage getLogoBankById(UUID bankId);
 

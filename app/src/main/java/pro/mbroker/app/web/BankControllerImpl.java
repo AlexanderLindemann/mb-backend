@@ -3,7 +3,6 @@ package pro.mbroker.app.web;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import org.springframework.web.multipart.MultipartFile;
 import pro.mbroker.api.controller.BankController;
 import pro.mbroker.api.dto.request.BankRequest;
 import pro.mbroker.api.dto.response.BankResponse;
@@ -41,9 +40,9 @@ public class BankControllerImpl implements BankController {
     }
 
     @Override
-    public BankResponse updateLogo(UUID bankId, MultipartFile logo, Integer sdId) {
-        Bank bank = bankService.updateLogo(bankId, logo, sdId);
-        return bankMapper.toBankResponseMapper(bank);
+    public BankResponse updateLogo(UUID bankId, UUID fileStorageId, Integer sdId) {
+        Bank bank = bankService.updateLogo(bankId, fileStorageId, sdId);
+        return convertToBankResponse(bank);
     }
 
     @Override
