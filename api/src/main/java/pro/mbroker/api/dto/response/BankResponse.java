@@ -19,7 +19,7 @@ public class BankResponse {
 
     private Integer orderNumber;
 
-    private URL url;
+    private URL logo;
 
     private AttachmentResponse attachment;
 
