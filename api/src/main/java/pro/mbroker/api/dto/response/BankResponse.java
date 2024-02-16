@@ -19,7 +19,9 @@ public class BankResponse {
 
     private Integer orderNumber;
 
-    private StorageResponse storageResponse;
+    private URL logo;
+
+    private AttachmentResponse attachment;
 
     private List<BankContactResponse> contacts;
 
