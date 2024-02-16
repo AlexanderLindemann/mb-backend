@@ -4,28 +4,19 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
-import java.time.LocalDateTime;
+import java.math.BigInteger;
+import java.util.UUID;
 
 @Getter
 @Setter
 @ToString
 public class AttachmentResponse {
 
-    private Long id;
+    private UUID id;
 
-    private String name;
+    private String fileName;
 
-    private long sizeBytes;
+    private String contentType;
 
-    private String mimeType;
-
-    private String contentMd5;
-
-    private LocalDateTime createdAt;
-
-    private LocalDateTime updatedAt;
-
-    private Integer createdBy;
-
-    private Integer updatedBy;
+    private BigInteger contentLength;
 }

@@ -77,8 +77,8 @@ public class BankControllerImpl implements BankController {
         BankResponse bankResponse = bankMapper.toBankResponseMapper(bank);
         FileStorage fileStorage = bank.getLogoFileStorage();
         if (Objects.nonNull(bank.getLogoFileStorage())) {
-            bankResponse.setStorageResponse(storageMapper.toStorageResponse(bank.getLogoFileStorage())
-                    .setUrl(attachmentService.getSignedUrl(fileStorage.getObjectKey())));
+            bankResponse.setUrl(attachmentService.getSignedUrl(fileStorage.getObjectKey()));
+            bankResponse.setAttachment(storageMapper.toAttachmentResponse(bank.getLogoFileStorage()));
         }
         if (Objects.nonNull(bank.getCreditPrograms())) {
             bankResponse.setCreditProgram(bank.getCreditPrograms().stream()
