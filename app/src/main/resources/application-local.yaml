@@ -67,5 +67,5 @@ cian:
     additional_rate_rules_path: "/programs/2024-02-01/additional_rate_rules.csv"
   gk:
     scheduled:
-      enabled: true
+      enabled: false
       interval: 3600000 #в млсек, каждый час
