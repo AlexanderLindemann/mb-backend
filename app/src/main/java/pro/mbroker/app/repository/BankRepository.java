@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import pro.mbroker.app.entity.Bank;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
@@ -18,5 +19,5 @@ public interface BankRepository extends JpaRepository<Bank, UUID>, JpaSpecificat
 
     List<Bank> findAllByIdInAndIsActiveTrue(Set<UUID> bankIds);
 
-    Bank findBankByCianId(Integer cianId);
+    Optional<Bank> findBankByCianIdAndIsActiveTrue(Integer cianId);
 }

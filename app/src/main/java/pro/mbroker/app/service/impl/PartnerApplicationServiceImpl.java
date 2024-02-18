@@ -501,6 +501,7 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
             }
         }
         if (Objects.nonNull(request.getInsurances())
+                && Objects.nonNull(existingApplication.getInsurances())
                 && !Objects.equals(Converter.convertEnumListToString(request.getInsurances()), existingApplication.getInsurances())) {
             return true;
         }
