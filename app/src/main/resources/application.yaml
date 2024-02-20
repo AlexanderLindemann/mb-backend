@@ -82,6 +82,6 @@ aws:
   s3:
     region: "ru-1"
     service-endpoint: "s3.ru-1.storage.selcloud.ru"
-    bucket-name: "mb-dev-dc1-01"
+    bucket-name: ${BUCKET_NAME:"mb-dev-dc1-01"}
     path:
       bank-logo: "logo/bank/"
