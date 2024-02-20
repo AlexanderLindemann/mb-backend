@@ -649,7 +649,7 @@ public class CreditProgramServiceImpl implements CreditProgramService {
             }
         }
 
-        if (mortgageType != null) {
+        if (mortgageType != null && mortgageType.equals("refinancing")) {
             CreditPurposeType mortgagePurposeType = CreditPurposeType.getCreditPurposeTypeByCian(mortgageType);
             if (mortgagePurposeType != null) {
                 types.add(mortgagePurposeType);

@@ -29,8 +29,6 @@ public enum CreditPurposeType implements EnumWithValue<String> {
         map.put("newBuilding", PURCHASE_UNDER_CONSTRUCTION);
         map.put("secondary", PURCHASE_READY_HOUSE);
         map.put("refinancing", REFINANCING);
-        map.put("mortgage", PURCHASE_UNDER_CONSTRUCTION);
-
 
         return map;
     }

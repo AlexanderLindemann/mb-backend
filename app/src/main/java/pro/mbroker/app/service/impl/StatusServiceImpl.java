@@ -74,12 +74,12 @@ public class StatusServiceImpl implements StatusService {
                             && isPassportInfoComplete(borrowerProfile)
                             && isEmployerInfoComplete(borrowerProfile)
                             && isIncomeInfoComplete(borrowerProfile))) {
-
-                        if (borrowerProfile.getBorrowerDocument().stream()
-                                .filter(BaseEntity::isActive)
-                                .map(BorrowerDocument::getDocumentType)
-                                .anyMatch(docType -> docType == DocumentType.GENERATED_SIGNATURE_FORM
-                                        || docType == DocumentType.SIGNATURE_FORM)) {
+                    List<BorrowerDocument> signed = borrowerProfile.getBorrowerDocument().stream()
+                                .filter(d-> d.isActive()
+                                        && (d.getDocumentType().equals(DocumentType.GENERATED_SIGNATURE_FORM)
+                                       || d.getDocumentType().equals(DocumentType.SIGNATURE_FORM)))
+                                .collect(Collectors.toList());
+                    if (!signed.isEmpty()) {
                             if (!currentStatus.equals(BorrowerProfileStatus.DOCS_SIGNED)) {
                                 borrowerProfile.setBorrowerProfileStatus(BorrowerProfileStatus.DOCS_SIGNED);
                                 isChange = true;
