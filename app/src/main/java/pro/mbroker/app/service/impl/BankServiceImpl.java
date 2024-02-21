@@ -125,7 +125,7 @@ public class BankServiceImpl implements BankService {
 
     @Override
     public Bank findBankByCianId(Integer cianId) {
-        return bankRepository.findBankByCianId(cianId);
+        return bankRepository.findBankByCianIdAndIsActiveTrue(cianId).orElse(null);
     }
 
     @Override

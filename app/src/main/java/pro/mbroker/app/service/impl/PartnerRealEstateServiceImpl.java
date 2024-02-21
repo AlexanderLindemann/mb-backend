@@ -120,7 +120,7 @@ public class PartnerRealEstateServiceImpl implements PartnerRealEstateService {
                     log.info("Загрузка Жк на паузе 20 мин.");
                     Thread.sleep(20 * 60 * 1000); // 20 минут, что бы крединые програмы успели прогрузиться
                 } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
+                    e.printStackTrace();
                 }
                 try {
                     log.info("Запускаем выгрузку жк из циан ");

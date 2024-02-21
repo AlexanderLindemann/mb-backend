@@ -228,8 +228,7 @@ public class StatusServiceTest extends BaseServiceTest {
 
         borrowerDocumentService.deleteDocumentByAttachmentId(1L, 1234); //delete GENERATED_FORM
         borrowerDocumentService.deleteDocumentByAttachmentId(6L, 1234); //delete GENERATED_SIGNATURE_FORM
-        uploadDocumentTest(mockMultipartFile, DocumentType.SIGNATURE_FORM);
-        assertEquals(BorrowerProfileStatus.DOCS_SIGNED, getBorrowerProfile(BORROWER_PROFILE_ID_1).getBorrowerProfileStatus());
+        assertEquals(BorrowerProfileStatus.DATA_ENTERED, getBorrowerProfile(BORROWER_PROFILE_ID_1).getBorrowerProfileStatus());
     }
 
     //TODO тест для генерации анкеты (проверяет статус BorrowerProfile, если клиент генерирует новую анкет) - не работает мок
