@@ -168,7 +168,7 @@ public class PartnerRealEstateServiceImpl implements PartnerRealEstateService {
                         {
                             var cianId = builder.getId();
                             var name = builder.getName();
-                            if (cianId != null || name != null) {
+                            if (cianId != null && name != null) {
                                 processCianPartner(cianResponse, cianId, name, PartnerType.DEVELOPER);
                             }
                         }
@@ -181,7 +181,7 @@ public class PartnerRealEstateServiceImpl implements PartnerRealEstateService {
                         {
                             var cianId = seller.getRealtyUserId();
                             var name = seller.getName();
-                            if (cianId != null || name != null) {
+                            if (cianId != null && name != null) {
                                 processCianPartner(cianResponse, cianId, name, PartnerType.REAL_ESTATE_AGENCY);
                             }
                         }
