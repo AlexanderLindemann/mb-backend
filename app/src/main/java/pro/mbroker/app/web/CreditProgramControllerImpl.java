@@ -1,5 +1,6 @@
 package pro.mbroker.app.web;
 
+import liquibase.pro.packaged.B;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
@@ -81,11 +82,6 @@ public class CreditProgramControllerImpl implements CreditProgramController {
     }
 
     @Override
-    public void createCreditProgramsFromCian() {
-        creditProgramService.createCreditProgramsFromCian();
-    }
-
-    @Override
     public void loadCreditProgramFromCian() {
         creditProgramService.loadCreditProgramFromCian();
     }
@@ -101,8 +97,8 @@ public class CreditProgramControllerImpl implements CreditProgramController {
     }
 
     @Override
-    public void loadAllFilesFromCian() {
-        creditProgramService.loadAllFilesFromCian();
+    public String loadAllFilesFromCian(Boolean makeInactive) {
+       return creditProgramService.loadAllFilesFromCian(makeInactive);
     }
 
 }

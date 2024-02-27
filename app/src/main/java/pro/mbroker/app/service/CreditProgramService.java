@@ -33,8 +33,6 @@ public interface CreditProgramService {
 
     List<UUID> getAllCreditProgramIds();
 
-    void createCreditProgramsFromCian();
-
     Integer loadCreditProgramFromCian();
 
     Integer loadBankFutureRulesFromCian();
@@ -43,5 +41,5 @@ public interface CreditProgramService {
 
     CreditProgram updateProgramFromCian(Integer cianId, BankProgramRequest updateProgramRequest, CreditProgramDetail updateCreditProgramDetail);
 
-    void loadAllFilesFromCian();
+    String loadAllFilesFromCian(Boolean makeInactive);
 }

@@ -54,10 +54,6 @@ public interface CreditProgramController {
     void deleteCreditProgram(@PathVariable(value = "creditProgramId") UUID creditProgramId,
                              Integer sdId);
 
-    @ApiOperation("Создать кредитные программы из уже загруженных файлов")
-    @PostMapping("/load/create_credit_program_from_cian")
-    void createCreditProgramsFromCian();
-
     @ApiOperation("Получить кредитные программы из циан")
     @GetMapping("/load/credit_program_from_cian")
     void loadCreditProgramFromCian();
@@ -72,7 +68,7 @@ public interface CreditProgramController {
     void loadAdditionalRateRulesFromCian();
 
     @ApiOperation("Запустить выгрузку из всех файлов по кредитным программам из циан")
-    @GetMapping("/load/LoadAllFilesFromCian")
-    void loadAllFilesFromCian();
+    @PostMapping("/load/LoadAllFilesFromCian")
+    String loadAllFilesFromCian(Boolean makeInactive );
 
 }
