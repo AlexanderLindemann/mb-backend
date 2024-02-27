@@ -231,30 +231,29 @@ public class CreditProgramServiceImpl implements CreditProgramService {
     }
 
     @Async
-    @Override
-    public void createCreditProgramsFromCian() {
+    public String createCreditProgramsFromCian(Boolean makeInactive) {
         log.info("Начали автоматическое создание кредитных программ");
         if (makeInactive) {
             updateInactiveProgramStatus();
         }
-        loadProgramFromCianProgramsTable();
+        String result = loadProgramFromCianProgramsTable();
         log.info("Загрузили кредитные программы успешно");
+        return result;
     }
 
     @Async
     @Override
-    @Scheduled(fixedRateString = "${cian.credit-program.loading_credit_program.scheduled.interval}")
-    public void loadAllFilesFromCian() {
-        if (loadingCreditProgramEnabled) {
-            Integer programs = loadCreditProgramFromCian();
-            loadBankFutureRulesFromCian();
-            loadAdditionalRateRulesFromCian();
-            if (programs != 0) {
-                createCreditProgramsFromCian();
-            } else {
-                log.info("нет программ для загрузки");
-            }
+    public String loadAllFilesFromCian(Boolean makeInactive) {
+        Integer programs = loadCreditProgramFromCian();
+        loadBankFutureRulesFromCian();
+        loadAdditionalRateRulesFromCian();
+        String result = "нет программ для загрузки";
+        if (programs != 0) {
+           result = createCreditProgramsFromCian(makeInactive);
+        } else {
+            log.info("нет программ для загрузки");
         }
+        return result;
     }
 
     private void updateInactiveProgramStatus() {
@@ -355,7 +354,7 @@ public class CreditProgramServiceImpl implements CreditProgramService {
         return builder.toString();
     }
 
-    private void loadProgramFromCianProgramsTable() {
+    private String loadProgramFromCianProgramsTable() {
         log.info("Подгрузить все программы из cian programs");
 
         String sqlQuery = "SELECT bank_id, region_id, mortgage_type, real_estate_type, object_type, benefit_program, base_rate, " +
@@ -397,7 +396,9 @@ public class CreditProgramServiceImpl implements CreditProgramService {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
+        String result = "Загружено новых кредитных програм {}. Обновлено {} программ " + " " + counterNewPrograms.get() + " " + counterUpdatedPrograms.get();
         log.info("Загружено новых кредитных програм {}. Обновлено {} программ ", counterNewPrograms.get(), counterUpdatedPrograms.get());
+       return result;
     }
 
     private List<CreditProgram> creditProgramExist(BankProgramRequest request) {

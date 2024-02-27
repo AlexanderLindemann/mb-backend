@@ -117,12 +117,6 @@ public class PartnerRealEstateServiceImpl implements PartnerRealEstateService {
         if (loadingGkEnabled) {
             if (loadingCreditProgramEnabled) {
                 try {
-                    log.info("Загрузка Жк на паузе 20 мин.");
-                    Thread.sleep(20 * 60 * 1000); // 20 минут, что бы крединые програмы успели прогрузиться
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                try {
                     log.info("Запускаем выгрузку жк из циан ");
                     RealEstateCianResponse response = cianAPIClient.getRealEstate();
                     int totalBuildings = response.getNewBuildings().size();
