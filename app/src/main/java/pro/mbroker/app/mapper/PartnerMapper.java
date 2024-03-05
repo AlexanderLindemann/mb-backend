@@ -19,6 +19,7 @@ public interface PartnerMapper {
     @Mapping(target = "creditPurposeType", qualifiedByName = "stringToCreditPurposeTypeList")
     @Mapping(target = "realEstates", ignore = true)
     @Mapping(target = "realEstateType", qualifiedByName = "stringToRealEstateTypeList")
+    @Mapping(target = "cianId", source = "cianId")
     PartnerResponse toPartnerResponseMapper(Partner partner);
 
 
@@ -32,6 +33,7 @@ public interface PartnerMapper {
     @Mapping(target = "createdBy", ignore = true)
     @Mapping(target = "updatedBy", ignore = true)
     @Mapping(target = "active", ignore = true)
+    @Mapping(target = "cianId", source = "cianId")
     Partner toPartnerMapper(PartnerRequest request);
 
     @Mapping(target = "realEstates", ignore = true)
@@ -42,6 +44,7 @@ public interface PartnerMapper {
     @Mapping(target = "createdBy", ignore = true)
     @Mapping(target = "updatedBy", ignore = true)
     @Mapping(target = "active", ignore = true)
+    @Mapping(target = "cianId", source = "cianId")
     void updatePartnerFromRequest(PartnerRequest partnerRequest, @MappingTarget Partner partner);
 
 

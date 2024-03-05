@@ -30,4 +30,6 @@ public class PartnerResponse {
     private List<RealEstateResponse> realEstates;
 
     private List<CreditProgramResponse> bankCreditProgram;
+
+    private Integer cianId;
 }
