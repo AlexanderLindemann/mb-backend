@@ -22,7 +22,7 @@ public interface PartnerApplicationService {
 
     PartnerApplicationResponse buildPartnerApplicationResponse(PartnerApplication partnerApplication);
 
-    List<PartnerApplicationResponse> buildPartnerApplicationResponse(List<PartnerApplication> partnerApplications);
+    Page<PartnerApplicationResponse> buildPartnerApplicationResponse(Page<PartnerApplication> partnerApplications);
 
     PartnerApplication getPartnerApplicationByIdCheckPermission(UUID partnerApplicationId);
 
