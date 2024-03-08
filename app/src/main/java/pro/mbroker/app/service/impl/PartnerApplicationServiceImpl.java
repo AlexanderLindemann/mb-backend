@@ -66,6 +66,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -289,10 +290,14 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
     }
 
     @Override
-    public List<PartnerApplicationResponse> buildPartnerApplicationResponse(List<PartnerApplication> partnerApplications) {
+    public Page<PartnerApplicationResponse> buildPartnerApplicationResponse(Page<PartnerApplication> partnerApplications) {
         Map<UUID, PartnerApplicationResponse> partnerResponseMap = partnerApplications.stream()
                 .map(partnerApplicationMapper::toPartnerApplicationResponse)
-                .collect(Collectors.toMap(PartnerApplicationResponse::getId, Function.identity()));
+                .collect(Collectors.toMap(
+                        PartnerApplicationResponse::getId,
+                        Function.identity(),
+                        (existing, replacement) -> existing,
+                        LinkedHashMap::new));
         Set<UUID> creditProgramIds = partnerApplications.stream()
                 .flatMap(pa -> pa.getBankApplications().stream())
                 .map(BankApplication::getCreditProgram)
@@ -321,7 +326,7 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
                             .sorted(Comparator.comparing(BorrowerProfileResponse::getCreatedAt)) // Сортировка по дате создания
                             .collect(Collectors.toList()));
         }
-        return new ArrayList<>(partnerResponseMap.values());
+        return new PageImpl<>(new ArrayList<>(partnerResponseMap.values()), partnerApplications.getPageable(), partnerApplications.getTotalElements());
     }
 
     @Override

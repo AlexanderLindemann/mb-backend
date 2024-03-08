@@ -15,6 +15,7 @@ import pro.mbroker.app.entity.PartnerApplication;
 import pro.mbroker.app.service.LinkService;
 import pro.mbroker.app.service.PartnerApplicationService;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -28,8 +29,7 @@ public class PartnerApplicationControllerImpl implements PartnerApplicationContr
     @Override
     public Page<PartnerApplicationResponse> getAllPartnerApplication(PartnerApplicationServiceRequest request) {
         Page<PartnerApplication> partnerApplications = partnerApplicationService.getAllPartnerApplication(request);
-        List<PartnerApplicationResponse> responses = partnerApplicationService.buildPartnerApplicationResponse(partnerApplications.getContent());
-        return new PageImpl<>(responses, partnerApplications.getPageable(), partnerApplications.getTotalElements());
+        return partnerApplicationService.buildPartnerApplicationResponse(partnerApplications);
     }
 
     @Override
@@ -88,6 +88,6 @@ public class PartnerApplicationControllerImpl implements PartnerApplicationContr
     @Override
     public List<PartnerApplicationResponse> findPartnerApplicationByPhoneNumber(String phoneNumber) {
         List<PartnerApplication> partnerApplications = partnerApplicationService.findPartnerApplicationByPhoneNumber(phoneNumber);
-        return partnerApplicationService.buildPartnerApplicationResponse(partnerApplications);
+        return partnerApplicationService.buildPartnerApplicationResponse(new PageImpl<>(new ArrayList<>(partnerApplications))).getContent();
     }
 }
