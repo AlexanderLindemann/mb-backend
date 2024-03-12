@@ -478,9 +478,12 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
         if (Objects.nonNull(request.getMortgageCalculation()) && Objects.nonNull(request.getMortgageCalculation().getSalaryBanks())) {
             List<Bank> banks = bankRepository.findAllById(request.getMortgageCalculation().getSalaryBanks());
             List<Bank> existBanks = partnerApplication.getMortgageCalculation().getSalaryBanks();
-
-            if (existBanks != null
-                    && !new HashSet<>(existBanks).containsAll(banks)) {
+            if (existBanks == null) {
+                existBanks = Collections.emptyList();
+            }
+            Set<Bank> newBanksSet = new HashSet<>(banks);
+            Set<Bank> existBanksSet = new HashSet<>(existBanks);
+            if (!newBanksSet.equals(existBanksSet) || (banks.isEmpty() && !existBanks.isEmpty())) {
                 partnerApplication.getMortgageCalculation().setSalaryBanks(banks);
             }
         }
