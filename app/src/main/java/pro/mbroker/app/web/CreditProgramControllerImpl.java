@@ -82,11 +82,6 @@ public class CreditProgramControllerImpl implements CreditProgramController {
     }
 
     @Override
-    public void loadCreditProgramFromCian() {
-        creditProgramService.loadCreditProgramFromCian();
-    }
-
-    @Override
     public void loadBankFutureRulesFromCian() {
         creditProgramService.loadBankFutureRulesFromCian();
     }
