@@ -54,10 +54,6 @@ public interface CreditProgramController {
     void deleteCreditProgram(@PathVariable(value = "creditProgramId") UUID creditProgramId,
                              Integer sdId);
 
-    @ApiOperation("Получить кредитные программы из циан")
-    @GetMapping("/load/credit_program_from_cian")
-    void loadCreditProgramFromCian();
-
     @ApiOperation("Получить bank future rules из циан")
     @GetMapping("/load/future_rules_from_cian")
     void loadBankFutureRulesFromCian();
