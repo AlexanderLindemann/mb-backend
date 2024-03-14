@@ -9,6 +9,7 @@ import pro.mbroker.api.enums.PartnerType;
 import pro.mbroker.api.enums.RealEstateType;
 
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 @Getter
@@ -27,7 +28,7 @@ public class PartnerRequest {
 
     private List<RealEstateRequest> realEstateRequest;
     @NonNull
-    private List<UUID> bankCreditProgram;
+    private Set<UUID> bankCreditProgram;
 
     private Integer cianId;
 }

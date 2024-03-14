@@ -9,6 +9,7 @@ import pro.mbroker.api.dto.response.CreditProgramResponse;
 import pro.mbroker.app.entity.CreditProgram;
 
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Mapper(config = ProgramMapperConfig.class, uses = BankMapper.class, nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.SET_TO_NULL)
@@ -41,7 +42,7 @@ public interface CreditProgramMapper {
     @Mapping(target = "cianId", ignore = true)
     void updateProgramFromRequest(BankProgramRequest updateProgramRequest, @MappingTarget CreditProgram creditProgram);
 
-    default List<CreditProgramResponse> convertCreditProgramsToResponses(List<CreditProgram> creditPrograms) {
+    default List<CreditProgramResponse> convertCreditProgramsToResponses(Set<CreditProgram> creditPrograms) {
         return creditPrograms.stream()
                 .map(this::toProgramResponseMapper)
                 .collect(Collectors.toList());

@@ -21,7 +21,6 @@ import java.util.stream.Collectors;
 @Mapper(uses = {BorrowerProfileMapper.class, CreditParameterMapper.class, UnderwritingMapper.class})
 public interface BankApplicationMapper {
 
-    @Mapping(source = "bankApplication.creditProgram.baseRate", target = "baseRate")
     @Mapping(target = "mortgageSum", ignore = true)
     @Mapping(target = "coBorrowers", ignore = true)
     @Mapping(source = "creditProgram.id", target = "creditProgramId")
@@ -30,6 +29,7 @@ public interface BankApplicationMapper {
     @Mapping(source = "creditProgram.programName", target = "creditProgramName")
     @Mapping(source = "bankApplicationStatus", target = "status")
     @Mapping(target = "salaryClientCalculation", ignore = true)
+    @Mapping(target = "baseRate", ignore = true)
     @Mapping(source = "underwriting", target = "underwriting")
     BankApplicationResponse toBankApplicationResponse(BankApplication bankApplication);
 
@@ -39,7 +39,6 @@ public interface BankApplicationMapper {
     @Mapping(target = "partnerApplication", ignore = true)
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "bankApplicationStatus", ignore = true)
-    @Mapping(source = "dto.monthlyPayment", target = "monthlyPayment")
     @Mapping(source = "dto.downPayment", target = "downPayment")
     @Mapping(source = "dto.creditTerm", target = "monthCreditTerm", qualifiedByName = "calculateMonths")
     @Mapping(source = "dto.overpayment", target = "overpayment")
@@ -51,6 +50,8 @@ public interface BankApplicationMapper {
     @Mapping(target = "mainBorrower", ignore = true)
     @Mapping(target = "applicationNumber", ignore = true)
     @Mapping(target = "underwriting", ignore = true)
+    @Mapping(target = "lockBaseRate", ignore = true)
+    @Mapping(target = "lockSalaryBaseRate", ignore = true)
     BankApplication toBankApplication(BankApplicationRequest dto);
 
     @Mapping(source = "dto.creditProgramId", target = "creditProgram.id")
@@ -69,6 +70,8 @@ public interface BankApplicationMapper {
     @Mapping(target = "mainBorrower", ignore = true)
     @Mapping(target = "applicationNumber", ignore = true)
     @Mapping(target = "underwriting", ignore = true)
+    @Mapping(target = "lockBaseRate", ignore = true)
+    @Mapping(target = "lockSalaryBaseRate", ignore = true)
     BankApplication toBankApplication(BankApplicationUpdateRequest dto);
 
     @Named("toBankApplicationList")
@@ -93,11 +96,9 @@ public interface BankApplicationMapper {
         if (existing == null) {
             existing = new BankApplication();
         }
-        existing.setMonthlyPayment(request.getMonthlyPayment());
         existing.setRealEstatePrice(request.getRealEstatePrice());
         existing.setDownPayment(request.getDownPayment());
         existing.setMonthCreditTerm(request.getCreditTerm() * 12);
-        existing.setOverpayment(request.getOverpayment());
         existing.setActive(true);
         existing.setUpdatedBy(sdId);
         return existing;
@@ -130,5 +131,4 @@ public interface BankApplicationMapper {
         }
         return resultList;
     }
-
 }

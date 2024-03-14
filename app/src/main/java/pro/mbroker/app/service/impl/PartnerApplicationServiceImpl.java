@@ -303,7 +303,7 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
                 .map(BankApplication::getCreditProgram)
                 .map(CreditProgram::getId)
                 .collect(Collectors.toSet());
-        Map<UUID, Bank> bankMap = creditProgramService.getProgramByCreditProgramIds(new ArrayList<>(creditProgramIds)).stream()
+        Map<UUID, Bank> bankMap = creditProgramService.getProgramByCreditProgramIds(creditProgramIds).stream()
                 .collect(Collectors.toMap(CreditProgram::getId, CreditProgram::getBank));
         for (PartnerApplication partnerApplication : partnerApplications) {
             UUID id = partnerApplication.getId();
@@ -362,7 +362,7 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
         } else {
             BankApplication newBankApplication = bankApplicationMapper.toBankApplication(request);
             newBankApplication.setPartnerApplication(partnerApplication);
-            newBankApplication.setMainBorrower(getBorrowerProfile(request.getMainBorrowerId()));
+            newBankApplication.setMainBorrower(findBorrowerProfileById(request.getMainBorrowerId()));
             newBankApplication.setCreatedBy(sdId);
             newBankApplication.setUpdatedBy(sdId);
             currentBankApplications.put(request.getCreditProgramId(), newBankApplication);
@@ -579,41 +579,63 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
     }
 
     private BankApplicationResponse getBankApplicationResponse(PartnerApplication partnerApplication, BankApplication bankApplication, Map<UUID, BorrowerProfile> borrowerProfileMap) {
-        BankApplicationResponse bankApplicationResponse = bankApplicationMapper.toBankApplicationResponse(bankApplication);
         BigDecimal mortgageSum = calculatorService.getMortgageSum(bankApplication.getRealEstatePrice(), bankApplication.getDownPayment());
-        setSalaryApplicationPropertiesIfApplicable(partnerApplication, bankApplication, bankApplicationResponse, mortgageSum);
+        BankApplicationResponse bankApplicationResponse = bankApplicationMapper.toBankApplicationResponse(bankApplication);
+        bankApplicationResponse.setBaseRate(getBaseRate(bankApplication));
+        bankApplicationResponse.setSalaryClientCalculation(getSalaryClientCalculation(partnerApplication, bankApplication, mortgageSum));
         bankApplicationResponse.setMortgageSum(mortgageSum);
-        setCoBorrowers(bankApplication, bankApplicationResponse, borrowerProfileMap);
+        bankApplicationResponse.setCoBorrowers(getCoBorrowers(bankApplication, borrowerProfileMap));
         return bankApplicationResponse;
     }
 
-    private void setSalaryApplicationPropertiesIfApplicable(PartnerApplication partnerApplication, BankApplication bankApplication, BankApplicationResponse bankApplicationResponse, BigDecimal mortgageSum) {
-        if (Objects.nonNull(partnerApplication.getMortgageCalculation())
-                && Objects.nonNull(partnerApplication.getMortgageCalculation().getSalaryBanks())
-                && partnerApplication.getMortgageCalculation().getSalaryBanks()
-                .contains(bankApplication.getCreditProgram().getBank())) {
-            CreditProgram creditProgram = bankApplication.getCreditProgram();
-            Optional.ofNullable(creditProgram.getSalaryClientInterestRate())
-                    .ifPresent(salaryClientInterestRate -> {
-                        double calculateBaseRate = creditProgram.getBaseRate() + salaryClientInterestRate;
-                        BigDecimal monthlyPayment = calculatorService.calculateMonthlyPayment(mortgageSum, calculateBaseRate, bankApplication.getMonthCreditTerm());
-                        bankApplicationResponse.setSalaryClientCalculation(new SalaryClientProgramCalculationDto()
-                                .setMonthlyPayment(monthlyPayment)
-                                .setSalaryBankRate(creditProgram.getSalaryClientInterestRate())
-                                .setOverpayment(calculatorService.calculateOverpayment(monthlyPayment, bankApplication.getMonthCreditTerm(), bankApplication.getRealEstatePrice(), bankApplication.getDownPayment()))
-                                .setCalculatedRate(calculateBaseRate));
-                    });
+    private Double getBaseRate(BankApplication bankApplication) {
+        if (Objects.nonNull(bankApplication.getLockBaseRate())) {
+            return bankApplication.getLockBaseRate();
+        } else {
+            return bankApplication.getCreditProgram().getBaseRate();
         }
     }
 
-    private void setCoBorrowers(BankApplication bankApplication, BankApplicationResponse bankApplicationResponse, Map<UUID, BorrowerProfile> borrowerProfileMap) {
+    private SalaryClientProgramCalculationDto getSalaryClientCalculation(PartnerApplication partnerApplication, BankApplication bankApplication, BigDecimal mortgageSum) {
+        if (partnerApplication.getMortgageCalculation() == null ||
+                partnerApplication.getMortgageCalculation().getSalaryBanks() == null ||
+                !partnerApplication.getMortgageCalculation().getSalaryBanks().contains(bankApplication.getCreditProgram().getBank())) {
+            return null;
+        }
+        Double lockSalaryBaseRate = bankApplication.getLockSalaryBaseRate();
+        Double salaryRate;
+        double calculateBaseRate;
+        if (lockSalaryBaseRate != null) {
+            Double lockBaseRate = Optional.ofNullable(bankApplication.getLockBaseRate())
+                    .orElse(bankApplication.getCreditProgram().getBaseRate());
+            salaryRate = lockSalaryBaseRate - lockBaseRate;
+            calculateBaseRate = lockSalaryBaseRate;
+        } else {
+            salaryRate = bankApplication.getCreditProgram().getSalaryClientInterestRate();
+            calculateBaseRate = Optional.ofNullable(bankApplication.getLockBaseRate())
+                    .orElse(bankApplication.getCreditProgram().getBaseRate())
+                    + (salaryRate != null ? salaryRate : 0);
+        }
+        if (salaryRate == null) {
+            return null;
+        }
+        BigDecimal monthlyPayment = calculatorService.calculateMonthlyPayment(mortgageSum, calculateBaseRate, bankApplication.getMonthCreditTerm());
+        BigDecimal overpayment = calculatorService.calculateOverpayment(monthlyPayment, bankApplication.getMonthCreditTerm(), mortgageSum, bankApplication.getDownPayment());
+        return new SalaryClientProgramCalculationDto()
+                .setMonthlyPayment(monthlyPayment)
+                .setSalaryBankRate(salaryRate)
+                .setOverpayment(overpayment)
+                .setCalculatedRate(calculateBaseRate);
+    }
+
+
+    private List<BorrowerProfileResponse> getCoBorrowers(BankApplication bankApplication, Map<UUID, BorrowerProfile> borrowerProfileMap) {
         BorrowerProfile mainBorrower = bankApplication.getMainBorrower();
         UUID mainBorrowerId = mainBorrower != null ? mainBorrower.getId() : null;
-        List<BorrowerProfileResponse> coBorrowers = borrowerProfileMap.values().stream()
+        return borrowerProfileMap.values().stream()
                 .filter(borrowerProfile -> mainBorrower == null || !borrowerProfile.getId().equals(mainBorrowerId))
                 .map(borrowerProfileMapper::toBorrowerProfileResponse)
                 .collect(Collectors.toList());
-        bankApplicationResponse.setCoBorrowers(coBorrowers);
     }
 
     private List<BankWithBankApplicationDto> getGroupBankApplication(List<BankApplicationResponse> activeBankApplicationResponses, Set<Bank> banks) {
@@ -633,7 +655,7 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
     private List<BankWithBankApplicationDto> getGroupBankApplication(List<BankApplicationResponse> activeBankApplicationResponses) {
         Map<UUID, List<BankApplicationResponse>> bankApplicationMap = activeBankApplicationResponses.stream()
                 .collect(Collectors.groupingBy(BankApplicationResponse::getCreditProgramId));
-        Set<Bank> banks = creditProgramService.getProgramByCreditProgramIds(new ArrayList<>(bankApplicationMap.keySet()))
+        Set<Bank> banks = creditProgramService.getProgramByCreditProgramIds(bankApplicationMap.keySet())
                 .stream()
                 .map(CreditProgram::getBank)
                 .collect(Collectors.toSet());
@@ -669,7 +691,7 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
         validateMainBorrower(borrowerProfileRequest);
         BorrowerProfile borrowerProfile;
         if (borrowerProfileRequest.getId() != null) {
-            borrowerProfile = getBorrowerProfile(borrowerProfileRequest.getId());
+            borrowerProfile = findBorrowerProfileById(borrowerProfileRequest.getId());
             borrowerProfile.setUpdatedBy(sdId);
             borrowerProfileMapper.updateBorrowerProfile(borrowerProfileRequest, borrowerProfile);
         } else {
@@ -707,17 +729,13 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
     }
 
 
-    private BorrowerProfile getBorrowerProfile(UUID borrowerProfileId) {
+    private BorrowerProfile findBorrowerProfileById(UUID borrowerProfileId) {
         return borrowerProfileRepository.findById(borrowerProfileId)
                 .orElseThrow(() -> new ItemNotFoundException(BorrowerProfile.class, borrowerProfileId));
     }
 
     private List<BankApplication> buildBankApplications(PartnerApplicationRequest requests, PartnerApplication partnerApplication, Integer sdId) {
-        Optional<BorrowerProfileRequest> optionalBorrower = Optional.ofNullable(requests.getMainBorrower());
-        BorrowerProfile mainBorrower = optionalBorrower
-                .filter(borrower -> Objects.nonNull(borrower.getId()))
-                .map(borrower -> getBorrowerProfile(borrower.getId()))
-                .orElseGet(() -> borrowerProfileMapper.toBorrowerProfile(optionalBorrower.orElse(null)));
+        BorrowerProfile mainBorrower = initializeMainBorrower(requests);
         List<BankApplicationRequest> bankApplicationRequests = requests.getBankApplications();
         List<BankApplicationKey> updateCreditProgramIds = bankApplicationRequests.stream()
                 .map(request -> new BankApplicationKey(request.getCreditProgramId(), request.getRealEstateType()))
@@ -736,11 +754,19 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
         bankApplicationRequests.forEach(bankApplicationRequest -> {
             BankApplication currentBankApplication = currentBankApplications.get(new BankApplicationKey(bankApplicationRequest.getCreditProgramId(),
                     bankApplicationRequest.getRealEstateType()));
+            CreditProgram creditProgram = creditProgramService.getProgramByCreditProgramId(bankApplicationRequest.getCreditProgramId());
+            BigDecimal mortgageSum = calculatorService.getMortgageSum(bankApplicationRequest.getRealEstatePrice(), bankApplicationRequest.getDownPayment());
+            BigDecimal monthlyPayment = calculatorService.calculateMonthlyPayment(mortgageSum, creditProgram.getBaseRate(), bankApplicationRequest.getCreditTerm() * 12);
+            BigDecimal overpayment = calculatorService.calculateOverpayment(monthlyPayment, bankApplicationRequest.getCreditTerm() * 12, mortgageSum, bankApplicationRequest.getDownPayment());
             if (currentBankApplication != null) {
-                bankApplicationMapper.updateBankApplicationFromRequest(currentBankApplication, bankApplicationRequest, sdId);
+                bankApplicationMapper.updateBankApplicationFromRequest(currentBankApplication, bankApplicationRequest, sdId)
+                        .setMonthlyPayment(monthlyPayment)
+                        .setOverpayment(overpayment);
             } else {
                 BankApplication newBankApplication = bankApplicationMapper.toBankApplication(bankApplicationRequest)
                         .setMainBorrower(mainBorrower)
+                        .setMonthlyPayment(monthlyPayment)
+                        .setOverpayment(overpayment)
                         .setPartnerApplication(partnerApplication);
                 currentBankApplications.put(new BankApplicationKey(bankApplicationRequest.getCreditProgramId(),
                                 bankApplicationRequest.getRealEstateType())
@@ -749,11 +775,7 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
                 newBankApplication.setUpdatedBy(sdId);
             }
         });
-        currentBankApplications.forEach((key, value) -> {
-            if (!updateCreditProgramIds.contains(key) && !UNCHANGEABLE_STATUSES.contains(value.getBankApplicationStatus())) {
-                value.setActive(false);
-            }
-        });
+        filterAndSetActiveStatus(currentBankApplications, updateCreditProgramIds);
         Set<BankApplication> unchangeableStatusBankApplications = partnerApplication.getBankApplications()
                 .stream()
                 .filter(ba -> UNCHANGEABLE_STATUSES.contains(ba.getBankApplicationStatus()))
@@ -761,7 +783,47 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
                 .collect(Collectors.toSet());
         List<BankApplication> resultBankApplications = new ArrayList<>(currentBankApplications.values());
         resultBankApplications.addAll(unchangeableStatusBankApplications);
+        updateIncompleteCreditPrograms(resultBankApplications);
         return resultBankApplications;
+    }
+
+    private void updateIncompleteCreditPrograms(List<BankApplication> resultBankApplications) {
+        Set<UUID> creditProgramIds = resultBankApplications.stream()
+                .filter(bankApplication -> {
+                    CreditProgram cp = bankApplication.getCreditProgram();
+                    return cp != null && (cp.getProgramName() == null || cp.getBaseRate() == null);
+                })
+                .map(bankApplication -> bankApplication.getCreditProgram().getId())
+                .collect(Collectors.toSet());
+        if (!creditProgramIds.isEmpty()) {
+            Map<UUID, CreditProgram> creditProgramMap = creditProgramService.getProgramByCreditProgramIds(creditProgramIds)
+                    .stream().collect(Collectors.toMap(CreditProgram::getId, Function.identity()));
+            resultBankApplications.forEach(bankApplication -> {
+                CreditProgram currentProgram = bankApplication.getCreditProgram();
+                if (currentProgram != null && creditProgramIds.contains(currentProgram.getId())) {
+                    CreditProgram fullCreditProgram = creditProgramMap.get(currentProgram.getId());
+                    if (fullCreditProgram != null) {
+                        bankApplication.setCreditProgram(fullCreditProgram);
+                    }
+                }
+            });
+        }
+    }
+
+    private void filterAndSetActiveStatus(Map<BankApplicationKey, BankApplication> currentBankApplications, List<BankApplicationKey> updateCreditProgramIds) {
+        currentBankApplications.forEach((key, value) -> {
+            if (!updateCreditProgramIds.contains(key) && !UNCHANGEABLE_STATUSES.contains(value.getBankApplicationStatus())) {
+                value.setActive(false);
+            }
+        });
+    }
+
+    private BorrowerProfile initializeMainBorrower(PartnerApplicationRequest requests) {
+        Optional<BorrowerProfileRequest> optionalBorrower = Optional.ofNullable(requests.getMainBorrower());
+        return optionalBorrower
+                .filter(borrower -> Objects.nonNull(borrower.getId()))
+                .map(borrower -> findBorrowerProfileById(borrower.getId()))
+                .orElseGet(() -> borrowerProfileMapper.toBorrowerProfile(optionalBorrower.orElse(null)));
     }
 
     private PartnerApplication getPartnerApplication(PartnerApplicationRequest request, Integer sdId) {

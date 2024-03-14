@@ -8,8 +8,8 @@ import pro.mbroker.api.dto.response.BorrowerDocumentResponse;
 import pro.mbroker.api.dto.response.BorrowerResponse;
 import pro.mbroker.api.dto.response.NotificationBankLetterResponse;
 import pro.mbroker.api.enums.BankApplicationStatus;
-import pro.mbroker.api.enums.RealEstateType;
 import pro.mbroker.api.enums.DocumentType;
+import pro.mbroker.api.enums.RealEstateType;
 import pro.mbroker.app.entity.Bank;
 import pro.mbroker.app.entity.BankApplication;
 import pro.mbroker.app.entity.BorrowerProfile;
@@ -53,6 +53,7 @@ public class NotificationServiceImpl implements NotificationService {
         log.info("Fetching information for letter formation");
         NotificationBankLetterResponse response = new NotificationBankLetterResponse();
         BankApplication bankApplication = bankApplicationService.getBankApplicationById(bankApplicationId);
+        lockBaseRateToBankApplication(bankApplication);
         if (bankApplication != null) {
             BorrowerProfile borrowerProfile = bankApplication.getMainBorrower();
             if (borrowerProfile != null) {
@@ -108,8 +109,20 @@ public class NotificationServiceImpl implements NotificationService {
         return response;
     }
 
+    private void lockBaseRateToBankApplication(BankApplication bankApplication) {
+        BankApplication application = bankApplication
+                .setLockBaseRate(bankApplication.getCreditProgram().getBaseRate());
+        List<UUID> salaryBanks = bankApplication.getPartnerApplication().getMortgageCalculation().getSalaryBanks().stream().map(Bank::getId).collect(Collectors.toList());
+        UUID id = bankApplication.getCreditProgram().getBank().getId();
+        if (salaryBanks.contains(id)) {
+            double modifyBaseRate = bankApplication.getCreditProgram().getBaseRate()
+                    + bankApplication.getCreditProgram().getSalaryClientInterestRate();
+            application.setLockSalaryBaseRate(modifyBaseRate);
+        }
+        bankApplicationService.save(application);
+    }
+
     private void enrichNotificationResponseWithData(NotificationBankLetterResponse response, UUID bankApplicationId) {
-        UUID borrowerId = response.getBorrowerId();
         UUID partnerApplicationId = response.getPartnerApplicationId();
         BorrowerResponse borrowers = borrowerProfileService.getBorrowersByPartnerApplicationId(partnerApplicationId);
 
@@ -135,5 +148,4 @@ public class NotificationServiceImpl implements NotificationService {
                 .filter(d -> d.getDocumentType() != DocumentType.GENERATED_FORM)
                 .map(BorrowerDocumentResponse::getAttachmentId).collect(Collectors.toSet());
     }
-
 }

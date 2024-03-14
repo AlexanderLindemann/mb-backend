@@ -6,6 +6,7 @@ import pro.mbroker.app.entity.CreditProgram;
 import pro.mbroker.app.entity.CreditProgramDetail;
 
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 public interface CreditProgramService {
@@ -16,7 +17,7 @@ public interface CreditProgramService {
 
     CreditProgram getProgramByCreditProgramId(UUID creditProgramId);
 
-    List<CreditProgram> getProgramByCreditProgramIds(List<UUID> creditProgramId);
+    Set<CreditProgram> getProgramByCreditProgramIds(Set<UUID> creditProgramId);
 
     CreditProgram updateProgram(UUID creditProgramId,
                                 BankProgramRequest updateProgramRequest,
@@ -31,7 +32,7 @@ public interface CreditProgramService {
 
     List<CreditProgram> getProgramsWithDetail(List<UUID> creditProgramIds);
 
-    List<UUID> getAllCreditProgramIds();
+    Set<UUID> getAllCreditProgramIds();
 
     Integer loadCreditProgramFromCian();
 

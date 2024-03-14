@@ -24,6 +24,7 @@ import pro.mbroker.app.util.UnderwritingComparator;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -124,11 +125,20 @@ public class BankApplicationControllerImpl implements BankApplicationController 
 
     private BankApplicationResponse toResponse(BankApplication bankApplication) {
         return bankApplicationMapper.toBankApplicationResponse(bankApplication)
+                .setBaseRate(getBaseRate(bankApplication))
                 .setMortgageSum(calculatorService.getMortgageSum(
                         bankApplication.getRealEstatePrice(),
                         bankApplication.getDownPayment()))
                 .setCoBorrowers(borrowerProfileService.getBorrowersByBankApplicationId(bankApplication.getId())
                         .getCoBorrower());
+    }
+
+    private Double getBaseRate(BankApplication bankApplication) {
+        if (Objects.nonNull(bankApplication.getLockBaseRate())) {
+            return bankApplication.getLockBaseRate();
+        } else {
+            return bankApplication.getCreditProgram().getBaseRate();
+        }
     }
 
     public static BankApplicationStatus mappingRosBankStatus(int creditStatusValue) {

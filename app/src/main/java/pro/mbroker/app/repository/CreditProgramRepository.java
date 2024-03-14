@@ -16,7 +16,7 @@ import java.util.UUID;
 public interface CreditProgramRepository extends JpaRepository<CreditProgram, UUID>, JpaSpecificationExecutor<CreditProgram> {
     List<CreditProgram> findAllByBankId(UUID bankId);
 
-    List<CreditProgram> findAllByIdIn(List<UUID> bankIds);
+    Set<CreditProgram> findAllByIdIn(Set<UUID> bankIds);
 
     @Query("SELECT cp FROM CreditProgram cp JOIN FETCH cp.bank b WHERE cp.isActive = true AND b.isActive = true")
     List<CreditProgram> findAllWithBankBy(Pageable pageable);
@@ -29,7 +29,7 @@ public interface CreditProgramRepository extends JpaRepository<CreditProgram, UU
     List<CreditProgram> findByIdInWithCreditProgramDetail(List<UUID> creditProgramIds);
 
     @Query("SELECT cp.id FROM CreditProgram cp WHERE cp.isActive = true")
-    List<UUID> findAllCreditProgramIds();
+    Set<UUID> findAllCreditProgramIds();
 
     @Query("SELECT cp.cianId FROM CreditProgram cp")
     Set<Integer> findAllCreditProgramCianIds();
