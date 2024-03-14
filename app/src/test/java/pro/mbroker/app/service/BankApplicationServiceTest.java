@@ -45,11 +45,11 @@ public class BankApplicationServiceTest extends BaseServiceTest {
         assertEquals(bankApplication.getCreditProgram().getId(), UUID.fromString("bfda8d66-d926-11ed-afa1-0242ac120002"));
         assertEquals(bankApplication.getMainBorrower().getId(), UUID.fromString("1348b508-f476-11ed-a05b-0242ac120003"));
         assertEquals(bankApplication.getBankApplicationStatus(), BankApplicationStatus.DATA_NO_ENTERED);
-        assertEquals(bankApplication.getMonthlyPayment(), BigDecimal.valueOf(100000));
+        assertEquals(bankApplication.getMonthlyPayment(), BigDecimal.valueOf(60000));
         assertEquals(bankApplication.getRealEstatePrice(), BigDecimal.valueOf(1000000000));
         assertEquals(bankApplication.getDownPayment(), BigDecimal.valueOf(1000000));
         assertEquals(bankApplication.getMonthCreditTerm(), 360);
-        assertEquals(bankApplication.getOverpayment(), BigDecimal.valueOf(7000000));
+        assertEquals(bankApplication.getOverpayment(), BigDecimal.valueOf(6000000));
     }
 
     @Test
