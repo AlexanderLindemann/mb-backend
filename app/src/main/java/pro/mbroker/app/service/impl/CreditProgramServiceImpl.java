@@ -9,7 +9,6 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.scheduling.annotation.Async;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pro.mbroker.api.dto.request.BankProgramRequest;
@@ -128,7 +127,7 @@ public class CreditProgramServiceImpl implements CreditProgramService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<CreditProgram> getProgramByCreditProgramIds(List<UUID> creditProgramIds) {
+    public Set<CreditProgram> getProgramByCreditProgramIds(Set<UUID> creditProgramIds) {
         return getPrograms(creditProgramIds);
     }
 
@@ -217,7 +216,7 @@ public class CreditProgramServiceImpl implements CreditProgramService {
                 .orElseThrow(() -> new ItemNotFoundException(CreditProgram.class, creditProgramId));
     }
 
-    private List<CreditProgram> getPrograms(List<UUID> creditProgramIds) {
+    private Set<CreditProgram> getPrograms(Set<UUID> creditProgramIds) {
         return creditProgramRepository.findAllByIdIn(creditProgramIds);
     }
 
@@ -226,7 +225,7 @@ public class CreditProgramServiceImpl implements CreditProgramService {
     }
 
     @Override
-    public List<UUID> getAllCreditProgramIds() {
+    public Set<UUID> getAllCreditProgramIds() {
         return creditProgramRepository.findAllCreditProgramIds();
     }
 
@@ -249,7 +248,7 @@ public class CreditProgramServiceImpl implements CreditProgramService {
         loadAdditionalRateRulesFromCian();
         String result = "нет программ для загрузки";
         if (programs != 0) {
-           result = createCreditProgramsFromCian(makeInactive);
+            result = createCreditProgramsFromCian(makeInactive);
         } else {
             log.info("нет программ для загрузки");
         }
@@ -398,7 +397,7 @@ public class CreditProgramServiceImpl implements CreditProgramService {
         }
         String result = "Загружено новых кредитных програм {}. Обновлено {} программ " + " " + counterNewPrograms.get() + " " + counterUpdatedPrograms.get();
         log.info("Загружено новых кредитных програм {}. Обновлено {} программ ", counterNewPrograms.get(), counterUpdatedPrograms.get());
-       return result;
+        return result;
     }
 
     private List<CreditProgram> creditProgramExist(BankProgramRequest request) {

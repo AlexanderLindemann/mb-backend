@@ -21,6 +21,8 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
+import javax.validation.constraints.DecimalMax;
+import javax.validation.constraints.DecimalMin;
 import java.math.BigDecimal;
 
 @Entity
@@ -57,6 +59,23 @@ public class BankApplication extends BaseEntity {
 
     @Column(name = "overpayment")
     private BigDecimal overpayment;
+
+    /*
+    Базовая процентная ставка, связанная с банковской заявкой,
+    фиксируется на момент подачи заявки в банк,
+    чтобы она оставалась неизменной на протяжении всего периода обработки.
+     */
+    @DecimalMin(value = "0.00", message = "Base rate cannot be negative")
+    @DecimalMax(value = "100.00", message = "Base rate cannot be greater than 100.00")
+    private Double lockBaseRate;
+    /*
+    Процентная ставка для зарплатного клиента, связанная с банковской заявкой,
+    фиксируется на момент подачи заявки в банк,
+    чтобы она оставалась неизменной на протяжении всего периода обработки.
+    */
+    @DecimalMin(value = "0.00", message = "Base rate cannot be negative")
+    @DecimalMax(value = "100.00", message = "Base rate cannot be greater than 100.00")
+    private Double lockSalaryBaseRate;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "real_estate_type", nullable = false)

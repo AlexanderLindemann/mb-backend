@@ -151,7 +151,7 @@ public class PartnerServiceImpl implements PartnerService {
         });
     }
 
-    private void modifyCreditPrograms(List<UUID> requestPrograms, Partner partner) {
+    private void modifyCreditPrograms(Set<UUID> requestPrograms, Partner partner) {
         Set<UUID> currentProgramIds = partner.getCreditPrograms().stream()
                 .map(CreditProgram::getId)
                 .collect(Collectors.toSet());

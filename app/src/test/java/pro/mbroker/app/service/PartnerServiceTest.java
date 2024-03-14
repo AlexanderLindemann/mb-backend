@@ -13,6 +13,7 @@ import pro.mbroker.app.util.Converter;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import static org.hibernate.validator.internal.util.Contracts.assertNotNull;
@@ -67,7 +68,7 @@ public class PartnerServiceTest extends BaseServiceTest {
         request.setType(PartnerType.DEVELOPER);
         request.setRealEstateType(List.of(RealEstateType.APARTMENT, RealEstateType.APARTMENT_COMPLEX));
         request.setCreditPurposeType(List.of(CreditPurposeType.PURCHASE_UNDER_CONSTRUCTION, CreditPurposeType.REFINANCING));
-        request.setBankCreditProgram(List.of(UUID.fromString("bfda8d66-d926-11ed-afa1-0242ac120002"), UUID.fromString("8222cb80-d928-11ed-afa1-0242ac120002")));
+        request.setBankCreditProgram(Set.of(UUID.fromString("bfda8d66-d926-11ed-afa1-0242ac120002"), UUID.fromString("8222cb80-d928-11ed-afa1-0242ac120002")));
 
         List<RealEstateRequest> realEstateAddresses = new ArrayList<>();
         RealEstateRequest realEstateAddressRequest = new RealEstateRequest();

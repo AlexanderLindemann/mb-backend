@@ -34,6 +34,7 @@ import pro.mbroker.app.util.Pagination;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
@@ -261,7 +262,7 @@ public class PartnerRealEstateServiceImpl implements PartnerRealEstateService {
         return realEstateRepository.findByResidentialComplexNameAndPartnerId(partnerId, name, address);
     }
 
-    private List<UUID> getAllCreditProgramIds() {
+    private Set<UUID> getAllCreditProgramIds() {
         return creditProgramService.getAllCreditProgramIds();
     }
 }

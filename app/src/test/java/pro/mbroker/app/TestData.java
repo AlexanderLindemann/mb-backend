@@ -121,6 +121,7 @@ public class TestData {
     public BankApplicationRequest getBankApplicationRequest() {
         return new BankApplicationRequest()
                 .setId(UUID.fromString("3b339aa4-5462-485a-9118-5922cd948566"))
+                .setCreditProgramId(UUID.fromString("8222cb80-d928-11ed-afa1-0242ac120002"))
                 .setOverpayment(BigDecimal.valueOf(7000000))
                 .setDownPayment(BigDecimal.valueOf(1000000))
                 .setMonthlyPayment(BigDecimal.valueOf(100000))
