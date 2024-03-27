@@ -77,11 +77,11 @@ cian:
       interval-in-cron:
 
 aws:
-  accessKey: ${ACCESS_KEY}
-  secretKey: ${SECRET_KEY}
+  accessKey: ${ACCESS_KEY:"f156ae0186764773bc9dbe898111911b"}
+  secretKey: ${SECRET_KEY:"1d5910ff12ee4fafbb02aef353317b1e"}
   s3:
     region: "ru-1"
     service-endpoint: "s3.ru-1.storage.selcloud.ru"
-    bucket-name: ${BUCKET_NAME}
+    bucket-name: ${BUCKET_NAME:"mb-dev-dc1-01"}
     path:
       bank-logo: "logo/bank/"
