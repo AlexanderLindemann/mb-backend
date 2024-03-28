@@ -105,7 +105,7 @@ public class CalculatorServiceImpl implements CalculatorService {
                         .setBankId(ba.getCreditProgram().getBank().getId())
                         .setMonthlyPayment(ba.getMonthlyPayment())
                         .setCreditProgramName(ba.getCreditProgram().getProgramName())
-                        .setBaseRate(ba.getCreditProgram().getBaseRate())
+                        .setBaseRate(Objects.nonNull(ba.getLockBaseRate()) ? ba.getLockBaseRate() : ba.getCreditProgram().getBaseRate())
                         .setRealEstateType(ba.getRealEstateType()))
                 .collect(Collectors.toList());
     }
