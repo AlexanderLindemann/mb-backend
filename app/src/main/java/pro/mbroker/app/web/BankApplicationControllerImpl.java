@@ -126,7 +126,7 @@ public class BankApplicationControllerImpl implements BankApplicationController 
     private BankApplicationResponse toResponse(BankApplication bankApplication) {
         return bankApplicationMapper.toBankApplicationResponse(bankApplication)
                 .setBaseRate(getBaseRate(bankApplication))
-                .setMortgageSum(calculatorService.getMortgageSum(
+                .setMortgageSum(calculatorService.calculateMortgageSum(
                         bankApplication.getRealEstatePrice(),
                         bankApplication.getDownPayment()))
                 .setCoBorrowers(borrowerProfileService.getBorrowersByBankApplicationId(bankApplication.getId())
