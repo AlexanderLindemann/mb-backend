@@ -579,7 +579,7 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
     }
 
     private BankApplicationResponse getBankApplicationResponse(PartnerApplication partnerApplication, BankApplication bankApplication, Map<UUID, BorrowerProfile> borrowerProfileMap) {
-        BigDecimal mortgageSum = calculatorService.getMortgageSum(bankApplication.getRealEstatePrice(), bankApplication.getDownPayment());
+        BigDecimal mortgageSum = calculatorService.calculateMortgageSum(bankApplication.getRealEstatePrice(), bankApplication.getDownPayment());
         BankApplicationResponse bankApplicationResponse = bankApplicationMapper.toBankApplicationResponse(bankApplication);
         bankApplicationResponse.setBaseRate(getBaseRate(bankApplication));
         bankApplicationResponse.setSalaryClientCalculation(getSalaryClientCalculation(partnerApplication, bankApplication, mortgageSum));
@@ -602,30 +602,7 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
                 !partnerApplication.getMortgageCalculation().getSalaryBanks().contains(bankApplication.getCreditProgram().getBank())) {
             return null;
         }
-        Double lockSalaryBaseRate = bankApplication.getLockSalaryBaseRate();
-        Double salaryRate;
-        double calculateBaseRate;
-        if (lockSalaryBaseRate != null) {
-            Double lockBaseRate = Optional.ofNullable(bankApplication.getLockBaseRate())
-                    .orElse(bankApplication.getCreditProgram().getBaseRate());
-            salaryRate = lockSalaryBaseRate - lockBaseRate;
-            calculateBaseRate = lockSalaryBaseRate;
-        } else {
-            salaryRate = bankApplication.getCreditProgram().getSalaryClientInterestRate();
-            calculateBaseRate = Optional.ofNullable(bankApplication.getLockBaseRate())
-                    .orElse(bankApplication.getCreditProgram().getBaseRate())
-                    + (salaryRate != null ? salaryRate : 0);
-        }
-        if (salaryRate == null) {
-            return null;
-        }
-        BigDecimal monthlyPayment = calculatorService.calculateMonthlyPayment(mortgageSum, calculateBaseRate, bankApplication.getMonthCreditTerm());
-        BigDecimal overpayment = calculatorService.calculateOverpayment(monthlyPayment, bankApplication.getMonthCreditTerm(), mortgageSum, bankApplication.getDownPayment());
-        return new SalaryClientProgramCalculationDto()
-                .setMonthlyPayment(monthlyPayment)
-                .setSalaryBankRate(salaryRate)
-                .setOverpayment(overpayment)
-                .setCalculatedRate(calculateBaseRate);
+        return calculatorService.getSalaryClientProgramCalculationDto(bankApplication);
     }
 
 
@@ -755,7 +732,7 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
             BankApplication currentBankApplication = currentBankApplications.get(new BankApplicationKey(bankApplicationRequest.getCreditProgramId(),
                     bankApplicationRequest.getRealEstateType()));
             CreditProgram creditProgram = creditProgramService.getProgramByCreditProgramId(bankApplicationRequest.getCreditProgramId());
-            BigDecimal mortgageSum = calculatorService.getMortgageSum(bankApplicationRequest.getRealEstatePrice(), bankApplicationRequest.getDownPayment());
+            BigDecimal mortgageSum = calculatorService.calculateMortgageSum(bankApplicationRequest.getRealEstatePrice(), bankApplicationRequest.getDownPayment());
             BigDecimal monthlyPayment = calculatorService.calculateMonthlyPayment(mortgageSum, creditProgram.getBaseRate(), bankApplicationRequest.getCreditTerm() * 12);
             BigDecimal overpayment = calculatorService.calculateOverpayment(monthlyPayment, bankApplicationRequest.getCreditTerm() * 12, mortgageSum, bankApplicationRequest.getDownPayment());
             if (currentBankApplication != null) {

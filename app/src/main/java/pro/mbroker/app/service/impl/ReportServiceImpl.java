@@ -117,7 +117,7 @@ public class ReportServiceImpl implements ReportService {
     }
 
     private String getCreditAmount(PartnerApplication partnerApplication) {
-        return calculatorService.getMortgageSum(
+        return calculatorService.calculateMortgageSum(
                 partnerApplication.getMortgageCalculation()
                         .getRealEstatePrice(),
                 partnerApplication.getMortgageCalculation()
