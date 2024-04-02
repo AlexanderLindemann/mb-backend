@@ -1,6 +1,8 @@
 package pro.mbroker.app.service;
 
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import pro.mbroker.api.dto.request.BankProgramRequest;
 import pro.mbroker.app.entity.CreditProgram;
 import pro.mbroker.app.entity.CreditProgramDetail;
@@ -26,7 +28,7 @@ public interface CreditProgramService {
 
     List<CreditProgram> getProgramsByBankId(UUID bankId);
 
-    List<CreditProgram> getAllCreditProgram(Pageable pageable);
+    Page<CreditProgram> getAllCreditProgram(Pageable pageable, Specification specification);
 
     void deleteCreditProgram(UUID creditProgramId, Integer sdId);
 
