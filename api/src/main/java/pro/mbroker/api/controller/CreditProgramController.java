@@ -44,7 +44,7 @@ public interface CreditProgramController {
                                         Integer sdId);
 
     @ApiOperation("Получить список всех кредитных программ")
-    @PostMapping()
+    @PostMapping("/service-api-get-all-credit-program")
     Page<CreditProgramResponse> getAllCreditProgram(@RequestBody CreditProgramServiceRequest request);
 
     @ApiOperation("удалить программу кредита по id")
