@@ -3,6 +3,7 @@ package pro.mbroker.api.controller;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -10,9 +11,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import pro.mbroker.api.dto.request.BankProgramRequest;
+import pro.mbroker.api.dto.request.CreditProgramServiceRequest;
 import pro.mbroker.api.dto.response.CreditProgramResponse;
 
 import javax.validation.Valid;
@@ -43,11 +44,8 @@ public interface CreditProgramController {
                                         Integer sdId);
 
     @ApiOperation("Получить список всех кредитных программ")
-    @GetMapping()
-    List<CreditProgramResponse> getAllCreditProgram(@RequestParam(defaultValue = "0") int page,
-                                                    @RequestParam(defaultValue = "10") int size,
-                                                    @RequestParam(defaultValue = "updatedAt") String sortBy,
-                                                    @RequestParam(defaultValue = "asc") String sortOrder);
+    @PostMapping("/service-api-get-all-credit-program")
+    Page<CreditProgramResponse> getAllCreditProgram(@RequestBody CreditProgramServiceRequest request);
 
     @ApiOperation("удалить программу кредита по id")
     @DeleteMapping("/{creditProgramId}")

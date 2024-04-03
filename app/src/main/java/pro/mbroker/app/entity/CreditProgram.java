@@ -56,6 +56,6 @@ public class CreditProgram extends BaseEntity {
     @DecimalMax(value = "100.0000", inclusive = true, message = "Rate cannot be greater than 100.00")
     private Double salaryClientInterestRate;
 
-    @Column(name = "cian_id", nullable = true)
+    @Column(name = "cian_id")
     private Integer cianId;
 }

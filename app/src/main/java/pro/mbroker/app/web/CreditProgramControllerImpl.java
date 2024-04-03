@@ -1,16 +1,19 @@
 package pro.mbroker.app.web;
 
-import liquibase.pro.packaged.B;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
 import pro.mbroker.api.controller.CreditProgramController;
 import pro.mbroker.api.dto.request.BankProgramRequest;
+import pro.mbroker.api.dto.request.CreditProgramServiceRequest;
 import pro.mbroker.api.dto.response.CreditProgramResponse;
 import pro.mbroker.app.entity.CreditProgram;
 import pro.mbroker.app.mapper.CreditProgramDetailMapper;
 import pro.mbroker.app.mapper.CreditProgramMapper;
+import pro.mbroker.app.repository.specification.CreditProgramSpecification;
 import pro.mbroker.app.service.CreditProgramService;
 import pro.mbroker.app.util.CreditProgramConverter;
 import pro.mbroker.app.util.Pagination;
@@ -65,15 +68,16 @@ public class CreditProgramControllerImpl implements CreditProgramController {
     }
 
     @Override
-    public List<CreditProgramResponse> getAllCreditProgram(int page, int size,
-                                                           String sortBy, String sortOrder) {
-        Pageable pageable = Pagination.createPageable(page, size, sortBy, sortOrder);
-        List<CreditProgram> allCreditProgram = creditProgramService.getAllCreditProgram(pageable);
-        List<CreditProgramResponse> creditProgramResponses = allCreditProgram.stream()
-                .map(creditProgram -> creditProgramMapper.toProgramResponseMapper(creditProgram)
-                        .setCreditProgramDetail(creditProgramConverter.convertCreditDetailToEnumFormat(creditProgram.getCreditProgramDetail())))
-                .collect(Collectors.toList());
-        return creditProgramResponses;
+    public Page<CreditProgramResponse> getAllCreditProgram(CreditProgramServiceRequest request) {
+        Pageable pageable = Pagination.createPageable(request.getPage(), request.getSize(), request.getSortBy(), request.getSortOrder());
+        Specification<CreditProgram> specification = CreditProgramSpecification.buildSpecification(request);
+        Page<CreditProgram> allCreditProgram = creditProgramService.getAllCreditProgram(pageable, specification);
+        return allCreditProgram.map(creditProgram -> {
+            CreditProgramResponse response = creditProgramMapper.toProgramResponseMapper(creditProgram);
+            response.setCreditProgramDetail(
+                    CreditProgramConverter.convertCreditDetailToEnumFormat(creditProgram.getCreditProgramDetail()));
+            return response;
+        });
     }
 
     @Override
@@ -93,7 +97,7 @@ public class CreditProgramControllerImpl implements CreditProgramController {
 
     @Override
     public String loadAllFilesFromCian(Boolean makeInactive) {
-       return creditProgramService.loadAllFilesFromCian(makeInactive);
+        return creditProgramService.loadAllFilesFromCian(makeInactive);
     }
 
 }

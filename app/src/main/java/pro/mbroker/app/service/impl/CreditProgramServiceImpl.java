@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.scheduling.annotation.Async;
@@ -192,8 +193,8 @@ public class CreditProgramServiceImpl implements CreditProgramService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<CreditProgram> getAllCreditProgram(Pageable pageable) {
-        return creditProgramRepository.findAllWithBankBy(pageable);
+    public Page<CreditProgram> getAllCreditProgram(Pageable pageable, Specification specification) {
+        return creditProgramRepository.findAll(specification, pageable);
     }
 
     @Override

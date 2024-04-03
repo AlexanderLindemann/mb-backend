@@ -15,7 +15,6 @@ import java.util.stream.Collectors;
 @Mapper(config = ProgramMapperConfig.class, uses = BankMapper.class, nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.SET_TO_NULL)
 public interface CreditProgramMapper {
     @Mapping(target = "creditProgramDetail", ignore = true)
-    @Mapping(source = "bank", target = "bank")
     CreditProgramResponse toProgramResponseMapper(CreditProgram creditProgram);
 
     @Mapping(target = "id", ignore = true)
