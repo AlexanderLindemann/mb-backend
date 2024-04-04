@@ -63,8 +63,8 @@ public class CalculatorServiceImpl implements CalculatorService {
     @Override
     @Transactional
     public PropertyMortgageDTO getCreditOffer(CalculatorRequest request) {
-        getRealEstateType(request);
-        List<CreditProgram> creditPrograms = filterCreditPrograms(request);
+        RealEstate realEstate = getRealEstateType(request);
+        List<CreditProgram> creditPrograms = filterCreditPrograms(realEstate, request);
         Map<UUID, BankLoanProgramDto> bankLoanProgramDtoMap = new HashMap<>();
         List<LoanProgramCalculationDto> loanProgramCalculationDto = new ArrayList<>();
         for (CreditProgram creditProgram : creditPrograms) {
@@ -131,10 +131,11 @@ public class CalculatorServiceImpl implements CalculatorService {
     @Override
     @Transactional
     public LoanProgramCalculationDto getCreditOfferByCreditProgramId(UUID creditProgramId, CalculatorRequest request) {
+        RealEstate realEstate = realEstateService.findByRealEstateId(request.getRealEstateId());
         CreditProgram creditProgram = creditProgramRepository.findById(creditProgramId)
                 .orElseThrow(() -> new ItemNotFoundException(CreditProgram.class, creditProgramId));
         Double baseRate = creditProgram.getBaseRate();
-        if (isProgramEligible(request, creditProgram)) {
+        if (isProgramEligible(realEstate, request, creditProgram)) {
             BigDecimal mortgageSum = calculateMortgageSum(request.getRealEstatePrice(), request.getDownPayment());
             BigDecimal calculateMonthlyPayment = calculateMonthlyPayment(mortgageSum, baseRate, request.getCreditTerm() * MONTHS_IN_YEAR);
             BigDecimal downPayment = request.getDownPayment() != null ? request.getDownPayment() : BigDecimal.ZERO;
@@ -151,8 +152,8 @@ public class CalculatorServiceImpl implements CalculatorService {
 
     @Override
     public Integer getCreditOfferCount(CalculatorRequest calculatorRequest) {
-        getRealEstateType(calculatorRequest);
-        List<CreditProgram> creditPrograms = filterCreditPrograms(calculatorRequest);
+        RealEstate realEstate = getRealEstateType(calculatorRequest);
+        List<CreditProgram> creditPrograms = filterCreditPrograms(realEstate, calculatorRequest);
         return creditPrograms.stream()
                 .mapToInt(creditProgram -> (int) Converter.convertStringListToEnumList(
                                 creditProgram.getCreditProgramDetail().getRealEstateType(), RealEstateType.class)
@@ -190,12 +191,13 @@ public class CalculatorServiceImpl implements CalculatorService {
         return overpayment.setScale(2, RoundingMode.HALF_EVEN);
     }
 
-    private void getRealEstateType(CalculatorRequest request) {
+    private RealEstate getRealEstateType(CalculatorRequest request) {
+        RealEstate realEstate = realEstateService.findByRealEstateId(request.getRealEstateId());
         if (Objects.isNull(request.getRealEstateTypes())) {
-            RealEstate realEstate = realEstateService.findByRealEstateId(request.getRealEstateId());
             String realEstateType = realEstate.getPartner().getRealEstateType();
             request.setRealEstateTypes(Converter.convertStringListToEnumList(realEstateType, RealEstateType.class));
         }
+        return realEstate;
     }
 
     public List<LoanProgramCalculationDto> sortLoanProgramsByOverpayment(List<LoanProgramCalculationDto> loanProgramCalculationDtos) {
@@ -232,7 +234,9 @@ public class CalculatorServiceImpl implements CalculatorService {
                         return DAYS_IN_YEAR;
                     }
                     int creditTermMonths = (int) Math.ceil(creditTermDouble);
-                    return Math.min(creditTermMonths, DAYS_IN_YEAR);
+                    return creditTermMonths < creditProgram.getCreditParameter().getMinCreditTerm()
+                            ? creditProgram.getCreditParameter().getMinCreditTerm()
+                            : Math.min(creditTermMonths, DAYS_IN_YEAR);
                 })
                 .orElseGet(() -> request.getCreditTerm() * MONTHS_IN_YEAR);
     }
@@ -271,17 +275,16 @@ public class CalculatorServiceImpl implements CalculatorService {
             }
             loanProgramCalculationDtos.add(loanProgramCalculationDto);
         });
-
         return loanProgramCalculationDtos;
     }
 
-    private List<CreditProgram> filterCreditPrograms(CalculatorRequest request) {
-        UUID realEstateId = realEstateService.findByRealEstateId(request.getRealEstateId()).getId();
+    private List<CreditProgram> filterCreditPrograms(RealEstate realEstate, CalculatorRequest request) {
         List<CreditProgram> creditPrograms = realEstateRepository
-                .findCreditProgramsWithDetailsAndParametersByRealEstateId(realEstateId,
+                .findCreditProgramsWithDetailsAndParametersByRealEstateId(realEstate.getId(),
                         LocalDateTime.now());
         return creditPrograms.stream()
-                .filter(creditProgram -> isProgramEligible(request, creditProgram) && isBankActive(creditProgram))
+                .filter(creditProgram -> isProgramEligible(realEstate, request, creditProgram)
+                        && isBankActive(creditProgram))
                 .collect(Collectors.toList());
     }
 
@@ -289,24 +292,22 @@ public class CalculatorServiceImpl implements CalculatorService {
         return creditProgram.getBank() != null && creditProgram.getBank().isActive();
     }
 
-    private boolean isProgramEligible(CalculatorRequest request, CreditProgram creditProgram) {
+    private boolean isProgramEligible(RealEstate realEstate, CalculatorRequest request, CreditProgram creditProgram) {
         BigDecimal mortgageSum = calculateMortgageSum(request.getRealEstatePrice(), request.getDownPayment());
         int downPaymentPercentage = calculateDownPaymentPercentage(request.getDownPayment(), request.getRealEstatePrice());
         String creditPurposeType = creditProgram.getCreditProgramDetail().getCreditPurposeType();
         String realEstateType = creditProgram.getCreditProgramDetail().getRealEstateType();
         List<CreditPurposeType> creditPurposeTypes = Converter.convertStringListToEnumList(creditPurposeType, CreditPurposeType.class);
         List<RealEstateType> realEstateTypes = Converter.convertStringListToEnumList(realEstateType, RealEstateType.class);
-
         int creditTermMonths = getCreditTermMonths(creditProgram, request);
         return creditPurposeTypes.contains(request.getCreditPurposeType()) &&
                 !Collections.disjoint(realEstateTypes, request.getRealEstateTypes()) &&
                 mortgageSum.compareTo(creditProgram.getCreditParameter().getMinMortgageSum()) >= 0 &&
                 mortgageSum.compareTo(creditProgram.getCreditParameter().getMaxMortgageSum()) <= 0 &&
-                creditProgram.getCreditParameter().getMinCreditTerm() <= creditTermMonths &&
                 creditProgram.getCreditParameter().getMaxCreditTerm() >= creditTermMonths &&
                 downPaymentPercentage >= creditProgram.getCreditParameter().getMinDownPayment().intValue() &&
                 downPaymentPercentage < creditProgram.getCreditParameter().getMaxDownPayment().intValue() &&
-                isRegionEligible(request, creditProgram) &&
+                isRegionEligible(realEstate, creditProgram) &&
                 isMaternalCapital(request, creditProgram);
     }
 
@@ -322,8 +323,7 @@ public class CalculatorServiceImpl implements CalculatorService {
         return downPaymentPercentage.intValue();
     }
 
-    private boolean isRegionEligible(CalculatorRequest request, CreditProgram creditProgram) {
-        RealEstate realEstate = realEstateService.findByRealEstateId(request.getRealEstateId());
+    private boolean isRegionEligible(RealEstate realEstate, CreditProgram creditProgram) {
         List<RegionType> creditProgramIncludeRegionTypes = Converter.convertStringListToEnumList(creditProgram.getCreditProgramDetail().getInclude(), RegionType.class);
         List<RegionType> creditProgramExcludeRegionTypes = Converter.convertStringListToEnumList(creditProgram.getCreditProgramDetail().getExclude(), RegionType.class);
         List<EnumDescription> filteredRegion = directoryService.getFilteredRegion(creditProgramIncludeRegionTypes, creditProgramExcludeRegionTypes);
