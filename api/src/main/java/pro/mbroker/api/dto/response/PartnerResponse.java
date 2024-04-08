@@ -31,5 +31,7 @@ public class PartnerResponse {
 
     private List<CreditProgramResponse> bankCreditProgram;
 
+    private List<PartnerContactResponse> contacts;
+
     private Integer cianId;
 }

@@ -146,3 +146,6 @@ databaseChangeLog:
   - include:
       file: 20240311_1720-add_base_rate_column_to_bank-application_table.xml
       relativeToChangelogFile: true
+  - include:
+      file: 20240408_1540-create_partner-contact_table.xml
+      relativeToChangelogFile: true
