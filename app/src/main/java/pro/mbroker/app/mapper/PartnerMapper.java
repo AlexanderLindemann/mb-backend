@@ -13,13 +13,14 @@ import pro.mbroker.app.util.Converter;
 
 import java.util.List;
 
-@Mapper(uses = {Converter.class, RealEstateMapper.class})
+@Mapper(uses = {Converter.class, RealEstateMapper.class, PartnerContactMapper.class})
 public interface PartnerMapper {
     @Mapping(target = "bankCreditProgram", ignore = true)
     @Mapping(target = "creditPurposeType", qualifiedByName = "stringToCreditPurposeTypeList")
     @Mapping(target = "realEstates", ignore = true)
     @Mapping(target = "realEstateType", qualifiedByName = "stringToRealEstateTypeList")
     @Mapping(target = "cianId", source = "cianId")
+    @Mapping(target = "contacts", source = "partnerContacts")
     PartnerResponse toPartnerResponseMapper(Partner partner);
 
 
@@ -33,6 +34,7 @@ public interface PartnerMapper {
     @Mapping(target = "createdBy", ignore = true)
     @Mapping(target = "updatedBy", ignore = true)
     @Mapping(target = "active", ignore = true)
+    @Mapping(target = "partnerContacts", ignore = true)
     @Mapping(target = "cianId", source = "cianId")
     Partner toPartnerMapper(PartnerRequest request);
 
@@ -44,6 +46,7 @@ public interface PartnerMapper {
     @Mapping(target = "createdBy", ignore = true)
     @Mapping(target = "updatedBy", ignore = true)
     @Mapping(target = "active", ignore = true)
+    @Mapping(target = "partnerContacts", ignore = true)
     @Mapping(target = "cianId", source = "cianId")
     void updatePartnerFromRequest(PartnerRequest partnerRequest, @MappingTarget Partner partner);
 
