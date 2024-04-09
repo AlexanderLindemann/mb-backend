@@ -34,7 +34,7 @@ public class CreditProgramControllerImpl implements CreditProgramController {
     @Override
     public CreditProgramResponse createCreditProgram(BankProgramRequest request, Integer sdId) {
         CreditProgram creditProgram = creditProgramService.createCreditParameter(request,
-                creditProgramConverter.convertCreditDetailToStringFormat(request), sdId);
+                CreditProgramConverter.convertCreditDetailToStringFormat(request), sdId);
         return creditProgramMapper.toProgramResponseMapper(creditProgram)
                 .setCreditProgramDetail(creditProgramDetailMapper.toProgramDetailResponse(request));
     }
@@ -43,7 +43,7 @@ public class CreditProgramControllerImpl implements CreditProgramController {
     public CreditProgramResponse getProgramByCreditProgramId(UUID creditProgramId) {
         CreditProgram creditProgram = creditProgramService.getProgramByCreditProgramId(creditProgramId);
         return creditProgramMapper.toProgramResponseMapper(creditProgram)
-                .setCreditProgramDetail(creditProgramConverter.convertCreditDetailToEnumFormat(creditProgram.getCreditProgramDetail()));
+                .setCreditProgramDetail(CreditProgramConverter.convertCreditDetailToEnumFormat(creditProgram.getCreditProgramDetail()));
     }
 
     @Override
@@ -51,7 +51,7 @@ public class CreditProgramControllerImpl implements CreditProgramController {
         List<CreditProgram> programsByBankId = creditProgramService.getProgramsByBankId(bankId);
         return programsByBankId.stream()
                 .map(creditProgram -> creditProgramMapper.toProgramResponseMapper(creditProgram)
-                        .setCreditProgramDetail(creditProgramConverter.convertCreditDetailToEnumFormat(creditProgram.getCreditProgramDetail())))
+                        .setCreditProgramDetail(CreditProgramConverter.convertCreditDetailToEnumFormat(creditProgram.getCreditProgramDetail())))
                 .collect(Collectors.toList());
     }
 
@@ -61,10 +61,10 @@ public class CreditProgramControllerImpl implements CreditProgramController {
                                                Integer sdId) {
         CreditProgram creditProgram = creditProgramService.updateProgram(creditProgramId,
                 request,
-                creditProgramConverter.convertCreditDetailToStringFormat(request),
+                CreditProgramConverter.convertCreditDetailToStringFormat(request),
                 sdId);
         return creditProgramMapper.toProgramResponseMapper(creditProgram)
-                .setCreditProgramDetail(creditProgramConverter.convertCreditDetailToEnumFormat(creditProgram.getCreditProgramDetail()));
+                .setCreditProgramDetail(CreditProgramConverter.convertCreditDetailToEnumFormat(creditProgram.getCreditProgramDetail()));
     }
 
     @Override
@@ -99,5 +99,4 @@ public class CreditProgramControllerImpl implements CreditProgramController {
     public String loadAllFilesFromCian(Boolean makeInactive) {
         return creditProgramService.loadAllFilesFromCian(makeInactive);
     }
-
 }

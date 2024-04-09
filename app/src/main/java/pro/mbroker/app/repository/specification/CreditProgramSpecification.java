@@ -4,6 +4,7 @@ import org.springframework.data.jpa.domain.Specification;
 import pro.mbroker.api.dto.request.CreditProgramServiceRequest;
 import pro.mbroker.api.enums.CreditProgramType;
 import pro.mbroker.api.enums.CreditPurposeType;
+import pro.mbroker.api.enums.RealEstateType;
 import pro.mbroker.api.enums.RegionType;
 import pro.mbroker.app.entity.Bank;
 import pro.mbroker.app.entity.CreditProgram;
@@ -42,9 +43,10 @@ public class CreditProgramSpecification {
     }
 
     public static Specification<CreditProgram> withBankId(Set<UUID> bankId) {
-        return ((root, criteriaQuery, criteriaBuilder) -> Objects.nonNull(bankId)
-                ? root.get("bank").get("id").in(bankId)
-                : null);
+        return ((root, criteriaQuery, criteriaBuilder) -> {
+            Join<CreditProgram, Bank> bankJoin = root.join("bank");
+            return bankJoin.get("id").in(bankId);
+        });
     }
 
     public static Specification<CreditProgram> withCianId(Integer cianId) {
@@ -77,6 +79,22 @@ public class CreditProgramSpecification {
         };
     }
 
+    private static Specification<CreditProgram> withRealEstateTypes(Set<RealEstateType> realEstateTypes) {
+        return (root, query, cb) -> {
+            if (realEstateTypes == null || realEstateTypes.isEmpty()) {
+                return null;
+            }
+            Join<CreditProgram, CreditProgramDetail> detailJoin = root.join("creditProgramDetail");
+            Predicate predicate = cb.disjunction();
+            for (RealEstateType realEstateType : realEstateTypes) {
+                predicate = cb.or(predicate, cb.like(cb.function("CONCAT",
+                        String.class, cb.literal("%,"), detailJoin.get("realEstateType"),
+                        cb.literal(",%")), "%," + realEstateType.getValue() + ",%"));
+            }
+            return predicate;
+        };
+    }
+
     public static Specification<CreditProgram> withIncludedRegion(Set<RegionType> includedRegions) {
         return (root, query, cb) -> {
             if (includedRegions == null || includedRegions.isEmpty()) {
@@ -101,6 +119,7 @@ public class CreditProgramSpecification {
                 .and(Objects.nonNull(request.getCianId()) ? withCianId(request.getCianId()) : null)
                 .and(Objects.nonNull(request.getRegions()) ? withIncludedRegion(request.getRegions()) : null)
                 .and(Objects.nonNull(request.getName()) ? withBankNameLike(request.getName()) : null)
+                .and(Objects.nonNull(request.getRealEstateTypes()) ? withRealEstateTypes(request.getRealEstateTypes()) : null)
                 .and(Objects.nonNull(request.getCreditProgramTypes()) ? withCreditProgramType(request.getCreditProgramTypes()) : null);
     }
 }
