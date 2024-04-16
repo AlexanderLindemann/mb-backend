@@ -58,11 +58,13 @@ public class PartnerServiceImpl implements PartnerService {
         Partner partner = partnerMapper.toPartnerMapper(request)
                 .setCreditPrograms(creditProgramService.getProgramByCreditProgramIds(request.getBankCreditProgram()))
                 .setRealEstates(realEstates);
-        partner.getPartnerContacts().forEach(contact -> {
-            contact.setPartner(partner);
-            contact.setUpdatedBy(sdId);
-            contact.setCreatedBy(sdId);
-        });
+        if (Objects.nonNull(partner.getPartnerContacts())) {
+            partner.getPartnerContacts().forEach(contact -> {
+                contact.setPartner(partner);
+                contact.setUpdatedBy(sdId);
+                contact.setCreatedBy(sdId);
+            });
+        }
         realEstates.forEach(address -> address.setPartner(partner));
         partner.setCreatedBy(sdId);
         partner.setUpdatedBy(sdId);
@@ -98,15 +100,19 @@ public class PartnerServiceImpl implements PartnerService {
 
     private void modifyPartnerContacts(PartnerRequest request, Partner partner, Integer sdId) {
         partnerContactRepository.deleteAll(partner.getPartnerContacts());
-        List<PartnerContact> partnerContacts = request.getContacts().stream()
-                .map(contact -> {
-                    PartnerContact partnerContact = partnerContactMapper.toPartnerContact(contact);
-                    partnerContact.setPartner(partner);
-                    partnerContact.setUpdatedBy(sdId);
-                    partnerContact.setCreatedBy(sdId);
-                    return partnerContact;
-                }).collect(Collectors.toList());
-        partner.setPartnerContacts(partnerContacts);
+        if (Objects.nonNull(request.getContacts())) {
+            List<PartnerContact> partnerContacts = request.getContacts().stream()
+                    .map(contact -> {
+                        PartnerContact partnerContact = partnerContactMapper.toPartnerContact(contact);
+                        partnerContact.setPartner(partner);
+                        partnerContact.setUpdatedBy(sdId);
+                        partnerContact.setCreatedBy(sdId);
+                        return partnerContact;
+                    }).collect(Collectors.toList());
+            partner.setPartnerContacts(partnerContacts);
+        } else {
+            partner.setPartnerContacts(null);
+        }
     }
 
     @Override
