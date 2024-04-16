@@ -16,6 +16,7 @@ import java.util.UUID;
 @Setter
 @ToString
 public class PartnerRequest {
+
     private Integer smartDealOrganizationId;
     @NonNull
     private String name;
@@ -31,4 +32,6 @@ public class PartnerRequest {
     private Set<UUID> bankCreditProgram;
 
     private Integer cianId;
+
+    private List<PartnerContactRequest> contacts;
 }
