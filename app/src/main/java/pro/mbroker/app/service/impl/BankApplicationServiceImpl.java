@@ -37,7 +37,6 @@ public class BankApplicationServiceImpl implements BankApplicationService {
             BankApplicationStatus.CREDIT_APPROVED,
             BankApplicationStatus.REFINEMENT,
             BankApplicationStatus.REJECTED,
-            BankApplicationStatus.SENDING_ERROR,
             BankApplicationStatus.EXPIRED
     );
 

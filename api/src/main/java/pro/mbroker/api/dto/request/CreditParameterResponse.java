@@ -6,6 +6,7 @@ import java.math.BigDecimal;
 
 @Data
 public class CreditParameterResponse {
+
     private BigDecimal minMortgageSum;
 
     private BigDecimal maxMortgageSum;

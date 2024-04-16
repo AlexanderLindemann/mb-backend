@@ -103,7 +103,6 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
             BankApplicationStatus.CREDIT_APPROVED,
             BankApplicationStatus.REFINEMENT,
             BankApplicationStatus.REJECTED,
-            BankApplicationStatus.SENDING_ERROR,
             BankApplicationStatus.EXPIRED
     );
 

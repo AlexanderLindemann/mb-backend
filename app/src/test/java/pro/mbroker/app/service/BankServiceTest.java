@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hibernate.validator.internal.util.Contracts.assertNotNull;
 import static org.junit.jupiter.api.Assertions.*;
-import static pro.mbroker.app.TestConstants.BANK_ID;
+import static pro.mbroker.app.TestConstants.BANK_ID1;
 
 
 public class BankServiceTest extends BaseServiceTest {
@@ -53,18 +53,18 @@ public class BankServiceTest extends BaseServiceTest {
 
     @Test
     public void testGetBankById() {
-        Bank bank = bankService.getBankById(BANK_ID);
+        Bank bank = bankService.getBankById(BANK_ID1);
         assertNotNull(bank.getId());
         assertEquals("aTestBank1", bank.getName());
     }
 
     @Test
     public void testDeleteBank() {
-        bankService.deleteBankById(BANK_ID, 1234);
+        bankService.deleteBankById(BANK_ID1, 1234);
         List<Bank> allBankSortByName = bankService.getAllBank(0, 10, "name", "asc");
         assertThat(allBankSortByName.size(), Matchers.is(3));
         List<UUID> bankIds = allBankSortByName.stream().map(Bank::getId).collect(Collectors.toList());
-        assertFalse(bankIds.contains(BANK_ID));
+        assertFalse(bankIds.contains(BANK_ID1));
     }
 
 }
