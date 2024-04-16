@@ -11,12 +11,15 @@ import pro.mbroker.api.dto.request.RealEstateRequest;
 import pro.mbroker.app.entity.CreditProgram;
 import pro.mbroker.app.entity.Partner;
 import pro.mbroker.app.entity.PartnerApplication;
+import pro.mbroker.app.entity.PartnerContact;
 import pro.mbroker.app.entity.RealEstate;
 import pro.mbroker.app.exception.ItemNotFoundException;
+import pro.mbroker.app.mapper.PartnerContactMapper;
 import pro.mbroker.app.mapper.PartnerMapper;
 import pro.mbroker.app.mapper.RealEstateMapper;
 import pro.mbroker.app.repository.CreditProgramRepository;
 import pro.mbroker.app.repository.PartnerApplicationRepository;
+import pro.mbroker.app.repository.PartnerContactRepository;
 import pro.mbroker.app.repository.PartnerRepository;
 import pro.mbroker.app.repository.specification.PartnerSpecification;
 import pro.mbroker.app.service.CreditProgramService;
@@ -37,10 +40,12 @@ import java.util.stream.Collectors;
 public class PartnerServiceImpl implements PartnerService {
     private final CreditProgramService creditProgramService;
     private final PartnerRepository partnerRepository;
+    private final PartnerContactRepository partnerContactRepository;
     private final PartnerApplicationRepository partnerApplicationRepository;
     private final CreditProgramRepository creditProgramRepository;
     private final PartnerMapper partnerMapper;
     private final RealEstateMapper realEstateMapper;
+    private final PartnerContactMapper partnerContactMapper;
 
     @Override
     @Transactional
@@ -53,6 +58,13 @@ public class PartnerServiceImpl implements PartnerService {
         Partner partner = partnerMapper.toPartnerMapper(request)
                 .setCreditPrograms(creditProgramService.getProgramByCreditProgramIds(request.getBankCreditProgram()))
                 .setRealEstates(realEstates);
+        if (Objects.nonNull(partner.getPartnerContacts())) {
+            partner.getPartnerContacts().forEach(contact -> {
+                contact.setPartner(partner);
+                contact.setUpdatedBy(sdId);
+                contact.setCreatedBy(sdId);
+            });
+        }
         realEstates.forEach(address -> address.setPartner(partner));
         partner.setCreatedBy(sdId);
         partner.setUpdatedBy(sdId);
@@ -80,9 +92,27 @@ public class PartnerServiceImpl implements PartnerService {
         Partner partner = getPartner(partnerId);
         partner.setUpdatedBy(sdId);
         partnerMapper.updatePartnerFromRequest(request, partner);
+        modifyPartnerContacts(request, partner, sdId);
         modifyRealEstates(request.getRealEstateRequest(), partner, sdId);
         modifyCreditPrograms(request.getBankCreditProgram(), partner);
         return partnerRepository.save(partner);
+    }
+
+    private void modifyPartnerContacts(PartnerRequest request, Partner partner, Integer sdId) {
+        partnerContactRepository.deleteAll(partner.getPartnerContacts());
+        if (Objects.nonNull(request.getContacts())) {
+            List<PartnerContact> partnerContacts = request.getContacts().stream()
+                    .map(contact -> {
+                        PartnerContact partnerContact = partnerContactMapper.toPartnerContact(contact);
+                        partnerContact.setPartner(partner);
+                        partnerContact.setUpdatedBy(sdId);
+                        partnerContact.setCreatedBy(sdId);
+                        return partnerContact;
+                    }).collect(Collectors.toList());
+            partner.setPartnerContacts(partnerContacts);
+        } else {
+            partner.setPartnerContacts(null);
+        }
     }
 
     @Override

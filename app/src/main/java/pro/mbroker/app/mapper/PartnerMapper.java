@@ -34,7 +34,7 @@ public interface PartnerMapper {
     @Mapping(target = "createdBy", ignore = true)
     @Mapping(target = "updatedBy", ignore = true)
     @Mapping(target = "active", ignore = true)
-    @Mapping(target = "partnerContacts", ignore = true)
+    @Mapping(target = "partnerContacts", source = "contacts")
     @Mapping(target = "cianId", source = "cianId")
     Partner toPartnerMapper(PartnerRequest request);
 
