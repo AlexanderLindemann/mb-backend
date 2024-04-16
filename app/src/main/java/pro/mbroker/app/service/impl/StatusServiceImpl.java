@@ -41,7 +41,6 @@ public class StatusServiceImpl implements StatusService {
             BankApplicationStatus.CREDIT_APPROVED,
             BankApplicationStatus.REFINEMENT,
             BankApplicationStatus.REJECTED,
-            BankApplicationStatus.SENDING_ERROR,
             BankApplicationStatus.EXPIRED
     );
 

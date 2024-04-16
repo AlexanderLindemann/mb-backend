@@ -10,6 +10,7 @@ import pro.mbroker.api.dto.request.BankRequest;
 import pro.mbroker.api.dto.request.BorrowerProfileRequest;
 import pro.mbroker.api.dto.request.BorrowerRequest;
 import pro.mbroker.api.dto.request.CalculatorRequest;
+import pro.mbroker.api.dto.request.CreditProgramServiceRequest;
 import pro.mbroker.api.dto.request.PartnerApplicationRequest;
 import pro.mbroker.api.dto.response.PublicKeyResponse;
 import pro.mbroker.api.enums.CreditPurposeType;
@@ -171,5 +172,10 @@ public class TestData {
         key.setE("AQAB");
         response.setKeys(Collections.singletonList(key));
         return response;
+    }
+
+    public CreditProgramServiceRequest createCreditProgramServiceRequest() {
+        return new CreditProgramServiceRequest()
+                .setSortOrder("desc").setSortBy("updatedAt").setSize(10).setPage(0);
     }
 }
