@@ -22,13 +22,13 @@ public class PartnerRequest {
     private String name;
     @NonNull
     private PartnerType type;
-    @NonNull
+
     private List<RealEstateType> realEstateType;
-    @NonNull
+
     private List<CreditPurposeType> creditPurposeType;
 
     private List<RealEstateRequest> realEstateRequest;
-    @NonNull
+
     private Set<UUID> bankCreditProgram;
 
     private Integer cianId;

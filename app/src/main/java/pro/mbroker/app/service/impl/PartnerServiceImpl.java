@@ -50,14 +50,19 @@ public class PartnerServiceImpl implements PartnerService {
     @Override
     @Transactional
     public Partner createPartner(PartnerRequest request, Integer sdId) {
-        List<RealEstate> realEstates = realEstateMapper.toRealEstateAddressList(request.getRealEstateRequest());
-        realEstates.forEach(realEstate -> {
-            realEstate.setUpdatedBy(sdId);
-            realEstate.setCreatedBy(sdId);
-        });
+        List<RealEstate> realEstates = new ArrayList<>();
+        if (Objects.nonNull(request.getRealEstateRequest())) {
+            realEstates = realEstateMapper.toRealEstateAddressList(request.getRealEstateRequest());
+            realEstates.forEach(realEstate -> {
+                realEstate.setUpdatedBy(sdId);
+                realEstate.setCreatedBy(sdId);
+            });
+        }
         Partner partner = partnerMapper.toPartnerMapper(request)
-                .setCreditPrograms(creditProgramService.getProgramByCreditProgramIds(request.getBankCreditProgram()))
                 .setRealEstates(realEstates);
+        if (Objects.nonNull(request.getBankCreditProgram())) {
+            partner.setCreditPrograms(creditProgramService.getProgramByCreditProgramIds(request.getBankCreditProgram()));
+        }
         if (Objects.nonNull(partner.getPartnerContacts())) {
             partner.getPartnerContacts().forEach(contact -> {
                 contact.setPartner(partner);
