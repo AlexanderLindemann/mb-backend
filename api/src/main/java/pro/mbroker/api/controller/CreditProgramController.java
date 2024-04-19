@@ -63,6 +63,6 @@ public interface CreditProgramController {
 
     @ApiOperation("Запустить выгрузку из всех файлов по кредитным программам из циан")
     @PostMapping("/load/LoadAllFilesFromCian")
-    String loadAllFilesFromCian(Boolean makeInactive );
+    String loadAllFilesFromCian(Boolean makeInactive);
 
 }
