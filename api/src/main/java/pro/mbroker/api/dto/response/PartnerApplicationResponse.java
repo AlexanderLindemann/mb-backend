@@ -47,6 +47,8 @@ public class PartnerApplicationResponse {
 
     private String partnerName;
 
+    private List<PartnerContactResponse> contacts;
+
     private Integer smartDealOrganizationId;
 
     private List<BankWithBankApplicationDto> bankWithBankApplicationDto;
