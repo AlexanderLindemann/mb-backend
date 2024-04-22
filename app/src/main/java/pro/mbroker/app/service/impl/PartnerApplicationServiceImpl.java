@@ -187,17 +187,14 @@ public class PartnerApplicationServiceImpl implements PartnerApplicationService 
     @Transactional
     public PartnerApplication createPartnerApplication(PartnerApplicationRequest request, Integer sdId) {
         PartnerApplication partnerApplication = getPartnerApplication(request, sdId);
-        List<BankApplication> bankApplications = buildBankApplications(request, partnerApplication, sdId);
-        partnerApplication.setBankApplications(bankApplications);
+        partnerApplication.setBankApplications(buildBankApplications(request, partnerApplication, sdId));
         updateMainBorrower(partnerApplication, request.getMainBorrower(), sdId);
-        if (Objects.nonNull(request.getExternalCreatorId())) {
+        if (Objects.nonNull(request.getExternalCreatorId()))
             partnerApplication.setExternalCreatorId(request.getExternalCreatorId());
-        }
         statusService.statusChanger(partnerApplication);
         return save(partnerApplication);
     }
 
-    //TODO переделать на подобии обновления BorrowerProfile
     @Override
     @Transactional
     public PartnerApplication updatePartnerApplication(UUID partnerApplicationId, PartnerApplicationRequest request, Integer sdId) {

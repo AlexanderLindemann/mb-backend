@@ -34,8 +34,6 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class NotificationServiceImpl implements NotificationService {
 
-    private static final byte FIRST_ELEMENT = 0;
-
     private final BankApplicationService bankApplicationService;
     private final BorrowerProfileService borrowerProfileService;
     private final BankApplicationRepository bankApplicationRepository;

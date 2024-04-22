@@ -16,6 +16,7 @@ import pro.mbroker.app.entity.BorrowerDocument;
 import pro.mbroker.app.entity.BorrowerEmployer;
 import pro.mbroker.app.entity.BorrowerProfile;
 import pro.mbroker.app.entity.PartnerApplication;
+import pro.mbroker.app.service.BorrowerProfileService;
 import pro.mbroker.app.service.StatusService;
 
 import java.util.ArrayList;
@@ -23,6 +24,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 
@@ -30,6 +32,8 @@ import java.util.stream.Collectors;
 @Slf4j
 @RequiredArgsConstructor
 public class StatusServiceImpl implements StatusService {
+
+    private final BorrowerProfileService borrowerProfileService;
 
     private static final List<DocumentType> REQUIRED_DOCUMENT_TYPES =
             Arrays.asList(DocumentType.BORROWER_PASSPORT, DocumentType.BORROWER_SNILS);
@@ -50,6 +54,21 @@ public class StatusServiceImpl implements StatusService {
         boolean bankApplicationStatusChanged = checkBankApplicationStatus(application);
         boolean partnerApplicationStatusChanged = checkPartnerApplicationStatus(application);
         return partnerApplicationStatusChanged || borrowerStatusChanged || bankApplicationStatusChanged;
+    }
+
+    @Override
+    public boolean isApplicationFullySigned(UUID borrowerId) {
+        PartnerApplication partnerApplication = borrowerProfileService.getBorrowerProfile(borrowerId).getPartnerApplication();
+        for (BorrowerProfile borrowerProfile : partnerApplication.getBorrowerProfiles()) {
+            if (borrowerProfile.isActive()) {
+                boolean hasSignedDocument = borrowerProfile.getBorrowerDocument().stream()
+                        .anyMatch(doc -> doc.getDocumentType().equals(DocumentType.GENERATED_SIGNATURE_FORM) && doc.isActive());
+                if (!hasSignedDocument) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
     private boolean checkBorrowerStatus(PartnerApplication partnerApplication) {
@@ -73,12 +92,12 @@ public class StatusServiceImpl implements StatusService {
                             && isPassportInfoComplete(borrowerProfile)
                             && isEmployerInfoComplete(borrowerProfile)
                             && isIncomeInfoComplete(borrowerProfile))) {
-                    List<BorrowerDocument> signed = borrowerProfile.getBorrowerDocument().stream()
-                                .filter(d-> d.isActive()
+                        List<BorrowerDocument> signed = borrowerProfile.getBorrowerDocument().stream()
+                                .filter(d -> d.isActive()
                                         && (d.getDocumentType().equals(DocumentType.GENERATED_SIGNATURE_FORM)
-                                       || d.getDocumentType().equals(DocumentType.SIGNATURE_FORM)))
+                                        || d.getDocumentType().equals(DocumentType.SIGNATURE_FORM)))
                                 .collect(Collectors.toList());
-                    if (!signed.isEmpty()) {
+                        if (!signed.isEmpty()) {
                             if (!currentStatus.equals(BorrowerProfileStatus.DOCS_SIGNED)) {
                                 borrowerProfile.setBorrowerProfileStatus(BorrowerProfileStatus.DOCS_SIGNED);
                                 isChange = true;

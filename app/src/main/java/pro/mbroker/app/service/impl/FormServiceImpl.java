@@ -106,7 +106,7 @@ public class FormServiceImpl implements FormService {
         String encodedImage = Base64.getEncoder().encodeToString(signature);
         Document document = modifyHtmlDocument(borrowerProfile, getFileFromPath(FORM_PATH_HTML), encodedImage);
         ByteArrayOutputStream pdfOutputStream = generatePdf(document);
-        updateSignatureForm(borrowerProfileId, pdfOutputStream.toByteArray(), sdId);
+        updateSignatureForm(borrowerProfile, pdfOutputStream.toByteArray(), sdId);
         return processFormHtmlResponse(new ByteArrayResource(pdfOutputStream.toByteArray()));
     }
 
@@ -139,8 +139,7 @@ public class FormServiceImpl implements FormService {
         partnerApplicationService.save(partnerApplication);
     }
 
-    private void updateSignatureForm(UUID borrowerProfileId, byte[] form, Integer sdId) {
-        BorrowerProfile borrowerProfile = borrowerProfileService.getBorrowerProfile(borrowerProfileId);
+    private void updateSignatureForm(BorrowerProfile borrowerProfile, byte[] form, Integer sdId) {
         MultipartFile multipartFile = new CustomMultipartFile(
                 form,
                 borrowerProfile.getLastName() + "_" + borrowerProfile.getFirstName() + ".pdf",
@@ -154,10 +153,10 @@ public class FormServiceImpl implements FormService {
             }
         }
         BorrowerDocumentRequest borrowerDocumentRequest = new BorrowerDocumentRequest()
-                .setBorrowerProfileId(borrowerProfileId)
+                .setBorrowerProfileId(borrowerProfile.getId())
                 .setDocumentType(DocumentType.GENERATED_SIGNATURE_FORM);
         borrowerProfile.getBorrowerDocument().add(attachmentService.uploadDocument(multipartFile, borrowerDocumentRequest, sdId));
-        PartnerApplication partnerApplication = borrowerProfileService.getBorrowerProfile(borrowerProfileId).getPartnerApplication();
+        PartnerApplication partnerApplication = borrowerProfile.getPartnerApplication();
         statusService.statusChanger(partnerApplication);
         borrowerProfile.setUpdatedBy(sdId);
         borrowerProfile.setUpdatedBy(sdId);
