@@ -56,4 +56,6 @@ public class BankApplicationResponse {
     private UnderwritingResponse underwriting;
 
     private List<BorrowerProfileResponse> coBorrowers;
+
+    private List<PartnerContactResponse> contacts;
 }
