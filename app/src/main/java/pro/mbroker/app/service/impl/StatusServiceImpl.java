@@ -16,7 +16,6 @@ import pro.mbroker.app.entity.BorrowerDocument;
 import pro.mbroker.app.entity.BorrowerEmployer;
 import pro.mbroker.app.entity.BorrowerProfile;
 import pro.mbroker.app.entity.PartnerApplication;
-import pro.mbroker.app.service.BorrowerProfileService;
 import pro.mbroker.app.service.StatusService;
 
 import java.util.ArrayList;
@@ -24,7 +23,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 
@@ -32,8 +30,6 @@ import java.util.stream.Collectors;
 @Slf4j
 @RequiredArgsConstructor
 public class StatusServiceImpl implements StatusService {
-
-    private final BorrowerProfileService borrowerProfileService;
 
     private static final List<DocumentType> REQUIRED_DOCUMENT_TYPES =
             Arrays.asList(DocumentType.BORROWER_PASSPORT, DocumentType.BORROWER_SNILS);
@@ -57,8 +53,8 @@ public class StatusServiceImpl implements StatusService {
     }
 
     @Override
-    public boolean isApplicationFullySigned(UUID borrowerId) {
-        PartnerApplication partnerApplication = borrowerProfileService.getBorrowerProfile(borrowerId).getPartnerApplication();
+    public boolean isApplicationFullySigned(BorrowerProfile profile) {
+        PartnerApplication partnerApplication = profile.getPartnerApplication();
         for (BorrowerProfile borrowerProfile : partnerApplication.getBorrowerProfiles()) {
             if (borrowerProfile.isActive()) {
                 boolean hasSignedDocument = borrowerProfile.getBorrowerDocument().stream()
