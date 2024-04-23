@@ -52,6 +52,21 @@ public class StatusServiceImpl implements StatusService {
         return partnerApplicationStatusChanged || borrowerStatusChanged || bankApplicationStatusChanged;
     }
 
+    @Override
+    public boolean isApplicationFullySigned(BorrowerProfile profile) {
+        PartnerApplication partnerApplication = profile.getPartnerApplication();
+        for (BorrowerProfile borrowerProfile : partnerApplication.getBorrowerProfiles()) {
+            if (borrowerProfile.isActive()) {
+                boolean hasSignedDocument = borrowerProfile.getBorrowerDocument().stream()
+                        .anyMatch(doc -> doc.getDocumentType().equals(DocumentType.GENERATED_SIGNATURE_FORM) && doc.isActive());
+                if (!hasSignedDocument) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
     private boolean checkBorrowerStatus(PartnerApplication partnerApplication) {
         boolean isChange = false;
         List<BorrowerProfile> activeBorrowers = partnerApplication.getBorrowerProfiles().stream()
@@ -73,12 +88,12 @@ public class StatusServiceImpl implements StatusService {
                             && isPassportInfoComplete(borrowerProfile)
                             && isEmployerInfoComplete(borrowerProfile)
                             && isIncomeInfoComplete(borrowerProfile))) {
-                    List<BorrowerDocument> signed = borrowerProfile.getBorrowerDocument().stream()
-                                .filter(d-> d.isActive()
+                        List<BorrowerDocument> signed = borrowerProfile.getBorrowerDocument().stream()
+                                .filter(d -> d.isActive()
                                         && (d.getDocumentType().equals(DocumentType.GENERATED_SIGNATURE_FORM)
-                                       || d.getDocumentType().equals(DocumentType.SIGNATURE_FORM)))
+                                        || d.getDocumentType().equals(DocumentType.SIGNATURE_FORM)))
                                 .collect(Collectors.toList());
-                    if (!signed.isEmpty()) {
+                        if (!signed.isEmpty()) {
                             if (!currentStatus.equals(BorrowerProfileStatus.DOCS_SIGNED)) {
                                 borrowerProfile.setBorrowerProfileStatus(BorrowerProfileStatus.DOCS_SIGNED);
                                 isChange = true;

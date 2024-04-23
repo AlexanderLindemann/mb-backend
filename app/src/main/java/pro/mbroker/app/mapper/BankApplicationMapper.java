@@ -30,6 +30,7 @@ public interface BankApplicationMapper {
     @Mapping(source = "bankApplicationStatus", target = "status")
     @Mapping(target = "salaryClientCalculation", ignore = true)
     @Mapping(target = "baseRate", ignore = true)
+    @Mapping(target = "contacts", ignore = true)
     @Mapping(source = "underwriting", target = "underwriting")
     BankApplicationResponse toBankApplicationResponse(BankApplication bankApplication);
 

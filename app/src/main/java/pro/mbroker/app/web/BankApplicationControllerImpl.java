@@ -10,10 +10,12 @@ import pro.mbroker.api.dto.request.BankApplicationRequest;
 import pro.mbroker.api.dto.request.notification.NotificationStatusRequest;
 import pro.mbroker.api.dto.request.notification.UnderwritingResponse;
 import pro.mbroker.api.dto.response.BankApplicationResponse;
+import pro.mbroker.api.dto.response.PartnerContactResponse;
 import pro.mbroker.api.enums.BankApplicationStatus;
 import pro.mbroker.app.entity.BankApplication;
 import pro.mbroker.app.entity.PartnerApplication;
 import pro.mbroker.app.mapper.BankApplicationMapper;
+import pro.mbroker.app.mapper.PartnerContactMapper;
 import pro.mbroker.app.mapper.underwriting.UnderwritingMapper;
 import pro.mbroker.app.service.BankApplicationService;
 import pro.mbroker.app.service.BorrowerProfileService;
@@ -36,6 +38,7 @@ public class BankApplicationControllerImpl implements BankApplicationController 
     private final BorrowerProfileService borrowerProfileService;
     private final CalculatorService calculatorService;
     private final BankApplicationMapper bankApplicationMapper;
+    private final PartnerContactMapper partnerContactMapper;
     private final UnderwritingMapper underwritingMapper;
     private final PartnerApplicationService partnerApplicationService;
     private final StatusService statusService;
@@ -124,13 +127,17 @@ public class BankApplicationControllerImpl implements BankApplicationController 
     }
 
     private BankApplicationResponse toResponse(BankApplication bankApplication) {
+        List<PartnerContactResponse> contactResponses = bankApplication.getPartnerApplication().getPartner().getPartnerContacts().stream()
+                .map(partnerContactMapper::toPartnerContactResponse)
+                .collect(Collectors.toList());
         return bankApplicationMapper.toBankApplicationResponse(bankApplication)
                 .setBaseRate(getBaseRate(bankApplication))
                 .setMortgageSum(calculatorService.calculateMortgageSum(
                         bankApplication.getRealEstatePrice(),
                         bankApplication.getDownPayment()))
                 .setCoBorrowers(borrowerProfileService.getBorrowersByBankApplicationId(bankApplication.getId())
-                        .getCoBorrower());
+                        .getCoBorrower())
+                .setContacts(contactResponses);
     }
 
     private Double getBaseRate(BankApplication bankApplication) {
