@@ -17,8 +17,6 @@ import java.util.UUID;
 @Getter
 @Setter
 @ToString
-@SuppressWarnings("PMD")
-
 public class NotificationBankLetterResponse implements Serializable {
 
     private static final long serialVersionUID = -6639215001970950771L;
