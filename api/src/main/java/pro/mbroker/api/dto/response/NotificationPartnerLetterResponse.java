@@ -26,5 +26,5 @@ public class NotificationPartnerLetterResponse {
     private String lastName;
     private String firstName;
     private String middleName;
-    private List<String> emails;
+    private List<PartnerContactResponse> PartnerContacts;
 }
