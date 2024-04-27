@@ -29,4 +29,5 @@ public class NotificationPartnerLetterResponse {
     private String firstName;
     private String middleName;
     private List<PartnerContactResponse> PartnerContacts;
+    private String title;
 }
