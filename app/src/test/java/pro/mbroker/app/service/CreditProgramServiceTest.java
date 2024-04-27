@@ -9,6 +9,7 @@ import pro.mbroker.api.dto.response.CreditProgramResponse;
 import pro.mbroker.api.enums.CreditProgramType;
 import pro.mbroker.api.enums.CreditPurposeType;
 import pro.mbroker.api.enums.RealEstateType;
+import pro.mbroker.api.enums.RegionType;
 import pro.mbroker.app.TestConstants;
 import pro.mbroker.app.TestData;
 
@@ -114,7 +115,7 @@ class CreditProgramServiceTest extends BaseServiceTest {
         assertTrue(allCreditPrograms.hasContent(), "Результат не содержит элементов");
         allCreditPrograms.forEach(creditProgramResponse -> {
             assertTrue(creditProgramResponse.getCreditProgramDetail().getCreditProgramType().equals(CreditProgramType.STANDARD)
-                    || creditProgramResponse.getCreditProgramDetail().getCreditProgramType().equals(CreditProgramType.IT),
+                            || creditProgramResponse.getCreditProgramDetail().getCreditProgramType().equals(CreditProgramType.IT),
                     "Список типов кредитования не соответствует ожидаемому типу кредитной программы");
         });
     }
@@ -157,8 +158,83 @@ class CreditProgramServiceTest extends BaseServiceTest {
         assertTrue(allCreditPrograms.hasContent(), "Результат не содержит элементов");
         allCreditPrograms.forEach(creditProgramResponse -> {
             assertTrue(creditProgramResponse.getCreditProgramDetail().getRealEstateType().contains(RealEstateType.HOUSE_WITH_LAND)
-                    || creditProgramResponse.getCreditProgramDetail().getRealEstateType().contains(RealEstateType.APARTMENT),
+                            || creditProgramResponse.getCreditProgramDetail().getRealEstateType().contains(RealEstateType.APARTMENT),
                     "Список типов кредитования не соответствует ожидаемому типу кредитной программы");
+        });
+    }
+
+    @Test
+    public void testFilterCreditProgramsByRegion() {
+        CreditProgramServiceRequest creditProgramServiceRequest =
+                testData.createCreditProgramServiceRequest()
+                        .setRegions(Set.of(RegionType.MOSCOW));
+        Page<CreditProgramResponse> allCreditPrograms = creditProgramController.getAllCreditProgram(creditProgramServiceRequest);
+        assertNotNull(allCreditPrograms);
+        assertTrue(allCreditPrograms.hasContent(), "Результат не содержит элементов");
+        allCreditPrograms.forEach(creditProgramResponse -> {
+            assertTrue(creditProgramResponse.getCreditProgramDetail().getInclude().contains(RegionType.MOSCOW),
+                    "Список регионов не соответствует ожидаемому региону RegionType.MOSCOW");
+        });
+    }
+
+    @Test
+    public void testFilterCreditProgramsByRegions() {
+        CreditProgramServiceRequest creditProgramServiceRequest =
+                testData.createCreditProgramServiceRequest()
+                        .setRegions(Set.of(RegionType.SVERDLOVSK, RegionType.ROSTOV));
+        Page<CreditProgramResponse> allCreditPrograms = creditProgramController.getAllCreditProgram(creditProgramServiceRequest);
+        assertNotNull(allCreditPrograms);
+        assertTrue(allCreditPrograms.hasContent(), "Результат не содержит элементов");
+        allCreditPrograms.forEach(creditProgramResponse -> {
+            assertTrue(creditProgramResponse.getCreditProgramDetail().getInclude().contains(RegionType.SVERDLOVSK)
+                            || creditProgramResponse.getCreditProgramDetail().getInclude().contains(RegionType.ROSTOV),
+                    "Список регионов не соответствует ожидаемому региону RegionType.ROSTOV, RegionType.SVERDLOVSK");
+        });
+    }
+
+    @Test
+    public void testFilterCreditProgramsByCianId() {
+        CreditProgramServiceRequest creditProgramServiceRequest =
+                testData.createCreditProgramServiceRequest()
+                        .setCianId(2233);
+        Page<CreditProgramResponse> allCreditPrograms = creditProgramController.getAllCreditProgram(creditProgramServiceRequest);
+        assertNotNull(allCreditPrograms);
+        assertTrue(allCreditPrograms.hasContent(), "Результат не содержит элементов");
+        allCreditPrograms.forEach(creditProgramResponse -> {
+            assertTrue(creditProgramResponse.getCianId().equals(2233),
+                    "Список регионов не соответствует ожидаемому региону RegionType.ROSTOV, RegionType.SVERDLOVSK");
+        });
+    }
+
+    @Test
+    public void testFilterCreditProgramsByAllOptions() {
+        CreditProgramServiceRequest creditProgramServiceRequest =
+                testData.createCreditProgramServiceRequest()
+                        .setCreditProgramTypes(Set.of(CreditProgramType.STANDARD))
+                        .setRealEstateTypes(Set.of(RealEstateType.APARTMENT))
+                        .setBanks(Set.of(TestConstants.BANK_ID1))
+                        .setCreditPurposeTypes(Set.of(CreditPurposeType.PURCHASE_READY_HOUSE, CreditPurposeType.PURCHASE_UNDER_CONSTRUCTION))
+                        .setRegions(Set.of(RegionType.SVERDLOVSK, RegionType.MOSCOW))
+                        .setCianId(3344);
+        Page<CreditProgramResponse> allCreditPrograms = creditProgramController.getAllCreditProgram(creditProgramServiceRequest);
+        assertNotNull(allCreditPrograms);
+        assertTrue(allCreditPrograms.hasContent(), "Результат не содержит элементов");
+        allCreditPrograms.forEach(creditProgramResponse -> {
+            assertTrue(creditProgramResponse.getCreditProgramDetail().getInclude().contains(RegionType.SVERDLOVSK)
+                            || creditProgramResponse.getCreditProgramDetail().getInclude().contains(RegionType.MOSCOW),
+                    "Список регионов не соответствует ожидаемому региону RegionType.ROSTOV, RegionType.SVERDLOVSK");
+            assertEquals(creditProgramResponse.getCreditProgramDetail().getCreditProgramType(), CreditProgramType.STANDARD,
+                    "Тип кредитной программы не соответствует ожидаемому типу CreditProgramType.STANDARD");
+            assertTrue(creditProgramResponse.getCreditProgramDetail().getRealEstateType().contains(RealEstateType.APARTMENT),
+                    "Тип недвижимости не содержит RealEstateType.APARTMENT");
+            assertEquals(creditProgramResponse.getBank().getId(), TestConstants.BANK_ID1,
+                    "Банк кредитной программы не соответствует переданному UUID банка");
+            assertTrue(creditProgramResponse.getCreditProgramDetail().getCreditPurposeType().contains(CreditPurposeType.PURCHASE_READY_HOUSE)
+                            || creditProgramResponse.getCreditProgramDetail().getCreditPurposeType().contains(CreditPurposeType.PURCHASE_UNDER_CONSTRUCTION),
+                    "Цель кредита не соответствует CreditPurposeType.PURCHASE_READY_HOUSE или CreditPurposeType.PURCHASE_UNDER_CONSTRUCTION");
+            assertEquals(creditProgramResponse.getCianId(), 3344,
+                    "Cian_id не соответствует переданному cian_id: 3344");
+
         });
     }
 }

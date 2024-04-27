@@ -4,8 +4,9 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import pro.mbroker.api.dto.request.notification.NotificationPartnerLetterRequest;
 import pro.mbroker.api.dto.response.notification.NotificationBankLetterResponse;
@@ -24,6 +25,6 @@ public interface NotificationController {
     NotificationBankLetterResponse getCustomerInfoForBankLetter(@PathVariable UUID bankApplicationId);
 
     @ApiOperation("Данные клиента для отправки уведомления партнеру")
-    @GetMapping("/{borrowerId}/application")
-    Optional<NotificationPartnerLetterResponse> isApplicationFullySigned(@RequestParam(required = false) NotificationPartnerLetterRequest request);
+    @PostMapping("/service/application")
+    Optional<NotificationPartnerLetterResponse> getPartnerInfoForPartnerLetter(@RequestBody(required = false) NotificationPartnerLetterRequest request);
 }
