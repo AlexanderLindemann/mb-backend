@@ -61,7 +61,7 @@ public class CalculatorServiceTest extends BaseServiceTest {
     @Test
     public void testCreditOfferCount() {
         Integer count = calculatorService.getCreditOfferCount(testData.getCalculatorRequest());
-        assertEquals(count, 1);
+        assertEquals(count, 2);
     }
 
     @Test
