@@ -37,5 +37,7 @@ public class CreditProgramResponse {
     private BankResponse bank;
 
     private LocalDateTime updatedAt;
+
+    private Integer cianId;
 }
 

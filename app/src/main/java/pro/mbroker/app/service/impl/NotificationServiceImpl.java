@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pro.mbroker.api.dto.response.BorrowerDocumentResponse;
 import pro.mbroker.api.dto.response.BorrowerResponse;
-import pro.mbroker.api.dto.response.NotificationBankLetterResponse;
+import pro.mbroker.api.dto.response.notification.NotificationBankLetterResponse;
 import pro.mbroker.api.enums.BankApplicationStatus;
 import pro.mbroker.api.enums.DocumentType;
 import pro.mbroker.api.enums.RealEstateType;

@@ -1,6 +1,6 @@
 package pro.mbroker.app.service;
 
-import pro.mbroker.api.dto.response.NotificationBankLetterResponse;
+import pro.mbroker.api.dto.response.notification.NotificationBankLetterResponse;
 
 import java.util.UUID;
 
