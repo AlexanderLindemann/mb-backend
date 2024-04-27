@@ -5,6 +5,7 @@ import lombok.Setter;
 import lombok.ToString;
 import pro.mbroker.api.dto.response.PartnerContactResponse;
 import pro.mbroker.api.enums.CreditPurposeType;
+import pro.mbroker.api.enums.NotificationTrigger;
 import pro.mbroker.api.enums.RealEstateType;
 
 import java.math.BigDecimal;
@@ -30,4 +31,5 @@ public class NotificationPartnerLetterResponse {
     private String middleName;
     private List<PartnerContactResponse> PartnerContacts;
     private String title;
+    private NotificationTrigger trigger;
 }
