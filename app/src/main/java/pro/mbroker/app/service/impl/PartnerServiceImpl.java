@@ -6,6 +6,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import pro.mbroker.api.dto.request.PartnerContactRequest;
 import pro.mbroker.api.dto.request.PartnerRequest;
 import pro.mbroker.api.dto.request.RealEstateRequest;
 import pro.mbroker.app.entity.CreditProgram;
@@ -24,6 +25,7 @@ import pro.mbroker.app.repository.PartnerRepository;
 import pro.mbroker.app.repository.specification.PartnerSpecification;
 import pro.mbroker.app.service.CreditProgramService;
 import pro.mbroker.app.service.PartnerService;
+import pro.mbroker.app.util.Converter;
 import pro.mbroker.app.util.Pagination;
 
 import java.util.ArrayList;
@@ -104,20 +106,35 @@ public class PartnerServiceImpl implements PartnerService {
     }
 
     private void modifyPartnerContacts(PartnerRequest request, Partner partner, Integer sdId) {
-        partnerContactRepository.deleteAll(partner.getPartnerContacts());
-        if (Objects.nonNull(request.getContacts())) {
-            List<PartnerContact> partnerContacts = request.getContacts().stream()
-                    .map(contact -> {
-                        PartnerContact partnerContact = partnerContactMapper.toPartnerContact(contact);
-                        partnerContact.setPartner(partner);
-                        partnerContact.setUpdatedBy(sdId);
-                        partnerContact.setCreatedBy(sdId);
-                        return partnerContact;
-                    }).collect(Collectors.toList());
-            partner.setPartnerContacts(partnerContacts);
-        } else {
-            partner.setPartnerContacts(null);
+        List<PartnerContact> existingContacts = partner.getPartnerContacts();
+        List<PartnerContact> updatedContacts = new ArrayList<>();
+        for (int i = 0; i < request.getContacts().size(); i++) {
+            PartnerContactRequest contactRequest = request.getContacts().get(i);
+            PartnerContact contact;
+            if (i < existingContacts.size()) {
+                contact = existingContacts.get(i);
+            } else {
+                contact = new PartnerContact();
+                contact.setPartner(partner);
+                contact.setCreatedBy(sdId);
+                contact.setActive(true);
+            }
+            contact.setName(contactRequest.getName());
+            contact.setEmail(contactRequest.getEmail());
+            contact.setTriggers(Converter.convertEnumListToString(contactRequest.getTriggers()));
+            contact.setUpdatedBy(sdId);
+            contact.setActive(true);
+            updatedContacts.add(contact);
         }
+        if (existingContacts.size() > request.getContacts().size()) {
+            List<PartnerContact> contactsToDeactivate = existingContacts.subList(request.getContacts().size(), existingContacts.size());
+            for (PartnerContact contact : contactsToDeactivate) {
+                contact.setActive(false);
+                contact.setUpdatedBy(sdId);
+            }
+            updatedContacts.addAll(contactsToDeactivate);
+        }
+        partner.setPartnerContacts(updatedContacts);
     }
 
     @Override
