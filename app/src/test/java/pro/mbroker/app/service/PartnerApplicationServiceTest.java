@@ -11,6 +11,7 @@ import pro.mbroker.api.enums.Insurance;
 import pro.mbroker.api.enums.PartnerApplicationStatus;
 import pro.mbroker.api.enums.RealEstateType;
 import pro.mbroker.api.enums.RegionType;
+import pro.mbroker.app.TestConstants;
 import pro.mbroker.app.TestData;
 import pro.mbroker.app.entity.Bank;
 import pro.mbroker.app.entity.BankApplication;
@@ -58,6 +59,25 @@ public class PartnerApplicationServiceTest extends BaseServiceTest {
                 .flatMap(pa -> pa.getBankApplications()
                         .stream().map(BankApplication::getBankApplicationStatus))
                 .anyMatch(status -> status.equals(BankApplicationStatus.DATA_NO_ENTERED)));
+    }
+
+    @Test
+    public void testSortedPartnerApplications() {
+        Page<PartnerApplication> allPartnerApplications = partnerApplicationService.getAllPartnerApplication(new PartnerApplicationServiceRequest()
+                .setPermissions(List.of("MB_ADMIN_ACCESS"))
+                .setSortOrder("desc")
+                .setSortBy("updatedAt")
+                .setSize(10)
+                .setPage(0));
+        List<PartnerApplication> applications = allPartnerApplications.getContent();
+        assertFalse(applications.isEmpty(), "The list of applications should not be empty");
+        LocalDateTime previousDate = applications.get(0).getUpdatedAt(); // Начинаем с первого элемента
+        for (int i = 1; i < applications.size(); i++) {
+            LocalDateTime currentDate = applications.get(i).getUpdatedAt();
+            assertNotNull(currentDate, "updatedAt should not be null");
+            assertFalse(previousDate.isBefore(currentDate), "The list should be sorted in descending order by updatedAt");
+            previousDate = currentDate;
+        }
     }
 
     @Test
@@ -662,6 +682,31 @@ public class PartnerApplicationServiceTest extends BaseServiceTest {
         assertEquals(partnerApplication.getRealEstate().getId(), UUID.fromString("2b8850b2-d930-11ed-afa1-0242ac120002"));
         assertThat(partnerApplication.getBankApplications().size(), is(2));
         assertThat(partnerApplication.getBorrowerProfiles().size(), is(1));
+    }
+
+    @Test
+    public void testCreateAndUpdatePartnerApplicationWithSalaryClient() {
+        PartnerApplicationRequest partnerApplicationRequest = testData.getPartnerApplicationRequest();
+        partnerApplicationRequest.setMortgageCalculation(testData.getMortgageCalculation()
+                .setSalaryBanks(List.of(TestConstants.BANK_ID1, TestConstants.BANK_ID2)));
+        PartnerApplication partnerApplication = partnerApplicationService.createPartnerApplication(partnerApplicationRequest, 1234);
+        assertEquals(List.of(TestConstants.BANK_ID1, TestConstants.BANK_ID2), partnerApplication.getMortgageCalculation().getSalaryBanks().stream()
+                        .map(Bank::getId)
+                        .collect(Collectors.toList()),
+                "The salary banks in the created application should match the provided UUIDs.");
+        PartnerApplication updatePartnerApplication1 = partnerApplicationService.updatePartnerApplication(partnerApplication.getId(), testData.getPartnerApplicationRequest().setMortgageCalculation(testData.getMortgageCalculation()
+                .setSalaryBanks(List.of(TestConstants.BANK_ID2))), 1234);
+        assertEquals(List.of(TestConstants.BANK_ID2), updatePartnerApplication1.getMortgageCalculation().getSalaryBanks().stream()
+                        .map(Bank::getId)
+                        .collect(Collectors.toList()),
+                "The salary banks in the created application should match the provided UUIDs.");
+        PartnerApplication updatePartnerApplication2 = partnerApplicationService.updatePartnerApplication(partnerApplication.getId(), testData.getPartnerApplicationRequest().setMortgageCalculation(testData.getMortgageCalculation()
+                .setSalaryBanks(List.of(TestConstants.BANK_ID1, TestConstants.BANK_ID2, TestConstants.BANK_ID3))), 1234);
+        assertEquals(List.of(TestConstants.BANK_ID1, TestConstants.BANK_ID2, TestConstants.BANK_ID3),
+                updatePartnerApplication2.getMortgageCalculation().getSalaryBanks().stream()
+                        .map(Bank::getId)
+                        .collect(Collectors.toList()),
+                "The salary banks in the created application should match the provided UUIDs.");
     }
 
     @Test
