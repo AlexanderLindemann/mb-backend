@@ -108,31 +108,33 @@ public class PartnerServiceImpl implements PartnerService {
     private void modifyPartnerContacts(PartnerRequest request, Partner partner, Integer sdId) {
         List<PartnerContact> existingContacts = partner.getPartnerContacts();
         List<PartnerContact> updatedContacts = new ArrayList<>();
-        for (int i = 0; i < request.getContacts().size(); i++) {
-            PartnerContactRequest contactRequest = request.getContacts().get(i);
-            PartnerContact contact;
-            if (i < existingContacts.size()) {
-                contact = existingContacts.get(i);
-            } else {
-                contact = new PartnerContact();
-                contact.setPartner(partner);
-                contact.setCreatedBy(sdId);
-                contact.setActive(true);
-            }
-            contact.setName(contactRequest.getName());
-            contact.setEmail(contactRequest.getEmail());
-            contact.setTriggers(Converter.convertEnumListToString(contactRequest.getTriggers()));
-            contact.setUpdatedBy(sdId);
-            contact.setActive(true);
-            updatedContacts.add(contact);
-        }
-        if (existingContacts.size() > request.getContacts().size()) {
-            List<PartnerContact> contactsToDeactivate = existingContacts.subList(request.getContacts().size(), existingContacts.size());
-            for (PartnerContact contact : contactsToDeactivate) {
-                contact.setActive(false);
+        if (Objects.nonNull(request.getContacts())) {
+            for (int i = 0; i < request.getContacts().size(); i++) {
+                PartnerContactRequest contactRequest = request.getContacts().get(i);
+                PartnerContact contact;
+                if (i < existingContacts.size()) {
+                    contact = existingContacts.get(i);
+                } else {
+                    contact = new PartnerContact();
+                    contact.setPartner(partner);
+                    contact.setCreatedBy(sdId);
+                    contact.setActive(true);
+                }
+                contact.setName(contactRequest.getName());
+                contact.setEmail(contactRequest.getEmail());
+                contact.setTriggers(Converter.convertEnumListToString(contactRequest.getTriggers()));
                 contact.setUpdatedBy(sdId);
+                contact.setActive(true);
+                updatedContacts.add(contact);
             }
-            updatedContacts.addAll(contactsToDeactivate);
+            if (existingContacts.size() > request.getContacts().size()) {
+                List<PartnerContact> contactsToDeactivate = existingContacts.subList(request.getContacts().size(), existingContacts.size());
+                for (PartnerContact contact : contactsToDeactivate) {
+                    contact.setActive(false);
+                    contact.setUpdatedBy(sdId);
+                }
+                updatedContacts.addAll(contactsToDeactivate);
+            }
         }
         partner.setPartnerContacts(updatedContacts);
     }

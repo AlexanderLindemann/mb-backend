@@ -12,20 +12,28 @@ import pro.mbroker.api.dto.request.BorrowerRequest;
 import pro.mbroker.api.dto.request.CalculatorRequest;
 import pro.mbroker.api.dto.request.CreditProgramServiceRequest;
 import pro.mbroker.api.dto.request.PartnerApplicationRequest;
+import pro.mbroker.api.dto.request.PartnerContactRequest;
+import pro.mbroker.api.dto.request.PartnerRequest;
+import pro.mbroker.api.dto.request.RealEstateRequest;
 import pro.mbroker.api.dto.response.PublicKeyResponse;
 import pro.mbroker.api.enums.CreditPurposeType;
 import pro.mbroker.api.enums.Insurance;
+import pro.mbroker.api.enums.NotificationTrigger;
+import pro.mbroker.api.enums.PartnerType;
 import pro.mbroker.api.enums.PaymentSource;
 import pro.mbroker.api.enums.RealEstateType;
+import pro.mbroker.api.enums.RegionType;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 @Component
 public class TestData {
+
     public List<BankApplicationRequest> getBankApplication() {
         BankApplicationRequest bankApplicationRequest1 = new BankApplicationRequest()
                 .setCreditProgramId(UUID.fromString("bfda8d66-d926-11ed-afa1-0242ac120002"))
@@ -177,5 +185,41 @@ public class TestData {
     public CreditProgramServiceRequest createCreditProgramServiceRequest() {
         return new CreditProgramServiceRequest()
                 .setSortOrder("desc").setSortBy("updatedAt").setSize(10).setPage(0);
+    }
+
+    public PartnerRequest createPartnerRequest() {
+        PartnerRequest request = new PartnerRequest();
+        request.setSmartDealOrganizationId(123456);
+        request.setName("Test Partner");
+        request.setType(PartnerType.DEVELOPER);
+        request.setRealEstateType(List.of(RealEstateType.APARTMENT, RealEstateType.APARTMENT_COMPLEX));
+        request.setCreditPurposeType(List.of(CreditPurposeType.PURCHASE_UNDER_CONSTRUCTION, CreditPurposeType.REFINANCING));
+        request.setBankCreditProgram(Set.of(UUID.fromString("bfda8d66-d926-11ed-afa1-0242ac120002"), UUID.fromString("8222cb80-d928-11ed-afa1-0242ac120002")));
+
+        List<RealEstateRequest> realEstateAddresses = new ArrayList<>();
+        RealEstateRequest realEstateAddressRequest = new RealEstateRequest();
+        realEstateAddressRequest.setResidentialComplexName("Test Complex");
+        realEstateAddressRequest.setRegion(RegionType.MOSCOW);
+        realEstateAddressRequest.setAddress("test Address");
+        realEstateAddresses.add(realEstateAddressRequest);
+        request.setRealEstateRequest(realEstateAddresses);
+        return request;
+    }
+
+    public List<PartnerContactRequest> createPartnerContactRequest() {
+        List<PartnerContactRequest> partnerContactRequests = new ArrayList<>();
+        partnerContactRequests.add(new PartnerContactRequest()
+                .setName("Test Partner 1")
+                .setEmail("test@mbroker1.com")
+                .setTriggers(List.of(NotificationTrigger.BORROWER_SIGNED_FORM,
+                        NotificationTrigger.UNDERWRITING_STATUS_CHANGED,
+                        NotificationTrigger.BORROWER_SIGNED_FORM)));
+        partnerContactRequests.add(new PartnerContactRequest()
+                .setName("Test Partner 2")
+                .setEmail("test@mbroker2.com")
+                .setTriggers(List.of(NotificationTrigger.BORROWER_SIGNED_FORM,
+                        NotificationTrigger.UNDERWRITING_STATUS_CHANGED,
+                        NotificationTrigger.BORROWER_SIGNED_FORM)));
+        return partnerContactRequests;
     }
 }

@@ -115,8 +115,8 @@ public class CalculatorServiceImpl implements CalculatorService {
         Double baseRate = Optional.ofNullable(bankApplication.getLockBaseRate())
                 .orElse(bankApplication.getCreditProgram().getBaseRate());
         Double salaryClientRate = Optional.ofNullable(bankApplication.getLockSalaryBaseRate())
-                .orElse(baseRate - bankApplication.getCreditProgram().getSalaryClientInterestRate());
-        Double calculatedRate = Objects.nonNull(bankApplication.getLockSalaryBaseRate()) ? salaryClientRate : baseRate;
+                .orElse(baseRate + bankApplication.getCreditProgram().getSalaryClientInterestRate());
+        Double calculatedRate = Objects.nonNull(bankApplication.getLockSalaryBaseRate()) ? bankApplication.getLockSalaryBaseRate() : salaryClientRate;
         Double salaryBankRate = baseRate - salaryClientRate;
         BigDecimal mortgageSum = calculateMortgageSum(bankApplication.getRealEstatePrice(), bankApplication.getDownPayment());
         BigDecimal monthlyPayment = calculateMonthlyPayment(mortgageSum, calculatedRate, bankApplication.getMonthCreditTerm());
