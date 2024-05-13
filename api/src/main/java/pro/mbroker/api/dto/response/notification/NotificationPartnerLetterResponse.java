@@ -31,5 +31,6 @@ public class NotificationPartnerLetterResponse {
     private String middleName;
     private List<PartnerContactResponse> PartnerContacts;
     private String title;
+    private String subject;
     private NotificationTrigger trigger;
 }
