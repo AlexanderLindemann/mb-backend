@@ -43,6 +43,8 @@ public class BankApplicationResponse {
 
     private UUID creditProgramId;
 
+    private String bankName;
+
     private RealEstateType realEstateType;
 
     private CreditParameterResponse creditParameter;
