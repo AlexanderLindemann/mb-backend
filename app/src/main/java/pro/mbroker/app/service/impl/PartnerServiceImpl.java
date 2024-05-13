@@ -75,6 +75,7 @@ public class PartnerServiceImpl implements PartnerService {
         realEstates.forEach(address -> address.setPartner(partner));
         partner.setCreatedBy(sdId);
         partner.setUpdatedBy(sdId);
+        partner.setCianId(request.getCianId());
         return partnerRepository.save(partner);
     }
 

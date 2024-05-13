@@ -26,6 +26,7 @@ public interface BankApplicationMapper {
     @Mapping(source = "creditProgram.id", target = "creditProgramId")
     @Mapping(target = "creditTerm", ignore = true)
     @Mapping(source = "creditProgram.creditParameter", target = "creditParameter")
+    @Mapping(source = "creditProgram.bank.name", target = "bankName")
     @Mapping(source = "creditProgram.programName", target = "creditProgramName")
     @Mapping(source = "bankApplicationStatus", target = "status")
     @Mapping(target = "salaryClientCalculation", ignore = true)
